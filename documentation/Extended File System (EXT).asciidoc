@@ -49,6 +49,7 @@ toc::[]
 | 0.0.1 | J.B. Metz | October 2010 | Initial version, based on earlier notes.
 | 0.0.2 | J.B. Metz | June 2014 | License and email changes.
 | 0.0.3 | J.B. Metz | May 2015 | Switched to asccidoc format.
+| 0.0.4 | J.B. Metz | May 2015 | Additional information.
 |===
 
 :numbered:
@@ -82,7 +83,7 @@ Introduced extents, improved timestamps
 The following version of programs were used to test the information within this 
 document:
 
-* Linux 2.6.33
+* Linux mke2fs 1.42.9
 
 == Terminology
 [yellow-background]*TODO: add text*
@@ -109,12 +110,12 @@ The superblock is 1024 bytes of size and consists of:
 These are used to prevent the file system from filling up
 | 12 | 4 | | Number of unallocated block
 | 16 | 4 | | Number of unallocated inodes
-| 20 | 4 | | Root block group offset +
+| 20 | 4 | | Root block group block number +
 Value contains the block number relative from the start of the volume
 | 24 | 4 | | Block size +
-[yellow-background]*Value contains number of places to shift 1024 to the left*
+Contains the number of bits to shift 1024 to the MSB (left)
 | 28 | 4 | | Fragment size +
-[yellow-background]*Value contains number of places to shift 1024 to the left*
+Contains the number of bits to shift 1024 to the MSB (left)
 | 32 | 4 | | Number of blocks per block group
 | 36 | 4 | | Number of fragments per block group
 | 40 | 4 | | Number of inodes per block group
@@ -123,13 +124,13 @@ Contains POSIX timestamp
 | 48 | 4 | | Last written time +
 Contains POSIX timestamp +
 [yellow-background]*Superblock last written?*
-| 52 | 2 | | Current mount count
+| 52 | 2 | | (current) mount count
 | 54 | 2 | | Maximum mount count
 | 56 | 2 | 0x53 0xef | Signature
-| 58 | 2 | | File system state +
-[yellow-background]*TODO add value table*
+| 58 | 2 | | File system state flags +
+See section: <<file_system_state_flags,File system state flags>>
 | 60 | 2 | | Error-handling status +
-[yellow-background]*TODO add value table*
+See section: <<error_handling_status,Error-handling status>>
 | 62 | 2 | | Minor version +
 [yellow-background]*TODO add value table*
 | 64 | 4 | | Last consistency check time +
@@ -137,9 +138,9 @@ Contains POSIX timestamp
 | 68 | 4 | | Consistency check interval +
 Contains POSIX timestamp
 | 72 | 4 | | Creator operating system +
-[yellow-background]*TODO add value table*
+See section: <<creator_operating_system,Creator operating system>>
 | 76 | 4 | | Major version +
-[yellow-background]*TODO add value table*
+See section: <<major_version,Major version>>
 | 80 | 2 | | Reserved block user identifier (UID)
 | 82 | 2 | | Reserved block group identifier (GID)
 4+| _If major version is EXT2_DYNAMIC_REV_
@@ -147,11 +148,11 @@ Contains POSIX timestamp
 | 88 | 2 | | Inode size
 | 90 | 2 | | Block group
 | 92 | 4 | | Compatible feature flags +
-[yellow-background]*TODO add value table*
+See section: <<compatible_features_flags,Compatible features flags>>
 | 96 | 4 | | Incompatible feature flags +
-[yellow-background]*TODO add value table*
+See section: <<incompatible_features_flags,Incompatible features flags>>
 | 100 | 4 | | Read-only compatible feature flags +
-[yellow-background]*TODO add value table*
+See section: <<read_only_compatible_features_flags,Read-only compatible features flags>>
 | 104 | 16 | | File system identifier +
 Contains GUID/UUID
 | 120 | 16 | | Volume (label) name +
@@ -189,7 +190,7 @@ __le32     s_r_blocks_count_hi; /* Reserved blocks count */
 __le32     s_free_blocks_count_hi; /* Free blocks count */ 
 ....
 
-=== File system state flags
+=== [[file_system_state_flags]]File system state flags
 
 [cols="1,1,5",options="header"]
 |===
@@ -199,7 +200,7 @@ __le32     s_free_blocks_count_hi; /* Free blocks count */
 | 0x0004 | | Recovering orphan inodes
 |===
 
-=== Error-handling status
+=== [[error_handling_status]]Error-handling status
 
 [cols="1,1,5",options="header"]
 |===
@@ -209,7 +210,7 @@ __le32     s_free_blocks_count_hi; /* Free blocks count */
 | 3 | | Panic
 |===
 
-=== Creator operating system
+=== [[creator_operating_system]]Creator operating system
 
 [cols="1,1,5",options="header"]
 |===
@@ -221,31 +222,31 @@ __le32     s_free_blocks_count_hi; /* Free blocks count */
 | 5 | | Lites
 |===
 
-=== Major version
+=== [[major_version]]Major version
 
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
 | 0 | | Original version
-| 1 | | "Dynamic" version
+| 1 | EXT2_DYNAMIC_REV | "Dynamic" version
 |===
 
-=== Compatible features flags
+=== [[compatible_features_flags]]Compatible features flags
 
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0x0001 | | Pre-allocate directory blocks +
+| 0x0001 | EXT2_COMPAT_PREALLOC | Pre-allocate directory blocks +
 Reduces fragmentation
 | 0x0002 | | Has AFS server inodes
-| 0x0004 | | Has journal
+| 0x0004 | EXT3_FEATURE_COMPAT_HAS_JOURNAL | Has journal
 | 0x0008 | | Have extended inode attributes
 | 0x0010 | | Resizable volume +
 [yellow-background]*Only upwards?*
 | 0x0020 | | Use directory hash index
 |===
 
-=== Incompatible features flags
+=== [[incompatible_features_flags]]Incompatible features flags
 
 [cols="1,1,5",options="header"]
 |===
@@ -257,7 +258,7 @@ Reduces fragmentation
 | 0x0008 | | Has journal device
 |===
 
-=== Read-only compatible features flags
+=== [[read_only_compatible_features_flags]]Read-only compatible features flags
 
 [cols="1,1,5",options="header"]
 |===

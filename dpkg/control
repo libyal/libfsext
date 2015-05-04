@@ -1,0 +1,51 @@
+Source: libfsext
+Section: libs
+Priority: extra
+Maintainer: Joachim Metz <joachim.metz@gmail.com>
+Build-Depends: debhelper (>= 7), autotools-dev, python-dev
+Standards-Version: 3.9.5
+Homepage: https://github.com/libyal/libfsext/
+
+Package: libfsext
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: libfsext-dbg
+Description: Library to access the Extended File System (ext) format
+ libfsext is a library to access the Extended File System (ext) format.
+
+Package: libfsext-dbg
+Architecture: any
+Section: debug
+Depends: libfsext (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libfsext
+ Debugging symbols for libfsext.
+
+Package: libfsext-dev
+Section: libdevel
+Architecture: any
+Depends: libfsext (= ${binary:Version}), ${misc:Depends}
+Description: Header files and libraries for developing applications for libfsext
+ Header files and libraries for developing applications for libfsext.
+
+Package: libfsext-tools
+Section: utils
+Architecture: any
+Depends: libfsext (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Several tools for reading Extended File System (ext) volumes
+ Several tools for reading Extended File System (ext) volumes.
+
+Package: libfsext-python
+Section: python
+Architecture: any
+Depends: libfsext (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Suggests: libfsext-python-dbg
+Description: Python bindings for libfsext
+ Python bindings for libfsext.
+
+Package: libfsext-python-dbg
+Section: debug
+Architecture: any
+Depends: libfsext-python (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libfsext-python
+ Debugging symbols for libfsext-python.
+

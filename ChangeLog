@@ -1,0 +1,21 @@
+Format support:
+* add support for extended volume header values
+* add support for alternate super blocks
+* add support for block groups
+* add support for inodes
+
+Debug print:
+* major version
+* compatibility features flags
+* incompatibility features flags
+* read-only compatibility features flags
+
+20150504
+* Code updates
+
+20110203
+* 2011 updates
+
+20101023
+* Initial version
+

@@ -1,0 +1,58 @@
+if HAVE_PYTHON
+AM_CFLAGS = \
+	-I$(top_srcdir)/include \
+	-I$(top_srcdir)/common \
+	@LIBCSTRING_CPPFLAGS@ \
+	@LIBCERROR_CPPFLAGS@ \
+	@LIBCDATA_CPPFLAGS@ \
+	@LIBCLOCALE_CPPFLAGS@ \
+	@LIBCSPLIT_CPPFLAGS@ \
+	@LIBUNA_CPPFLAGS@ \
+	@LIBCFILE_CPPFLAGS@ \
+	@LIBCPATH_CPPFLAGS@ \
+	@LIBBFIO_CPPFLAGS@
+
+pyexec_LTLIBRARIES = pyfsext.la
+
+pyfsext_la_SOURCES = \
+	pyfsext.c pyfsext.h \
+	pyfsext_error.c pyfsext_error.h \
+	pyfsext_file_object_io_handle.c pyfsext_file_object_io_handle.h \
+	pyfsext_integer.c pyfsext_integer.h \
+	pyfsext_libbfio.h \
+	pyfsext_libcerror.h \
+	pyfsext_libclocale.h \
+	pyfsext_libcstring.h \
+	pyfsext_libfsext.h \
+	pyfsext_python.h \
+	pyfsext_unused.h \
+	pyfsext_volume.c pyfsext_volume.h
+
+pyfsext_la_LIBADD = \
+	@LIBCSTRING_LIBADD@ \
+	@LIBCERROR_LIBADD@ \
+	../libfsext/libfsext.la \
+	@LIBCDATA_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBBFIO_LIBADD@
+
+pyfsext_la_CPPFLAGS = $(PYTHON_CPPFLAGS)
+pyfsext_la_LDFLAGS  = -module -avoid-version $(PYTHON_LDFLAGS)
+
+endif
+
+EXTRA_DIST = \
+	setup.py \
+	setup.py.in
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
+distclean: clean
+	/bin/rm -f setup.py
+	/bin/rm -f Makefile
+
