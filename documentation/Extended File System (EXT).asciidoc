@@ -129,15 +129,15 @@ Contains Unix timestamp +
 | 58 | 2 | | File system state +
 [yellow-background]*TODO add value table*
 | 60 | 2 | | Error-handling status +
-[yellow-background]*TODO add value table
+[yellow-background]*TODO add value table*
 | 62 | 2 | | Minor version +
-[yellow-background]*TODO add value table
+[yellow-background]*TODO add value table*
 | 64 | 4 | | Last consistency check time +
 Contains Unix timestamp
 | 68 | 4 | | Consistency check interval +
 Contains Unix timestamp
 | 72 | 4 | | Creator operating system +
-[yellow-background]*TODO add value table
+[yellow-background]*TODO add value table*
 | 76 | 4 | | Major version +
 [yellow-background]*TODO add value table*
 | 80 | 2 | | Reserved block user identifier (UID)
