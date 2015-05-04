@@ -119,9 +119,9 @@ Value contains the block number relative from the start of the volume
 | 36 | 4 | | Number of fragments per block group
 | 40 | 4 | | Number of inodes per block group
 | 44 | 4 | | Last mount time +
-Contains Unix timestamp
+Contains POSIX timestamp
 | 48 | 4 | | Last written time +
-Contains Unix timestamp +
+Contains POSIX timestamp +
 [yellow-background]*Superblock last written?*
 | 52 | 2 | | Current mount count
 | 54 | 2 | | Maximum mount count
@@ -133,9 +133,9 @@ Contains Unix timestamp +
 | 62 | 2 | | Minor version +
 [yellow-background]*TODO add value table*
 | 64 | 4 | | Last consistency check time +
-Contains Unix timestamp
+Contains POSIX timestamp
 | 68 | 4 | | Consistency check interval +
-Contains Unix timestamp
+Contains POSIX timestamp
 | 72 | 4 | | Creator operating system +
 [yellow-background]*TODO add value table*
 | 76 | 4 | | Major version +
