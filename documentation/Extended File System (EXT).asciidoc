@@ -100,10 +100,88 @@ The primary superblock is stored at offset 1024 of the volume.
 
 The superblock is 1024 bytes of size and consists of:
 
-*TODO: migrate remaining documentation.*
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | Number of inodes
+| 4 | 4 | | Number of blocks
+| 8 | 4 | | Number of reserved blocks +
+These are used to prevent the file system from filling up
+| 12 | 4 | | Number of unallocated block
+| 16 | 4 | | Number of unallocated inodes
+| 20 | 4 | | Root block group offset +
+Value contains the block number relative from the start of the volume
+| 24 | 4 | | Block size +
+[yellow-background]*Value contains number of places to shift 1024 to the left*
+| 28 | 4 | | Fragment size +
+[yellow-background]*Value contains number of places to shift 1024 to the left*
+| 32 | 4 | | Number of blocks per block group
+| 36 | 4 | | Number of fragments per block group
+| 40 | 4 | | Number of inodes per block group
+| 44 | 4 | | Last mount time +
+Contains Unix timestamp
+| 48 | 4 | | Last written time +
+Contains Unix timestamp +
+[yellow-background]*Superblock last written?*
+| 52 | 2 | | Current mount count
+| 54 | 2 | | Maximum mount count
+| 56 | 2 | 0x53 0xef | Signature
+| 58 | 2 | | File system state +
+[yellow-background]*TODO add value table*
+| 60 | 2 | | Error-handling status +
+[yellow-background]*TODO add value table
+| 62 | 2 | | Minor version +
+[yellow-background]*TODO add value table
+| 64 | 4 | | Last consistency check time +
+Contains Unix timestamp
+| 68 | 4 | | Consistency check interval +
+Contains Unix timestamp
+| 72 | 4 | | Creator operating system +
+[yellow-background]*TODO add value table
+| 76 | 4 | | Major version +
+[yellow-background]*TODO add value table*
+| 80 | 2 | | Reserved block user identifier (UID)
+| 82 | 2 | | Reserved block group identifier (GID)
+4+| _If major version is EXT2_DYNAMIC_REV_
+| 84 | 4 | | First non-reserved inode
+| 88 | 2 | | Inode size
+| 90 | 2 | | Block group
+| 92 | 4 | | Compatible feature flags +
+[yellow-background]*TODO add value table*
+| 96 | 4 | | Incompatible feature flags +
+[yellow-background]*TODO add value table*
+| 100 | 4 | | Read-only compatible feature flags +
+[yellow-background]*TODO add value table*
+| 104 | 16 | | File system identifier +
+Contains GUID/UUID
+| 120 | 16 | | Volume (label) name +
+Contains an UTF-8 string
+| 136 | 64 | | Last mounted path +
+Contains an UTF-8 string
+| 200 | 4 | | Algorithm usage bitmap
+4+| _Performance hints_ +
+_If EXT2_COMPAT_PREALLOC is set_
+| 204 | 1 | | Number of pre-allocated blocks per file
+| 205 | 1 | | Number of pre-allocated blocks per directory
+| 206 | 2 | | Padding
+4+| _Journalling support_ +
+_If EXT3_FEATURE_COMPAT_HAS_JOURNAL is set_
+| 208 | 16 | | Journal identifier +
+Contains GUID/UUID
+| 224 | 4 | | Journal inode
+| 228 | 4 | | Journal device +
+[yellow-background]*What does this value contain?*
+| 232 | 4 | | Head of orphan inode list +
+[yellow-background]*What does this value contain?*
+| 236 | 4 x 4 | | HTREE hash seed
+| 252 | 1 | | Default hash version
+| 253 | 3 | | Padding
+| 256 | 4 | | Default mount options
+| 260 | 4 | | First metablock block group
+| 264 | 760 | | Unused (Reserved)
+|===
 
 ....
-
 __le16 s_desc_size; (replaces a reserved field) 
 /* 64bit support valid if EXT4_FEATURE_INCOMPAT_64BIT */ 
 /*150*/    __le32 s_blocks_count_hi;   /* Blocks count */ 
