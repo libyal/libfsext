@@ -75,7 +75,7 @@ const char *libfsext_debug_print_error_handling_status(
 /* Prints the creator operating system
  */
 const char *libfsext_debug_print_creator_operating_system(
-             uint32_t error_handling_status )
+             uint32_t creator_operating_system )
 {
 	switch( creator_operating_system )
 	{

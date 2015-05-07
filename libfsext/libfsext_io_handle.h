@@ -38,6 +38,10 @@ typedef struct libfsext_io_handle libfsext_io_handle_t;
 
 struct libfsext_io_handle
 {
+	/* The format revision
+	 */
+	uint32_t format_revision;
+
 	/* Value to indicate if abort was signalled
 	 */
 	int abort;

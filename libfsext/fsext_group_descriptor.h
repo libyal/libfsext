@@ -33,32 +33,45 @@ typedef struct fsext_group_descriptor fsext_group_descriptor_t;
 
 struct fsext_group_descriptor
 {
-
-| 12 | 2 | | Number of unallocated blocks
-| 14 | 2 | | Number of unallocated inodes
-| 16 | 2 | | Number of directories
-| 18 | 2 | | Padding
-| 20 | 3 x 4 | | Reserved
-
-	/* The block bitmap offset
+	/* The block bitmap block number
 	 * Consists of 4 bytes
 	 */
-	uint8_t block_bitmap_offset[ 4 ];
+	uint8_t block_bitmap_block_number[ 4 ];
 
-	/* The inode bitmap offset
+	/* The inode bitmap block number
 	 * Consists of 4 bytes
 	 */
-	uint8_t inode_bitmap_offset[ 4 ];
+	uint8_t inode_bitmap_block_number[ 4 ];
 
-	/* The inode table offset
+	/* The inode table block number
 	 * Consists of 4 bytes
 	 */
-	uint8_t inode_table_offset[ 4 ];
+	uint8_t inode_table_block_number[ 4 ];
 
-	/* The inode table offset
-	 * Consists of 4 bytes
+	/* The number of unallocated blocks
+	 * Consists of 2 bytes
 	 */
-	uint8_t inode_table_offset[ 4 ];
+	uint8_t number_of_unallocated_blocks[ 2 ];
+
+	/* The number of unallocated inodes
+	 * Consists of 2 bytes
+	 */
+	uint8_t number_of_unallocated_inodes[ 2 ];
+
+	/* The number of directories
+	 * Consists of 2 bytes
+	 */
+	uint8_t number_of_directories[ 2 ];
+
+	/* Padding
+	 * Consists of 2 bytes
+	 */
+	uint8_t padding[ 2 ];
+
+	/* Unknown (reserved)
+	 * Consists of 12 bytes
+	 */
+	uint8_t unknown1[ 12 ];
 };
 
 #if defined( __cplusplus )

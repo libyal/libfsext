@@ -41,7 +41,7 @@ const char *libfsext_debug_print_error_handling_status(
              uint16_t error_handling_status );
 
 const char *libfsext_debug_print_creator_operating_system(
-             uint32_t error_handling_status );
+             uint32_t creator_operating_system );
 
 int libfsext_debug_print_read_offsets(
      libbfio_handle_t *file_io_handle,

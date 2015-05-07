@@ -800,17 +800,17 @@ int libfsext_volume_open_read(
 	return( 1 );
 }
 
-/* Retrieves the size of the UTF-8 encoded name
+/* Retrieves the size of the UTF-8 encoded label
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_get_utf8_name_size(
+int libfsext_volume_get_utf8_label_size(
      libfsext_volume_t *volume,
-     size_t *utf8_name_size,
+     size_t *utf8_label_size,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libfsext_volume_get_utf8_name_size";
+	static char *function                       = "libfsext_volume_get_utf8_label_size";
 
 	if( volume == NULL )
 	{
@@ -829,18 +829,18 @@ int libfsext_volume_get_utf8_name_size(
 	return( -1 );
 }
 
-/* Retrieves the UTF-8 encoded name
+/* Retrieves the UTF-8 encoded label
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_get_utf8_name(
+int libfsext_volume_get_utf8_label(
      libfsext_volume_t *volume,
-     uint8_t *utf8_name,
-     size_t utf8_name_size,
+     uint8_t *utf8_label,
+     size_t utf8_label_size,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libfsext_volume_get_utf8_name";
+	static char *function                       = "libfsext_volume_get_utf8_label";
 
 	if( volume == NULL )
 	{
@@ -859,17 +859,17 @@ int libfsext_volume_get_utf8_name(
 	return( -1 );
 }
 
-/* Retrieves the size of the UTF-16 encoded name
+/* Retrieves the size of the UTF-16 encoded label
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_get_utf16_name_size(
+int libfsext_volume_get_utf16_label_size(
      libfsext_volume_t *volume,
-     size_t *utf16_name_size,
+     size_t *utf16_label_size,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libfsext_volume_get_utf16_name_size";
+	static char *function                       = "libfsext_volume_get_utf16_label_size";
 
 	if( volume == NULL )
 	{
@@ -888,18 +888,18 @@ int libfsext_volume_get_utf16_name_size(
 	return( -1 );
 }
 
-/* Retrieves the UTF-16 encoded name
+/* Retrieves the UTF-16 encoded label
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_get_utf16_name(
+int libfsext_volume_get_utf16_label(
      libfsext_volume_t *volume,
-     uint16_t *utf16_name,
-     size_t utf16_name_size,
+     uint16_t *utf16_label,
+     size_t utf16_label_size,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libfsext_volume_get_utf16_name";
+	static char *function                       = "libfsext_volume_get_utf16_label";
 
 	if( volume == NULL )
 	{

@@ -614,10 +614,10 @@ int info_handle_volume_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *volume_name = NULL;
-	static char *function                      = "info_handle_volume_fprint";
-	size_t volume_name_size                    = 0;
-	int result                                 = 0;
+	libcstring_system_character_t *volume_label = NULL;
+	static char *function                       = "info_handle_volume_fprint";
+	size_t volume_label_size                    = 0;
+	int result                                  = 0;
 
 	if( info_handle == NULL )
 	{
@@ -643,14 +643,14 @@ int info_handle_volume_fprint(
 	 "\tName\t\t\t\t: " );
 
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libfsext_volume_get_utf16_name_size(
+	result = libfsext_volume_get_utf16_label_size(
 	          info_handle->input_volume,
-	          &volume_name_size,
+	          &volume_label_size,
 	          error );
 #else
-	result = libfsext_volume_get_utf8_name_size(
+	result = libfsext_volume_get_utf8_label_size(
 	          info_handle->input_volume,
-	          &volume_name_size,
+	          &volume_label_size,
 	          error );
 #endif
 	if( result != 1 )
@@ -659,38 +659,38 @@ int info_handle_volume_fprint(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve volume name size.",
+		 "%s: unable to retrieve volume label size.",
 		 function );
 
 		goto on_error;
 	}
-	if( volume_name_size > 0 )
+	if( volume_label_size > 0 )
 	{
-		volume_name = libcstring_system_string_allocate(
-		               volume_name_size );
+		volume_label = libcstring_system_string_allocate(
+		                volume_label_size );
 
-		if( volume_name == NULL )
+		if( volume_label == NULL )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_MEMORY,
 			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create volume name string.",
+			 "%s: unable to create volume label string.",
 			 function );
 
 			goto on_error;
 		}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-		result = libfsext_volume_get_utf16_name(
+		result = libfsext_volume_get_utf16_label(
 		          info_handle->input_volume,
-		          (uint16_t *) volume_name,
-		          volume_name_size,
+		          (uint16_t *) volume_label,
+		          volume_label_size,
 		          error );
 #else
-		result = libfsext_volume_get_utf8_name(
+		result = libfsext_volume_get_utf8_label(
 		          info_handle->input_volume,
-		          (uint8_t *) volume_name,
-		          volume_name_size,
+		          (uint8_t *) volume_label,
+		          volume_label_size,
 		          error );
 #endif
 		if( result != 1 )
@@ -699,7 +699,7 @@ int info_handle_volume_fprint(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve volume name.",
+			 "%s: unable to retrieve volume label.",
 			 function );
 
 			goto on_error;
@@ -707,12 +707,12 @@ int info_handle_volume_fprint(
 		fprintf(
 		 info_handle->notify_stream,
 		 "%" PRIs_LIBCSTRING_SYSTEM "",
-		 volume_name );
+		 volume_label );
 
 		memory_free(
-		 volume_name );
+		 volume_label );
 
-		volume_name = NULL;
+		volume_label = NULL;
 	}
 	fprintf(
 	 info_handle->notify_stream,
@@ -727,10 +727,10 @@ int info_handle_volume_fprint(
 	return( 1 );
 
 on_error:
-	if( volume_name != NULL )
+	if( volume_label != NULL )
 	{
 		memory_free(
-		 volume_name );
+		 volume_label );
 	}
 	return( -1 );
 }

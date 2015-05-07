@@ -139,11 +139,12 @@ Contains POSIX timestamp
 Contains POSIX timestamp
 | 72 | 4 | | Creator operating system +
 See section: <<creator_operating_system,Creator operating system>>
-| 76 | 4 | | Major version +
-See section: <<major_version,Major version>>
+| 76 | 4 | | Format revision +
+See section: <<format_revisision,Format revision>>
 | 80 | 2 | | Reserved block user identifier (UID)
 | 82 | 2 | | Reserved block group identifier (GID)
-4+| _If major version is EXT2_DYNAMIC_REV_
+4+| _Dynamic inode information +
+_If major version is EXT2_DYNAMIC_REV_
 | 84 | 4 | | First non-reserved inode
 | 88 | 2 | | Inode size
 | 90 | 2 | | Block group
@@ -156,9 +157,9 @@ See section: <<read_only_compatible_features_flags,Read-only compatible features
 | 104 | 16 | | File system identifier +
 Contains GUID/UUID
 | 120 | 16 | | Volume (label) name +
-Contains an UTF-8 string
+Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
 | 136 | 64 | | Last mounted path +
-Contains an UTF-8 string
+Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
 | 200 | 4 | | Algorithm usage bitmap
 4+| _Performance hints_ +
 _If EXT2_COMPAT_PREALLOC is set_
@@ -178,7 +179,8 @@ Contains GUID/UUID
 | 252 | 1 | | Default hash version
 | 253 | 3 | | Padding
 | 256 | 4 | | Default mount options
-| 260 | 4 | | First metablock block group
+| 260 | 4 | | First metadata block group (or metablock)
+4+| _Common_ +
 | 264 | 760 | | Unused (Reserved)
 |===
 
@@ -188,6 +190,10 @@ __le16 s_desc_size; (replaces a reserved field)
 /*150*/    __le32 s_blocks_count_hi;   /* Blocks count */ 
 __le32     s_r_blocks_count_hi; /* Reserved blocks count */ 
 __le32     s_free_blocks_count_hi; /* Free blocks count */ 
+....
+
+....
+block group block offset = block group block number x block size
 ....
 
 === [[file_system_state_flags]]File system state flags
@@ -222,13 +228,13 @@ __le32     s_free_blocks_count_hi; /* Free blocks count */
 | 5 | | Lites
 |===
 
-=== [[major_version]]Major version
+=== [[format_revisision]]Format revision
 
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0 | | Original version
-| 1 | EXT2_DYNAMIC_REV | "Dynamic" version
+| 0 | EXT2_GOOD_OLD_REV | Original version with a fixed inode size of 128 bytes
+| 1 | EXT2_DYNAMIC_REV | Version with dynamic inode size support
 |===
 
 === [[compatible_features_flags]]Compatible features flags
@@ -275,18 +281,22 @@ The group descriptor is 32 bytes of size and consists of:
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 4 | | Block bitmap offset +
-Contains the block address
-| 4 | 4 | | Inode bitmap offset +
-Contains the block address
-| 8 | 4 | | Inode table offset +
-Contains the block address
+| 0 | 4 | | Block bitmap block number +
+Value contains the block number relative from the start of the volume
+| 4 | 4 | | Inode bitmap block number +
+Value contains the block number relative from the start of the volume
+| 8 | 4 | | Inode table block number +
+Value contains the block number relative from the start of the volume
 | 12 | 2 | | Number of unallocated blocks
 | 14 | 2 | | Number of unallocated inodes
 | 16 | 2 | | Number of directories
 | 18 | 2 | | Padding
 | 20 | 3 x 4 | | Reserved
 |===
+
+....
+block group block offset = block group block number x block size
+....
 
 ....
 __le32 bg_block_bitmap_hi; /* Blocks bitmap block MSB */ 

@@ -29,6 +29,7 @@
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
+#include "libfsext_libfdatetime.h"
 
 #include "fsext_volume_header.h"
 
@@ -183,14 +184,19 @@ int libfsext_io_handle_read_volume_header(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	fsext_volume_header_t volume_header_data;
+	uint8_t volume_header_data[ 1024 ];
 
-	static char *function = "libfsext_io_handle_read_volume_header";
-	ssize_t read_count    = 0;
+	static char *function                 = "libfsext_io_handle_read_volume_header";
+	size_t volume_header_data_offset      = 0;
+	ssize_t read_count                    = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit  = 0;
-	uint16_t value_16bit  = 0;
+	libcstring_system_character_t posix_time_string[ 32 ];
+
+	libfdatetime_posix_time_t *posix_time = NULL;
+	uint32_t value_32bit                  = 0;
+	uint16_t value_16bit                  = 0;
+	int result                            = 0;
 #endif
 
 	if( io_handle == NULL )
@@ -225,15 +231,15 @@ int libfsext_io_handle_read_volume_header(
 		 "%s: unable to seek volume header offset: 1024.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	read_count = libbfio_handle_read_buffer(
 	              file_io_handle,
 	              (uint8_t *) &volume_header_data,
-	              sizeof( fsext_volume_header_t ),
+	              1024,
 	              error );
 
-	if( read_count != (ssize_t) sizeof( fsext_volume_header_t ) )
+	if( read_count != (ssize_t) 1024 )
 	{
 		libcerror_error_set(
 		 error,
@@ -242,7 +248,7 @@ int libfsext_io_handle_read_volume_header(
 		 "%s: unable to read volume header data.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -251,13 +257,13 @@ int libfsext_io_handle_read_volume_header(
 		 "%s: volume header:\n",
 		 function );
 		libcnotify_print_data(
-		 (uint8_t *) &volume_header_data,
+		 (uint8_t *) volume_header_data,
 		 sizeof( fsext_volume_header_t ),
-		 0 );
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
 	if( memory_compare(
-	     volume_header_data.signature,
+	     ( (fsext_volume_header_t *) volume_header_data )->signature,
 	     fsext_volume_signature,
 	     2 ) != 0 )
 	{
@@ -268,13 +274,17 @@ int libfsext_io_handle_read_volume_header(
 		 "%s: invalid volume system signature.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_volume_header_t *) volume_header_data )->format_revision,
+	 io_handle->format_revision );
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.number_of_inodes,
+		 ( (fsext_volume_header_t *) volume_header_data )->number_of_inodes,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of inodes\t\t\t: %" PRIu32 "\n",
@@ -282,7 +292,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.number_of_blocks,
+		 ( (fsext_volume_header_t *) volume_header_data )->number_of_blocks,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of blocks\t\t\t: %" PRIu32 "\n",
@@ -290,7 +300,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.number_of_reserved_blocks,
+		 ( (fsext_volume_header_t *) volume_header_data )->number_of_reserved_blocks,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of reserved blocks\t: %" PRIu32 "\n",
@@ -298,7 +308,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.number_of_unallocated_blocks,
+		 ( (fsext_volume_header_t *) volume_header_data )->number_of_unallocated_blocks,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of unallocated blocks\t: %" PRIu32 "\n",
@@ -306,7 +316,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.number_of_unallocated_inodes,
+		 ( (fsext_volume_header_t *) volume_header_data )->number_of_unallocated_inodes,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of unallocated inodes\t: %" PRIu32 "\n",
@@ -314,7 +324,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.root_block_group_block_number,
+		 ( (fsext_volume_header_t *) volume_header_data )->root_block_group_block_number,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: root block group block number\t: %" PRIu32 "\n",
@@ -322,7 +332,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.block_size,
+		 ( (fsext_volume_header_t *) volume_header_data )->block_size,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: block size\t\t\t: %" PRIu32 " (%" PRIu32 ")\n",
@@ -331,7 +341,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.fragment_size,
+		 ( (fsext_volume_header_t *) volume_header_data )->fragment_size,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: fragment size\t\t\t: %" PRIu32 " (%" PRIu32 ")\n",
@@ -340,7 +350,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.blocks_per_block_group,
+		 ( (fsext_volume_header_t *) volume_header_data )->blocks_per_block_group,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: blocks per block group\t\t: %" PRIu32 "\n",
@@ -348,7 +358,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.fragments_per_block_group,
+		 ( (fsext_volume_header_t *) volume_header_data )->fragments_per_block_group,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: fragments per block group\t: %" PRIu32 "\n",
@@ -356,35 +366,124 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.inodes_per_block_group,
+		 ( (fsext_volume_header_t *) volume_header_data )->inodes_per_block_group,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: inodes per block group\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
-/* TODO print date and time value */
+		if( libfdatetime_posix_time_initialize(
+		     &posix_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create POSIX time.",
+			 function );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.last_mount_time,
-		 value_32bit );
+			goto on_error;
+		}
+		if( libfdatetime_posix_time_copy_from_byte_stream(
+		     posix_time,
+		     ( (fsext_volume_header_t *) volume_header_data )->last_mount_time,
+		     4,
+		     LIBFDATETIME_ENDIAN_LITTLE,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from byte stream.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
 		libcnotify_printf(
-		 "%s: last mount time\t\t\t: %" PRIu32 "\n",
+		 "%s: last mount time\t\t\t: %" PRIs_LIBCSTRING_SYSTEM " UTC\n",
 		 function,
-		 value_32bit );
+		 posix_time_string );
 
-/* TODO print date and time value */
+		if( libfdatetime_posix_time_copy_from_byte_stream(
+		     posix_time,
+		     ( (fsext_volume_header_t *) volume_header_data )->last_written_time,
+		     4,
+		     LIBFDATETIME_ENDIAN_LITTLE,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from byte stream.",
+			 function );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.last_written_time,
-		 value_32bit );
+			goto on_error;
+		}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
 		libcnotify_printf(
-		 "%s: last written time\t\t: %" PRIu32 "\n",
+		 "%s: last written time\t\t: %" PRIs_LIBCSTRING_SYSTEM " UTC\n",
 		 function,
-		 value_32bit );
+		 posix_time_string );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 volume_header_data.mount_count,
+		 ( (fsext_volume_header_t *) volume_header_data )->mount_count,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: mount count\t\t\t: %" PRIu16 "\n",
@@ -392,7 +491,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_16bit );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 volume_header_data.maximum_mount_count,
+		 ( (fsext_volume_header_t *) volume_header_data )->maximum_mount_count,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: maximum mount count\t\t: %" PRIu16 "\n",
@@ -402,14 +501,14 @@ int libfsext_io_handle_read_volume_header(
 		libcnotify_printf(
 		 "%s: signature\t\t\t: 0x%02" PRIx8 " 0x%02" PRIx8 "\n",
 		 function,
-		 volume_header_data.signature[ 0 ],
-		 volume_header_data.signature[ 1 ] );
+		 ( (fsext_volume_header_t *) volume_header_data )->signature[ 0 ],
+		 ( (fsext_volume_header_t *) volume_header_data )->signature[ 1 ] );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 volume_header_data.file_system_state_flags,
+		 ( (fsext_volume_header_t *) volume_header_data )->file_system_state_flags,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: file system state flagt\t: 0x%04" PRIx16 "\n",
+		 "%s: file system state flags\t\t: 0x%04" PRIx16 "\n",
 		 function,
 		 value_16bit );
 		libfsext_debug_print_file_system_state_flags(
@@ -418,37 +517,87 @@ int libfsext_io_handle_read_volume_header(
 		 "\n" );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 volume_header_data.error_handling_status,
+		 ( (fsext_volume_header_t *) volume_header_data )->error_handling_status,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: error handling status\t\t: %" PRIu16 " (%s)\n",
 		 function,
 		 value_16bit,
-		 libfsext_debug_print_erro_handling_status(
+		 libfsext_debug_print_error_handling_status(
 		  value_16bit ) );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 volume_header_data.minor_version,
+		 ( (fsext_volume_header_t *) volume_header_data )->minor_version,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: minor version\t\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
-/* TODO print date and time value */
+		if( libfdatetime_posix_time_copy_from_byte_stream(
+		     posix_time,
+		     ( (fsext_volume_header_t *) volume_header_data )->last_consistency_check_time,
+		     4,
+		     LIBFDATETIME_ENDIAN_LITTLE,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from byte stream.",
+			 function );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.last_consistency_check_time,
-		 value_32bit );
+			goto on_error;
+		}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
 		libcnotify_printf(
-		 "%s: last consistency check time\t: %" PRIu32 "\n",
+		 "%s: last consistency check time\t: %" PRIs_LIBCSTRING_SYSTEM " UTC\n",
 		 function,
-		 value_32bit );
+		 posix_time_string );
 
-/* TODO print duration/interval value */
+		if( libfdatetime_posix_time_free(
+		     &posix_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free POSIX time.",
+			 function );
 
+			goto on_error;
+		}
+/* TODO print interval as duration? */
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.consistency_check_interval,
+		 ( (fsext_volume_header_t *) volume_header_data )->consistency_check_interval,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: consistency check interval\t: %" PRIu32 "\n",
@@ -456,7 +605,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.creator_operating_system,
+		 ( (fsext_volume_header_t *) volume_header_data )->creator_operating_system,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: creator operating system\t\t: %" PRIu32 " (%s)\n",
@@ -465,16 +614,13 @@ int libfsext_io_handle_read_volume_header(
 		 libfsext_debug_print_creator_operating_system(
 		  value_32bit ) );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 volume_header_data.major_version,
-		 value_32bit );
 		libcnotify_printf(
-		 "%s: major version\t\t\t: %" PRIu32 "\n",
+		 "%s: format revision\t\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 io_handle->format_revision );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 volume_header_data.reserved_block_uid,
+		 ( (fsext_volume_header_t *) volume_header_data )->reserved_block_uid,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: reserved block UID\t\t: %" PRIu16 "\n",
@@ -482,7 +628,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_16bit );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 volume_header_data.reserved_block_gid,
+		 ( (fsext_volume_header_t *) volume_header_data )->reserved_block_gid,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: reserved block GID\t\t: %" PRIu16 "\n",
@@ -493,6 +639,46 @@ int libfsext_io_handle_read_volume_header(
 		 "\n" );
 	}
 #endif
+	volume_header_data_offset += sizeof( fsext_volume_header_t );
+
+	if( io_handle->format_revision > 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported format revision: %" PRIu32 ".",
+		 function,
+		 io_handle->format_revision );
+
+		goto on_error;
+	}
+	if( io_handle->format_revision == 1 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: volume dynamic inode information:\n",
+			 function );
+			libcnotify_print_data(
+			 (uint8_t *) &( volume_header_data[ volume_header_data_offset ] ),
+			 sizeof( fsext_volume_dynamic_inode_information_t ),
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+		}
+#endif
+	}
 	return( 1 );
+
+on_error:
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( posix_time != NULL )
+	{
+		libfdatetime_posix_time_free(
+		 &posix_time,
+		 NULL );
+	}
+#endif
+	return( -1 );
 }
 

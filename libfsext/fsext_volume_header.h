@@ -148,10 +148,10 @@ struct fsext_volume_header
 	 */
 	uint8_t creator_operating_system[ 4 ];
 
-	/* The major version
+	/* The format revision
 	 * Consists of 4 bytes
 	 */
-	uint8_t major_version[ 4 ];
+	uint8_t format_revision[ 4 ];
 
 	/* The reserved block user identifier (UID)
 	 * Consists of 2 bytes
@@ -162,6 +162,135 @@ struct fsext_volume_header
 	 * Consists of 2 bytes
 	 */
 	uint8_t reserved_block_gid[ 2 ];
+};
+
+typedef struct fsext_volume_dynamic_inode_information fsext_volume_dynamic_inode_information_t;
+
+struct fsext_volume_dynamic_inode_information
+{
+	/* The first non-reserved inode
+	 * Consists of 4 bytes
+	 */
+	uint8_t first_non_reserved_inode[ 4 ];
+
+	/* The inode size
+	 * Consists of 2 bytes
+	 */
+	uint8_t inode_size[ 2 ];
+
+	/* The block group
+	 * Consists of 2 bytes
+	 */
+	uint8_t block_group[ 2 ];
+
+	/* The compatible feature flags
+	 * Consists of 4 bytes
+	 */
+	uint8_t compatible_features_flags[ 4 ];
+
+	/* The incompatible feature flags
+	 * Consists of 4 bytes
+	 */
+	uint8_t incompatible_features_flags[ 4 ];
+
+	/* The read-only compatible feature flags
+	 * Consists of 4 bytes
+	 */
+	uint8_t read_only_compatible_features_flags[ 4 ];
+
+	/* The file system identifier
+	 * Consists of 16 bytes
+	 * Contains a GUID/UUID
+	 */
+	uint8_t file_system_identifier[ 16 ];
+
+	/* The volume label
+	 * Consists of 16 bytes
+	 * Contains an UTF-8 string
+	 */
+	uint8_t volume_label[ 16 ];
+
+	/* The last mounted path
+	 * Consists of 64 bytes
+	 * Contains an UTF-8 string
+	 */
+	uint8_t last_mounted_path[ 64 ];
+
+	/* The algorithm usage bitmap
+	 * Consists of 4 bytes
+	 */
+	uint8_t algorithm_usage_bitmap[ 4 ];
+};
+
+typedef struct fsext_volume_performance_hints fsext_volume_performance_hints_t;
+
+struct fsext_volume_performance_hints
+{
+	/* The number of pre-allocated blocks per file
+	 * Consists of 1 byte
+	 */
+	uint8_t number_of_block_per_file;
+
+	/* The number of pre-allocated blocks per directory
+	 * Consists of 1 byte
+	 */
+	uint8_t number_of_block_per_directory;
+
+	/* Padding
+	 * Consists of 2 bytes
+	 */
+	uint8_t padding[ 2 ];
+};
+
+typedef struct fsext_volume_journal_information fsext_volume_journal_information_t;
+
+struct fsext_volume_journal_information
+{
+	/* The journal identifier
+	 * Consists of 16 bytes
+	 * Contains a GUID/UUID
+	 */
+	uint8_t journal_identifier[ 16 ];
+
+	/* The journal inode
+	 * Consists of 4 bytes
+	 */
+	uint8_t journal_inode[ 4 ];
+
+	/* The journal device
+	 * Consists of 4 bytes
+	 */
+	uint8_t journal_device[ 4 ];
+
+	/* The orphan inode list head
+	 * Consists of 4 bytes
+	 */
+	uint8_t orphan_inode_list_head[ 4 ];
+
+	/* The HTREE hash seed
+	 * Consists of 16 bytes
+	 */
+	uint8_t htree_hash_seed[ 16 ];
+
+	/* The default hash version
+	 * Consists of 1 byte
+	 */
+	uint8_t default_hash_version;
+
+	/* Padding
+	 * Consists of 3 bytes
+	 */
+	uint8_t padding[ 3 ];
+
+	/* The default mount options
+	 * Consists of 4 bytes
+	 */
+	uint8_t default_mount_options[ 4 ];
+
+	/* The first metadata block group
+	 * Consists of 4 bytes
+	 */
+	uint8_t first_metadata_block_group[ 4 ];
 };
 
 #if defined( __cplusplus )
