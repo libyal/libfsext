@@ -186,17 +186,21 @@ int libfsext_io_handle_read_volume_header(
 {
 	uint8_t volume_header_data[ 1024 ];
 
-	static char *function                 = "libfsext_io_handle_read_volume_header";
-	size_t volume_header_data_offset      = 0;
-	ssize_t read_count                    = 0;
+	fsext_volume_dynamic_inode_information_t *dynamic_inode_information = NULL;
+	fsext_volume_journal_information_t *journal_information             = NULL;
+	fsext_volume_performance_hints_t *performance_hints                 = NULL;
+	fsext_volume_header_t *volume_header                                = NULL;
+	static char *function                                               = "libfsext_io_handle_read_volume_header";
+	size_t volume_header_data_offset                                    = 0;
+	ssize_t read_count                                                  = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libcstring_system_character_t posix_time_string[ 32 ];
 
-	libfdatetime_posix_time_t *posix_time = NULL;
-	uint32_t value_32bit                  = 0;
-	uint16_t value_16bit                  = 0;
-	int result                            = 0;
+	libfdatetime_posix_time_t *posix_time                               = NULL;
+	uint32_t value_32bit                                                = 0;
+	uint16_t value_16bit                                                = 0;
+	int result                                                          = 0;
 #endif
 
 	if( io_handle == NULL )
@@ -262,8 +266,10 @@ int libfsext_io_handle_read_volume_header(
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
+	volume_header = (fsext_volume_header_t *) volume_header_data;
+
 	if( memory_compare(
-	     ( (fsext_volume_header_t *) volume_header_data )->signature,
+	     volume_header->signature,
 	     fsext_volume_signature,
 	     2 ) != 0 )
 	{
@@ -277,14 +283,14 @@ int libfsext_io_handle_read_volume_header(
 		goto on_error;
 	}
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_volume_header_t *) volume_header_data )->format_revision,
+	 volume_header->format_revision,
 	 io_handle->format_revision );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->number_of_inodes,
+		 volume_header->number_of_inodes,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of inodes\t\t\t: %" PRIu32 "\n",
@@ -292,7 +298,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->number_of_blocks,
+		 volume_header->number_of_blocks,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of blocks\t\t\t: %" PRIu32 "\n",
@@ -300,7 +306,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->number_of_reserved_blocks,
+		 volume_header->number_of_reserved_blocks,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of reserved blocks\t: %" PRIu32 "\n",
@@ -308,7 +314,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->number_of_unallocated_blocks,
+		 volume_header->number_of_unallocated_blocks,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of unallocated blocks\t: %" PRIu32 "\n",
@@ -316,7 +322,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->number_of_unallocated_inodes,
+		 volume_header->number_of_unallocated_inodes,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of unallocated inodes\t: %" PRIu32 "\n",
@@ -324,7 +330,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->root_block_group_block_number,
+		 volume_header->root_block_group_block_number,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: root block group block number\t: %" PRIu32 "\n",
@@ -332,7 +338,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->block_size,
+		 volume_header->block_size,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: block size\t\t\t: %" PRIu32 " (%" PRIu32 ")\n",
@@ -341,7 +347,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->fragment_size,
+		 volume_header->fragment_size,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: fragment size\t\t\t: %" PRIu32 " (%" PRIu32 ")\n",
@@ -350,7 +356,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->blocks_per_block_group,
+		 volume_header->blocks_per_block_group,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: blocks per block group\t\t: %" PRIu32 "\n",
@@ -358,7 +364,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->fragments_per_block_group,
+		 volume_header->fragments_per_block_group,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: fragments per block group\t: %" PRIu32 "\n",
@@ -366,7 +372,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->inodes_per_block_group,
+		 volume_header->inodes_per_block_group,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: inodes per block group\t\t: %" PRIu32 "\n",
@@ -388,7 +394,7 @@ int libfsext_io_handle_read_volume_header(
 		}
 		if( libfdatetime_posix_time_copy_from_byte_stream(
 		     posix_time,
-		     ( (fsext_volume_header_t *) volume_header_data )->last_mount_time,
+		     volume_header->last_mount_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
 		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
@@ -436,7 +442,7 @@ int libfsext_io_handle_read_volume_header(
 
 		if( libfdatetime_posix_time_copy_from_byte_stream(
 		     posix_time,
-		     ( (fsext_volume_header_t *) volume_header_data )->last_written_time,
+		     volume_header->last_written_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
 		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
@@ -483,7 +489,7 @@ int libfsext_io_handle_read_volume_header(
 		 posix_time_string );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->mount_count,
+		 volume_header->mount_count,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: mount count\t\t\t: %" PRIu16 "\n",
@@ -491,7 +497,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_16bit );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->maximum_mount_count,
+		 volume_header->maximum_mount_count,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: maximum mount count\t\t: %" PRIu16 "\n",
@@ -501,11 +507,11 @@ int libfsext_io_handle_read_volume_header(
 		libcnotify_printf(
 		 "%s: signature\t\t\t: 0x%02" PRIx8 " 0x%02" PRIx8 "\n",
 		 function,
-		 ( (fsext_volume_header_t *) volume_header_data )->signature[ 0 ],
-		 ( (fsext_volume_header_t *) volume_header_data )->signature[ 1 ] );
+		 volume_header->signature[ 0 ],
+		 volume_header->signature[ 1 ] );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->file_system_state_flags,
+		 volume_header->file_system_state_flags,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: file system state flags\t\t: 0x%04" PRIx16 "\n",
@@ -517,7 +523,7 @@ int libfsext_io_handle_read_volume_header(
 		 "\n" );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->error_handling_status,
+		 volume_header->error_handling_status,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: error handling status\t\t: %" PRIu16 " (%s)\n",
@@ -527,7 +533,7 @@ int libfsext_io_handle_read_volume_header(
 		  value_16bit ) );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->minor_version,
+		 volume_header->minor_version,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: minor version\t\t\t: %" PRIu16 "\n",
@@ -536,7 +542,7 @@ int libfsext_io_handle_read_volume_header(
 
 		if( libfdatetime_posix_time_copy_from_byte_stream(
 		     posix_time,
-		     ( (fsext_volume_header_t *) volume_header_data )->last_consistency_check_time,
+		     volume_header->last_consistency_check_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
 		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
@@ -597,7 +603,7 @@ int libfsext_io_handle_read_volume_header(
 		}
 /* TODO print interval as duration? */
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->consistency_check_interval,
+		 volume_header->consistency_check_interval,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: consistency check interval\t: %" PRIu32 "\n",
@@ -605,7 +611,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_32bit );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->creator_operating_system,
+		 volume_header->creator_operating_system,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: creator operating system\t\t: %" PRIu32 " (%s)\n",
@@ -620,7 +626,7 @@ int libfsext_io_handle_read_volume_header(
 		 io_handle->format_revision );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->reserved_block_uid,
+		 volume_header->reserved_block_uid,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: reserved block UID\t\t: %" PRIu16 "\n",
@@ -628,7 +634,7 @@ int libfsext_io_handle_read_volume_header(
 		 value_16bit );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_volume_header_t *) volume_header_data )->reserved_block_gid,
+		 volume_header->reserved_block_gid,
 		 value_16bit );
 		libcnotify_printf(
 		 "%s: reserved block GID\t\t: %" PRIu16 "\n",
@@ -667,7 +673,164 @@ int libfsext_io_handle_read_volume_header(
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 #endif
+		dynamic_inode_information = (fsext_volume_dynamic_inode_information_t *) &( volume_header_data[ volume_header_data_offset ] );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			byte_stream_copy_to_uint32_little_endian(
+			 dynamic_inode_information->first_non_reserved_inode,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: first non-reserved inode\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 dynamic_inode_information->inode_size,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: inode size\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 value_16bit );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 dynamic_inode_information->block_group,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: block group\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 value_16bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 dynamic_inode_information->compatible_features_flags,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: compatible features flags\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+			libfsext_debug_print_compatible_features_flags(
+			 value_32bit );
+			libcnotify_printf(
+			 "\n" );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 dynamic_inode_information->incompatible_features_flags,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: incompatible features flags\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+			libfsext_debug_print_incompatible_features_flags(
+			 value_32bit );
+			libcnotify_printf(
+			 "\n" );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 dynamic_inode_information->read_only_compatible_features_flags,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: read-only compatible features flags\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+			libfsext_debug_print_read_only_compatible_features_flags(
+			 value_32bit );
+			libcnotify_printf(
+			 "\n" );
+
+/* TODO print as GUID */
+			libcnotify_printf(
+			 "%s: file system identifier:\n",
+			 function );
+			libcnotify_print_data(
+			 dynamic_inode_information->file_system_identifier,
+			 16,
+			 0 );
+
+/* TODO print as string */
+			libcnotify_printf(
+			 "%s: volume label:\n",
+			 function );
+			libcnotify_print_data(
+			 dynamic_inode_information->volume_label,
+			 16,
+			 0 );
+
+/* TODO print as string */
+			libcnotify_printf(
+			 "%s: last mounted path:\n",
+			 function );
+			libcnotify_print_data(
+			 dynamic_inode_information->last_mounted_path,
+			 64,
+			 0 );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 dynamic_inode_information->algorithm_usage_bitmap,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: algorithm usage bitmap\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+
+			libcnotify_printf(
+			 "\n" );
+		}
+#endif
 	}
+	volume_header_data_offset += sizeof( fsext_volume_dynamic_inode_information_t );
+
+/* TODO print performance hints */
+	if( 0 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: volume performance hints:\n",
+			 function );
+			libcnotify_print_data(
+			 (uint8_t *) &( volume_header_data[ volume_header_data_offset ] ),
+			 sizeof( fsext_volume_performance_hints_t ),
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+		}
+#endif
+		performance_hints = (fsext_volume_performance_hints_t *) &( volume_header_data[ volume_header_data_offset ] );
+	}
+	volume_header_data_offset += sizeof( fsext_volume_performance_hints_t );
+
+/* TODO print journal information */
+	if( 0 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: volume performance hints:\n",
+			 function );
+			libcnotify_print_data(
+			 (uint8_t *) &( volume_header_data[ volume_header_data_offset ] ),
+			 sizeof( fsext_volume_journal_information_t ),
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+		}
+#endif
+		journal_information = (fsext_volume_journal_information_t *) &( volume_header_data[ volume_header_data_offset ] );
+	}
+	volume_header_data_offset += sizeof( fsext_volume_journal_information_t );
+
+/* TODO print remaining data */
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reserved:\n",
+		 function );
+		libcnotify_print_data(
+		 (uint8_t *) &( volume_header_data[ volume_header_data_offset ] ),
+		 1024 - volume_header_data_offset,
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+	}
+#endif
 	return( 1 );
 
 on_error:

@@ -6,9 +6,9 @@ Format support:
 
 Debug print:
 * major version
-* compatibility features flags
-* incompatibility features flags
-* read-only compatibility features flags
+
+20150508
+* worked on format support
 
 20150507
 * worked on format support

@@ -632,7 +632,7 @@ int info_handle_volume_fprint(
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "Windows NT File System information:\n\n" );
+	 "Extended File System information:\n\n" );
 
 	fprintf(
 	 info_handle->notify_stream,

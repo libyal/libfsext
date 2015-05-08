@@ -242,14 +242,14 @@ block group block offset = block group block number x block size
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0x0001 | EXT2_COMPAT_PREALLOC | Pre-allocate directory blocks +
+| 0x00000001 | EXT2_COMPAT_PREALLOC | Pre-allocate directory blocks +
 Reduces fragmentation
-| 0x0002 | | Has AFS server inodes
-| 0x0004 | EXT3_FEATURE_COMPAT_HAS_JOURNAL | Has journal
-| 0x0008 | | Have extended inode attributes
-| 0x0010 | | Resizable volume +
+| 0x00000002 | | Has AFS server inodes
+| 0x00000004 | EXT3_FEATURE_COMPAT_HAS_JOURNAL | Has journal
+| 0x00000008 | | Have extended inode attributes
+| 0x00000010 | | Resizable volume +
 [yellow-background]*Only upwards?*
-| 0x0020 | | Use directory hash index
+| 0x00000020 | | Use directory hash index
 |===
 
 === [[incompatible_features_flags]]Incompatible features flags
@@ -257,11 +257,11 @@ Reduces fragmentation
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0x0001 | | Has compression +
+| 0x00000001 | | Has compression +
 [yellow-background]*Not yet supported*
-| 0x0002 | | Has directory type
-| 0x0004 | | Needs recovery
-| 0x0008 | | Has journal device
+| 0x00000002 | | Has directory type
+| 0x00000004 | | Needs recovery
+| 0x00000008 | | Has journal device
 |===
 
 === [[read_only_compatible_features_flags]]Read-only compatible features flags
@@ -269,9 +269,9 @@ Reduces fragmentation
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0x0001 | | Has sparse superblocks and group descriptor tables
-| 0x0002 | | Contains large file(s)
-| 0x0004 | | Use directory B-tree +
+| 0x00000001 | | Has sparse superblocks and group descriptor tables
+| 0x00000002 | | Contains large files
+| 0x00000004 | | Use directory B-tree +
 [yellow-background]*Not implemented*
 |===
 

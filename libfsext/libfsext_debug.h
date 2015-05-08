@@ -37,6 +37,15 @@ extern "C" {
 void libfsext_debug_print_file_system_state_flags(
       uint16_t file_system_state_flags );
 
+void libfsext_debug_print_compatible_features_flags(
+      uint32_t compatible_features_flags );
+
+void libfsext_debug_print_incompatible_features_flags(
+      uint32_t incompatible_features_flags );
+
+void libfsext_debug_print_read_only_compatible_features_flags(
+      uint32_t read_only_compatible_features_flags );
+
 const char *libfsext_debug_print_error_handling_status(
              uint16_t error_handling_status );
 

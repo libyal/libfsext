@@ -53,6 +53,92 @@ void libfsext_debug_print_file_system_state_flags(
 	}
 }
 
+/* Prints the compatible features flags
+ */
+void libfsext_debug_print_compatible_features_flags(
+      uint32_t compatible_features_flags )
+{
+	if( ( compatible_features_flags & 0x00000001UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tPre-allocate directory blocks (EXT2_COMPAT_PREALLOC)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000002UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas AFS server inodes\n" );
+	}
+	if( ( compatible_features_flags & 0x00000004UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas journal (EXT3_FEATURE_COMPAT_HAS_JOURNAL)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000008UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHave extended inode attributes\n" );
+	}
+	if( ( compatible_features_flags & 0x00000010UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tResizable volume\n" );
+	}
+	if( ( compatible_features_flags & 0x00000010UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tUse directory hash index\n" );
+	}
+}
+
+/* Prints the incompatible features flags
+ */
+void libfsext_debug_print_incompatible_features_flags(
+      uint32_t incompatible_features_flags )
+{
+	if( ( incompatible_features_flags & 0x00000001UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas compression\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000002UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas directory type\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000004UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tNeeds recovery\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000008UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas journal device\n" );
+	}
+}
+
+/* Prints the read-only compatible features flags
+ */
+void libfsext_debug_print_read_only_compatible_features_flags(
+      uint32_t read_only_compatible_features_flags )
+{
+	if( ( read_only_compatible_features_flags & 0x00000001UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas sparse superblocks and group descriptor tables\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000002UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tContains large files\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000004UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tUse directory B-tree\n" );
+	}
+}
+
 /* Prints the error handling status
  */
 const char *libfsext_debug_print_error_handling_status(
