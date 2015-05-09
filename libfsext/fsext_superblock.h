@@ -1,5 +1,5 @@
 /*
- * The ext volume header definition
+ * The ext superblock definition
  *
  * Copyright (C) 2010-2015, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _FSEXT_VOLUME_HEADER_H )
-#define _FSEXT_VOLUME_HEADER_H
+#if !defined( _FSEXT_SUPERBLOCK_H )
+#define _FSEXT_SUPERBLOCK_H
 
 #include <common.h>
 #include <types.h>
@@ -126,10 +126,10 @@ struct fsext_volume_header
 	 */
 	uint8_t error_handling_status[ 2 ];
 
-	/* The minor version
+	/* The minor format revision
 	 * Consists of 2 bytes
 	 */
-	uint8_t minor_version[ 2 ];
+	uint8_t minor_format_revision[ 2 ];
 
 	/* The last consistency check time
 	 * Consists of 4 bytes
@@ -164,9 +164,9 @@ struct fsext_volume_header
 	uint8_t reserved_block_gid[ 2 ];
 };
 
-typedef struct fsext_volume_dynamic_inode_information fsext_volume_dynamic_inode_information_t;
+typedef struct fsext_dynamic_inode_information fsext_dynamic_inode_information_t;
 
-struct fsext_volume_dynamic_inode_information
+struct fsext_dynamic_inode_information
 {
 	/* The first non-reserved inode
 	 * Consists of 4 bytes
@@ -222,19 +222,19 @@ struct fsext_volume_dynamic_inode_information
 	uint8_t algorithm_usage_bitmap[ 4 ];
 };
 
-typedef struct fsext_volume_performance_hints fsext_volume_performance_hints_t;
+typedef struct fsext_performance_hints fsext_performance_hints_t;
 
-struct fsext_volume_performance_hints
+struct fsext_performance_hints
 {
 	/* The number of pre-allocated blocks per file
 	 * Consists of 1 byte
 	 */
-	uint8_t number_of_block_per_file;
+	uint8_t number_of_blocks_per_file;
 
 	/* The number of pre-allocated blocks per directory
 	 * Consists of 1 byte
 	 */
-	uint8_t number_of_block_per_directory;
+	uint8_t number_of_blocks_per_directory;
 
 	/* Padding
 	 * Consists of 2 bytes
@@ -242,9 +242,9 @@ struct fsext_volume_performance_hints
 	uint8_t padding[ 2 ];
 };
 
-typedef struct fsext_volume_journal_information fsext_volume_journal_information_t;
+typedef struct fsext_journal_information fsext_journal_information_t;
 
-struct fsext_volume_journal_information
+struct fsext_journal_information
 {
 	/* The journal identifier
 	 * Consists of 16 bytes
@@ -268,7 +268,7 @@ struct fsext_volume_journal_information
 	uint8_t orphan_inode_list_head[ 4 ];
 
 	/* The HTREE hash seed
-	 * Consists of 16 bytes
+	 * Consists of 4 x 4 bytes
 	 */
 	uint8_t htree_hash_seed[ 16 ];
 
@@ -291,6 +291,17 @@ struct fsext_volume_journal_information
 	 * Consists of 4 bytes
 	 */
 	uint8_t first_metadata_block_group[ 4 ];
+
+	/* The file system creation time
+	 * Consists of 4 bytes
+	 * Contains: a POSIX timestamp
+	 */
+	uint8_t file_system_creation_time[ 4 ];
+
+	/* The backup journal inodes
+	 * Consists of 17 x 4 bytes
+	 */
+	uint8_t backup_journal_inodes[ 68 ];
 };
 
 #if defined( __cplusplus )

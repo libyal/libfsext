@@ -752,6 +752,7 @@ int libfsext_volume_open_read(
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_volume_open_read";
+	off64_t file_offset   = 1024;
 
 	if( internal_volume == NULL )
 	{
@@ -779,19 +780,43 @@ int libfsext_volume_open_read(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "Reading volume header:\n" );
+		 "Reading superblock:\n" );
 	}
 #endif
-	if( libfsext_io_handle_read_volume_header(
+	if( libfsext_io_handle_read_superblock(
 	     internal_volume->io_handle,
 	     file_io_handle,
+	     file_offset,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read volume header.",
+		 "%s: unable to read superblock at offset: %" PRIi64 ".",
+		 function,
+		 file_offset );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "Reading group descriptor:\n" );
+	}
+#endif
+	if( libfsext_io_handle_read_group_descriptor(
+	     internal_volume->io_handle,
+	     file_io_handle,
+	     2048,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read group descriptor.",
 		 function );
 
 		return( -1 );

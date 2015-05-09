@@ -1,4 +1,4 @@
-.Dd May 4, 2015
+.Dd May  9, 2015
 .Dt libfsext 3
 .Os libfsext
 .Sh NAME
@@ -62,6 +62,14 @@ Volume functions
 .Fn libfsext_volume_open "libfsext_volume_t *volume, const char *filename, int access_flags, libfsext_error_t **error"
 .Ft int
 .Fn libfsext_volume_close "libfsext_volume_t *volume, libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_utf8_label_size "libfsext_volume_t *volume, size_t *utf8_label_size, libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_utf8_label "libfsext_volume_t *volume, uint8_t *utf8_label, size_t utf8_label_size, libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_utf16_label_size "libfsext_volume_t *volume, size_t *utf16_label_size, libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_utf16_label "libfsext_volume_t *volume, uint16_t *utf16_label, size_t utf16_label_size, libfsext_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int

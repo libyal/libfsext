@@ -38,9 +38,29 @@ typedef struct libfsext_io_handle libfsext_io_handle_t;
 
 struct libfsext_io_handle
 {
+	/* The format version
+	 */
+	int format_version;
+
+	/* The block size
+	 */
+	uint32_t block_size;
+
 	/* The format revision
 	 */
 	uint32_t format_revision;
+
+	/* The compatible features flags
+	 */
+	uint32_t compatible_features_flags;
+
+	/* The incompatible features flags
+	 */
+	uint32_t incompatible_features_flags;
+
+	/* The read-only compatible features flags
+	 */
+	uint32_t read_only_compatible_features_flags;
 
 	/* Value to indicate if abort was signalled
 	 */
@@ -59,9 +79,16 @@ int libfsext_io_handle_clear(
      libfsext_io_handle_t *io_handle,
      libcerror_error_t **error );
 
-int libfsext_io_handle_read_volume_header(
+int libfsext_io_handle_read_superblock(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     libcerror_error_t **error );
+
+int libfsext_io_handle_read_group_descriptor(
+     libfsext_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

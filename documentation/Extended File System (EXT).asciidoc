@@ -93,8 +93,15 @@ An ext volume consists of:
 
 * 1024 bytes of boot code or zero bytes (at offset: 0)
 * primary superblock (at offset: 1024)
-* group descriptors
+* group descriptor (stored in the block after the superblock)
 * file data
+
+The file system divides the volume in blocks:
+....
+block offset = block number x block size
+....
+
+The block size is defined in the super block.
 
 == The superblock
 The primary superblock is stored at offset 1024 of the volume.
@@ -105,11 +112,15 @@ The superblock is 1024 bytes of size and consists of:
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | | Number of inodes
-| 4 | 4 | | Number of blocks
+| 4 | 4 | | Number of blocks +
+Contains the lower 32-bit of the value if 64-bit support is enabled
 | 8 | 4 | | Number of reserved blocks +
+Contains the lower 32-bit of the value if 64-bit support is enabled +
 These are used to prevent the file system from filling up
-| 12 | 4 | | Number of unallocated block
-| 16 | 4 | | Number of unallocated inodes
+| 12 | 4 | | Number of unallocated blocks
+Contains the lower 32-bit of the value if 64-bit support is enabled
+| 16 | 4 | | Number of unallocated inodes }
+Contains the lower 32-bit of the value if 64-bit support is enabled
 | 20 | 4 | | Root block group block number +
 Value contains the block number relative from the start of the volume
 | 24 | 4 | | Block size +
@@ -131,8 +142,7 @@ Contains POSIX timestamp +
 See section: <<file_system_state_flags,File system state flags>>
 | 60 | 2 | | Error-handling status +
 See section: <<error_handling_status,Error-handling status>>
-| 62 | 2 | | Minor version +
-[yellow-background]*TODO add value table*
+| 62 | 2 | | Minor format revision
 | 64 | 4 | | Last consistency check time +
 Contains POSIX timestamp
 | 68 | 4 | | Consistency check interval +
@@ -143,7 +153,7 @@ See section: <<creator_operating_system,Creator operating system>>
 See section: <<format_revisision,Format revision>>
 | 80 | 2 | | Reserved block user identifier (UID)
 | 82 | 2 | | Reserved block group identifier (GID)
-4+| _Dynamic inode information +
+4+| _Dynamic inode information_ +
 _If major version is EXT2_DYNAMIC_REV_
 | 84 | 4 | | First non-reserved inode
 | 88 | 2 | | Inode size
@@ -174,15 +184,72 @@ Contains GUID/UUID
 | 228 | 4 | | Journal device +
 [yellow-background]*What does this value contain?*
 | 232 | 4 | | Head of orphan inode list +
+The orphan inode list is a list of inodes to delete +
 [yellow-background]*What does this value contain?*
 | 236 | 4 x 4 | | HTREE hash seed
 | 252 | 1 | | Default hash version
 | 253 | 3 | | Padding
 | 256 | 4 | | Default mount options
 | 260 | 4 | | First metadata block group (or metablock)
+4+| _Defined in ext3 reserved in earlier versions_
+| 264 | 4 | | File system creation time +
+Contains POSIX timestamp
+| 268 | 17 x 4 | | Backup journal inodes
+4+| _64-bit support_ +
+_If EXT4_FEATURE_INCOMPAT_64BIT is set_
+| 336 | 4 | | Number of blocks +
+Contains the upper 32-bit of the value if 64-bit support is enabled
+| 340 | 4 | | Number of reserved blocks +
+Contains the upper 32-bit of the value if 64-bit support is enabled
+| 344 | 4 | | Number of unallocated blocks
+Contains the upper 32-bit of the value if 64-bit support is enabled
+4+| _Defined in ext4 reserved in earlier versions_
 4+| _Common_ +
-| 264 | 760 | | Unused (Reserved)
+| ... | ... | | Unused (Reserved)
 |===
+
+....
+1136         __le16  s_min_extra_isize;      /* All inodes have at least # bytes */
+1137         __le16  s_want_extra_isize;     /* New inodes should reserve # bytes */
+1138         __le32  s_flags;                /* Miscellaneous flags */
+1139         __le16  s_raid_stride;          /* RAID stride */
+1140         __le16  s_mmp_update_interval;  /* # seconds to wait in MMP checking */
+1141         __le64  s_mmp_block;            /* Block for multi-mount protection */
+1142         __le32  s_raid_stripe_width;    /* blocks on all data disks (N*stride)*/
+1143         __u8    s_log_groups_per_flex;  /* FLEX_BG group size */
+1144         __u8    s_checksum_type;        /* metadata checksum algorithm used */
+1145         __le16  s_reserved_pad;
+
+4+| _Defined in ext4 reserved in earlier versions_
+1146         __le64  s_kbytes_written;       /* nr of lifetime kilobytes written */
+1147         __le32  s_snapshot_inum;        /* Inode number of active snapshot */
+1148         __le32  s_snapshot_id;          /* sequential ID of active snapshot */
+1149         __le64  s_snapshot_r_blocks_count; /* reserved blocks for active
+1150                                               snapshot's future use */
+1151         __le32  s_snapshot_list;        /* inode number of the head of the
+1152                                            on-disk snapshot list */
+1153 #define EXT4_S_ERR_START offsetof(struct ext4_super_block, s_error_count)
+1154         __le32  s_error_count;          /* number of fs errors */
+1155         __le32  s_first_error_time;     /* first time an error happened */
+1156         __le32  s_first_error_ino;      /* inode involved in first error */
+1157         __le64  s_first_error_block;    /* block involved of first error */
+1158         __u8    s_first_error_func[32]; /* function where the error happened */
+1159         __le32  s_first_error_line;     /* line number where error happened */
+1160         __le32  s_last_error_time;      /* most recent time of an error */
+1161         __le32  s_last_error_ino;       /* inode involved in last error */
+1162         __le32  s_last_error_line;      /* line number where error happened */
+1163         __le64  s_last_error_block;     /* block involved of last error */
+1164         __u8    s_last_error_func[32];  /* function where the error happened */
+1165 #define EXT4_S_ERR_END offsetof(struct ext4_super_block, s_mount_opts)
+1166         __u8    s_mount_opts[64];
+1167         __le32  s_usr_quota_inum;       /* inode for tracking user quota */
+1168         __le32  s_grp_quota_inum;       /* inode for tracking group quota */
+1169         __le32  s_overhead_clusters;    /* overhead blocks/clusters in fs */
+1170         __le32  s_backup_bgs[2];        /* groups with sparse_super2 SBs */
+1171         __u8    s_encrypt_algos[4];     /* Encryption algorithms in use  */
+1172         __le32  s_reserved[105];        /* Padding to the end of the block */
+1173         __le32  s_checksum;             /* crc32c(superblock) */
+....
 
 ....
 __le16 s_desc_size; (replaces a reserved field) 
@@ -192,9 +259,12 @@ __le32     s_r_blocks_count_hi; /* Reserved blocks count */
 __le32     s_free_blocks_count_hi; /* Free blocks count */ 
 ....
 
-....
-block group block offset = block group block number x block size
-....
+[NOTE]
+Some versions of mkfs.ext set the file system creation time even for ext2 and 
+when EXT3_FEATURE_COMPAT_HAS_JOURNAL is not set.
+
+[yellow-background]*Is the only way to determine the file system version the
+compatibility and equivalent flags?*
 
 === [[file_system_state_flags]]File system state flags
 
@@ -221,12 +291,15 @@ block group block offset = block group block number x block size
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 1 | | Linux
-| 2 | | GNU Hurd
-| 3 | | Masix
-| 4 | | FreeBSD
-| 5 | | Lites
+| 0 | | Linux
+| 1 | | GNU Hurd
+| 2 | | Masix
+| 3 | | FreeBSD
+| 4 | | Lites
 |===
+
+[NOTE]
+
 
 === [[format_revisision]]Format revision
 
@@ -244,68 +317,149 @@ block group block offset = block group block number x block size
 | Value | Identifier | Description
 | 0x00000001 | EXT2_COMPAT_PREALLOC | Pre-allocate directory blocks +
 Reduces fragmentation
-| 0x00000002 | | Has AFS server inodes
+| 0x00000002 | EXT2_FEATURE_COMPAT_IMAGIC_INODES | Has AFS server inodes
 | 0x00000004 | EXT3_FEATURE_COMPAT_HAS_JOURNAL | Has journal
-| 0x00000008 | | Have extended inode attributes
-| 0x00000010 | | Resizable volume +
+| 0x00000008 | EXT2_FEATURE_COMPAT_EXT_ATTR | Have extended inode attributes
+| 0x00000010 | EXT2_FEATURE_COMPAT_RESIZE_INO | Resizable volume +
 [yellow-background]*Only upwards?*
-| 0x00000020 | | Use directory hash index
+| 0x00000020 | EXT2_FEATURE_COMPAT_DIR_INDEX | Use directory hash index
+| | | 
+| 0x00000200 | EXT4_FEATURE_COMPAT_SPARSE_SUPER2 | [yellow-background]*Unknown*
 |===
+
+[NOTE]
+That the EXT2_FEATURE_COMPAT_, EXT3_FEATURE_COMPAT_ and EXT4_FEATURE_COMPAT_ 
+can be used interchangeably.
 
 === [[incompatible_features_flags]]Incompatible features flags
 
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0x00000001 | | Has compression +
+| 0x00000001 | EXT2_FEATURE_INCOMPAT_COMPRESSION | Has compression +
 [yellow-background]*Not yet supported*
-| 0x00000002 | | Has directory type
-| 0x00000004 | | Needs recovery
-| 0x00000008 | | Has journal device
+| 0x00000002 | EXT2_FEATURE_INCOMPAT_FILETYPE | Has directory type
+| 0x00000004 | EXT3_FEATURE_INCOMPAT_RECOVER | Needs recovery
+| 0x00000008 | EXT3_FEATURE_INCOMPAT_JOURNAL_DEV | Has journal device
+| 0x00000010 | EXT2_FEATURE_INCOMPAT_META_BG | Has metadata block group
+| 0x00000040 | EXT4_FEATURE_INCOMPAT_EXTENTS | Has extents
+| 0x00000080 | EXT4_FEATURE_INCOMPAT_64BIT | Has 64-bit support
+| 0x00000100 | EXT4_FEATURE_INCOMPAT_MMP | [yellow-background]*Unknown*
+| 0x00000200 | EXT4_FEATURE_INCOMPAT_FLEX_BG | [yellow-background]*Unknown*
+| 0x00000400 | EXT4_FEATURE_INCOMPAT_EA_INODE | [yellow-background]*EA in inode*
+| | | 
+| 0x00001000 | EXT4_FEATURE_INCOMPAT_DIRDATA | [yellow-background]*data in dirent*
+| 0x00002000 | EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM | [yellow-background]*use crc32c for bg*
+| 0x00004000 | EXT4_FEATURE_INCOMPAT_LARGEDIR | [yellow-background]*>2GB or 3-lvl htree*
+| 0x00008000 | EXT4_FEATURE_INCOMPAT_INLINE_DATA | [yellow-background]*data in inode*
+| 0x00010000 | EXT4_FEATURE_INCOMPAT_ENCRYPT | [yellow-background]*Unknown*
 |===
+
+[NOTE]
+That the EXT2_FEATURE_INCOMPAT_, EXT3_FEATURE_INCOMPAT_ and 
+EXT4_FEATURE_INCOMPAT_ can be used interchangeably.
 
 === [[read_only_compatible_features_flags]]Read-only compatible features flags
 
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0x00000001 | | Has sparse superblocks and group descriptor tables
-| 0x00000002 | | Contains large files
-| 0x00000004 | | Use directory B-tree +
+| 0x00000001 | EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER | Has sparse superblocks and group descriptor tables
+| 0x00000002 | EXT2_FEATURE_RO_COMPAT_LARGE_FILE | Contains large files
+| 0x00000004 | EXT2_FEATURE_RO_COMPAT_BTREE_DIR | Use directory B-tree +
 [yellow-background]*Not implemented*
+| 0x00000008 | EXT4_FEATURE_RO_COMPAT_HUGE_FILE | [yellow-background]*Unknown*
+| 0x00000010 | EXT4_FEATURE_RO_COMPAT_GDT_CSUM | [yellow-background]*Unknown*
+| 0x00000020 | EXT4_FEATURE_RO_COMPAT_DIR_NLINK | [yellow-background]*Unknown*
+| 0x00000040 | EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE | [yellow-background]*Unknown*
+| | | 
+| 0x00000100 | EXT4_FEATURE_RO_COMPAT_QUOTA | [yellow-background]*Unknown*
+| 0x00000200 | EXT4_FEATURE_RO_COMPAT_BIGALLOC | [yellow-background]*Unknown*
 |===
 
+[NOTE]
+That the EXT2_FEATURE_RO_COMPAT_, EXT3_FEATURE_RO_COMPAT_ and 
+EXT4_FEATURE_RO_COMPAT_ can be used interchangeably.
+
 == The group descriptor
-The group descriptor is 32 bytes of size and consists of:
+The group descriptor is stored in the block following the super block.
+
+The group descriptor is 32 or 68 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | | Block bitmap block number +
+Contains the lower 32-bit of the value if 64-bit support is enabled +
 Value contains the block number relative from the start of the volume
 | 4 | 4 | | Inode bitmap block number +
+Contains the lower 32-bit of the value if 64-bit support is enabled +
 Value contains the block number relative from the start of the volume
 | 8 | 4 | | Inode table block number +
+Contains the lower 32-bit of the value if 64-bit support is enabled +
 Value contains the block number relative from the start of the volume
-| 12 | 2 | | Number of unallocated blocks
-| 14 | 2 | | Number of unallocated inodes
-| 16 | 2 | | Number of directories
+| 12 | 2 | | Number of unallocated blocks +
+Contains the lower 16-bit of the value if 64-bit support is enabled
+| 14 | 2 | | Number of unallocated inodes +
+Contains the lower 16-bit of the value if 64-bit support is enabled
+| 16 | 2 | | Number of directories +
+Contains the lower 16-bit of the value if 64-bit support is enabled
+4+| _ext2 and ext3_
 | 18 | 2 | | Padding
 | 20 | 3 x 4 | | Reserved
+4+| _ext4_
+| 18 | 2 | | Block group flags +
+See section: <<block_group_flags,Block group flags>>
+| 20 | 4 | | Exclude bitmap block number +
+Contains the lower 32-bit of the value if 64-bit support is enabled +
+Value contains the block number relative from the start of the volume + 
+[yellow-background]*The excluded bitmap is used for snapshots*
+| 24 | 2 | | Block bitmap checksum +
+Contains the lower 16-bit of the value if 64-bit support is enabled +
+The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
+| 26 | 2 | | Inode bitmap checksum +
+Contains the lower 16-bit of the value if 64-bit support is enabled +
+The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
+| 28 | 2 | | Number of unused inodes +
+Contains the lower 16-bit of the value if 64-bit support is enabled +
+| 30 | 2 | | Checksum +
+The checksum is a CRC-16 [yellow-background]*TODO: crc16(sb_uuid+group+desc)*
+| 32 | 4 | | Block bitmap block number +
+Contains the upper 32-bit of the value if 64-bit support is enabled +
+Value contains the block number relative from the start of the volume
+| 36 | 4 | | Inode bitmap block number +
+Contains the upper 32-bit of the value if 64-bit support is enabled +
+Value contains the block number relative from the start of the volume
+| 40 | 4 | | Inode table block number +
+Contains the upper 32-bit of the value if 64-bit support is enabled +
+Value contains the block number relative from the start of the volume
+| 44 | 2 | | Number of unallocated blocks +
+Contains the upper 16-bit of the value if 64-bit support is enabled
+| 46 | 2 | | Number of unallocated inodes +
+Contains the upper 16-bit of the value if 64-bit support is enabled
+| 48 | 2 | | Number of directories +
+Contains the upper 16-bit of the value if 64-bit support is enabled
+| 50 | 2 | | Number of unused inodes +
+Contains the upper 16-bit of the value if 64-bit support is enabled +
+| 52 | 4 | | Exclude bitmap block number +
+Contains the upper 32-bit of the value if 64-bit support is enabled +
+Value contains the block number relative from the start of the volume + 
+[yellow-background]*The excluded bitmap is used for snapshots*
+| 56 | 2 | | Block bitmap checksum +
+Contains the upper 16-bit of the value if 64-bit support is enabled +
+The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
+| 60 | 2 | | Inode bitmap checksum +
+Contains the upper 16-bit of the value if 64-bit support is enabled +
+The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
+| 64 | 4 | | Reserved
 |===
 
-....
-block group block offset = block group block number x block size
-....
-
-....
-__le32 bg_block_bitmap_hi; /* Blocks bitmap block MSB */ 
-__le32 bg_inode_bitmap_hi; /* Inodes bitmap block MSB */ 
-__le32 bg_inode_table_hi;  /* Inodes table block MSB */ 
-....
+=== [[block_group_flags]]Block group flags
+*TODO: add description*
 
 == The extents
-The extents were introduced in ext4.
+The extents were introduced in ext4 and are controlled by 
+EXT4_FEATURE_INCOMPAT_EXTENTS.
 
 ....
 /*

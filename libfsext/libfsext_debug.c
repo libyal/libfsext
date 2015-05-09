@@ -66,7 +66,7 @@ void libfsext_debug_print_compatible_features_flags(
 	if( ( compatible_features_flags & 0x00000002UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tHas AFS server inodes\n" );
+		 "\tHas AFS server inodes (EXT2_FEATURE_COMPAT_IMAGIC_INODES)\n" );
 	}
 	if( ( compatible_features_flags & 0x00000004UL ) != 0 )
 	{
@@ -76,17 +76,23 @@ void libfsext_debug_print_compatible_features_flags(
 	if( ( compatible_features_flags & 0x00000008UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tHave extended inode attributes\n" );
+		 "\tHave extended inode attributes (EXT2_FEATURE_COMPAT_EXT_ATTR)\n" );
 	}
 	if( ( compatible_features_flags & 0x00000010UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tResizable volume\n" );
+		 "\tResizable volume (EXT2_FEATURE_COMPAT_RESIZE_INO)\n" );
 	}
 	if( ( compatible_features_flags & 0x00000010UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tUse directory hash index\n" );
+		 "\tUse directory hash index (EXT2_FEATURE_COMPAT_DIR_INDEX)\n" );
+	}
+
+	if( ( compatible_features_flags & 0x00000200UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_COMPAT_SPARSE_SUPER2)\n" );
 	}
 }
 
@@ -98,22 +104,79 @@ void libfsext_debug_print_incompatible_features_flags(
 	if( ( incompatible_features_flags & 0x00000001UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tHas compression\n" );
+		 "\tHas compression (EXT2_FEATURE_INCOMPAT_COMPRESSION)\n" );
 	}
 	if( ( incompatible_features_flags & 0x00000002UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tHas directory type\n" );
+		 "\tHas directory type (EXT2_FEATURE_INCOMPAT_FILETYPE)\n" );
 	}
 	if( ( incompatible_features_flags & 0x00000004UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tNeeds recovery\n" );
+		 "\tNeeds recovery (EXT3_FEATURE_INCOMPAT_RECOVER)\n" );
 	}
 	if( ( incompatible_features_flags & 0x00000008UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tHas journal device\n" );
+		 "\tHas journal device (EXT3_FEATURE_INCOMPAT_JOURNAL_DEV)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000010UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas metadata block group (EXT2_FEATURE_INCOMPAT_META_BG)\n" );
+	}
+
+	if( ( incompatible_features_flags & 0x00000040UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas extents (EXT4_FEATURE_INCOMPAT_EXTENTS)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000080UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHas 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000100UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_MMP)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000200UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_FLEX_BG)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000400UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_EA_INODE)\n" );
+	}
+
+	if( ( incompatible_features_flags & 0x00001000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_DIRDATA)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00002000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00004000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_LARGEDIR)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00008000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_INLINE_DATA)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00010000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_ENCRYPT)\n" );
 	}
 }
 
@@ -125,17 +188,49 @@ void libfsext_debug_print_read_only_compatible_features_flags(
 	if( ( read_only_compatible_features_flags & 0x00000001UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tHas sparse superblocks and group descriptor tables\n" );
+		 "\tHas sparse superblocks and group descriptor tables (EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER)\n" );
 	}
 	if( ( read_only_compatible_features_flags & 0x00000002UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tContains large files\n" );
+		 "\tContains large files (EXT2_FEATURE_RO_COMPAT_LARGE_FILE)\n" );
 	}
 	if( ( read_only_compatible_features_flags & 0x00000004UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tUse directory B-tree\n" );
+		 "\tUse directory B-tree (EXT2_FEATURE_RO_COMPAT_BTREE_DIR)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000008UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_RO_COMPAT_HUGE_FILE)\n" );
+	}
+
+	if( ( read_only_compatible_features_flags & 0x00000010UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_RO_COMPAT_GDT_CSUM)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000020UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_RO_COMPAT_DIR_NLINK)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000040UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE)\n" );
+	}
+
+	if( ( read_only_compatible_features_flags & 0x00000100UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_RO_COMPAT_QUOTA)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000200UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_RO_COMPAT_BIGALLOC)\n" );
 	}
 }
 
@@ -165,19 +260,19 @@ const char *libfsext_debug_print_creator_operating_system(
 {
 	switch( creator_operating_system )
 	{
-		case 1:
+		case 0:
 			return( "Linux" );
 
-		case 2:
+		case 1:
 			return( "GNU herd" );
 
-		case 3:
+		case 2:
 			return( "Masix" );
 
-		case 4:
+		case 3:
 			return( "FreeBSD" );
 
-		case 5:
+		case 4:
 			return( "Lites" );
 	}
 	return( "Unknown" );

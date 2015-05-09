@@ -20,7 +20,7 @@ lib_LTLIBRARIES = libfsext.la
 
 libfsext_la_SOURCES = \
 	fsext_group_descriptor.h \
-	fsext_volume_header.h \
+	fsext_superblock.h \
 	libfsext.c \
 	libfsext_debug.c libfsext_debug.h \
 	libfsext_definitions.h \
