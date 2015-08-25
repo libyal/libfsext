@@ -196,6 +196,9 @@ int libfsext_io_handle_read_superblock(
 	static char *function                                        = "libfsext_io_handle_read_superblock";
 	size_t superblock_data_offset                                = 0;
 	ssize_t read_count                                           = 0;
+	uint32_t blocks_per_block_group                              = 0;
+	uint32_t number_of_block_groups                              = 0;
+	uint32_t number_of_blocks                                    = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libcstring_system_character_t posix_time_string[ 32 ];
@@ -290,8 +293,16 @@ int libfsext_io_handle_read_superblock(
 		goto on_error;
 	}
 	byte_stream_copy_to_uint32_little_endian(
+	 volume_header->number_of_blocks,
+	 number_of_blocks );
+
+	byte_stream_copy_to_uint32_little_endian(
 	 volume_header->block_size,
 	 io_handle->block_size );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 volume_header->blocks_per_block_group,
+	 blocks_per_block_group );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 volume_header->format_revision,
@@ -334,13 +345,10 @@ int libfsext_io_handle_read_superblock(
 		 function,
 		 value_32bit );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 volume_header->number_of_blocks,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of blocks\t\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 number_of_blocks );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 volume_header->number_of_reserved_blocks,
@@ -389,13 +397,10 @@ int libfsext_io_handle_read_superblock(
 		 1024 << value_32bit,
 		 value_32bit );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 volume_header->blocks_per_block_group,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: blocks per block group\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 blocks_per_block_group );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 volume_header->fragments_per_block_group,
@@ -1110,6 +1115,34 @@ int libfsext_io_handle_read_superblock(
 		}
 	}
 #endif
+	if( number_of_blocks == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of blocks value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
+	if( blocks_per_block_group == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid block per block group value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
+	number_of_block_groups = number_of_blocks / blocks_per_block_group;
+
+	if( ( number_of_blocks % blocks_per_block_group ) != 0 )
+	{
+		number_of_block_groups += 1;
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -1117,6 +1150,11 @@ int libfsext_io_handle_read_superblock(
 		 "%s: format version\t\t\t: %" PRIu32 "\n",
 		 function,
 		 io_handle->format_version );
+
+		libcnotify_printf(
+		 "%s: number of block groups\t\t: %" PRIu32 "\n",
+		 function,
+		 number_of_block_groups );
 
 		libcnotify_printf(
 		 "\n" );
