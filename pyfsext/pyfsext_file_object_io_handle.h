@@ -138,5 +138,5 @@ int pyfsext_file_object_io_handle_get_size(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYFSEXT_FILE_OBJECT_IO_HANDLE_H ) */
 

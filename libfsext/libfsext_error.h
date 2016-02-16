@@ -64,11 +64,11 @@ int libfsext_error_backtrace_sprint(
      char *string,
      size_t size );
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBFSEXT ) */
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBFSEXT_INTERNAL_ERROR_H ) */
 

@@ -1,5 +1,5 @@
 /*
- * The internal libclocale header
+ * Error functions
  *
  * Copyright (C) 2010-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,32 +19,42 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYFSEXT_LIBCLOCALE_H )
-#define _PYFSEXT_LIBCLOCALE_H
+#if !defined( _PYFSEXT_ERROR_H )
+#define _PYFSEXT_ERROR_H
 
 #include <common.h>
+#include <types.h>
 
-/* Define HAVE_LOCAL_LIBCLOCALE for local use of libclocale
- */
-#if defined( HAVE_LOCAL_LIBCLOCALE )
+#include "pyfsext_libcerror.h"
+#include "pyfsext_python.h"
 
-#include <libclocale_codepage.h>
-#include <libclocale_definitions.h>
-#include <libclocale_locale.h>
-#include <libclocale_support.h>
+#define PYFSEXT_ERROR_STRING_SIZE	2048
 
-#else
-
-/* If libtool DLL support is enabled set LIBCLOCALE_DLL_IMPORT
- * before including libclocale.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBCLOCALE_DLL_IMPORT
+#if defined( __cplusplus )
+extern "C" {
 #endif
 
-#include <libclocale.h>
+void pyfsext_error_fetch(
+      libcerror_error_t **error,
+      int error_domain,
+      int error_code,
+      const char *format_string,
+      ... );
 
+void pyfsext_error_fetch_and_raise(
+      PyObject *exception_object,
+      const char *format_string,
+      ... );
+
+void pyfsext_error_raise(
+      libcerror_error_t *error,
+      PyObject *exception_object,
+      const char *format_string,
+      ... );
+
+#if defined( __cplusplus )
+}
 #endif
 
-#endif
+#endif /* !defined( _PYFSEXT_ERROR_H ) */
 

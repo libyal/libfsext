@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20160108],
+ [20160216],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -118,7 +118,14 @@ dnl Check if libfsext should be build with debug output
 AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
 
 dnl Check if libsmdev python bindings (pysmdev) should be build
+AX_PYTHON_CHECK_PYPREFIX
 AX_PYTHON_CHECK_ENABLE
+AX_PYTHON2_CHECK_ENABLE
+AX_PYTHON3_CHECK_ENABLE
+
+AM_CONDITIONAL(
+ HAVE_PYTHON_TESTS,
+ [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno])
 
 dnl Headers included in various places
 AC_CHECK_HEADERS([stdarg.h varargs.h])
@@ -212,6 +219,8 @@ AC_CONFIG_FILES([libfsext/Makefile])
 AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([fsexttools/Makefile])
 AC_CONFIG_FILES([pyfsext/Makefile])
+AC_CONFIG_FILES([pyfsext-python2/Makefile])
+AC_CONFIG_FILES([pyfsext-python3/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
@@ -228,7 +237,6 @@ AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([libfsext/libfsext.rc])
-AC_CONFIG_FILES([pyfsext/setup.py])
 AC_CONFIG_FILES([libfsext.pc])
 AC_CONFIG_FILES([libfsext.spec])
 dnl Have configure write its configuration
@@ -261,6 +269,8 @@ Features:
    Wide character type support:                $ac_cv_enable_wide_character_type
    fsexttools are build as static executables: $ac_cv_enable_static_executables
    Python (pyfsext) support:                   $ac_cv_enable_python
+   Python version 2 (pyfsext) support:         $ac_cv_enable_python2
+   Python version 3 (pyfsext) support:         $ac_cv_enable_python3
    Verbose output:                             $ac_cv_enable_verbose_output
    Debug output:                               $ac_cv_enable_debug_output
 ]);

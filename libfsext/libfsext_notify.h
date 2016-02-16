@@ -53,11 +53,11 @@ LIBFSEXT_EXTERN \
 int libfsext_notify_stream_close(
      libcerror_error_t **error );
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBFSEXT ) */
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBFSEXT_NOTIFY_H ) */
 

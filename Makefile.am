@@ -22,6 +22,8 @@ SUBDIRS = \
 	libcsystem \
 	fsexttools \
 	pyfsext \
+	pyfsext-python2 \
+	pyfsext-python3 \
 	po \
 	manuals \
 	tests \
@@ -35,8 +37,10 @@ DPKG_FILES = \
 	dpkg/copyright \
 	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libfsext-dev.docs \
 	dpkg/libfsext.docs \
+	dpkg/libfsext-dev.docs \
+	dpkg/libfsext-python.docs \
+	dpkg/libfsext-python3.docs \
 	dpkg/libfsext-tools.docs \
 	dpkg/source/format
 

@@ -76,7 +76,7 @@ int pyfsext_file_object_io_handle_initialize(
 		return( -1 );
 	}
 	*file_object_io_handle = (pyfsext_file_object_io_handle_t *) PyMem_Malloc(
-	                                                               sizeof( pyfsext_file_object_io_handle_t ) );
+	                                                              sizeof( pyfsext_file_object_io_handle_t ) );
 
 	if( *file_object_io_handle == NULL )
 	{
@@ -130,7 +130,7 @@ int pyfsext_file_object_initialize(
      libcerror_error_t **error )
 {
 	pyfsext_file_object_io_handle_t *file_object_io_handle = NULL;
-	static char *function                                   = "pyfsext_file_object_initialize";
+	static char *function                                  = "pyfsext_file_object_initialize";
 
 	if( handle == NULL )
 	{

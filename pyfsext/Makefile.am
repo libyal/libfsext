@@ -21,7 +21,6 @@ pyfsext_la_SOURCES = \
 	pyfsext_integer.c pyfsext_integer.h \
 	pyfsext_libbfio.h \
 	pyfsext_libcerror.h \
-	pyfsext_libclocale.h \
 	pyfsext_libcstring.h \
 	pyfsext_libfsext.h \
 	pyfsext_python.h \
@@ -44,10 +43,6 @@ pyfsext_la_CPPFLAGS = $(PYTHON_CPPFLAGS)
 pyfsext_la_LDFLAGS  = -module -avoid-version $(PYTHON_LDFLAGS)
 
 endif
-
-EXTRA_DIST = \
-	setup.py \
-	setup.py.in
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

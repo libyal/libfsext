@@ -34,16 +34,16 @@
 /* The following type definitions hide internal data structures
  */
 #if defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI )
-typedef struct libfsext_file_entry {}		libfsext_file_entry_t;
-typedef struct libfsext_volume {}		libfsext_volume_t;
+typedef struct libfsext_file_entry {}	libfsext_file_entry_t;
+typedef struct libfsext_volume {}	libfsext_volume_t;
 
 #else
 typedef intptr_t libfsext_file_entry_t;
 typedef intptr_t libfsext_volume_t;
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI ) */
 
 #endif /* defined( HAVE_LOCAL_LIBFSEXT ) */
 
-#endif
+#endif /* !defined( _LIBFSEXT_INTERNAL_TYPES_H ) */
 
