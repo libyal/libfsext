@@ -27,7 +27,6 @@
 #endif
 
 #include "pyfsext_error.h"
-#include "pyfsext_file_entry.h"
 #include "pyfsext_file_object_io_handle.h"
 #include "pyfsext_integer.h"
 #include "pyfsext_libbfio.h"
@@ -37,16 +36,17 @@
 #include "pyfsext_python.h"
 #include "pyfsext_unused.h"
 #include "pyfsext_volume.h"
-#include "pyfsext_volume_file_entries.h"
 
 #if !defined( LIBFSEXT_HAVE_BFIO )
+
 LIBFSEXT_EXTERN \
 int libfsext_volume_open_file_io_handle(
      libfsext_volume_t *volume,
      libbfio_handle_t *file_io_handle,
      int access_flags,
      libfsext_error_t **error );
-#endif
+
+#endif /* !defined( LIBFSEXT_HAVE_BFIO ) */
 
 PyMethodDef pyfsext_volume_object_methods[] = {
 
@@ -82,12 +82,12 @@ PyMethodDef pyfsext_volume_object_methods[] = {
 
 	/* Functions to access the volume values */
 
-	{ "get_name",
-	  (PyCFunction) pyfsext_volume_get_name,
+	{ "get_label",
+	  (PyCFunction) pyfsext_volume_get_label,
 	  METH_NOARGS,
-	  "get_name() -> Unicode string or None\n"
+	  "get_label() -> Unicode string or None\n"
 	  "\n"
-	  "Retrieves the name." },
+	  "Retrieves the label." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -95,10 +95,10 @@ PyMethodDef pyfsext_volume_object_methods[] = {
 
 PyGetSetDef pyfsext_volume_object_get_set_definitions[] = {
 
-	{ "name",
-	  (getter) pyfsext_volume_get_name,
+	{ "label",
+	  (getter) pyfsext_volume_get_label,
 	  (setter) 0,
-	  "The name.",
+	  "The label.",
 	  NULL },
 
 	/* Sentinel */
@@ -825,19 +825,19 @@ PyObject *pyfsext_volume_close(
 	return( Py_None );
 }
 
-/* Retrieves the name
+/* Retrieves the label
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pyfsext_volume_get_name(
+PyObject *pyfsext_volume_get_label(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
 	const char *errors       = NULL;
-	uint8_t *name            = NULL;
-	static char *function    = "pyfsext_volume_get_name";
-	size_t name_size         = 0;
+	uint8_t *label           = NULL;
+	static char *function    = "pyfsext_volume_get_label";
+	size_t label_size        = 0;
 	int result               = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -853,9 +853,9 @@ PyObject *pyfsext_volume_get_name(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libfsext_volume_get_utf8_name_size(
+	result = libfsext_volume_get_utf8_label_size(
 	          pyfsext_volume->volume,
-	          &name_size,
+	          &label_size,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -865,7 +865,7 @@ PyObject *pyfsext_volume_get_name(
 		pyfsext_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve name size.",
+		 "%s: unable to retrieve label size.",
 		 function );
 
 		libcerror_error_free(
@@ -874,31 +874,31 @@ PyObject *pyfsext_volume_get_name(
 		goto on_error;
 	}
 	else if( ( result == 0 )
-	      || ( name_size == 0 ) )
+	      || ( label_size == 0 ) )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	name = (uint8_t *) PyMem_Malloc(
-	                    sizeof( uint8_t ) * name_size );
+	label = (uint8_t *) PyMem_Malloc(
+	                     sizeof( uint8_t ) * label_size );
 
-	if( name == NULL )
+	if( label == NULL )
 	{
 		PyErr_Format(
 		 PyExc_IOError,
-		 "%s: unable to create name.",
+		 "%s: unable to create label.",
 		 function );
 
 		goto on_error;
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libfsext_volume_get_utf8_name(
+	result = libfsext_volume_get_utf8_label(
 		  pyfsext_volume->volume,
-		  name,
-		  name_size,
+		  label,
+		  label_size,
 		  &error );
 
 	Py_END_ALLOW_THREADS
@@ -908,7 +908,7 @@ PyObject *pyfsext_volume_get_name(
 		pyfsext_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve name.",
+		 "%s: unable to retrieve label.",
 		 function );
 
 		libcerror_error_free(
@@ -921,20 +921,20 @@ PyObject *pyfsext_volume_get_name(
 	 * of the string
 	 */
 	string_object = PyUnicode_DecodeUTF8(
-			 (char *) name,
-			 (Py_ssize_t) name_size - 1,
+			 (char *) label,
+			 (Py_ssize_t) label_size - 1,
 			 errors );
 
 	PyMem_Free(
-	 name );
+	 label );
 
 	return( string_object );
 
 on_error:
-	if( name != NULL )
+	if( label != NULL )
 	{
 		PyMem_Free(
-		 name );
+		 label );
 	}
 	return( NULL );
 }

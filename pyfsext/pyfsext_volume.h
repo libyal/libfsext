@@ -90,7 +90,7 @@ PyObject *pyfsext_volume_close(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments );
 
-PyObject *pyfsext_volume_get_name(
+PyObject *pyfsext_volume_get_label(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments );
 

@@ -28,6 +28,7 @@
 
 #include "pyfsext.h"
 #include "pyfsext_error.h"
+#include "pyfsext_file_object_io_handle.h"
 #include "pyfsext_libcerror.h"
 #include "pyfsext_libcstring.h"
 #include "pyfsext_libfsext.h"
@@ -36,11 +37,13 @@
 #include "pyfsext_volume.h"
 
 #if !defined( LIBFSEXT_HAVE_BFIO )
+
 LIBFSEXT_EXTERN \
 int libfsext_check_volume_signature_file_io_handle(
      libbfio_handle_t *file_io_handle,
      libfsext_error_t **error );
-#endif
+
+#endif /* !defined( LIBFSEXT_HAVE_BFIO ) */
 
 /* The pyfsext module methods
  */

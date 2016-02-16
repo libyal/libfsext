@@ -220,10 +220,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pyfsext\pyfsext_libclocale.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\pyfsext\pyfsext_libcstring.h"
 				>
 			</File>
