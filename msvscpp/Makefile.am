@@ -1,4 +1,5 @@
 MSVSCPP_FILES = \
+	fsext_test_get_version/fsext_test_get_version.vcproj \
 	fsextinfo/fsextinfo.vcproj \
 	libbfio/libbfio.vcproj \
 	libcdata/libcdata.vcproj \
