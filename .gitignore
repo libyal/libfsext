@@ -121,6 +121,7 @@ stamp-h[1-9]
 /libfsext/libfsext_definitions.h
 /pyfsext-python[23]/*.[ch]
 /fsexttools/fsextinfo
+/tests/fsext_test_error
 /tests/fsext_test_get_version
 /tests/input
 /tests/tmp*

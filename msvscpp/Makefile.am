@@ -1,4 +1,5 @@
 MSVSCPP_FILES = \
+	fsext_test_error/fsext_test_error.vcproj \
 	fsext_test_get_version/fsext_test_get_version.vcproj \
 	fsextinfo/fsextinfo.vcproj \
 	libbfio/libbfio.vcproj \
@@ -21,17 +22,8 @@ MSVSCPP_FILES = \
 	pyfsext/pyfsext.vcproj \
 	libfsext.sln
 
-SCRIPT_FILES = \
-	scripts/vs2008_x64.sh \
-	scripts/vs2008_x64_sln.sed \
-	scripts/vs2008_x64_vcproj.sed \
-	scripts/vs2010_x64.sh \
-	scripts/vs2010_x64_sln.sed \
-	scripts/vs2010_x64_vcxproj.sed
-
 EXTRA_DIST = \
-	$(MSVSCPP_FILES) \
-	$(SCRIPT_FILES)
+	$(MSVSCPP_FILES)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

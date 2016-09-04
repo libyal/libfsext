@@ -16,12 +16,25 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	fsext_test_error \
 	fsext_test_get_version
 
-fsext_test_get_version_SOURCES = \
+fsext_test_error_SOURCES = \
+	fsext_test_error.c \
 	fsext_test_libfsext.h \
 	fsext_test_libcstring.h \
+	fsext_test_macros.h \
+	fsext_test_unused.h
+
+fsext_test_error_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCSTRING_LIBADD@
+
+fsext_test_get_version_SOURCES = \
 	fsext_test_get_version.c \
+	fsext_test_libfsext.h \
+	fsext_test_libcstring.h \
+	fsext_test_macros.h \
 	fsext_test_unused.h
 
 fsext_test_get_version_LDADD = \

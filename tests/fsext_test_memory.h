@@ -1,5 +1,5 @@
 /*
- * The internal libcstring header
+ * Memory allocation functions for testing
  *
  * Copyright (C) 2010-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,33 +19,32 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _FSEXTTOOLS_LIBCSTRING_H )
-#define _FSEXTTOOLS_LIBCSTRING_H
+#if !defined( _FSEXT_TEST_MEMORY_H )
+#define _FSEXT_TEST_MEMORY_H
 
 #include <common.h>
 
-/* Define HAVE_LOCAL_LIBCSTRING for local use of libcstring
- */
-#if defined( HAVE_LOCAL_LIBCSTRING )
-
-#include <libcstring_definitions.h>
-#include <libcstring_narrow_string.h>
-#include <libcstring_system_string.h>
-#include <libcstring_types.h>
-#include <libcstring_wide_string.h>
-
-#else
-
-/* If libtool DLL support is enabled set LIBCSTRING_DLL_IMPORT
- * before including libcstring.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
-#define LIBCSTRING_DLL_IMPORT
+#if defined( __cplusplus )
+extern "C" {
 #endif
 
-#include <libcstring.h>
+#if defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ ) && !defined( __clang__ )
 
-#endif /* defined( HAVE_LOCAL_LIBCSTRING ) */
+#define HAVE_FSEXT_TEST_MEMORY		1
 
-#endif /* !defined( _FSEXTTOOLS_LIBCSTRING_H ) */
+extern int fsext_test_malloc_attempts_before_fail;
+
+extern int fsext_test_memcpy_attempts_before_fail;
+
+extern int fsext_test_memset_attempts_before_fail;
+
+extern int fsext_test_realloc_attempts_before_fail;
+
+#endif /* defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ ) && !defined( __clang__ ) */
+
+#if defined( __cplusplus )
+}
+#endif
+
+#endif /* !defined( _FSEXT_TEST_MEMORY_H ) */
 
