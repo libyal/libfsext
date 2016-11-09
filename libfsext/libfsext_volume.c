@@ -21,7 +21,9 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
@@ -29,7 +31,6 @@
 #include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
-#include "libfsext_libcstring.h"
 #include "libfsext_libuna.h"
 #include "libfsext_volume.h"
 
@@ -314,7 +315,7 @@ int libfsext_volume_open(
 	if( libbfio_file_set_name(
 	     file_io_handle,
 	     filename,
-	     libcstring_narrow_string_length(
+	     narrow_string_length(
 	      filename ) + 1,
 	     error ) != 1 )
 	{
@@ -451,7 +452,7 @@ int libfsext_volume_open_wide(
 	if( libbfio_file_set_name_wide(
 	     file_io_handle,
 	     filename,
-	     libcstring_wide_string_length(
+	     wide_string_length(
 	      filename ) + 1,
 	     error ) != 1 )
 	{

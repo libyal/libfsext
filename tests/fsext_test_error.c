@@ -20,6 +20,8 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
@@ -108,7 +110,7 @@ int fsext_test_error_backtrace_sprint(
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain(
      int argc FSEXT_TEST_ATTRIBUTE_UNUSED,
      wchar_t * const argv[] FSEXT_TEST_ATTRIBUTE_UNUSED )
@@ -123,23 +125,23 @@ int main(
 
 	FSEXT_TEST_RUN(
 	 "libfsext_error_free",
-	 fsext_test_error_free() )
+	 fsext_test_error_free );
 
 	FSEXT_TEST_RUN(
 	 "libfsext_error_fprint",
-	 fsext_test_error_fprint() )
+	 fsext_test_error_fprint );
 
 	FSEXT_TEST_RUN(
 	 "libfsext_error_sprint",
-	 fsext_test_error_sprint() )
+	 fsext_test_error_sprint );
 
 	FSEXT_TEST_RUN(
 	 "libfsext_error_backtrace_fprint",
-	 fsext_test_error_backtrace_fprint() )
+	 fsext_test_error_backtrace_fprint );
 
 	FSEXT_TEST_RUN(
 	 "libfsext_error_backtrace_sprint",
-	 fsext_test_error_backtrace_sprint() )
+	 fsext_test_error_backtrace_sprint );
 
 	return( EXIT_SUCCESS );
 

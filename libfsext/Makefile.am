@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -32,7 +31,6 @@ libfsext_la_SOURCES = \
 	libfsext_libcerror.h \
 	libfsext_libclocale.h \
 	libfsext_libcnotify.h \
-	libfsext_libcstring.h \
 	libfsext_libfcache.h \
 	libfsext_libfdata.h \
 	libfsext_libfdatetime.h \
@@ -45,7 +43,6 @@ libfsext_la_SOURCES = \
 	libfsext_volume.c libfsext_volume.h
 
 libfsext_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \

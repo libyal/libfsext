@@ -28,22 +28,19 @@
  */
 #if !defined( HAVE_LOCAL_LIBFSEXT )
 
-/* If Cygwin libtool DLL support is enabled set LIBFSEXT_DLL_EXPORT
+/* If libtool DLL support is enabled set LIBFSEXT_DLL_EXPORT
  * before including libfsext/extern.h
  */
 #if defined( _WIN32 ) && defined( DLL_EXPORT )
-#if !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBFSEXT_DLL_EXPORT
-#endif
 #endif
 
 #include <libfsext/extern.h>
 
 #else
-
-#define LIBFSEXT_EXTERN  extern
-
-#endif
+#define LIBFSEXT_EXTERN	extern
 
 #endif
+
+#endif /* !defined( _LIBFSEXT_INTERNAL_EXTERN_H ) */
 

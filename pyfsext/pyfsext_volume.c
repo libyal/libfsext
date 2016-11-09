@@ -31,7 +31,6 @@
 #include "pyfsext_integer.h"
 #include "pyfsext_libbfio.h"
 #include "pyfsext_libcerror.h"
-#include "pyfsext_libcstring.h"
 #include "pyfsext_libfsext.h"
 #include "pyfsext_python.h"
 #include "pyfsext_unused.h"
@@ -463,7 +462,7 @@ PyObject *pyfsext_volume_open(
 	char *mode                   = NULL;
 	int result                   = 0;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	const wchar_t *filename_wide = NULL;
 #else
 	PyObject *utf8_string_object = NULL;
@@ -523,7 +522,7 @@ PyObject *pyfsext_volume_open(
 	{
 		PyErr_Clear();
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
 		                             string_object );
 		Py_BEGIN_ALLOW_THREADS

@@ -11,7 +11,6 @@ pkginclude_HEADERS = \
 
 EXTRA_DIST = \
 	libfsext.h.in \
-	libfsext/codepage.h \
 	libfsext/definitions.h.in \
 	libfsext/features.h.in \
 	libfsext/types.h.in

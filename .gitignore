@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20160507
+# Version: 20161030
 
 # Generic auto-generated build files
 *~
@@ -57,6 +57,7 @@ stamp-h[1-9]
 /test-driver
 /ylwrap
 /m4/codeset.m4
+/m4/extern-inline.m4
 /m4/fcntl-o.m4
 /m4/gettext.m4
 /m4/glibc2.m4
@@ -122,7 +123,9 @@ stamp-h[1-9]
 /pyfsext-python[23]/*.[ch]
 /fsexttools/fsextinfo
 /tests/fsext_test_error
-/tests/fsext_test_get_version
+/tests/fsext_test_file_entry
+/tests/fsext_test_support
+/tests/fsext_test_volume
 /tests/input
 /tests/tmp*
 
@@ -135,7 +138,6 @@ stamp-h[1-9]
 /libcnotify
 /libcpath
 /libcsplit
-/libcstring
 /libcsystem
 /libcthreads
 /libfcache

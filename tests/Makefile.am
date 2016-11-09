@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBFSEXT_DLL_IMPORT@
 
@@ -17,29 +16,27 @@ EXTRA_DIST = \
 
 check_PROGRAMS = \
 	fsext_test_error \
-	fsext_test_get_version
+	fsext_test_support
 
 fsext_test_error_SOURCES = \
 	fsext_test_error.c \
 	fsext_test_libfsext.h \
-	fsext_test_libcstring.h \
 	fsext_test_macros.h \
 	fsext_test_unused.h
 
 fsext_test_error_LDADD = \
-	../libfsext/libfsext.la \
-	@LIBCSTRING_LIBADD@
+	../libfsext/libfsext.la
 
-fsext_test_get_version_SOURCES = \
-	fsext_test_get_version.c \
+fsext_test_support_SOURCES = \
+	fsext_test_libcerror.h \
 	fsext_test_libfsext.h \
-	fsext_test_libcstring.h \
 	fsext_test_macros.h \
+	fsext_test_support.c \
 	fsext_test_unused.h
 
-fsext_test_get_version_LDADD = \
-	../libfsext/libfsext.la \
-	@LIBCSTRING_LIBADD@
+fsext_test_support_LDADD = \
+	@LIBCERROR_LIBADD@ \
+	../libfsext/libfsext.la
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

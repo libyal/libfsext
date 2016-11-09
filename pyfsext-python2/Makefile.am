@@ -8,7 +8,6 @@ if HAVE_PYTHON2
 AM_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -28,7 +27,6 @@ BUILT_SOURCES = \
 	pyfsext_integer.c pyfsext_integer.h \
 	pyfsext_libbfio.h \
 	pyfsext_libcerror.h \
-	pyfsext_libcstring.h \
 	pyfsext_libfsext.h \
 	pyfsext_python.h \
 	pyfsext_unused.h \
@@ -39,7 +37,6 @@ pyexec_LTLIBRARIES = pyfsext.la
 nodist_pyfsext_la_SOURCES = $(BUILT_SOURCES)
 
 pyfsext_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	../libfsext/libfsext.la \
 	@LIBCDATA_LIBADD@ \

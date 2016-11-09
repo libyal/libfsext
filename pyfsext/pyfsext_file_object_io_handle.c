@@ -28,7 +28,6 @@
 #include "pyfsext_integer.h"
 #include "pyfsext_libbfio.h"
 #include "pyfsext_libcerror.h"
-#include "pyfsext_libcstring.h"
 #include "pyfsext_python.h"
 
 /* Creates a file object IO handle

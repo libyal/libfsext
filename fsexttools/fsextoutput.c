@@ -29,7 +29,6 @@
 #include "fsexttools_libcerror.h"
 #include "fsexttools_libclocale.h"
 #include "fsexttools_libcnotify.h"
-#include "fsexttools_libcstring.h"
 #include "fsexttools_libcsystem.h"
 #include "fsexttools_libfcache.h"
 #include "fsexttools_libfdata.h"
