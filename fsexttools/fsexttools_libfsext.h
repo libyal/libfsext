@@ -27,11 +27,11 @@
 /* If Cygwin libtool DLL support is enabled set LIBFSEXT_DLL_IMPORT
  * before including libfsext.h
  */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
+#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBFSEXT_DLL_IMPORT
 #endif
 
 #include <libfsext.h>
 
-#endif
+#endif /* !defined( _FSEXTTOOLS_LIBFSEXT_H ) */
 

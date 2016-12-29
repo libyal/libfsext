@@ -95,5 +95,5 @@ int libfsext_io_handle_read_group_descriptor(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBFSEXT_IO_HANDLE_H ) */
 

@@ -1,5 +1,5 @@
 /*
- * Library volume type testing program
+ * Library volume type test program
  *
  * Copyright (C) 2010-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -30,15 +30,15 @@
 #include <stdlib.h>
 #endif
 
+#include "fsext_test_getopt.h"
 #include "fsext_test_libcerror.h"
 #include "fsext_test_libclocale.h"
-#include "fsext_test_libcsystem.h"
 #include "fsext_test_libfsext.h"
 #include "fsext_test_libuna.h"
 #include "fsext_test_macros.h"
 #include "fsext_test_memory.h"
 
-#if SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER ) && SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
 #error Unsupported size of wchar_t
 #endif
 
@@ -256,8 +256,8 @@ int fsext_test_volume_get_wide_source(
      libcerror_error_t **error )
 {
 	static char *function   = "fsext_test_volume_get_wide_source";
-	size_t wide_source_size = 0;
 	size_t source_length    = 0;
+	size_t wide_source_size = 0;
 
 #if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result              = 0;
@@ -584,11 +584,17 @@ int fsext_test_volume_close_source(
 int fsext_test_volume_initialize(
      void )
 {
-	libcerror_error_t *error = NULL;
-	libfsext_volume_t *volume      = NULL;
-	int result               = 0;
+	libcerror_error_t *error        = NULL;
+	libfsext_volume_t *volume       = NULL;
+	int result                      = 0;
 
-	/* Test libfsext_volume_initialize
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Test regular cases
 	 */
 	result = libfsext_volume_initialize(
 	          &volume,
@@ -664,79 +670,89 @@ int fsext_test_volume_initialize(
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
-	/* Test libfsext_volume_initialize with malloc failing
-	 */
-	fsext_test_malloc_attempts_before_fail = 0;
-
-	result = libfsext_volume_initialize(
-	          &volume,
-	          &error );
-
-	if( fsext_test_malloc_attempts_before_fail != -1 )
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
 	{
-		fsext_test_malloc_attempts_before_fail = -1;
+		/* Test libfsext_volume_initialize with malloc failing
+		 */
+		fsext_test_malloc_attempts_before_fail = test_number;
 
-		if( volume != NULL )
+		result = libfsext_volume_initialize(
+		          &volume,
+		          &error );
+
+		if( fsext_test_malloc_attempts_before_fail != -1 )
 		{
-			libfsext_volume_free(
-			 &volume,
-			 NULL );
+			fsext_test_malloc_attempts_before_fail = -1;
+
+			if( volume != NULL )
+			{
+				libfsext_volume_free(
+				 &volume,
+				 NULL );
+			}
+		}
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "volume",
+			 volume );
+
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
 		}
 	}
-	else
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
 	{
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		/* Test libfsext_volume_initialize with memset failing
+		 */
+		fsext_test_memset_attempts_before_fail = test_number;
 
-		FSEXT_TEST_ASSERT_IS_NULL(
-		 "volume",
-		 volume );
+		result = libfsext_volume_initialize(
+		          &volume,
+		          &error );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Test libfsext_volume_initialize with memset failing
-	 */
-	fsext_test_memset_attempts_before_fail = 0;
-
-	result = libfsext_volume_initialize(
-	          &volume,
-	          &error );
-
-	if( fsext_test_memset_attempts_before_fail != -1 )
-	{
-		fsext_test_memset_attempts_before_fail = -1;
-
-		if( volume != NULL )
+		if( fsext_test_memset_attempts_before_fail != -1 )
 		{
-			libfsext_volume_free(
-			 &volume,
-			 NULL );
+			fsext_test_memset_attempts_before_fail = -1;
+
+			if( volume != NULL )
+			{
+				libfsext_volume_free(
+				 &volume,
+				 NULL );
+			}
 		}
-	}
-	else
-	{
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NULL(
-		 "volume",
-		 volume );
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "volume",
+			 volume );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
 
-		libcerror_error_free(
-		 &error );
+			libcerror_error_free(
+			 &error );
+		}
 	}
 #endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
 
@@ -795,7 +811,7 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libfsext_volume_open functions
+/* Tests the libfsext_volume_open function
  * Returns 1 if successful or 0 if not
  */
 int fsext_test_volume_open(
@@ -803,9 +819,9 @@ int fsext_test_volume_open(
 {
 	char narrow_source[ 256 ];
 
-	libcerror_error_t *error = NULL;
-	libfsext_volume_t *volume      = NULL;
-	int result               = 0;
+	libcerror_error_t *error  = NULL;
+	libfsext_volume_t *volume = NULL;
+	int result                = 0;
 
 	/* Initialize test
 	 */
@@ -858,21 +874,28 @@ int fsext_test_volume_open(
          "error",
          error );
 
-	/* Clean up
+	/* Test error cases
 	 */
-	result = libfsext_volume_close(
+	result = libfsext_volume_open(
 	          volume,
+	          narrow_source,
+	          LIBFSEXT_OPEN_READ,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
 
-        FSEXT_TEST_ASSERT_IS_NULL(
+        FSEXT_TEST_ASSERT_IS_NOT_NULL(
          "error",
          error );
 
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
 	result = libfsext_volume_free(
 	          &volume,
 	          &error );
@@ -909,7 +932,7 @@ on_error:
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Tests the libfsext_volume_open_wide functions
+/* Tests the libfsext_volume_open_wide function
  * Returns 1 if successful or 0 if not
  */
 int fsext_test_volume_open_wide(
@@ -917,9 +940,9 @@ int fsext_test_volume_open_wide(
 {
 	wchar_t wide_source[ 256 ];
 
-	libcerror_error_t *error = NULL;
-	libfsext_volume_t *volume      = NULL;
-	int result               = 0;
+	libcerror_error_t *error  = NULL;
+	libfsext_volume_t *volume = NULL;
+	int result                = 0;
 
 	/* Initialize test
 	 */
@@ -972,21 +995,28 @@ int fsext_test_volume_open_wide(
          "error",
          error );
 
-	/* Clean up
+	/* Test error cases
 	 */
-	result = libfsext_volume_close(
+	result = libfsext_volume_open_wide(
 	          volume,
+	          wide_source,
+	          LIBFSEXT_OPEN_READ,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
 
-        FSEXT_TEST_ASSERT_IS_NULL(
+        FSEXT_TEST_ASSERT_IS_NOT_NULL(
          "error",
          error );
 
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
 	result = libfsext_volume_free(
 	          &volume,
 	          &error );
@@ -1023,6 +1053,630 @@ on_error:
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
+/* Tests the libfsext_volume_close function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_close(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libfsext_volume_close(
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        FSEXT_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_volume_open and libfsext_volume_close functions
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_open_close(
+     const system_character_t *source )
+{
+	libcerror_error_t *error  = NULL;
+	libfsext_volume_t *volume = NULL;
+	int result                = 0;
+
+	/* Initialize test
+	 */
+	result = libfsext_volume_initialize(
+	          &volume,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        FSEXT_TEST_ASSERT_IS_NOT_NULL(
+         "volume",
+         volume );
+
+        FSEXT_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test open and close
+	 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libfsext_volume_open_wide(
+	          volume,
+	          source,
+	          LIBFSEXT_OPEN_READ,
+	          &error );
+#else
+	result = libfsext_volume_open(
+	          volume,
+	          source,
+	          LIBFSEXT_OPEN_READ,
+	          &error );
+#endif
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        FSEXT_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libfsext_volume_close(
+	          volume,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+        FSEXT_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test open and close a second time to validate clean up on close
+	 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libfsext_volume_open_wide(
+	          volume,
+	          source,
+	          LIBFSEXT_OPEN_READ,
+	          &error );
+#else
+	result = libfsext_volume_open(
+	          volume,
+	          source,
+	          LIBFSEXT_OPEN_READ,
+	          &error );
+#endif
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        FSEXT_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libfsext_volume_close(
+	          volume,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+        FSEXT_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Clean up
+	 */
+	result = libfsext_volume_free(
+	          &volume,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        FSEXT_TEST_ASSERT_IS_NULL(
+         "volume",
+         volume );
+
+        FSEXT_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( volume != NULL )
+	{
+		libfsext_volume_free(
+		 &volume,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_volume_signal_abort function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_signal_abort(
+     libfsext_volume_t *volume )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_volume_signal_abort(
+	          volume,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        FSEXT_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test error cases
+	 */
+	result = libfsext_volume_signal_abort(
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        FSEXT_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_volume_get_utf8_label_size function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_get_utf8_label_size(
+     libfsext_volume_t *volume )
+{
+	libcerror_error_t *error   = NULL;
+	size_t utf8_label_size     = 0;
+	int result                 = 0;
+	int utf8_label_size_is_set = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_volume_get_utf8_label_size(
+	          volume,
+	          &utf8_label_size,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	utf8_label_size_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libfsext_volume_get_utf8_label_size(
+	          NULL,
+	          &utf8_label_size,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( utf8_label_size_is_set != 0 )
+	{
+		result = libfsext_volume_get_utf8_label_size(
+		          volume,
+		          NULL,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_volume_get_utf8_label function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_get_utf8_label(
+     libfsext_volume_t *volume )
+{
+	uint8_t utf8_label[ 512 ];
+
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+	int utf8_label_is_set    = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_volume_get_utf8_label(
+	          volume,
+	          utf8_label,
+	          512,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	utf8_label_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libfsext_volume_get_utf8_label(
+	          NULL,
+	          utf8_label,
+	          512,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( utf8_label_is_set != 0 )
+	{
+		result = libfsext_volume_get_utf8_label(
+		          volume,
+		          NULL,
+		          512,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+
+		result = libfsext_volume_get_utf8_label(
+		          volume,
+		          utf8_label,
+		          0,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+	        FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	         "error",
+	         error );
+
+		libcerror_error_free(
+		 &error );
+
+		result = libfsext_volume_get_utf8_label(
+		          volume,
+		          utf8_label,
+		          (size_t) SSIZE_MAX + 1,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_volume_get_utf16_label_size function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_get_utf16_label_size(
+     libfsext_volume_t *volume )
+{
+	libcerror_error_t *error    = NULL;
+	size_t utf16_label_size     = 0;
+	int result                  = 0;
+	int utf16_label_size_is_set = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_volume_get_utf16_label_size(
+	          volume,
+	          &utf16_label_size,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	utf16_label_size_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libfsext_volume_get_utf16_label_size(
+	          NULL,
+	          &utf16_label_size,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( utf16_label_size_is_set != 0 )
+	{
+		result = libfsext_volume_get_utf16_label_size(
+		          volume,
+		          NULL,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_volume_get_utf16_label function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_get_utf16_label(
+     libfsext_volume_t *volume )
+{
+	uint16_t utf16_label[ 512 ];
+
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+	int utf16_label_is_set   = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_volume_get_utf16_label(
+	          volume,
+	          utf16_label,
+	          512,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	utf16_label_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libfsext_volume_get_utf16_label(
+	          NULL,
+	          utf16_label,
+	          512,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( utf16_label_is_set != 0 )
+	{
+		result = libfsext_volume_get_utf16_label(
+		          volume,
+		          NULL,
+		          512,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+
+		result = libfsext_volume_get_utf16_label(
+		          volume,
+		          utf16_label,
+		          0,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+	        FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	         "error",
+	         error );
+
+		libcerror_error_free(
+		 &error );
+
+		result = libfsext_volume_get_utf16_label(
+		          volume,
+		          utf16_label,
+		          (size_t) SSIZE_MAX + 1,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -1036,12 +1690,12 @@ int main(
 #endif
 {
 	libcerror_error_t *error   = NULL;
+	libfsext_volume_t *volume  = NULL;
 	system_character_t *source = NULL;
-	libfsext_volume_t *volume        = NULL;
 	system_integer_t option    = 0;
 	int result                 = 0;
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = fsext_test_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "" ) ) ) != (system_integer_t) -1 )
@@ -1101,7 +1755,14 @@ int main(
 
 #endif /* defined( LIBFSEXT_HAVE_BFIO ) */
 
-		/* TODO add test for libfsext_volume_close */
+		FSEXT_TEST_RUN(
+		 "libfsext_volume_close",
+		 fsext_test_volume_close );
+
+		FSEXT_TEST_RUN_WITH_ARGS(
+		 "libfsext_volume_open_close",
+		 fsext_test_volume_open_close,
+		 source );
 
 		/* Initialize test
 		 */
@@ -1124,8 +1785,34 @@ int main(
 	         error );
 
 		FSEXT_TEST_RUN_WITH_ARGS(
-		 "libfsext_volume_open",
-		 fsext_test_volume_open,
+		 "libfsext_volume_signal_abort",
+		 fsext_test_volume_signal_abort,
+		 volume );
+
+#if defined( __GNUC__ )
+
+		/* TODO: add tests for libfsext_volume_open_read */
+
+#endif /* defined( __GNUC__ ) */
+
+		FSEXT_TEST_RUN_WITH_ARGS(
+		 "libfsext_volume_get_utf8_label_size",
+		 fsext_test_volume_get_utf8_label_size,
+		 volume );
+
+		FSEXT_TEST_RUN_WITH_ARGS(
+		 "libfsext_volume_get_utf8_label",
+		 fsext_test_volume_get_utf8_label,
+		 volume );
+
+		FSEXT_TEST_RUN_WITH_ARGS(
+		 "libfsext_volume_get_utf16_label_size",
+		 fsext_test_volume_get_utf16_label_size,
+		 volume );
+
+		FSEXT_TEST_RUN_WITH_ARGS(
+		 "libfsext_volume_get_utf16_label",
+		 fsext_test_volume_get_utf16_label,
 		 volume );
 
 		/* Clean up

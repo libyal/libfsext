@@ -62,5 +62,5 @@ int libfsext_debug_print_read_offsets(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBFSEXT_DEBUG_H ) */
 

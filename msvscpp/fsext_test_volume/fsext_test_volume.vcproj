@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="fsext_test_error"
-	ProjectGUID="{A01C618A-11CC-42BC-9E4A-8564E2B25FF3}"
-	RootNamespace="fsext_test_error"
+	Name="fsext_test_volume"
+	ProjectGUID="{378460A4-0E01-4869-BC48-E099E5E1FC50}"
+	RootNamespace="fsext_test_volume"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,7 +176,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\fsext_test_error.c"
+				RelativePath="..\..\tests\fsext_test_getopt.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\fsext_test_memory.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\fsext_test_volume.c"
 				>
 			</File>
 		</Filter>
@@ -186,7 +194,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\tests\fsext_test_getopt.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\fsext_test_libcerror.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\fsext_test_libclocale.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\fsext_test_libcnotify.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\fsext_test_libfsext.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\fsext_test_libuna.h"
 				>
 			</File>
 			<File
@@ -194,7 +222,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\fsext_test_unused.h"
+				RelativePath="..\..\tests\fsext_test_memory.h"
 				>
 			</File>
 		</Filter>

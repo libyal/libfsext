@@ -308,5 +308,5 @@ struct fsext_journal_information
 }
 #endif
 
-#endif
+#endif /* !defined( _FSEXT_SUPERBLOCK_H ) */
 

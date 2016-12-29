@@ -134,5 +134,5 @@ int libfsext_volume_get_utf16_label(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBFSEXT_INTERNAL_VOLUME_H ) */
 

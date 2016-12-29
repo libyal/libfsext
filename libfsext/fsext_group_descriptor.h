@@ -198,5 +198,5 @@ struct fsext_group_descriptor_ext4
 }
 #endif
 
-#endif
+#endif /* !defined( _FSEXT_GROUP_DESCRIPTOR_H ) */
 

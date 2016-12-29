@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="fsext_test_error"
-	ProjectGUID="{A01C618A-11CC-42BC-9E4A-8564E2B25FF3}"
-	RootNamespace="fsext_test_error"
+	Name="fsext_test_notify"
+	ProjectGUID="{A5E4E963-E80A-48F0-927F-3F3CB61AE69F}"
+	RootNamespace="fsext_test_notify"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,7 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\fsext_test_error.c"
+				RelativePath="..\..\tests\fsext_test_notify.c"
 				>
 			</File>
 		</Filter>

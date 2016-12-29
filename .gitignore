@@ -124,6 +124,8 @@ stamp-h[1-9]
 /fsexttools/fsextinfo
 /tests/fsext_test_error
 /tests/fsext_test_file_entry
+/tests/fsext_test_io_handle
+/tests/fsext_test_notify
 /tests/fsext_test_support
 /tests/fsext_test_volume
 /tests/input
