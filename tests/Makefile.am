@@ -16,13 +16,19 @@ AM_CPPFLAGS = \
 	@LIBFGUID_CPPFLAGS@ \
 	@LIBFSEXT_DLL_IMPORT@
 
+if HAVE_PYTHON_TESTS
+TESTS_PYFSEXT = \
+	test_python_module.sh
+endif
+
 TESTS = \
-	test_api_functions.sh \
-	test_api_types.sh
+	test_library.sh \
+	$(TESTS_PYFSEXT)
 
 check_SCRIPTS = \
-	test_api_functions.sh \
-	test_api_types.sh \
+	pyfsext_test_support.py \
+	test_library.sh \
+	test_python_module.sh \
 	test_runner.sh
 
 EXTRA_DIST = \

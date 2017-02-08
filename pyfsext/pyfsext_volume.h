@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libfsext volume
+ * Python object wrapper of libfsext_volume_t
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *

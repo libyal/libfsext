@@ -33,12 +33,14 @@
 #include <stdlib.h>
 #endif
 
-#include "fsextoutput.h"
+#include "fsexttools_getopt.h"
 #include "fsexttools_libcerror.h"
 #include "fsexttools_libclocale.h"
 #include "fsexttools_libcnotify.h"
-#include "fsexttools_libcsystem.h"
 #include "fsexttools_libfsext.h"
+#include "fsexttools_output.h"
+#include "fsexttools_signal.h"
+#include "fsexttools_unused.h"
 #include "info_handle.h"
 
 enum FSEXTINFO_MODES
@@ -76,12 +78,12 @@ void usage_fprint(
 /* Signal handler for fsextinfo
  */
 void fsextinfo_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      fsexttools_signal_t signal FSEXTTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function   = "fsextinfo_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	FSEXTTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	fsextinfo_abort = 1;
 
@@ -103,8 +105,13 @@ void fsextinfo_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -145,13 +152,13 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-        if( libcsystem_initialize(
+        if( fsexttools_output_initialize(
              _IONBF,
              &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
@@ -159,7 +166,7 @@ int main( int argc, char * const argv[] )
 	 stdout,
 	 program );
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = fsexttools_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "hHo:vV" ) ) ) != (system_integer_t) -1 )

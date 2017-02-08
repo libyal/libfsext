@@ -1,5 +1,5 @@
 /*
- * Python bindings for libfsext (pyfsext)
+ * Signal handling functions
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,43 +19,54 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYFSEXT_H )
-#define _PYFSEXT_H
+#if !defined( _FSEXTTOOLS_SIGNAL_H )
+#define _FSEXTTOOLS_SIGNAL_H
 
 #include <common.h>
 #include <types.h>
 
-#include "pyfsext_python.h"
+#include "fsexttools_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-PyObject *pyfsext_get_version(
-           PyObject *self,
-           PyObject *arguments );
-
-PyObject *pyfsext_check_volume_signature(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
-PyObject *pyfsext_check_volume_signature_file_object(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC PyInit_pyfsext(
-                void );
-#else
-PyMODINIT_FUNC initpyfsext(
-                void );
+#if !defined( HAVE_SIGNAL_H ) && !defined( WINAPI )
+#error missing signal functions
 #endif
+
+#if defined( WINAPI )
+typedef unsigned long fsexttools_signal_t;
+
+#else
+typedef int fsexttools_signal_t;
+
+#endif /* defined( WINAPI ) */
+
+#if defined( WINAPI )
+
+BOOL WINAPI fsexttools_signal_handler(
+             fsexttools_signal_t signal );
+
+#if defined( _MSC_VER )
+
+void fsexttools_signal_initialize_memory_debug(
+      void );
+
+#endif /* defined( _MSC_VER ) */
+
+#endif /* defined( WINAPI ) */
+
+int fsexttools_signal_attach(
+     void (*signal_handler)( fsexttools_signal_t ),
+     libcerror_error_t **error );
+
+int fsexttools_signal_detach(
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _PYFSEXT_H ) */
+#endif /* !defined( _FSEXTTOOLS_SIGNAL_H ) */
 
