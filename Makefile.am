@@ -33,13 +33,12 @@ DPKG_FILES = \
 	dpkg/compat \
 	dpkg/control \
 	dpkg/copyright \
-	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libfsext.docs \
-	dpkg/libfsext-dev.docs \
-	dpkg/libfsext-python.docs \
-	dpkg/libfsext-python3.docs \
-	dpkg/libfsext-tools.docs \
+	dpkg/libfsext.install \
+	dpkg/libfsext-dev.install \
+	dpkg/libfsext-python.install \
+	dpkg/libfsext-python3.install \
+	dpkg/libfsext-tools.install \
 	dpkg/source/format
 
 GETTEXT_FILES = \

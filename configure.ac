@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20170207],
+ [20170505],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -194,7 +194,6 @@ AC_CONFIG_FILES([libfsext/libfsext_definitions.h])
 dnl Have configure make distribution specific files
 AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
-AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([libfsext/libfsext.rc])
 AC_CONFIG_FILES([libfsext.pc])
 AC_CONFIG_FILES([libfsext.spec])
