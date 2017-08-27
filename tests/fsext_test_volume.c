@@ -1789,11 +1789,11 @@ int main(
 		 fsext_test_volume_signal_abort,
 		 volume );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
 		/* TODO: add tests for libfsext_volume_open_read */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 		FSEXT_TEST_RUN_WITH_ARGS(
 		 "libfsext_volume_get_utf8_label_size",
