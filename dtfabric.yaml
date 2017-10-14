@@ -1,0 +1,860 @@
+name: byte
+type: integer
+attributes:
+  format: unsigned
+  size: 1
+  units: bytes
+---
+name: uint8
+type: integer
+attributes:
+  format: unsigned
+  size: 1
+  units: bytes
+---
+name: uint16
+type: integer
+attributes:
+  format: unsigned
+  size: 2
+  units: bytes
+---
+name: uint32
+type: integer
+attributes:
+  format: unsigned
+  size: 4
+  units: bytes
+---
+name: uint64
+type: integer
+attributes:
+  format: unsigned
+  size: 8
+  units: bytes
+---
+name: fsext
+type: format
+description: Extended File System
+urls: ['http://en.wikipedia.org/wiki/Extended_file_system']
+metadata:
+  authors: ['Joachim Metz <joachim.metz@gmail.com>']
+  year: 2010
+attributes:
+  byte_order: little-endian
+layout:
+- data_type: superblock
+---
+name: superblock_ext2
+aliases: [ext2_super_block]
+type: structure
+description: Superblock
+members:
+- name: number_of_inodes
+  aliases: [s_inodes_count]
+  data_type: uint32
+- name: number_of_blocks
+  data_type: uint32
+  aliases: [s_blocks_count]
+- name: number_of_reserved_blocks
+  data_type: uint32
+  aliases: [s_r_blocks_count]
+- name: number_of_unallocated_blocks
+  aliases: [s_free_blocks_count]
+  data_type: uint32
+- name: number_of_unallocated_inodes
+  aliases: [s_free_inodes_count]
+  data_type: uint32
+- name: first_data_block_number
+  aliases: [s_first_data_block]
+  data_type: uint32
+- name: block_size
+  aliases: [s_log_block_size]
+  data_type: uint32
+- name: fragment_size
+  aliases: [s_log_frag_size]
+  data_type: uint32
+- name: number_of_blocks_per_block_group
+  aliases: [s_blocks_per_group]
+  data_type: uint32
+- name: number_of_fragments_per_block_group
+  aliases: [s_frags_per_group]
+  data_type: uint32
+- name: number_of_inodes_per_block_group
+  aliases: [s_inodes_per_group]
+  data_type: uint32
+- name: last_mount_time
+  aliases: [s_mtime]
+  data_type: uint32
+- name: last_written_time
+  aliases: [s_wtime]
+  data_type: uint32
+- name: mount_count
+  aliases: [s_mnt_count]
+  data_type: uint16
+- name: maximum_mount_count
+  aliases: [s_max_mnt_count]
+  data_type: uint16
+- name: signature
+  aliases: [s_magic]
+  data_type: uint16
+- name: file_system_state_flags
+  aliases: [s_state]
+  data_type: uint16
+- name: error_handling_status
+  aliases: [s_errors]
+  data_type: uint16
+- name: minor_format_revision
+  aliases: [s_minor_rev_level]
+  data_type: uint16
+- name: last_consistency_check_time
+  aliases: [s_lastcheck]
+  data_type: uint32
+- name: consistency_check_interval
+  aliases: [s_checkinterval]
+  data_type: uint32
+- name: creator_operating_system
+  aliases: [s_creator_os]
+  data_type: uint32
+- name: format_revision
+  aliases: [s_rev_level]
+  data_type: uint32
+- name: reserved_block_user_identifier
+  aliases: [s_def_resuid]
+  description: Reserved block user identifier (UID)
+  data_type: uint16
+- name: reserved_block_group_identifier
+  aliases: [s_def_resgid]
+  description: Reserved block group identifier (GID)
+  data_type: uint16
+- section: dynamic_inode_information
+- name: first_non_reserved_inode
+  aliases: [s_first_ino]
+  data_type: uint32
+- name: inode_size
+  aliases: [s_inode_size]
+  data_type: uint16
+- name: block_group
+  aliases: [s_block_group_nr]
+  data_type: uint16
+- name: compatible_features_flags
+  aliases: [s_feature_compat]
+  data_type: uint32
+- name: incompatible_features_flags
+  aliases: [s_feature_incompat]
+  data_type: uint32
+- name: read_only_compatible_features_flags
+  aliases: [s_feature_ro_compat]
+  data_type: uint32
+- name: file_system_identifier
+  aliases: [s_uuid]
+  type: uuid
+- name: volume_label
+  aliases: [s_volume_name]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 16
+- name: last_mounted_path
+  aliases: [s_last_mounted]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 64
+- name: algorithm_usage_bitmap
+  aliases: [s_algorithm_usage_bitmap]
+  data_type: uint32
+- section: performance_hints
+- name: number_of_pre_allocated_blocks_per_file
+  aliases: [s_prealloc_blocks]
+  data_type: uint8
+- name: number_of_pre_allocated_blocks_per_directory
+  aliases: [s_prealloc_dir_blocks]
+  data_type: uint8
+- name: padding1
+  aliases: [s_padding1]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 2
+- section: journal_information
+- name: journal_identifier
+  aliases: [s_journal_uuid]
+  type: uuid
+- name: journal_inode_number
+  aliases: [s_journal_inum]
+  data_type: uint32
+- name: journal_device
+  aliases: [s_journal_dev]
+  data_type: uint32
+- name: orphan_inode_list_head
+  aliases: [s_last_orphan]
+  data_type: uint32
+- name: htree_hash_seed
+  aliases: [s_hash_seed]
+  description: HTREE hash seed
+  type: sequence
+  element_data_type: uint32
+  number_of_elements: 4
+- name: default_hash_version
+  aliases: [s_def_hash_version]
+  data_type: uint8
+- name: padding2
+  aliases: [s_reserved_char_pad, s_reserved_word_pad]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 3
+- name: default_mount_options
+  aliases: [s_default_mount_opts]
+  data_type: uint32
+- name: first_metadata_block_group
+  aliases: [s_first_meta_bg]
+  data_type: uint32
+- name: padding3
+  aliases: [s_reserved]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 190
+---
+name: superblock_ext4
+type: structure
+description: Superblock
+members:
+- name: number_of_inodes
+  aliases: [s_inodes_count]
+  data_type: uint32
+- name: number_of_blocks_lower
+  aliases: [s_blocks_count_lo]
+  data_type: uint32
+- name: number_of_reserved_blocks_lower
+  aliases: [s_r_blocks_count_lo]
+  data_type: uint32
+- name: number_of_unallocated_blocks_lower
+  aliases: [s_free_blocks_count_lo]
+  data_type: uint32
+- name: number_of_unallocated_inodes
+  aliases: [s_free_inodes_count]
+  data_type: uint32
+- name: first_data_block_number
+  aliases: [s_first_data_block]
+  data_type: uint32
+- name: block_size
+  aliases: [s_log_block_size]
+  data_type: uint32
+- name: fragment_size
+  aliases: [s_log_cluster_size]
+  data_type: uint32
+- name: number_of_blocks_per_block_group
+  aliases: [s_blocks_per_group]
+  data_type: uint32
+- name: number_of_fragments_per_block_group
+  aliases: [s_clusters_per_group]
+  data_type: uint32
+- name: number_of_inodes_per_block_group
+  aliases: [s_inodes_per_group]
+  data_type: uint32
+- name: last_mount_time
+  aliases: [s_mtime]
+  data_type: uint32
+- name: last_written_time
+  aliases: [s_wtime]
+  data_type: uint32
+- name: mount_count
+  aliases: [s_mnt_count]
+  data_type: uint16
+- name: maximum_mount_count
+  aliases: [s_max_mnt_count]
+  data_type: uint16
+- name: signature
+  aliases: [s_magic]
+  data_type: uint16
+- name: file_system_state_flags
+  aliases: [s_state]
+  data_type: uint16
+- name: error_handling_status
+  aliases: [s_errors]
+  data_type: uint16
+- name: minor_format_revision
+  aliases: [s_minor_rev_level]
+  data_type: uint16
+- name: last_consistency_check_time
+  aliases: [s_lastcheck]
+  data_type: uint32
+- name: consistency_check_interval
+  aliases: [s_checkinterval]
+  data_type: uint32
+- name: creator_operating_system
+  aliases: [s_creator_os]
+  data_type: uint32
+- name: format_revision
+  aliases: [s_rev_level]
+  data_type: uint32
+- name: reserved_block_user_identifier
+  aliases: [s_def_resuid]
+  description: Reserved block user identifier (UID)
+  data_type: uint16
+- name: reserved_block_group_identifier
+  aliases: [s_def_resgid]
+  description: Reserved block group identifier (GID)
+  data_type: uint16
+- section: dynamic_inode_information
+- name: first_non_reserved_inode
+  aliases: [s_first_ino]
+  data_type: uint32
+- name: inode_size
+  aliases: [s_inode_size]
+  data_type: uint16
+- name: block_group
+  aliases: [s_block_group_nr]
+  data_type: uint16
+- name: compatible_features_flags
+  aliases: [s_feature_compat]
+  data_type: uint32
+- name: incompatible_features_flags
+  aliases: [s_feature_incompat]
+  data_type: uint32
+- name: read_only_compatible_features_flags
+  aliases: [s_feature_ro_compat]
+  data_type: uint32
+- name: file_system_identifier
+  aliases: [s_uuid]
+  type: uuid
+- name: volume_label
+  aliases: [s_volume_name]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 16
+- name: last_mounted_path
+  aliases: [s_last_mounted]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 64
+- name: algorithm_usage_bitmap
+  aliases: [s_algorithm_usage_bitmap]
+  data_type: uint32
+- section: performance_hints
+- name: number_of_pre_allocated_blocks_per_file
+  aliases: [s_prealloc_blocks]
+  data_type: uint8
+- name: number_of_pre_allocated_blocks_per_directory
+  aliases: [s_prealloc_dir_blocks]
+  data_type: uint8
+- name: padding1
+  aliases: [s_reserved_gdt_blocks]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 2
+- section: journal_information
+- name: journal_identifier
+  aliases: [s_journal_uuid]
+  type: uuid
+- name: journal_inode_number
+  aliases: [s_journal_inum]
+  data_type: uint32
+- name: journal_device
+  aliases: [s_journal_dev]
+  data_type: uint32
+- name: orphan_inode_list_head
+  aliases: [s_last_orphan]
+  data_type: uint32
+- name: htree_hash_seed
+  aliases: [s_hash_seed]
+  description: HTREE hash seed
+  type: sequence
+  element_data_type: uint32
+  number_of_elements: 4
+- name: default_hash_version
+  aliases: [s_def_hash_version]
+  data_type: uint8
+- name: journal_backup_type
+  aliases: [s_jnl_backup_type]
+  data_type: uint8
+- name: group_descriptor_size
+  aliases: [s_desc_size]
+  data_type: uint16
+- name: default_mount_options
+  aliases: [s_default_mount_opts]
+  data_type: uint32
+- name: first_metadata_block_group
+  aliases: [s_first_meta_bg]
+  data_type: uint32
+- name: file_system_creation_time
+  aliases: [s_mkfs_time]
+  data_type: uint32
+- name: backup_journal_inodes
+  aliases: [s_jnl_blocks]
+  type: sequence
+  element_data_type: uint32
+  number_of_elements: 17
+- section: 64bit_support
+- name: number_of_blocks_upper
+  aliases: [s_blocks_count_hi]
+  data_type: uint32
+- name: number_of_reserved_blocks_upper
+  aliases: [s_r_blocks_count_hi]
+  data_type: uint32
+- name: number_of_unallocated_blocks_upper
+  aliases: [s_free_blocks_count_hi]
+  data_type: uint32
+- name: minimum_inode_size
+  aliases: [s_min_extra_isize]
+  data_type: uint16
+- name: reserved_inode_size
+  aliases: [s_want_extra_isize]
+  data_type: uint16
+- name: flags
+  aliases: [s_flags]
+  data_type: uint32
+- name: read_stride
+  aliases: [s_raid_stride]
+  data_type: uint16
+- name: multi_mount_protection_update_interval
+  aliases: [s_mmp_update_interval]
+  data_type: uint16
+- name: multi_mount_protection_block
+  aliases: [s_mmp_block]
+  data_type: uint64
+- name: raid_stripe_width
+  aliases: [s_raid_stripe_width]
+  data_type: uint32
+- name: number_of_block_groups_per_flex
+  aliases: [s_log_groups_per_flex]
+  data_type: uint8
+- name: checksum_type
+  aliases: [s_checksum_type]
+  data_type: uint8
+- name: encryption_level
+  aliases: [s_encryption_level]
+  data_type: uint8
+- name: padding2
+  aliases: [s_reserved_pad]
+  data_type: uint8
+- name: write_count
+  aliases: [s_kbytes_written]
+  data_type: uint64
+- name: snapshot_inode_number
+  aliases: [s_snapshot_inum]
+  data_type: uint32
+- name: snapshot_sequential_identifier
+  aliases: [s_snapshot_id]
+  data_type: uint32
+- name: snapshot_number_of_reserved_blocks
+  aliases: [s_snapshot_r_blocks_count]
+  data_type: uint64
+- name: snapshot_inode_list
+  aliases: [s_snapshot_list]
+  data_type: uint32
+- section: error_information
+- name: number_of_errors
+  aliases: [s_error_count]
+  data_type: uint32
+- name: first_error_time
+  aliases: [s_first_error_time]
+  data_type: uint32
+- name: first_error_inode_number
+  aliases: [s_first_error_ino]
+  data_type: uint32
+- name: first_error_block_number
+  aliases: [s_first_error_block]
+  data_type: uint64
+- name: first_error_function
+  aliases: [s_first_error_func]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 32
+- name: first_error_function_line_number
+  aliases: [s_first_error_line]
+  data_type: uint32
+- name: last_error_time
+  aliases: [s_last_error_time]
+  data_type: uint32
+- name: last_error_inode_number
+  aliases: [s_last_error_ino]
+  data_type: uint32
+- name: last_error_function_line_number
+  aliases: [s_last_error_line]
+  data_type: uint32
+- name: last_error_block_number
+  aliases: [s_last_error_block]
+  data_type: uint64
+- name: last_error_function
+  aliases: [s_last_error_func]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 32
+- section: other_information
+- name: mount_options
+  aliases: [s_mount_opts]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 64
+- name: user_quota_inode_number
+  aliases: [s_usr_quota_inum]
+  data_type: uint32
+- name: group_quota_inode_number
+  aliases: [s_grp_quota_inum]
+  data_type: uint32
+- name: overhead_number_of_clusters
+  aliases: [s_overhead_clusters]
+  data_type: uint32
+- name: backup_block_groups
+  aliases: [s_backup_bgs]
+  type: sequence
+  element_data_type: uint32
+  number_of_elements: 2
+- name: encryption_algorithms
+  aliases: [s_encrypt_algos]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 4
+- name: encryption_password_salt
+  aliases: [s_encrypt_pw_salt]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 16
+- name: lost_and_found_inode_number
+  aliases: [s_lpf_ino]
+  data_type: uint32
+- name: project_quota_inode_number
+  aliases: [s_prj_quota_inum]
+  data_type: uint32
+- name: checksum_seed
+  aliases: [s_checksum_seed]
+  data_type: uint32
+- name: padding3
+  aliases: [s_reserved]
+  type: stream
+  element_data_type: byte
+  elements_data_size: 392
+- name: checksum
+  aliases: [s_checksum]
+  data_type: uint32
+---
+name: superblock_runtime
+type: structure
+description: Superblock
+members:
+- name: number_of_inodes
+  data_type: uint32
+- name: number_of_blocks
+  data_type: uint64
+- name: number_of_reserved_blocks
+  data_type: uint64
+- name: number_of_unallocated_blocks
+  data_type: uint64
+- name: number_of_unallocated_inodes
+  data_type: uint32
+- name: first_data_block_number
+  data_type: uint32
+- name: block_size
+  data_type: uint32
+- name: fragment_size
+  data_type: uint32
+- name: number_of_blocks_per_block_group
+  data_type: uint32
+- name: number_of_fragments_per_block_group
+  data_type: uint32
+- name: number_of_inodes_per_block_group
+  data_type: uint32
+- name: last_mount_time
+  data_type: uint32
+- name: last_written_time
+  data_type: uint32
+- name: mount_count
+  data_type: uint16
+- name: maximum_mount_count
+  data_type: uint16
+- name: signature
+  data_type: uint16
+- name: file_system_state_flags
+  data_type: uint16
+- name: error_handling_status
+  data_type: uint16
+- name: minor_format_revision
+  data_type: uint16
+- name: last_consistency_check_time
+  data_type: uint32
+- name: consistency_check_interval
+  data_type: uint32
+- name: creator_operating_system
+  data_type: uint32
+- name: format_revision
+  data_type: uint32
+- name: reserved_block_user_identifier
+  data_type: uint16
+- name: reserved_block_group_identifier
+  data_type: uint16
+- section: dynamic_inode_information
+- name: first_non_reserved_inode
+  data_type: uint32
+- name: inode_size
+  data_type: uint16
+- name: block_group
+  data_type: uint16
+- name: compatible_features_flags
+  data_type: uint32
+- name: incompatible_features_flags
+  data_type: uint32
+- name: read_only_compatible_features_flags
+  data_type: uint32
+- name: file_system_identifier
+  type: uuid
+- name: volume_label
+  type: stream
+  element_data_type: byte
+  elements_data_size: 16
+- name: last_mounted_path
+  type: stream
+  element_data_type: byte
+  elements_data_size: 64
+- name: algorithm_usage_bitmap
+  data_type: uint32
+- section: performance_hints
+- name: number_of_pre_allocated_blocks_per_file
+  data_type: uint8
+- name: number_of_pre_allocated_blocks_per_directory
+  data_type: uint8
+- section: journal_information
+- name: journal_identifier
+  type: uuid
+- name: journal_inode
+  data_type: uint32
+- name: journal_device
+  data_type: uint32
+- name: orphan_inode_list_head
+  data_type: uint32
+- name: htree_hash_seed
+  type: sequence
+  element_data_type: uint32
+  number_of_elements: 4
+- name: default_hash_version
+  data_type: uint8
+- name: journal_backup_type
+  data_type: uint8
+- name: group_descriptor_size
+  data_type: uint16
+- name: default_mount_options
+  data_type: uint32
+- name: first_metadata_block_group
+  data_type: uint32
+- name: file_system_creation_time
+  data_type: uint32
+- name: backup_journal_inodes
+  type: sequence
+  element_data_type: uint32
+  number_of_elements: 17
+---
+name: superblock
+type: structure-family
+description: Superblock
+runtime: superblock_runtime
+members:
+- superblock_ext2
+- superblock_ext4
+---
+name: group_descriptor_ext2
+type: structure
+description: Group descriptor
+members:
+- name: block_bitmap_block_number
+  data_type: uint32
+- name: inode_bitmap_block_number
+  data_type: uint32
+- name: inode_table_block_number
+  data_type: uint32
+- name: number_of_unallocated_blocks
+  data_type: uint16
+- name: number_of_unallocated_inodes
+  data_type: uint16
+- name: number_of_directories
+  data_type: uint16
+- name: padding1
+  description: Padding
+  data_type: uint16
+- name: unknown1
+  description: Unknown (reserved)
+  type: stream
+  element_data_type: byte
+  elements_data_size: 12
+---
+name: group_descriptor_ext4
+type: structure
+description: Group descriptor
+members:
+- name: block_bitmap_block_number_lower
+  description: Block bitmap block number (lower 32-bit)
+  data_type: uint32
+- name: inode_bitmap_block_number_lower
+  description: Inode bitmap block number (lower 32-bit)
+  data_type: uint32
+- name: inode_table_block_number_lower
+  description: Inode table block number (lower 32-bit)
+  data_type: uint32
+- name: number_of_unallocated_blocks_lower
+  description: Number of unallocated blocks (lower 16-bit)
+  data_type: uint16
+- name: number_of_unallocated_inodes_lower
+  description: Number of unallocated inodes (lower 16-bit)
+  data_type: uint16
+- name: number_of_directories_lower
+  description: Number of directories (lower 16-bit)
+  data_type: uint16
+- name: block_group_flags
+  data_type: uint16
+- name: exclude_bitmap_block_number_lower
+  description: Exclude bitmap block number (lower 32-bit)
+  data_type: uint32
+- name: block_bitmap_checksum_lower
+  description: Block bitmap checksum (lower 16-bit)
+  data_type: uint16
+- name: inode_bitmap_checksum_lower
+  description: Inode bitmap checksum (lower 16-bit)
+  data_type: uint16
+- name: number_of_unused_inodes_lower
+  description: Number of unused inodes (lower 16-bit)
+  data_type: uint16
+- name: checksum
+  data_type: uint16
+- name: block_bitmap_block_number_upper
+  description: Block bitmap block number (upper 32-bit)
+  data_type: uint32
+- name: inode_bitmap_block_number_upper
+  description: Inode bitmap block number (upper 32-bit)
+  data_type: uint32
+- name: inode_table_block_number_upper
+  description: Inode table block number (upper 32-bit)
+  data_type: uint32
+- name: number_of_unallocated_blocks_upper
+  description: Number of unallocated blocks (upper 16-bit)
+  data_type: uint16
+- name: number_of_unallocated_inodes_upper
+  description: Number of unallocated inodes (upper 16-bit)
+  data_type: uint16
+- name: number_of_directories_upper
+  description: Number of directories (upper 16-bit)
+  data_type: uint16
+- name: number_of_unused_inodes_upper
+  description: Number of unused inodes (upper 16-bit)
+  data_type: uint16
+- name: exclude_bitmap_block_number_upper
+  description: Exclude bitmap block number (upper 32-bit)
+  data_type: uint32
+- name: block_bitmap_checksum_upper
+  description: Block bitmap checksum (upper 16-bit)
+  data_type: uint16
+- name: inode_bitmap_checksum_upper
+  description: Inode bitmap checksum (upper 16-bit)
+  data_type: uint16
+- name: unknown1
+  description: Unknown (reserved)
+  data_type: uint32
+---
+name: group_descriptor_runtime
+type: structure
+description: Group descriptor
+members:
+- name: block_bitmap_block_number
+  data_type: uint64
+- name: inode_bitmap_block_number
+  data_type: uint64
+- name: inode_table_block_number
+  data_type: uint64
+- name: number_of_unallocated_blocks
+  data_type: uint32
+- name: number_of_unallocated_inodes
+  data_type: uint32
+- name: number_of_directories
+  data_type: uint32
+- name: block_group_flags
+  data_type: uint16
+- name: exclude_bitmap_block_number
+  data_type: uint64
+- name: block_bitmap_checksum
+  data_type: uint32
+- name: inode_bitmap_checksum
+  data_type: uint32
+- name: number_of_unused_inodes
+  data_type: uint32
+---
+name: group_descriptor
+type: structure-family
+description: Group descriptor
+runtime: group_descriptor_runtime
+members:
+- group_descriptor_ext2
+- group_descriptor_ext4
+---
+name: inode
+type: structure
+description: Inode
+members:
+- name: file_mode
+  data_type: uint16
+- name: user_identifier
+  data_type: uint16
+- name: data_size
+  data_type: uint32
+- name: last_access_time
+  data_type: uint32
+- name: last_inode_change_time
+  data_type: uint32
+- name: last_modification_time
+  data_type: uint32
+- name: deletion_time
+  data_type: uint32
+- name: group_identifier
+  data_type: uint16
+- name: link_count
+  data_type: uint16
+- name: sector_count
+  data_type: uint32
+- name: flags
+  data_type: uint32
+- name: unknown1
+  description: Unknown (reserved)
+  data_type: uint32
+- name: direct_block_numbers
+  type: sequence
+  element_data_type: uint32
+  number_of_elements: 12
+- name: indirect_block_number
+  data_type: uint32
+- name: double_indirect_block_number
+  data_type: uint32
+- name: triple_indirect_block_number
+  data_type: uint32
+- name: nfs_generation_number
+  data_type: uint32
+- name: file_acl
+  data_type: uint32
+- name: directory_acl
+  data_type: uint32
+- name: fragment_block_address
+  data_type: uint32
+- name: fragment_block_index
+  data_type: uint8
+- name: fragment_size
+  data_type: uint8
+- name: padding1
+  data_type: uint16
+- name: user_identifier_32bit
+  data_type: uint16
+- name: group_identifier_32bit
+  data_type: uint16
+- name: unknown2
+  description: Unknown (reserved)
+  data_type: uint32
+---
+name: directory_entry
+type: structure
+description: Directory entry
+members:
+- name: inode_number
+  data_type: uint32
+- name: size
+  data_type: uint16
+- name: name_string_size
+  data_type: uint8
+- name: file_type
+  data_type: uint8
+- name: name_string
+  type: stream
+  element_data_type: byte
+  elements_data_size: directory_entry.name_string_size

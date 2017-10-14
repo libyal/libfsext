@@ -1,5 +1,5 @@
 /*
- * Library io_handle type test program
+ * Library group_descriptor type test program
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,30 +33,30 @@
 #include "fsext_test_memory.h"
 #include "fsext_test_unused.h"
 
-#include "../libfsext/libfsext_io_handle.h"
+#include "../libfsext/libfsext_group_descriptor.h"
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
-/* Tests the libfsext_io_handle_initialize function
+/* Tests the libfsext_group_descriptor_initialize function
  * Returns 1 if successful or 0 if not
  */
-int fsext_test_io_handle_initialize(
+int fsext_test_group_descriptor_initialize(
      void )
 {
-	libcerror_error_t *error        = NULL;
-	libfsext_io_handle_t *io_handle = NULL;
-	int result                      = 0;
+	libcerror_error_t *error                      = NULL;
+	libfsext_group_descriptor_t *group_descriptor = NULL;
+	int result                                    = 0;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 1;
-	int number_of_memset_fail_tests = 1;
-	int test_number                 = 0;
+	int number_of_malloc_fail_tests               = 1;
+	int number_of_memset_fail_tests               = 1;
+	int test_number                               = 0;
 #endif
 
 	/* Test regular cases
 	 */
-	result = libfsext_io_handle_initialize(
-	          &io_handle,
+	result = libfsext_group_descriptor_initialize(
+	          &group_descriptor,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -65,15 +65,15 @@ int fsext_test_io_handle_initialize(
 	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
+	 "group_descriptor",
+	 group_descriptor );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	result = libfsext_io_handle_free(
-	          &io_handle,
+	result = libfsext_group_descriptor_free(
+	          &group_descriptor,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -82,8 +82,8 @@ int fsext_test_io_handle_initialize(
 	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
+	 "group_descriptor",
+	 group_descriptor );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -91,7 +91,7 @@ int fsext_test_io_handle_initialize(
 
 	/* Test error cases
 	 */
-	result = libfsext_io_handle_initialize(
+	result = libfsext_group_descriptor_initialize(
 	          NULL,
 	          &error );
 
@@ -107,10 +107,10 @@ int fsext_test_io_handle_initialize(
 	libcerror_error_free(
 	 &error );
 
-	io_handle = (libfsext_io_handle_t *) 0x12345678UL;
+	group_descriptor = (libfsext_group_descriptor_t *) 0x12345678UL;
 
-	result = libfsext_io_handle_initialize(
-	          &io_handle,
+	result = libfsext_group_descriptor_initialize(
+	          &group_descriptor,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -125,7 +125,7 @@ int fsext_test_io_handle_initialize(
 	libcerror_error_free(
 	 &error );
 
-	io_handle = NULL;
+	group_descriptor = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
@@ -133,22 +133,22 @@ int fsext_test_io_handle_initialize(
 	     test_number < number_of_malloc_fail_tests;
 	     test_number++ )
 	{
-		/* Test libfsext_io_handle_initialize with malloc failing
+		/* Test libfsext_group_descriptor_initialize with malloc failing
 		 */
 		fsext_test_malloc_attempts_before_fail = test_number;
 
-		result = libfsext_io_handle_initialize(
-		          &io_handle,
+		result = libfsext_group_descriptor_initialize(
+		          &group_descriptor,
 		          &error );
 
 		if( fsext_test_malloc_attempts_before_fail != -1 )
 		{
 			fsext_test_malloc_attempts_before_fail = -1;
 
-			if( io_handle != NULL )
+			if( group_descriptor != NULL )
 			{
-				libfsext_io_handle_free(
-				 &io_handle,
+				libfsext_group_descriptor_free(
+				 &group_descriptor,
 				 NULL );
 			}
 		}
@@ -160,8 +160,8 @@ int fsext_test_io_handle_initialize(
 			 -1 );
 
 			FSEXT_TEST_ASSERT_IS_NULL(
-			 "io_handle",
-			 io_handle );
+			 "group_descriptor",
+			 group_descriptor );
 
 			FSEXT_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -175,22 +175,22 @@ int fsext_test_io_handle_initialize(
 	     test_number < number_of_memset_fail_tests;
 	     test_number++ )
 	{
-		/* Test libfsext_io_handle_initialize with memset failing
+		/* Test libfsext_group_descriptor_initialize with memset failing
 		 */
 		fsext_test_memset_attempts_before_fail = test_number;
 
-		result = libfsext_io_handle_initialize(
-		          &io_handle,
+		result = libfsext_group_descriptor_initialize(
+		          &group_descriptor,
 		          &error );
 
 		if( fsext_test_memset_attempts_before_fail != -1 )
 		{
 			fsext_test_memset_attempts_before_fail = -1;
 
-			if( io_handle != NULL )
+			if( group_descriptor != NULL )
 			{
-				libfsext_io_handle_free(
-				 &io_handle,
+				libfsext_group_descriptor_free(
+				 &group_descriptor,
 				 NULL );
 			}
 		}
@@ -202,8 +202,8 @@ int fsext_test_io_handle_initialize(
 			 -1 );
 
 			FSEXT_TEST_ASSERT_IS_NULL(
-			 "io_handle",
-			 io_handle );
+			 "group_descriptor",
+			 group_descriptor );
 
 			FSEXT_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -223,19 +223,19 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( io_handle != NULL )
+	if( group_descriptor != NULL )
 	{
-		libfsext_io_handle_free(
-		 &io_handle,
+		libfsext_group_descriptor_free(
+		 &group_descriptor,
 		 NULL );
 	}
 	return( 0 );
 }
 
-/* Tests the libfsext_io_handle_free function
+/* Tests the libfsext_group_descriptor_free function
  * Returns 1 if successful or 0 if not
  */
-int fsext_test_io_handle_free(
+int fsext_test_group_descriptor_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -243,7 +243,7 @@ int fsext_test_io_handle_free(
 
 	/* Test error cases
 	 */
-	result = libfsext_io_handle_free(
+	result = libfsext_group_descriptor_free(
 	          NULL,
 	          &error );
 
@@ -266,104 +266,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	return( 0 );
-}
-
-/* Tests the libfsext_io_handle_clear function
- * Returns 1 if successful or 0 if not
- */
-int fsext_test_io_handle_clear(
-     void )
-{
-	libcerror_error_t *error        = NULL;
-	libfsext_io_handle_t *io_handle = NULL;
-	int result                      = 0;
-
-	/* Initialize test
-	 */
-	result = libfsext_io_handle_initialize(
-	          &io_handle,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test regular cases
-	 */
-	result = libfsext_io_handle_clear(
-	          io_handle,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test error cases
-	 */
-	result = libfsext_io_handle_clear(
-	          NULL,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	/* Clean up
-	 */
-	result = libfsext_io_handle_free(
-	          &io_handle,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	if( io_handle != NULL )
-	{
-		libfsext_io_handle_free(
-		 &io_handle,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -388,16 +290,16 @@ int main(
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
 	FSEXT_TEST_RUN(
-	 "libfsext_io_handle_initialize",
-	 fsext_test_io_handle_initialize );
+	 "libfsext_group_descriptor_initialize",
+	 fsext_test_group_descriptor_initialize );
 
 	FSEXT_TEST_RUN(
-	 "libfsext_io_handle_free",
-	 fsext_test_io_handle_free );
+	 "libfsext_group_descriptor_free",
+	 fsext_test_group_descriptor_free );
 
-	FSEXT_TEST_RUN(
-	 "libfsext_io_handle_clear",
-	 fsext_test_io_handle_clear );
+	/* TODO: add tests for libfsext_group_descriptor_read_data */
+
+	/* TODO: add tests for libfsext_group_descriptor_read_file_io_handle */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 

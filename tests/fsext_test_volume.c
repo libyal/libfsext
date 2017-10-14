@@ -578,6 +578,8 @@ int fsext_test_volume_close_source(
 	return( result );
 }
 
+#include "../libfsext/libfsext_volume.h"
+
 /* Tests the libfsext_volume_initialize function
  * Returns 1 if successful or 0 if not
  */
@@ -1445,9 +1447,9 @@ int fsext_test_volume_get_utf8_label(
 		 result,
 		 -1 );
 
-	        FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	         "error",
-	         error );
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
 
 		libcerror_error_free(
 		 &error );
@@ -1641,9 +1643,9 @@ int fsext_test_volume_get_utf16_label(
 		 result,
 		 -1 );
 
-	        FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	         "error",
-	         error );
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
 
 		libcerror_error_free(
 		 &error );
@@ -1735,6 +1737,27 @@ int main(
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 	if( source != NULL )
 	{
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfsext_check_volume_signature_wide(
+		          source,
+		          &error );
+#else
+		result = libfsext_check_volume_signature(
+		          source,
+		          &error );
+#endif
+
+		FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	if( result != 0 )
+	{
 		FSEXT_TEST_RUN_WITH_ARGS(
 		 "libfsext_volume_open",
 		 fsext_test_volume_open,
@@ -1776,13 +1799,13 @@ int main(
 		 result,
 		 1 );
 
-	        FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	         "volume",
-	         volume );
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "volume",
+		 volume );
 
-	        FSEXT_TEST_ASSERT_IS_NULL(
-	         "error",
-	         error );
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 
 		FSEXT_TEST_RUN_WITH_ARGS(
 		 "libfsext_volume_signal_abort",
@@ -1827,12 +1850,12 @@ int main(
 		 0 );
 
 		FSEXT_TEST_ASSERT_IS_NULL(
-	         "volume",
-	         volume );
+		 "volume",
+		 volume );
 
-	        FSEXT_TEST_ASSERT_IS_NULL(
-	         "error",
-	         error );
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 	}
 #endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
 

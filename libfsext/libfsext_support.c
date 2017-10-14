@@ -26,11 +26,11 @@
 #include <wide_string.h>
 
 #include "libfsext_definitions.h"
-#include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libclocale.h"
 #include "libfsext_libcnotify.h"
+#include "libfsext_superblock.h"
 #include "libfsext_support.h"
 
 #if !defined( HAVE_LOCAL_LIBFSEXT )
@@ -436,7 +436,7 @@ int libfsext_check_volume_signature_file_io_handle(
 		}
 	}
 	if( memory_compare(
-	     fsext_volume_signature,
+	     fsext_superblock_signature,
 	     signature,
 	     2 ) == 0 )
 	{

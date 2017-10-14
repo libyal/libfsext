@@ -29,6 +29,7 @@
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
+#include "libfsext_superblock.h"
 #include "libfsext_types.h"
 
 #if defined( __cplusplus )
@@ -39,6 +40,10 @@ typedef struct libfsext_internal_volume libfsext_internal_volume_t;
 
 struct libfsext_internal_volume
 {
+	/* The superblock
+	 */
+	libfsext_superblock_t *superblock;
+
 	/* The IO handle
 	 */
 	libfsext_io_handle_t *io_handle;
@@ -107,27 +112,27 @@ int libfsext_volume_open_read(
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_utf8_label_size(
      libfsext_volume_t *volume,
-     size_t *utf8_label_size,
+     size_t *utf8_string_size,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_utf8_label(
      libfsext_volume_t *volume,
-     uint8_t *utf8_label,
-     size_t utf8_label_size,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_utf16_label_size(
      libfsext_volume_t *volume,
-     size_t *utf16_label_size,
+     size_t *utf16_string_size,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_utf16_label(
      libfsext_volume_t *volume,
-     uint16_t *utf16_label,
-     size_t utf16_label_size,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

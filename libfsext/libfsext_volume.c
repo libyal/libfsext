@@ -27,11 +27,13 @@
 
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
+#include "libfsext_group_descriptor.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
 #include "libfsext_libuna.h"
+#include "libfsext_superblock.h"
 #include "libfsext_volume.h"
 
 /* Creates a volume
@@ -741,6 +743,22 @@ int libfsext_volume_close(
 
 		result = -1;
 	}
+	if( internal_volume->superblock != NULL )
+	{
+		if( libfsext_superblock_free(
+		     &( internal_volume->superblock ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free superblock.",
+			 function );
+
+			result = -1;
+		}
+	}
 	return( result );
 }
 
@@ -752,8 +770,9 @@ int libfsext_volume_open_read(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_volume_open_read";
-	off64_t file_offset   = 1024;
+	libfsext_group_descriptor_t *group_descriptor = NULL;
+	static char *function                         = "libfsext_volume_open_read";
+	off64_t file_offset                           = 1024;
 
 	if( internal_volume == NULL )
 	{
@@ -784,7 +803,67 @@ int libfsext_volume_open_read(
 		 "Reading superblock:\n" );
 	}
 #endif
-	if( libfsext_io_handle_read_superblock(
+	if( libfsext_superblock_initialize(
+	     &( internal_volume->superblock ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create superblock.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_superblock_read_file_io_handle(
+	     internal_volume->superblock,
+	     file_io_handle,
+	     file_offset,
+	     &( internal_volume->io_handle->format_version ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read superblock at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 file_offset,
+		 file_offset );
+
+		goto on_error;
+	}
+	internal_volume->io_handle->block_size                          = internal_volume->superblock->block_size;
+	internal_volume->io_handle->format_revision                     = internal_volume->superblock->format_revision;
+	internal_volume->io_handle->compatible_features_flags           = internal_volume->superblock->compatible_features_flags;
+	internal_volume->io_handle->incompatible_features_flags         = internal_volume->superblock->incompatible_features_flags;
+	internal_volume->io_handle->read_only_compatible_features_flags = internal_volume->superblock->read_only_compatible_features_flags;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "Reading group descriptor:\n" );
+	}
+#endif
+	file_offset = 2048;
+
+	if( libfsext_group_descriptor_initialize(
+	     &group_descriptor,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create group descriptor.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_group_descriptor_read_file_io_handle(
+	     group_descriptor,
 	     internal_volume->io_handle,
 	     file_io_handle,
 	     file_offset,
@@ -794,36 +873,42 @@ int libfsext_volume_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read superblock at offset: %" PRIi64 ".",
+		 "%s: unable to read group descriptor at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 		 function,
+		 file_offset,
 		 file_offset );
 
-		return( -1 );
+		goto on_error;
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "Reading group descriptor:\n" );
-	}
-#endif
-	if( libfsext_io_handle_read_group_descriptor(
-	     internal_volume->io_handle,
-	     file_io_handle,
-	     2048,
+	if( libfsext_group_descriptor_free(
+	     &group_descriptor,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read group descriptor.",
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free group descriptor.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-/* TODO */
 	return( 1 );
+
+on_error:
+	if( group_descriptor != NULL )
+	{
+		libfsext_group_descriptor_free(
+		 &group_descriptor,
+		 NULL );
+	}
+	if( internal_volume->superblock != NULL )
+	{
+		libfsext_superblock_free(
+		 &( internal_volume->superblock ),
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the size of the UTF-8 encoded label
@@ -832,7 +917,7 @@ int libfsext_volume_open_read(
  */
 int libfsext_volume_get_utf8_label_size(
      libfsext_volume_t *volume,
-     size_t *utf8_label_size,
+     size_t *utf8_string_size,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
@@ -851,8 +936,40 @@ int libfsext_volume_get_utf8_label_size(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
-/* TODO */
-	return( -1 );
+	if( internal_volume->superblock == NULL )
+	{
+		if( utf8_string_size == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid UTF-8 string size.",
+			 function );
+
+			return( -1 );
+		}
+		*utf8_string_size = 0;
+	}
+	else
+	{
+		if( libuna_utf8_string_size_from_utf8_stream(
+		     internal_volume->superblock->volume_label,
+		     16,
+		     utf8_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-8 volume label string size.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
 }
 
 /* Retrieves the UTF-8 encoded label
@@ -861,8 +978,8 @@ int libfsext_volume_get_utf8_label_size(
  */
 int libfsext_volume_get_utf8_label(
      libfsext_volume_t *volume,
-     uint8_t *utf8_label,
-     size_t utf8_label_size,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
@@ -881,8 +998,63 @@ int libfsext_volume_get_utf8_label(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
-/* TODO */
-	return( -1 );
+	if( internal_volume->superblock == NULL )
+	{
+		if( utf8_string == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid UTF-8 string.",
+			 function );
+
+			return( -1 );
+		}
+		if( utf8_string_size == 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 "%s: invalid UTF-8 string size value too small.",
+			 function );
+
+			return( -1 );
+		}
+		if( utf8_string_size > (size_t) SSIZE_MAX )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid UTF-8 string size value exceeds maximum.",
+			 function );
+
+			return( -1 );
+		}
+		utf8_string[ 0 ] = 0;
+	}
+	else
+	{
+		if( libuna_utf8_string_copy_from_utf8_stream(
+		     utf8_string,
+		     utf8_string_size,
+		     internal_volume->superblock->volume_label,
+		     16,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-8 volume label string.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
 }
 
 /* Retrieves the size of the UTF-16 encoded label
@@ -891,7 +1063,7 @@ int libfsext_volume_get_utf8_label(
  */
 int libfsext_volume_get_utf16_label_size(
      libfsext_volume_t *volume,
-     size_t *utf16_label_size,
+     size_t *utf16_string_size,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
@@ -910,8 +1082,40 @@ int libfsext_volume_get_utf16_label_size(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
-/* TODO */
-	return( -1 );
+	if( internal_volume->superblock == NULL )
+	{
+		if( utf16_string_size == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid UTF-16 string size.",
+			 function );
+
+			return( -1 );
+		}
+		*utf16_string_size = 0;
+	}
+	else
+	{
+		if( libuna_utf16_string_size_from_utf8_stream(
+		     internal_volume->superblock->volume_label,
+		     16,
+		     utf16_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-16 volume label string size.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
 }
 
 /* Retrieves the UTF-16 encoded label
@@ -920,8 +1124,8 @@ int libfsext_volume_get_utf16_label_size(
  */
 int libfsext_volume_get_utf16_label(
      libfsext_volume_t *volume,
-     uint16_t *utf16_label,
-     size_t utf16_label_size,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
@@ -940,7 +1144,62 @@ int libfsext_volume_get_utf16_label(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
-/* TODO */
-	return( -1 );
+	if( internal_volume->superblock == NULL )
+	{
+		if( utf16_string == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid UTF-16 string.",
+			 function );
+
+			return( -1 );
+		}
+		if( utf16_string_size == 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 "%s: invalid UTF-16 string size value too small.",
+			 function );
+
+			return( -1 );
+		}
+		if( utf16_string_size > (size_t) SSIZE_MAX )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid UTF-16 string size value exceeds maximum.",
+			 function );
+
+			return( -1 );
+		}
+		utf16_string[ 0 ] = 0;
+	}
+	else
+	{
+		if( libuna_utf16_string_copy_from_utf8_stream(
+		     utf16_string,
+		     utf16_string_size,
+		     internal_volume->superblock->volume_label,
+		     16,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-16 volume label string.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
 }
 

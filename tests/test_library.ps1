@@ -6,7 +6,7 @@ $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "error io_handle notify"
+$LibraryTests = "directory_entry error group_descriptor inode io_handle notify superblock"
 $LibraryTestsWithInput = "support volume"
 
 Function GetTestToolDirectory

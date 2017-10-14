@@ -1,5 +1,5 @@
 /*
- * Input/Output (IO) handle functions
+ * Directory entry functions
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBFSEXT_IO_HANDLE_H )
-#define _LIBFSEXT_IO_HANDLE_H
+#if !defined( _LIBFSEXT_DIRECTORY_ENTRY_H )
+#define _LIBFSEXT_DIRECTORY_ENTRY_H
 
 #include <common.h>
 #include <types.h>
@@ -32,54 +32,54 @@
 extern "C" {
 #endif
 
-typedef struct libfsext_io_handle libfsext_io_handle_t;
+typedef struct libfsext_directory_entry libfsext_directory_entry_t;
 
-struct libfsext_io_handle
+struct libfsext_directory_entry
 {
-	/* The format version
+	/* Inode number
 	 */
-	int format_version;
+	uint32_t inode_number;
 
-	/* The block size
+	/* Size
 	 */
-	uint32_t block_size;
+	uint16_t size;
 
-	/* The format revision
+	/* Name string size
 	 */
-	uint32_t format_revision;
+	uint8_t name_string_size;
 
-	/* The compatible features flags
+	/* File type
 	 */
-	uint32_t compatible_features_flags;
+	uint8_t file_type;
 
-	/* The incompatible features flags
+	/* Name string
 	 */
-	uint32_t incompatible_features_flags;
-
-	/* The read-only compatible features flags
-	 */
-	uint32_t read_only_compatible_features_flags;
-
-	/* Value to indicate if abort was signalled
-	 */
-	int abort;
+	uint8_t *name_string;
 };
 
-int libfsext_io_handle_initialize(
-     libfsext_io_handle_t **io_handle,
+int libfsext_directory_entry_initialize(
+     libfsext_directory_entry_t **directory_entry,
      libcerror_error_t **error );
 
-int libfsext_io_handle_free(
-     libfsext_io_handle_t **io_handle,
+int libfsext_directory_entry_free(
+     libfsext_directory_entry_t **directory_entry,
      libcerror_error_t **error );
 
-int libfsext_io_handle_clear(
-     libfsext_io_handle_t *io_handle,
+int libfsext_directory_entry_read_data(
+     libfsext_directory_entry_t *directory_entry,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
+int libfsext_directory_entry_read_file_io_handle(
+     libfsext_directory_entry_t *directory_entry,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _LIBFSEXT_IO_HANDLE_H ) */
+#endif /* !defined( _LIBFSEXT_DIRECTORY_ENTRY_H ) */
 

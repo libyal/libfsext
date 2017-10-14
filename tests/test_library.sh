@@ -7,7 +7,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="error io_handle notify";
+LIBRARY_TESTS="directory_entry error group_descriptor inode io_handle notify superblock";
 LIBRARY_TESTS_WITH_INPUT="support volume";
 OPTION_SETS="";
 

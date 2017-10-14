@@ -749,7 +749,7 @@ on_error:
 int fsext_test_check_volume_signature_file_io_handle(
      const system_character_t *source )
 {
-	uint8_t empty_block[ 512 ];
+	uint8_t empty_block[ 2048 ];
 
 	libbfio_handle_t *file_io_handle = NULL;
 	libcerror_error_t *error         = NULL;
@@ -885,7 +885,7 @@ int fsext_test_check_volume_signature_file_io_handle(
 	memset_result = memory_set(
 	                 empty_block,
 	                 0,
-	                 sizeof( uint8_t ) * 512 );
+	                 sizeof( uint8_t ) * 2048 );
 
 	FSEXT_TEST_ASSERT_IS_NOT_NULL(
 	 "memset_result",
@@ -911,7 +911,7 @@ int fsext_test_check_volume_signature_file_io_handle(
 	result = libbfio_memory_range_set(
 	          file_io_handle,
 	          empty_block,
-	          sizeof( uint8_t ) * 512,
+	          sizeof( uint8_t ) * 2048,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
