@@ -248,6 +248,7 @@ int libfsext_superblock_read_data(
      const uint8_t *data,
      size_t data_size,
      int *format_version,
+     uint32_t *number_of_block_groups,
      libcerror_error_t **error );
 
 int libfsext_superblock_read_file_io_handle(
@@ -255,6 +256,7 @@ int libfsext_superblock_read_file_io_handle(
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
      int *format_version,
+     uint32_t *number_of_block_groups,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

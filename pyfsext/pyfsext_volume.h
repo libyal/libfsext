@@ -25,8 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include "pyfsext_libfsext.h"
 #include "pyfsext_libbfio.h"
+#include "pyfsext_libfsext.h"
 #include "pyfsext_python.h"
 
 #if defined( __cplusplus )
@@ -98,5 +98,5 @@ PyObject *pyfsext_volume_get_label(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYFSEXT_VOLUME_H ) */
 

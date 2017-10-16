@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 
 #if defined( __cplusplus )
@@ -42,7 +41,7 @@ struct libfsext_inode
 
 	/* User identifier
 	 */
-	uint16_t user_identifier;
+	uint32_t user_identifier;
 
 	/* Data size
 	 */
@@ -66,7 +65,7 @@ struct libfsext_inode
 
 	/* Group identifier
 	 */
-	uint16_t group_identifier;
+	uint32_t group_identifier;
 
 	/* Link count
 	 */
@@ -80,13 +79,9 @@ struct libfsext_inode
 	 */
 	uint32_t flags;
 
-	/* Unknown (reserved)
-	 */
-	uint32_t unknown1;
-
 	/* Direct block numbers
 	 */
-	/* TODO: implement */
+	uint32_t direct_block_number[ 48 ];
 
 	/* Indirect block number
 	 */
@@ -123,22 +118,6 @@ struct libfsext_inode
 	/* Fragment size
 	 */
 	uint8_t fragment_size;
-
-	/* Padding1
-	 */
-	uint16_t padding1;
-
-	/* User identifier 32bit
-	 */
-	uint16_t user_identifier_32bit;
-
-	/* Group identifier 32bit
-	 */
-	uint16_t group_identifier_32bit;
-
-	/* Unknown (reserved)
-	 */
-	uint32_t unknown2;
 };
 
 int libfsext_inode_initialize(
@@ -153,12 +132,6 @@ int libfsext_inode_read_data(
      libfsext_inode_t *inode,
      const uint8_t *data,
      size_t data_size,
-     libcerror_error_t **error );
-
-int libfsext_inode_read_file_io_handle(
-     libfsext_inode_t *inode,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

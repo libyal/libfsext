@@ -22,11 +22,15 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
+#include "libfsext_inode.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
-#include "libfsext_inode.h"
+#include "libfsext_libfdatetime.h"
 
 #include "fsext_inode.h"
 
@@ -142,11 +146,17 @@ int libfsext_inode_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_inode_read_data";
+	static char *function                 = "libfsext_inode_read_data";
+	size_t data_offset                    = 0;
+	uint32_t value_32bit                  = 0;
+	uint8_t direct_block_number_index     = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit  = 0;
-	uint16_t value_16bit  = 0;
+	system_character_t posix_time_string[ 32 ];
+
+	libfdatetime_posix_time_t *posix_time = NULL;
+	uint16_t value_16bit                  = 0;
+	int result                            = 0;
 #endif
 
 	if( inode == NULL )
@@ -249,12 +259,18 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_t *) data )->flags,
 	 inode->flags );
 
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_t *) data )->unknown1,
-	 inode->unknown1 );
+	data_offset = 0;
 
-	/* TODO: direct_block_numbers */
+	for( direct_block_number_index = 0;
+	     direct_block_number_index < 48;
+	     direct_block_number_index++ )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 &( ( ( (fsext_inode_t *) data )->direct_block_numbers )[ data_offset ] ),
+		 ( inode->direct_block_number )[ direct_block_number_index ] );
 
+		data_offset += 4;
+	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_t *) data )->indirect_block_number,
 	 inode->indirect_block_number );
@@ -287,237 +303,387 @@ int libfsext_inode_read_data(
 
 	/* TODO: fragment_size */
 
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_t *) data )->padding1,
-	 inode->padding1 );
-
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_t *) data )->user_identifier_32bit,
-	 inode->user_identifier_32bit );
-
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_t *) data )->group_identifier_32bit,
-	 inode->group_identifier_32bit );
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_t *) data )->unknown2,
-	 inode->unknown2 );
-
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		if( libfdatetime_posix_time_initialize(
+		     &posix_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create POSIX time.",
+			 function );
+
+			goto on_error;
+		}
 		libcnotify_printf(
-		 "%s: file mode\t: %" PRIu16 "\n",
+		 "%s: file mode\t\t\t\t\t: %" PRIo16 "\n",
 		 function,
 		 inode->file_mode );
 
 		libcnotify_printf(
-		 "%s: user identifier\t: %" PRIu16 "\n",
+		 "%s: user identifier\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 inode->user_identifier );
 
 		libcnotify_printf(
-		 "%s: data size\t: %" PRIu32 "\n",
+		 "%s: data size\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->data_size );
 
+		if( libfdatetime_posix_time_copy_from_byte_stream(
+		     posix_time,
+		     ( (fsext_inode_t *) data )->last_access_time,
+		     4,
+		     LIBFDATETIME_ENDIAN_LITTLE,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from byte stream.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
 		libcnotify_printf(
-		 "%s: last access time\t: %" PRIu32 "\n",
+		 "%s: last access time\t\t\t\t: %" PRIs_SYSTEM " UTC\n",
 		 function,
-		 inode->last_access_time );
+		 posix_time_string );
+
+		if( libfdatetime_posix_time_copy_from_byte_stream(
+		     posix_time,
+		     ( (fsext_inode_t *) data )->last_inode_change_time,
+		     4,
+		     LIBFDATETIME_ENDIAN_LITTLE,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from byte stream.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
+		libcnotify_printf(
+		 "%s: last inode change time\t\t\t: %" PRIs_SYSTEM " UTC\n",
+		 function,
+		 posix_time_string );
+
+		if( libfdatetime_posix_time_copy_from_byte_stream(
+		     posix_time,
+		     ( (fsext_inode_t *) data )->last_modification_time,
+		     4,
+		     LIBFDATETIME_ENDIAN_LITTLE,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from byte stream.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
+		libcnotify_printf(
+		 "%s: last modification time\t\t\t: %" PRIs_SYSTEM " UTC\n",
+		 function,
+		 posix_time_string );
+
+		if( libfdatetime_posix_time_copy_from_byte_stream(
+		     posix_time,
+		     ( (fsext_inode_t *) data )->deletion_time,
+		     4,
+		     LIBFDATETIME_ENDIAN_LITTLE,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from byte stream.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) posix_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
+		libcnotify_printf(
+		 "%s: deletion time\t\t\t\t\t: %" PRIs_SYSTEM " UTC\n",
+		 function,
+		 posix_time_string );
 
 		libcnotify_printf(
-		 "%s: last inode change time\t: %" PRIu32 "\n",
-		 function,
-		 inode->last_inode_change_time );
-
-		libcnotify_printf(
-		 "%s: last modification time\t: %" PRIu32 "\n",
-		 function,
-		 inode->last_modification_time );
-
-		libcnotify_printf(
-		 "%s: deletion time\t: %" PRIu32 "\n",
-		 function,
-		 inode->deletion_time );
-
-		libcnotify_printf(
-		 "%s: group identifier\t: %" PRIu16 "\n",
+		 "%s: group identifier\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 inode->group_identifier );
 
 		libcnotify_printf(
-		 "%s: link count\t: %" PRIu16 "\n",
+		 "%s: link count\t\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 inode->link_count );
 
 		libcnotify_printf(
-		 "%s: sector count\t: %" PRIu32 "\n",
+		 "%s: sector count\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->sector_count );
 
 		libcnotify_printf(
-		 "%s: flags\t: %" PRIu32 "\n",
+		 "%s: flags\t\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->flags );
 
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_t *) data )->unknown1,
+		 value_32bit );
 		libcnotify_printf(
-		 "%s: Unknown (reserved)\t: %" PRIu32 "\n",
+		 "%s: Unknown (reserved)\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 inode->unknown1 );
+		 value_32bit );
 
-		/* TODO: direct_block_numbers */
-
+		for( direct_block_number_index = 0;
+		     direct_block_number_index < 48;
+		     direct_block_number_index++ )
+		{
+			libcnotify_printf(
+			 "%s: direct block number: %" PRIu8 "\t\t\t: %" PRIu32 "\n",
+			 function,
+			 direct_block_number_index,
+			 inode->indirect_block_number );
+		}
 		libcnotify_printf(
-		 "%s: indirect block number\t: %" PRIu32 "\n",
+		 "%s: indirect block number\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->indirect_block_number );
 
 		libcnotify_printf(
-		 "%s: double indirect block number\t: %" PRIu32 "\n",
+		 "%s: double indirect block number\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->double_indirect_block_number );
 
 		libcnotify_printf(
-		 "%s: triple indirect block number\t: %" PRIu32 "\n",
+		 "%s: triple indirect block number\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->triple_indirect_block_number );
 
 		libcnotify_printf(
-		 "%s: nfs generation number\t: %" PRIu32 "\n",
+		 "%s: nfs generation number\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->nfs_generation_number );
 
 		libcnotify_printf(
-		 "%s: file acl\t: %" PRIu32 "\n",
+		 "%s: file acl\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->file_acl );
 
 		libcnotify_printf(
-		 "%s: directory acl\t: %" PRIu32 "\n",
+		 "%s: directory acl\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->directory_acl );
 
 		libcnotify_printf(
-		 "%s: fragment block address\t: %" PRIu32 "\n",
+		 "%s: fragment block address\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->fragment_block_address );
 
 		libcnotify_printf(
-		 "%s: fragment block index\t: %" PRIu8 "\n",
+		 "%s: fragment block index\t\t\t\t: %" PRIu8 "\n",
 		 function,
 		 inode->fragment_block_index );
 
 		libcnotify_printf(
-		 "%s: fragment size\t: %" PRIu8 "\n",
+		 "%s: fragment size\t\t\t\t\t: %" PRIu8 "\n",
 		 function,
 		 inode->fragment_size );
 
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_inode_t *) data )->padding1,
+		 value_16bit );
 		libcnotify_printf(
-		 "%s: padding1\t: %" PRIu16 "\n",
+		 "%s: padding1\t\t\t\t\t: %" PRIu16 "\n",
 		 function,
-		 inode->padding1 );
+		 value_16bit );
 
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_inode_t *) data )->user_identifier_upper,
+		 value_16bit );
 		libcnotify_printf(
-		 "%s: user identifier 32bit\t: %" PRIu16 "\n",
+		 "%s: user identifier (upper)\t\t\t: %" PRIu16 "\n",
 		 function,
-		 inode->user_identifier_32bit );
+		 value_16bit );
 
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_inode_t *) data )->group_identifier_upper,
+		 value_16bit );
 		libcnotify_printf(
-		 "%s: group identifier 32bit\t: %" PRIu16 "\n",
+		 "%s: group identifier (upper)\t\t\t: %" PRIu16 "\n",
 		 function,
-		 inode->group_identifier_32bit );
+		 value_16bit );
 
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_t *) data )->unknown2,
+		 value_32bit );
 		libcnotify_printf(
-		 "%s: Unknown (reserved)\t: %" PRIu32 "\n",
+		 "%s: Unknown (reserved)\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 inode->unknown2 );
+		 value_32bit );
 
 		libcnotify_printf(
 		 "\n" );
+
+		if( libfdatetime_posix_time_free(
+		     &posix_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free POSIX time.",
+			 function );
+
+			goto on_error;
+		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_inode_t *) data )->user_identifier_upper,
+	 value_32bit );
+
+	inode->user_identifier |= value_32bit << 16;
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_inode_t *) data )->group_identifier_upper,
+	 value_32bit );
+
+	inode->group_identifier |= value_32bit << 16;
+
 	return( 1 );
-}
 
-/* Reads the inode from a Basic File IO (bfio) handle
- * Returns 1 if successful or -1 on error
- */
-int libfsext_inode_read_file_io_handle(
-     libfsext_inode_t *inode,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     libcerror_error_t **error )
-{
-	uint8_t data[ sizeof( fsext_inode_t ) ];
-
-	static char *function = "libfsext_inode_read_file_io_handle";
-	ssize_t read_count    = 0;
-
+on_error:
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
+	if( posix_time != NULL )
 	{
-		libcnotify_printf(
-		 "%s: reading inode at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 file_offset,
-		 file_offset );
+		libfdatetime_posix_time_free(
+		 &posix_time,
+		 NULL );
 	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek inode offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-		return( -1 );
-	}
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
-	              data,
-	              sizeof( fsext_inode_t ),
-	              error );
-
-	if( read_count != (ssize_t) sizeof( fsext_inode_t ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read inode at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		return( -1 );
-	}
-	if( libfsext_inode_read_data(
-	     inode,
-	     data,
-	     sizeof( fsext_inode_t ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read inode at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		return( -1 );
-	}
-	return( 1 );
+	return( -1 );
 }
 

@@ -1,5 +1,5 @@
 /*
- * Library inode type test program
+ * Library inode_table type test program
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,30 +33,30 @@
 #include "fsext_test_memory.h"
 #include "fsext_test_unused.h"
 
-#include "../libfsext/libfsext_inode.h"
+#include "../libfsext/libfsext_inode_table.h"
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
-/* Tests the libfsext_inode_initialize function
+/* Tests the libfsext_inode_table_initialize function
  * Returns 1 if successful or 0 if not
  */
-int fsext_test_inode_initialize(
+int fsext_test_inode_table_initialize(
      void )
 {
-	libcerror_error_t *error        = NULL;
-	libfsext_inode_t *inode         = NULL;
-	int result                      = 0;
+	libcerror_error_t *error            = NULL;
+	libfsext_inode_table_t *inode_table = NULL;
+	int result                          = 0;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 1;
-	int number_of_memset_fail_tests = 1;
-	int test_number                 = 0;
+	int number_of_malloc_fail_tests     = 1;
+	int number_of_memset_fail_tests     = 1;
+	int test_number                     = 0;
 #endif
 
 	/* Test regular cases
 	 */
-	result = libfsext_inode_initialize(
-	          &inode,
+	result = libfsext_inode_table_initialize(
+	          &inode_table,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -65,15 +65,15 @@ int fsext_test_inode_initialize(
 	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "inode",
-	 inode );
+	 "inode_table",
+	 inode_table );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	result = libfsext_inode_free(
-	          &inode,
+	result = libfsext_inode_table_free(
+	          &inode_table,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -82,8 +82,8 @@ int fsext_test_inode_initialize(
 	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
-	 "inode",
-	 inode );
+	 "inode_table",
+	 inode_table );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -91,7 +91,7 @@ int fsext_test_inode_initialize(
 
 	/* Test error cases
 	 */
-	result = libfsext_inode_initialize(
+	result = libfsext_inode_table_initialize(
 	          NULL,
 	          &error );
 
@@ -107,10 +107,10 @@ int fsext_test_inode_initialize(
 	libcerror_error_free(
 	 &error );
 
-	inode = (libfsext_inode_t *) 0x12345678UL;
+	inode_table = (libfsext_inode_table_t *) 0x12345678UL;
 
-	result = libfsext_inode_initialize(
-	          &inode,
+	result = libfsext_inode_table_initialize(
+	          &inode_table,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -125,7 +125,7 @@ int fsext_test_inode_initialize(
 	libcerror_error_free(
 	 &error );
 
-	inode = NULL;
+	inode_table = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
@@ -133,22 +133,22 @@ int fsext_test_inode_initialize(
 	     test_number < number_of_malloc_fail_tests;
 	     test_number++ )
 	{
-		/* Test libfsext_inode_initialize with malloc failing
+		/* Test libfsext_inode_table_initialize with malloc failing
 		 */
 		fsext_test_malloc_attempts_before_fail = test_number;
 
-		result = libfsext_inode_initialize(
-		          &inode,
+		result = libfsext_inode_table_initialize(
+		          &inode_table,
 		          &error );
 
 		if( fsext_test_malloc_attempts_before_fail != -1 )
 		{
 			fsext_test_malloc_attempts_before_fail = -1;
 
-			if( inode != NULL )
+			if( inode_table != NULL )
 			{
-				libfsext_inode_free(
-				 &inode,
+				libfsext_inode_table_free(
+				 &inode_table,
 				 NULL );
 			}
 		}
@@ -160,8 +160,8 @@ int fsext_test_inode_initialize(
 			 -1 );
 
 			FSEXT_TEST_ASSERT_IS_NULL(
-			 "inode",
-			 inode );
+			 "inode_table",
+			 inode_table );
 
 			FSEXT_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -175,22 +175,22 @@ int fsext_test_inode_initialize(
 	     test_number < number_of_memset_fail_tests;
 	     test_number++ )
 	{
-		/* Test libfsext_inode_initialize with memset failing
+		/* Test libfsext_inode_table_initialize with memset failing
 		 */
 		fsext_test_memset_attempts_before_fail = test_number;
 
-		result = libfsext_inode_initialize(
-		          &inode,
+		result = libfsext_inode_table_initialize(
+		          &inode_table,
 		          &error );
 
 		if( fsext_test_memset_attempts_before_fail != -1 )
 		{
 			fsext_test_memset_attempts_before_fail = -1;
 
-			if( inode != NULL )
+			if( inode_table != NULL )
 			{
-				libfsext_inode_free(
-				 &inode,
+				libfsext_inode_table_free(
+				 &inode_table,
 				 NULL );
 			}
 		}
@@ -202,8 +202,8 @@ int fsext_test_inode_initialize(
 			 -1 );
 
 			FSEXT_TEST_ASSERT_IS_NULL(
-			 "inode",
-			 inode );
+			 "inode_table",
+			 inode_table );
 
 			FSEXT_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -223,19 +223,19 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( inode != NULL )
+	if( inode_table != NULL )
 	{
-		libfsext_inode_free(
-		 &inode,
+		libfsext_inode_table_free(
+		 &inode_table,
 		 NULL );
 	}
 	return( 0 );
 }
 
-/* Tests the libfsext_inode_free function
+/* Tests the libfsext_inode_table_free function
  * Returns 1 if successful or 0 if not
  */
-int fsext_test_inode_free(
+int fsext_test_inode_table_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -243,7 +243,7 @@ int fsext_test_inode_free(
 
 	/* Test error cases
 	 */
-	result = libfsext_inode_free(
+	result = libfsext_inode_table_free(
 	          NULL,
 	          &error );
 
@@ -290,14 +290,16 @@ int main(
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
 	FSEXT_TEST_RUN(
-	 "libfsext_inode_initialize",
-	 fsext_test_inode_initialize );
+	 "libfsext_inode_table_initialize",
+	 fsext_test_inode_table_initialize );
 
 	FSEXT_TEST_RUN(
-	 "libfsext_inode_free",
-	 fsext_test_inode_free );
+	 "libfsext_inode_table_free",
+	 fsext_test_inode_table_free );
 
-	/* TODO: add tests for libfsext_inode_read_data */
+	/* TODO: add tests for libfsext_inode_table_read_data */
+
+	/* TODO: add tests for libfsext_inode_table_read_file_io_handle */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 

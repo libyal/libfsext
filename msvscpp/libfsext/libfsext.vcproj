@@ -174,11 +174,31 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_bitmap.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_debug.c"
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_directory_entry.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_error.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_group_descriptor.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_inode.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_inode_table.c"
 				>
 			</File>
 			<File
@@ -187,6 +207,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_notify.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_superblock.c"
 				>
 			</File>
 			<File
@@ -204,11 +228,23 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\libfsext\fsext_directory_entry.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\fsext_group_descriptor.h"
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\fsext_inode.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\fsext_superblock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_bitmap.h"
 				>
 			</File>
 			<File
@@ -220,11 +256,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_directory_entry.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_error.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_extern.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_group_descriptor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_inode.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_inode_table.h"
 				>
 			</File>
 			<File
@@ -273,6 +325,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_notify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_superblock.h"
 				>
 			</File>
 			<File

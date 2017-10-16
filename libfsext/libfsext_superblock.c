@@ -22,7 +22,10 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "libfsext_debug.h"
 #include "libfsext_libcerror.h"
@@ -68,7 +71,7 @@ int libfsext_superblock_initialize(
 		return( -1 );
 	}
 	*superblock = memory_allocate_structure(
-	              libfsext_superblock_t );
+	               libfsext_superblock_t );
 
 	if( *superblock == NULL )
 	{
@@ -146,10 +149,10 @@ int libfsext_superblock_read_data(
      const uint8_t *data,
      size_t data_size,
      int *format_version,
+     uint32_t *number_of_block_groups,
      libcerror_error_t **error )
 {
 	static char *function                     = "libfsext_superblock_read_data";
-	uint32_t number_of_block_groups           = 0;
 	uint32_t number_of_blocks                 = 0;
 	uint32_t number_of_blocks_per_block_group = 0;
 
@@ -215,6 +218,17 @@ int libfsext_superblock_read_data(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid format version.",
+		 function );
+
+		return( -1 );
+	}
+	if( number_of_block_groups == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid number of block groups.",
 		 function );
 
 		return( -1 );
@@ -1104,11 +1118,11 @@ int libfsext_superblock_read_data(
 
 		goto on_error;
 	}
-	number_of_block_groups = number_of_blocks / number_of_blocks_per_block_group;
+	*number_of_block_groups = number_of_blocks / number_of_blocks_per_block_group;
 
 	if( ( number_of_blocks % number_of_blocks_per_block_group ) != 0 )
 	{
-		number_of_block_groups += 1;
+		*number_of_block_groups += 1;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -1121,7 +1135,7 @@ int libfsext_superblock_read_data(
 		libcnotify_printf(
 		 "%s: number of block groups\t\t\t: %" PRIu32 "\n",
 		 function,
-		 number_of_block_groups );
+		 *number_of_block_groups );
 
 		libcnotify_printf(
 		 "\n" );
@@ -1157,6 +1171,7 @@ int libfsext_superblock_read_file_io_handle(
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
      int *format_version,
+     uint32_t *number_of_block_groups,
      libcerror_error_t **error )
 {
 	uint8_t data[ 1024 ];
@@ -1215,6 +1230,7 @@ int libfsext_superblock_read_file_io_handle(
 	     data,
 	     1024,
 	     format_version,
+	     number_of_block_groups,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

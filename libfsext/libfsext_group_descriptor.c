@@ -24,9 +24,10 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libfsext_group_descriptor.h"
+#include "libfsext_io_handle.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
-#include "libfsext_group_descriptor.h"
 
 #include "fsext_group_descriptor.h"
 
@@ -146,9 +147,10 @@ int libfsext_group_descriptor_read_data(
 	static char *function             = "libfsext_group_descriptor_read_data";
 	size_t data_offset                = 0;
 	size_t group_descriptor_data_size = 0;
+	uint64_t value_64bit              = 0;
+	uint32_t value_32bit              = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit              = 0;
 	uint16_t value_16bit              = 0;
 #endif
 
@@ -228,90 +230,153 @@ int libfsext_group_descriptor_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( io_handle->format_version == 4 )
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_group_descriptor_ext2_t *) data )->block_bitmap_block_number,
+	 group_descriptor->block_bitmap_block_number );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_group_descriptor_ext2_t *) data )->inode_bitmap_block_number,
+	 group_descriptor->inode_bitmap_block_number );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_group_descriptor_ext2_t *) data )->inode_table_block_number,
+	 group_descriptor->inode_table_block_number );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_group_descriptor_ext2_t *) data )->number_of_unallocated_blocks,
+	 group_descriptor->number_of_unallocated_blocks );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_group_descriptor_ext2_t *) data )->number_of_unallocated_inodes,
+	 group_descriptor->number_of_unallocated_inodes );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_group_descriptor_ext2_t *) data )->number_of_directories,
+	 group_descriptor->number_of_directories );
+
+	if( io_handle->format_version < 4 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->block_bitmap_block_number_lower,
-			 value_32bit );
 			libcnotify_printf(
-			 "%s: block bitmap block number (lower)\t: %" PRIu32 "\n",
+			 "%s: block bitmap block number\t\t: %" PRIu64 "\n",
 			 function,
-			 value_32bit );
+			 group_descriptor->block_bitmap_block_number );
 
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->inode_bitmap_block_number_lower,
-			 value_32bit );
 			libcnotify_printf(
-			 "%s: inode bitmap block number (lower)\t: %" PRIu32 "\n",
+			 "%s: inode bitmap block number\t\t: %" PRIu64 "\n",
 			 function,
-			 value_32bit );
+			 group_descriptor->inode_bitmap_block_number );
 
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->inode_table_block_number_lower,
-			 value_32bit );
 			libcnotify_printf(
-			 "%s: inode table block number (lower)\t: %" PRIu32 "\n",
+			 "%s: inode table block number\t\t: %" PRIu64 "\n",
 			 function,
-			 value_32bit );
+			 group_descriptor->inode_table_block_number );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unallocated_blocks_lower,
-			 value_16bit );
 			libcnotify_printf(
-			 "%s: number of unallocated blocks (lower)\t: %" PRIu16 "\n",
+			 "%s: number of unallocated blocks\t: %" PRIu32 "\n",
 			 function,
-			 value_16bit );
+			 group_descriptor->number_of_unallocated_blocks );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unallocated_inodes_lower,
-			 value_16bit );
 			libcnotify_printf(
-			 "%s: number of unallocated inodes (lower)\t: %" PRIu16 "\n",
+			 "%s: number of unallocated inodes\t: %" PRIu32 "\n",
 			 function,
-			 value_16bit );
+			 group_descriptor->number_of_unallocated_inodes );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->number_of_directories_lower,
-			 value_16bit );
 			libcnotify_printf(
-			 "%s: number of directories (lower)\t\t: %" PRIu16 "\n",
+			 "%s: number of directories\t\t: %" PRIu32 "\n",
 			 function,
-			 value_16bit );
+			 group_descriptor->number_of_directories );
 
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->exclude_bitmap_block_number_lower,
-			 value_32bit );
 			libcnotify_printf(
-			 "%s: exclude bitmap block number (lower)\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
+			 "%s: padding1:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (fsext_group_descriptor_ext2_t *) data )->padding1,
+			 2,
+			 0 );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->block_bitmap_checksum_lower,
-			 value_16bit );
 			libcnotify_printf(
-			 "%s: block bitmap checksum (lower)\t\t: 0x%04" PRIx16 "\n",
-			 function,
-			 value_16bit );
+			 "%s: unknown1:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (fsext_group_descriptor_ext2_t *) data )->unknown1,
+			 12,
+			 0 );
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+	}
+	else
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->exclude_bitmap_block_number_lower,
+		 group_descriptor->exclude_bitmap_block_number );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->inode_bitmap_checksum_lower,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: inode bitmap checksum (lower)\t\t: 0x%04" PRIx16 "\n",
-			 function,
-			 value_16bit );
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->block_bitmap_checksum_lower,
+		 group_descriptor->block_bitmap_checksum );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unused_inodes_lower,
-			 value_16bit );
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->inode_bitmap_checksum_lower,
+		 group_descriptor->inode_bitmap_checksum );
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unused_inodes_lower,
+		 group_descriptor->number_of_unused_inodes );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
 			libcnotify_printf(
-			 "%s: number of unused inodes (lower)\t: %" PRIu16 "\n",
+			 "%s: block bitmap block number (lower)\t: %" PRIu64 "\n",
 			 function,
-			 value_16bit );
+			 group_descriptor->block_bitmap_block_number );
+
+			libcnotify_printf(
+			 "%s: inode bitmap block number (lower)\t: %" PRIu64 "\n",
+			 function,
+			 group_descriptor->inode_bitmap_block_number );
+
+			libcnotify_printf(
+			 "%s: inode table block number (lower)\t: %" PRIu64 "\n",
+			 function,
+			 group_descriptor->inode_table_block_number );
+
+			libcnotify_printf(
+			 "%s: number of unallocated blocks (lower)\t: %" PRIu32 "\n",
+			 function,
+			 group_descriptor->number_of_unallocated_blocks );
+
+			libcnotify_printf(
+			 "%s: number of unallocated inodes (lower)\t: %" PRIu32 "\n",
+			 function,
+			 group_descriptor->number_of_unallocated_inodes );
+
+			libcnotify_printf(
+			 "%s: number of directories (lower)\t\t: %" PRIu32 "\n",
+			 function,
+			 group_descriptor->number_of_directories );
+
+			libcnotify_printf(
+			 "%s: exclude bitmap block number (lower)\t: %" PRIu64 "\n",
+			 function,
+			 group_descriptor->exclude_bitmap_block_number );
+
+			libcnotify_printf(
+			 "%s: block bitmap checksum (lower)\t\t: 0x%04" PRIx32 "\n",
+			 function,
+			 group_descriptor->block_bitmap_checksum );
+
+			libcnotify_printf(
+			 "%s: inode bitmap checksum (lower)\t\t: 0x%04" PRIx32 "\n",
+			 function,
+			 group_descriptor->inode_bitmap_checksum );
+
+			libcnotify_printf(
+			 "%s: number of unused inodes (lower)\t: %" PRIu32 "\n",
+			 function,
+			 group_descriptor->number_of_unused_inodes );
 
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_group_descriptor_ext4_t *) data )->checksum,
@@ -410,77 +475,65 @@ int libfsext_group_descriptor_read_data(
 			 0 );
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
-	}
-	else
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_group_descriptor_ext2_t *) data )->block_bitmap_block_number,
-			 value_32bit );
-			libcnotify_printf(
-			 "%s: block bitmap block number\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->block_bitmap_block_number_upper,
+		 value_64bit );
 
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_group_descriptor_ext2_t *) data )->inode_bitmap_block_number,
-			 value_32bit );
-			libcnotify_printf(
-			 "%s: inode bitmap block number\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
+		group_descriptor->block_bitmap_block_number |= value_64bit << 32;
 
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_group_descriptor_ext2_t *) data )->inode_table_block_number,
-			 value_32bit );
-			libcnotify_printf(
-			 "%s: inode table block number\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->inode_bitmap_block_number_upper,
+		 value_64bit );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext2_t *) data )->number_of_unallocated_blocks,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: number of unallocated blocks\t: %" PRIu16 "\n",
-			 function,
-			 value_16bit );
+		group_descriptor->inode_bitmap_block_number |= value_64bit << 32;
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext2_t *) data )->number_of_unallocated_inodes,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: number of unallocated inodes\t: %" PRIu16 "\n",
-			 function,
-			 value_16bit );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->inode_table_block_number_upper,
+		 value_64bit );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_group_descriptor_ext2_t *) data )->number_of_directories,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: number of directories\t\t: %" PRIu16 "\n",
-			 function,
-			 value_16bit );
+		group_descriptor->inode_table_block_number |= value_64bit << 32;
 
-			libcnotify_printf(
-			 "%s: padding1:\n",
-			 function );
-			libcnotify_print_data(
-			 ( (fsext_group_descriptor_ext2_t *) data )->padding1,
-			 2,
-			 0 );
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unallocated_blocks_upper,
+		 value_32bit );
 
-			libcnotify_printf(
-			 "%s: unknown1:\n",
-			 function );
-			libcnotify_print_data(
-			 ( (fsext_group_descriptor_ext2_t *) data )->unknown1,
-			 12,
-			 0 );
-		}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+		group_descriptor->number_of_unallocated_blocks |= value_32bit << 16;
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unallocated_inodes_upper,
+		 value_32bit );
+
+		group_descriptor->number_of_unallocated_inodes |= value_32bit << 16;
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->number_of_directories_upper,
+		 value_32bit );
+
+		group_descriptor->number_of_directories |= value_32bit << 16;
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unused_inodes_upper,
+		 value_32bit );
+
+		group_descriptor->number_of_unused_inodes |= value_32bit << 16;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->exclude_bitmap_block_number_upper,
+		 value_64bit );
+
+		group_descriptor->exclude_bitmap_block_number |= value_64bit << 32;
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->block_bitmap_checksum_upper,
+		 value_32bit );
+
+		group_descriptor->block_bitmap_checksum |= value_32bit << 16;
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->inode_bitmap_checksum_upper,
+		 value_32bit );
+
+		group_descriptor->inode_bitmap_checksum |= value_32bit << 16;
 	}
 	data_offset += group_descriptor_data_size;
 
@@ -525,7 +578,8 @@ int libfsext_group_descriptor_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( io_handle->block_size > (size_t) SSIZE_MAX )
+#if SIZEOF_SIZE_T <= 4
+	if( io_handle->block_size > (uint32_t) SSIZE_MAX )
 	{
 		libcerror_error_set(
 		 error,
@@ -536,6 +590,7 @@ int libfsext_group_descriptor_read_file_io_handle(
 
 		return( -1 );
 	}
+#endif
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{

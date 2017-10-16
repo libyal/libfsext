@@ -123,6 +123,7 @@ stamp-h[1-9]
 /fsexttools/*.exe
 /fsexttools/fsextinfo
 /tests/*.exe
+/tests/fsext_test_bitmap
 /tests/fsext_test_directory_entry
 /tests/fsext_test_error
 /tests/fsext_test_file_entry

@@ -148,15 +148,15 @@ struct fsext_inode
 	 */
 	uint8_t padding1[ 2 ];
 
-	/* User identifier 32bit
+	/* User identifier (upper 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t user_identifier_32bit[ 2 ];
+	uint8_t user_identifier_upper[ 2 ];
 
-	/* Group identifier 32bit
+	/* Group identifier (upper 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t group_identifier_32bit[ 2 ];
+	uint8_t group_identifier_upper[ 2 ];
 
 	/* Unknown (reserved)
 	 * Consists of 4 bytes

@@ -214,6 +214,7 @@ members:
   elements_data_size: 190
 ---
 name: superblock_ext4
+aliases: [ext4_super_block]
 type: structure
 description: Superblock
 members:
@@ -650,99 +651,132 @@ members:
 - superblock_ext4
 ---
 name: group_descriptor_ext2
+aliases: [ext2_group_desc]
 type: structure
 description: Group descriptor
 members:
 - name: block_bitmap_block_number
+  aliases: [bg_block_bitmap]
   data_type: uint32
 - name: inode_bitmap_block_number
+  aliases: [bg_inode_bitmap]
   data_type: uint32
 - name: inode_table_block_number
+  aliases: [bg_inode_table]
   data_type: uint32
 - name: number_of_unallocated_blocks
+  aliases: [bg_free_blocks_count]
   data_type: uint16
 - name: number_of_unallocated_inodes
+  aliases: [bg_free_inodes_count]
   data_type: uint16
 - name: number_of_directories
+  aliases: [bg_used_dirs_count]
   data_type: uint16
 - name: padding1
+  aliases: [bg_pad]
   description: Padding
   data_type: uint16
 - name: unknown1
+  aliases: [bg_reserved]
   description: Unknown (reserved)
   type: stream
   element_data_type: byte
   elements_data_size: 12
 ---
 name: group_descriptor_ext4
+aliases: [ext4_group_desc]
 type: structure
 description: Group descriptor
 members:
 - name: block_bitmap_block_number_lower
+  aliases: [bg_block_bitmap_lo]
   description: Block bitmap block number (lower 32-bit)
   data_type: uint32
 - name: inode_bitmap_block_number_lower
+  aliases: [bg_inode_bitmap_lo]
   description: Inode bitmap block number (lower 32-bit)
   data_type: uint32
 - name: inode_table_block_number_lower
+  aliases: [bg_inode_table_lo]
   description: Inode table block number (lower 32-bit)
   data_type: uint32
 - name: number_of_unallocated_blocks_lower
+  aliases: [bg_free_blocks_count_lo]
   description: Number of unallocated blocks (lower 16-bit)
   data_type: uint16
 - name: number_of_unallocated_inodes_lower
+  aliases: [bg_free_inodes_count_lo]
   description: Number of unallocated inodes (lower 16-bit)
   data_type: uint16
 - name: number_of_directories_lower
+  aliases: [bg_used_dirs_count_lo]
   description: Number of directories (lower 16-bit)
   data_type: uint16
 - name: block_group_flags
+  aliases: [bg_flags]
   data_type: uint16
 - name: exclude_bitmap_block_number_lower
+  aliases: [bg_exclude_bitmap_lo]
   description: Exclude bitmap block number (lower 32-bit)
   data_type: uint32
 - name: block_bitmap_checksum_lower
+  aliases: [bg_block_bitmap_csum_lo]
   description: Block bitmap checksum (lower 16-bit)
   data_type: uint16
 - name: inode_bitmap_checksum_lower
+  aliases: [bg_inode_bitmap_csum_lo]
   description: Inode bitmap checksum (lower 16-bit)
   data_type: uint16
 - name: number_of_unused_inodes_lower
+  aliases: [bg_itable_unused_lo]
   description: Number of unused inodes (lower 16-bit)
   data_type: uint16
 - name: checksum
+  aliases: [bg_checksum]
   data_type: uint16
 - name: block_bitmap_block_number_upper
+  aliases: [bg_block_bitmap_hi]
   description: Block bitmap block number (upper 32-bit)
   data_type: uint32
 - name: inode_bitmap_block_number_upper
+  aliases: [bg_inode_bitmap_hi]
   description: Inode bitmap block number (upper 32-bit)
   data_type: uint32
 - name: inode_table_block_number_upper
+  aliases: [bg_inode_table_hi]
   description: Inode table block number (upper 32-bit)
   data_type: uint32
 - name: number_of_unallocated_blocks_upper
+  aliases: [bg_free_blocks_count_hi]
   description: Number of unallocated blocks (upper 16-bit)
   data_type: uint16
 - name: number_of_unallocated_inodes_upper
+  aliases: [bg_free_inodes_count_hi]
   description: Number of unallocated inodes (upper 16-bit)
   data_type: uint16
 - name: number_of_directories_upper
+  aliases: [bg_used_dirs_count_hi]
   description: Number of directories (upper 16-bit)
   data_type: uint16
 - name: number_of_unused_inodes_upper
+  aliases: [bg_itable_unused_hi]
   description: Number of unused inodes (upper 16-bit)
   data_type: uint16
 - name: exclude_bitmap_block_number_upper
+  aliases: [bg_exclude_bitmap_hi]
   description: Exclude bitmap block number (upper 32-bit)
   data_type: uint32
 - name: block_bitmap_checksum_upper
+  aliases: [bg_block_bitmap_csum_hi]
   description: Block bitmap checksum (upper 16-bit)
   data_type: uint16
 - name: inode_bitmap_checksum_upper
+  aliases: [bg_inode_bitmap_csum_hi]
   description: Inode bitmap checksum (upper 16-bit)
   data_type: uint16
 - name: unknown1
+  aliases: [bg_reserved]
   description: Unknown (reserved)
   data_type: uint32
 ---
@@ -782,35 +816,49 @@ members:
 - group_descriptor_ext4
 ---
 name: inode
+aliases: [ext2_inode]
 type: structure
 description: Inode
 members:
 - name: file_mode
+  aliases: [i_mode]
   data_type: uint16
 - name: user_identifier
+  aliases: [i_uid]
   data_type: uint16
 - name: data_size
+  aliases: [i_size]
   data_type: uint32
 - name: last_access_time
+  aliases: [i_atime]
   data_type: uint32
 - name: last_inode_change_time
+  aliases: [i_ctime]
   data_type: uint32
 - name: last_modification_time
+  aliases: [i_mtime]
   data_type: uint32
 - name: deletion_time
+  aliases: [i_dtime]
   data_type: uint32
 - name: group_identifier
+  aliases: [i_gid]
   data_type: uint16
 - name: link_count
+  aliases: [i_links_count]
   data_type: uint16
 - name: sector_count
+  aliases: [i_blocks]
   data_type: uint32
 - name: flags
+  aliases: [i_flags]
   data_type: uint32
 - name: unknown1
+  aliases: [l_i_reserved1, h_i_translator, m_i_reserved1]
   description: Unknown (reserved)
   data_type: uint32
 - name: direct_block_numbers
+  aliases: [i_block]
   type: sequence
   element_data_type: uint32
   number_of_elements: 12
@@ -821,40 +869,77 @@ members:
 - name: triple_indirect_block_number
   data_type: uint32
 - name: nfs_generation_number
+  aliases: [i_generation]
   data_type: uint32
 - name: file_acl
+  aliases: [i_file_acl]
   data_type: uint32
 - name: directory_acl
+  aliases: [i_dir_acl]
   data_type: uint32
 - name: fragment_block_address
+  aliases: [i_faddr]
   data_type: uint32
 - name: fragment_block_index
+  aliases: [l_i_frag, h_i_frag, m_i_frag]
   data_type: uint8
 - name: fragment_size
+  aliases: [l_i_fsize, h_i_fsize, m_i_fsize]
   data_type: uint8
 - name: padding1
+  aliases: [i_pad1, h_i_mode_high, m_pad1]
   data_type: uint16
-- name: user_identifier_32bit
+- name: user_identifier_upper
+  aliases: [l_i_uid_high, h_i_uid_high, m_i_reserved2]
   data_type: uint16
-- name: group_identifier_32bit
+- name: group_identifier_upper
+  aliases: [l_i_gid_high, h_i_gid_high]
   data_type: uint16
 - name: unknown2
+  aliases: [l_i_reserved2, h_i_author]
   description: Unknown (reserved)
   data_type: uint32
 ---
 name: directory_entry
+aliases: [ext2_dir_entry, ext4_dir_entry]
 type: structure
 description: Directory entry
 members:
 - name: inode_number
+  aliases: [inode]
   data_type: uint32
 - name: size
+  aliases: [rec_len]
   data_type: uint16
 - name: name_string_size
+  aliases: [name_len]
   data_type: uint8
 - name: file_type
+  aliases: [file_type]
   data_type: uint8
 - name: name_string
+  aliases: [name]
   type: stream
   element_data_type: byte
   elements_data_size: directory_entry.name_string_size
+---
+name: checksum_directory_entry
+aliases: [ext4_dir_entry_tail]
+type: structure
+description: Checksum directory entry
+members:
+- name: unknown1
+  aliases: [det_reserved_zero1]
+  data_type: uint32
+- name: size
+  aliases: [det_rec_len]
+  data_type: uint16
+- name: unknown2
+  aliases: [det_reserved_zero2]
+  data_type: uint8
+- name: unknown3
+  aliases: [det_reserved_ft]
+  data_type: uint8
+- name: checksum
+  aliases: [det_checksum]
+  data_type: uint32

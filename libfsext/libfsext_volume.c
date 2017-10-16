@@ -25,9 +25,11 @@
 #include <types.h>
 #include <wide_string.h>
 
+#include "libfsext_bitmap.h"
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
 #include "libfsext_group_descriptor.h"
+#include "libfsext_inode_table.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
@@ -662,13 +664,13 @@ int libfsext_volume_close(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
-	if( internal_volume->io_handle == NULL )
+	if( internal_volume->file_io_handle == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid volume - missing IO handle.",
+		 "%s: invalid volume - missing file IO handle.",
 		 function );
 
 		return( -1 );
@@ -770,9 +772,13 @@ int libfsext_volume_open_read(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
+	libfsext_bitmap_t *bitmap                     = NULL;
+	libfsext_inode_table_t *inode_table           = NULL;
 	libfsext_group_descriptor_t *group_descriptor = NULL;
 	static char *function                         = "libfsext_volume_open_read";
 	off64_t file_offset                           = 1024;
+	uint32_t block_group_index                    = 0;
+	uint32_t number_of_block_groups               = 0;
 
 	if( internal_volume == NULL )
 	{
@@ -821,6 +827,7 @@ int libfsext_volume_open_read(
 	     file_io_handle,
 	     file_offset,
 	     &( internal_volume->io_handle->format_version ),
+	     &number_of_block_groups,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -840,62 +847,243 @@ int libfsext_volume_open_read(
 	internal_volume->io_handle->incompatible_features_flags         = internal_volume->superblock->incompatible_features_flags;
 	internal_volume->io_handle->read_only_compatible_features_flags = internal_volume->superblock->read_only_compatible_features_flags;
 
+	for( block_group_index = 0;
+	     block_group_index < number_of_block_groups;
+	     block_group_index++ )
+	{
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "Reading group descriptor:\n" );
-	}
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "Reading group descriptor: %" PRIu32 "\n",
+			 block_group_index );
+		}
 #endif
-	file_offset = 2048;
+		if( libfsext_group_descriptor_initialize(
+		     &group_descriptor,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create group descriptor: %" PRIu32 ".",
+			 function,
+			 block_group_index );
 
-	if( libfsext_group_descriptor_initialize(
-	     &group_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create group descriptor.",
-		 function );
+			goto on_error;
+		}
+		file_offset = 2 * internal_volume->io_handle->block_size;
 
-		goto on_error;
-	}
-	if( libfsext_group_descriptor_read_file_io_handle(
-	     group_descriptor,
-	     internal_volume->io_handle,
-	     file_io_handle,
-	     file_offset,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read group descriptor at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		if( libfsext_group_descriptor_read_file_io_handle(
+		     group_descriptor,
+		     internal_volume->io_handle,
+		     file_io_handle,
+		     file_offset,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read group descriptor: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 function,
+			 block_group_index,
+			 file_offset,
+			 file_offset );
 
-		goto on_error;
-	}
-	if( libfsext_group_descriptor_free(
-	     &group_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free group descriptor.",
-		 function );
+			goto on_error;
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "Reading block bitmap.\n" );
+		}
+#endif
+		if( libfsext_bitmap_initialize(
+		     &bitmap,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to bitmap.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
+		file_offset = group_descriptor->block_bitmap_block_number * internal_volume->io_handle->block_size;
+
+		if( libfsext_bitmap_read_file_io_handle(
+		     bitmap,
+		     internal_volume->io_handle,
+		     file_io_handle,
+		     file_offset,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read bitmap at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 function,
+			 file_offset,
+			 file_offset );
+
+			goto on_error;
+		}
+		if( libfsext_bitmap_free(
+		     &bitmap,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free bitmap.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "Reading inode bitmap.\n" );
+		}
+#endif
+		if( libfsext_bitmap_initialize(
+		     &bitmap,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to bitmap.",
+			 function );
+
+			goto on_error;
+		}
+		file_offset = group_descriptor->inode_bitmap_block_number * internal_volume->io_handle->block_size;
+
+		if( libfsext_bitmap_read_file_io_handle(
+		     bitmap,
+		     internal_volume->io_handle,
+		     file_io_handle,
+		     file_offset,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read bitmap at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 function,
+			 file_offset,
+			 file_offset );
+
+			goto on_error;
+		}
+		if( libfsext_bitmap_free(
+		     &bitmap,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free bitmap.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "Reading inode table.\n" );
+		}
+#endif
+		if( libfsext_inode_table_initialize(
+		     &inode_table,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to inode table.",
+			 function );
+
+			goto on_error;
+		}
+		file_offset = group_descriptor->inode_table_block_number * internal_volume->io_handle->block_size;
+
+		if( libfsext_inode_table_read_file_io_handle(
+		     inode_table,
+		     internal_volume->io_handle,
+		     file_io_handle,
+		     file_offset,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read inode table at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 function,
+			 file_offset,
+			 file_offset );
+
+			goto on_error;
+		}
+		if( libfsext_inode_table_free(
+		     &inode_table,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free inode table.",
+			 function );
+
+			goto on_error;
+		}
+
+		if( libfsext_group_descriptor_free(
+		     &group_descriptor,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free group descriptor: %" PRIu32 ".",
+			 function,
+			 block_group_index );
+
+			goto on_error;
+		}
 	}
 	return( 1 );
 
 on_error:
+	if( inode_table != NULL )
+	{
+		libfsext_inode_table_free(
+		 &inode_table,
+		 NULL );
+	}
+	if( bitmap != NULL )
+	{
+		libfsext_bitmap_free(
+		 &bitmap,
+		 NULL );
+	}
 	if( group_descriptor != NULL )
 	{
 		libfsext_group_descriptor_free(

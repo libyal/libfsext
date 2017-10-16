@@ -28,7 +28,6 @@
 
 #include "pyfsext_error.h"
 #include "pyfsext_file_object_io_handle.h"
-#include "pyfsext_integer.h"
 #include "pyfsext_libbfio.h"
 #include "pyfsext_libcerror.h"
 #include "pyfsext_libfsext.h"
@@ -56,8 +55,6 @@ PyMethodDef pyfsext_volume_object_methods[] = {
 	  "\n"
 	  "Signals the volume to abort the current activity." },
 
-	/* Functions to access the volume */
-
 	{ "open",
 	  (PyCFunction) pyfsext_volume_open,
 	  METH_VARARGS | METH_KEYWORDS,
@@ -78,8 +75,6 @@ PyMethodDef pyfsext_volume_object_methods[] = {
 	  "close() -> None\n"
 	  "\n"
 	  "Closes a volume." },
-
-	/* Functions to access the volume values */
 
 	{ "get_label",
 	  (PyCFunction) pyfsext_volume_get_label,
@@ -209,8 +204,8 @@ PyObject *pyfsext_volume_new(
 	static char *function            = "pyfsext_volume_new";
 
 	pyfsext_volume = PyObject_New(
-	                   struct pyfsext_volume,
-	                   &pyfsext_volume_type_object );
+	                  struct pyfsext_volume,
+	                  &pyfsext_volume_type_object );
 
 	if( pyfsext_volume == NULL )
 	{
@@ -264,7 +259,7 @@ PyObject *pyfsext_volume_new_open(
 	return( pyfsext_volume );
 }
 
-/* Creates a new volume object and opens it
+/* Creates a new volume object and opens it using a file-like object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyfsext_volume_new_open_file_object(
@@ -292,8 +287,8 @@ PyObject *pyfsext_volume_new_open_file_object(
 int pyfsext_volume_init(
      pyfsext_volume_t *pyfsext_volume )
 {
-	static char *function    = "pyfsext_volume_init";
 	libcerror_error_t *error = NULL;
+	static char *function    = "pyfsext_volume_init";
 
 	if( pyfsext_volume == NULL )
 	{
@@ -330,8 +325,8 @@ int pyfsext_volume_init(
 void pyfsext_volume_free(
       pyfsext_volume_t *pyfsext_volume )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pyfsext_volume_free";
 	int result                  = 0;
 
@@ -456,9 +451,9 @@ PyObject *pyfsext_volume_open(
 {
 	PyObject *string_object      = NULL;
 	libcerror_error_t *error     = NULL;
+	const char *filename_narrow  = NULL;
 	static char *function        = "pyfsext_volume_open";
 	static char *keyword_list[]  = { "filename", "mode", NULL };
-	const char *filename_narrow  = NULL;
 	char *mode                   = NULL;
 	int result                   = 0;
 
@@ -512,7 +507,7 @@ PyObject *pyfsext_volume_open(
 	if( result == -1 )
 	{
 		pyfsext_error_fetch_and_raise(
-	         PyExc_RuntimeError,
+		 PyExc_RuntimeError,
 		 "%s: unable to determine if string object is of type unicode.",
 		 function );
 
@@ -529,7 +524,7 @@ PyObject *pyfsext_volume_open(
 
 		result = libfsext_volume_open_wide(
 		          pyfsext_volume->volume,
-	                  filename_wide,
+		          filename_wide,
 		          LIBFSEXT_OPEN_READ,
 		          &error );
 
@@ -549,16 +544,16 @@ PyObject *pyfsext_volume_open(
 		}
 #if PY_MAJOR_VERSION >= 3
 		filename_narrow = PyBytes_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #else
 		filename_narrow = PyString_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #endif
 		Py_BEGIN_ALLOW_THREADS
 
 		result = libfsext_volume_open(
 		          pyfsext_volume->volume,
-	                  filename_narrow,
+		          filename_narrow,
 		          LIBFSEXT_OPEN_READ,
 		          &error );
 
@@ -589,17 +584,17 @@ PyObject *pyfsext_volume_open(
 
 #if PY_MAJOR_VERSION >= 3
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyBytes_Type );
+	          string_object,
+	          (PyObject *) &PyBytes_Type );
 #else
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyString_Type );
+	          string_object,
+	          (PyObject *) &PyString_Type );
 #endif
 	if( result == -1 )
 	{
 		pyfsext_error_fetch_and_raise(
-	         PyExc_RuntimeError,
+		 PyExc_RuntimeError,
 		 "%s: unable to determine if string object is of type string.",
 		 function );
 
@@ -611,16 +606,16 @@ PyObject *pyfsext_volume_open(
 
 #if PY_MAJOR_VERSION >= 3
 		filename_narrow = PyBytes_AsString(
-				   string_object );
+		                   string_object );
 #else
 		filename_narrow = PyString_AsString(
-				   string_object );
+		                   string_object );
 #endif
 		Py_BEGIN_ALLOW_THREADS
 
 		result = libfsext_volume_open(
 		          pyfsext_volume->volume,
-	                  filename_narrow,
+		          filename_narrow,
 		          LIBFSEXT_OPEN_READ,
 		          &error );
 
@@ -662,9 +657,9 @@ PyObject *pyfsext_volume_open_file_object(
 {
 	PyObject *file_object       = NULL;
 	libcerror_error_t *error    = NULL;
-	char *mode                  = NULL;
-	static char *keyword_list[] = { "file_object", "mode", NULL };
 	static char *function       = "pyfsext_volume_open_file_object";
+	static char *keyword_list[] = { "file_object", "mode", NULL };
+	char *mode                  = NULL;
 	int result                  = 0;
 
 	if( pyfsext_volume == NULL )
@@ -696,6 +691,16 @@ PyObject *pyfsext_volume_open_file_object(
 		 mode );
 
 		return( NULL );
+	}
+	if( pyfsext_volume->file_io_handle != NULL )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: invalid volume - file IO handle already set.",
+		 function );
+
+		goto on_error;
 	}
 	if( pyfsext_file_object_initialize(
 	     &( pyfsext_volume->file_io_handle ),
@@ -831,12 +836,12 @@ PyObject *pyfsext_volume_get_label(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
+	libcerror_error_t *error = NULL;
 	const char *errors       = NULL;
-	uint8_t *label           = NULL;
 	static char *function    = "pyfsext_volume_get_label";
-	size_t label_size        = 0;
+	char *utf8_string        = NULL;
+	size_t utf8_string_size  = 0;
 	int result               = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -844,7 +849,7 @@ PyObject *pyfsext_volume_get_label(
 	if( pyfsext_volume == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid volume.",
 		 function );
 
@@ -854,7 +859,7 @@ PyObject *pyfsext_volume_get_label(
 
 	result = libfsext_volume_get_utf8_label_size(
 	          pyfsext_volume->volume,
-	          &label_size,
+	          &utf8_string_size,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -864,7 +869,7 @@ PyObject *pyfsext_volume_get_label(
 		pyfsext_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve label size.",
+		 "%s: unable to determine size of label as UTF-8 string.",
 		 function );
 
 		libcerror_error_free(
@@ -873,21 +878,21 @@ PyObject *pyfsext_volume_get_label(
 		goto on_error;
 	}
 	else if( ( result == 0 )
-	      || ( label_size == 0 ) )
+	      || ( utf8_string_size == 0 ) )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	label = (uint8_t *) PyMem_Malloc(
-	                     sizeof( uint8_t ) * label_size );
+	utf8_string = (char *) PyMem_Malloc(
+	                        sizeof( char ) * utf8_string_size );
 
-	if( label == NULL )
+	if( utf8_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to create label.",
+		 PyExc_MemoryError,
+		 "%s: unable to create UTF-8 string.",
 		 function );
 
 		goto on_error;
@@ -895,10 +900,10 @@ PyObject *pyfsext_volume_get_label(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libfsext_volume_get_utf8_label(
-		  pyfsext_volume->volume,
-		  label,
-		  label_size,
-		  &error );
+	          pyfsext_volume->volume,
+	          (uint8_t *) utf8_string,
+	          utf8_string_size,
+	          &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -907,7 +912,7 @@ PyObject *pyfsext_volume_get_label(
 		pyfsext_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve label.",
+		 "%s: unable to retrieve label as UTF-8 string.",
 		 function );
 
 		libcerror_error_free(
@@ -915,25 +920,33 @@ PyObject *pyfsext_volume_get_label(
 
 		goto on_error;
 	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
+	/* Pass the string length to PyUnicode_DecodeUTF8 otherwise it makes
+	 * the end of string character is part of the string
 	 */
 	string_object = PyUnicode_DecodeUTF8(
-			 (char *) label,
-			 (Py_ssize_t) label_size - 1,
-			 errors );
+	                 utf8_string,
+	                 (Py_ssize_t) utf8_string_size - 1,
+	                 errors );
 
+	if( string_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to convert UTF-8 string into Unicode object.",
+		 function );
+
+		goto on_error;
+	}
 	PyMem_Free(
-	 label );
+	 utf8_string );
 
 	return( string_object );
 
 on_error:
-	if( label != NULL )
+	if( utf8_string != NULL )
 	{
 		PyMem_Free(
-		 label );
+		 utf8_string );
 	}
 	return( NULL );
 }
