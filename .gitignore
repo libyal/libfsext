@@ -124,11 +124,14 @@ stamp-h[1-9]
 /fsexttools/fsextinfo
 /tests/*.exe
 /tests/fsext_test_bitmap
+/tests/fsext_test_block
+/tests/fsext_test_directory
 /tests/fsext_test_directory_entry
 /tests/fsext_test_error
 /tests/fsext_test_file_entry
 /tests/fsext_test_group_descriptor
 /tests/fsext_test_inode
+/tests/fsext_test_inode_table
 /tests/fsext_test_io_handle
 /tests/fsext_test_notify
 /tests/fsext_test_superblock

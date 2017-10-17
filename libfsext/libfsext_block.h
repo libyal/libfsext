@@ -1,5 +1,5 @@
 /*
- * Inode table functions
+ * Block functions
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,63 +19,60 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBFSEXT_INODE_TABLE_H )
-#define _LIBFSEXT_INODE_TABLE_H
+#if !defined( _LIBFSEXT_BLOCK_H )
+#define _LIBFSEXT_BLOCK_H
 
 #include <common.h>
 #include <types.h>
 
-#include "libfsext_inode.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
-#include "libfsext_libcdata.h"
 #include "libfsext_libfcache.h"
 #include "libfsext_libfdata.h"
-#include "libfsext_superblock.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libfsext_inode_table libfsext_inode_table_t;
+typedef struct libfsext_block libfsext_block_t;
 
-struct libfsext_inode_table
+struct libfsext_block
 {
-	/* The inode data size
+	/* The data
 	 */
-	size_t inode_data_size;
+	uint8_t *data;
 
-	/* The inodes vector
+	/* The data size
 	 */
-	libfdata_vector_t *inodes_vector;
-
-	/* The inodes cache
-	 */
-	libfcache_cache_t *inodes_cache;
+	size_t data_size;
 };
 
-int libfsext_inode_table_initialize(
-     libfsext_inode_table_t **inode_table,
+int libfsext_block_initialize(
+     libfsext_block_t **block,
+     size_t data_size,
+     libcerror_error_t **error );
+
+int libfsext_block_free(
+     libfsext_block_t **block,
+     libcerror_error_t **error );
+
+int libfsext_block_read_element_data(
      libfsext_io_handle_t *io_handle,
-     libfsext_superblock_t *superblock,
-     libcdata_array_t *group_descriptors_array,
-     libcerror_error_t **error );
-
-int libfsext_inode_table_free(
-     libfsext_inode_table_t **inode_table,
-     libcerror_error_t **error );
-
-int libfsext_inode_table_get_inode_by_number(
-     libfsext_inode_table_t *inode_table,
      libbfio_handle_t *file_io_handle,
-     uint32_t inode_number,
-     libfsext_inode_t **inode,
+     libfdata_vector_t *vector,
+     libfcache_cache_t *cache,
+     int element_index,
+     int element_data_file_index,
+     off64_t block_offset,
+     size64_t block_size,
+     uint32_t range_flags,
+     uint8_t read_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _LIBFSEXT_INODE_TABLE_H ) */
+#endif /* !defined( _LIBFSEXT_BLOCK_H ) */
 

@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 
 #if defined( __cplusplus )
@@ -44,17 +43,17 @@ struct libfsext_directory_entry
 	 */
 	uint16_t size;
 
-	/* Name string size
-	 */
-	uint8_t name_string_size;
-
 	/* File type
 	 */
 	uint8_t file_type;
 
-	/* Name string
+	/* Name
 	 */
-	uint8_t *name_string;
+	uint8_t *name;
+
+	/* Name size
+	 */
+	uint8_t name_size;
 };
 
 int libfsext_directory_entry_initialize(
@@ -65,16 +64,37 @@ int libfsext_directory_entry_free(
      libfsext_directory_entry_t **directory_entry,
      libcerror_error_t **error );
 
+int libfsext_directory_entry_clone(
+     libfsext_directory_entry_t **destination_directory_entry,
+     libfsext_directory_entry_t *source_directory_entry,
+     libcerror_error_t **error );
+
 int libfsext_directory_entry_read_data(
      libfsext_directory_entry_t *directory_entry,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error );
 
-int libfsext_directory_entry_read_file_io_handle(
+int libfsext_directory_entry_get_utf8_name_size(
      libfsext_directory_entry_t *directory_entry,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+int libfsext_directory_entry_get_utf8_name(
+     libfsext_directory_entry_t *directory_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+int libfsext_directory_entry_get_utf16_name_size(
+     libfsext_directory_entry_t *directory_entry,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+int libfsext_directory_entry_get_utf16_name(
+     libfsext_directory_entry_t *directory_entry,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

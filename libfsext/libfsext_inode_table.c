@@ -24,11 +24,17 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libfsext_definitions.h"
+#include "libfsext_group_descriptor.h"
 #include "libfsext_inode.h"
 #include "libfsext_inode_table.h"
 #include "libfsext_io_handle.h"
+#include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
+#include "libfsext_libfcache.h"
+#include "libfsext_libfdata.h"
+#include "libfsext_superblock.h"
 
 #include "fsext_inode.h"
 
@@ -38,9 +44,19 @@
  */
 int libfsext_inode_table_initialize(
      libfsext_inode_table_t **inode_table,
+     libfsext_io_handle_t *io_handle,
+     libfsext_superblock_t *superblock,
+     libcdata_array_t *group_descriptors_array,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_inode_table_initialize";
+	libfsext_group_descriptor_t *group_descriptor = NULL;
+	static char *function                         = "libfsext_inode_table_initialize";
+	size64_t file_size                            = 0;
+	size_t inode_data_size                        = 0;
+	off64_t file_offset                           = 0;
+	int group_descriptor_index                    = 0;
+	int number_of_group_descriptors               = 0;
+	int segment_index                             = 0;
 
 	if( inode_table == NULL )
 	{
@@ -60,6 +76,17 @@ int libfsext_inode_table_initialize(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid inode table value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
 		 function );
 
 		return( -1 );
@@ -92,11 +119,131 @@ int libfsext_inode_table_initialize(
 
 		goto on_error;
 	}
+	if( io_handle->format_version == 4 )
+	{
+		inode_data_size = sizeof( fsext_inode_ext4_t );
+	}
+	else if( io_handle->format_version == 3 )
+	{
+		inode_data_size = sizeof( fsext_inode_ext3_t );
+	}
+	else
+	{
+		inode_data_size = sizeof( fsext_inode_ext2_t );
+	}
+	if( libfdata_vector_initialize(
+	     &( ( *inode_table )->inodes_vector ),
+	     inode_data_size,
+	     (intptr_t *) io_handle,
+	     NULL,
+	     NULL,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libfsext_inode_read_element_data,
+	     NULL,
+	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create inodes vector.",
+		 function );
+
+		goto on_error;
+	}
+	if( libcdata_array_get_number_of_entries(
+	     group_descriptors_array,
+	     &number_of_group_descriptors,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of group descriptors.",
+		 function );
+
+		goto on_error;
+	}
+	for( group_descriptor_index = 0;
+	     group_descriptor_index < number_of_group_descriptors;
+	     group_descriptor_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     group_descriptors_array,
+		     group_descriptor_index,
+		     (intptr_t **) &group_descriptor,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve group descriptor: %d.",
+			 function,
+			 group_descriptor_index );
+
+			goto on_error;
+		}
+		if( group_descriptor == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing group descriptor: %d.",
+			 function,
+			 group_descriptor_index );
+
+			goto on_error;
+		}
+		file_offset = (off64_t) group_descriptor->inode_table_block_number * superblock->block_size;
+		file_size   = (size64_t) superblock->number_of_inodes_per_block_group * inode_data_size;
+
+		if( libfdata_vector_append_segment(
+		     ( *inode_table )->inodes_vector,
+		     &segment_index,
+		     0,
+		     file_offset,
+		     file_size,
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append segment to inodes vector.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libfcache_cache_initialize(
+	     &( ( *inode_table )->inodes_cache ),
+	     LIBFSEXT_MAXIMUM_CACHE_ENTRIES_INODES,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create inodes cache.",
+		 function );
+
+		goto on_error;
+	}
 	return( 1 );
 
 on_error:
 	if( *inode_table != NULL )
 	{
+		if( ( *inode_table )->inodes_vector != NULL )
+		{
+			libfdata_vector_free(
+			 &( ( *inode_table )->inodes_vector ),
+			 NULL );
+		}
 		memory_free(
 		 *inode_table );
 
@@ -113,6 +260,7 @@ int libfsext_inode_table_free(
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_inode_table_free";
+	int result            = 1;
 
 	if( inode_table == NULL )
 	{
@@ -127,27 +275,51 @@ int libfsext_inode_table_free(
 	}
 	if( *inode_table != NULL )
 	{
+		if( libfdata_vector_free(
+		     &( ( *inode_table )->inodes_vector ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free inodes vector.",
+			 function );
+
+			result = -1;
+		}
+		if( libfcache_cache_free(
+		     &( ( *inode_table )->inodes_cache ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free inodes cache.",
+			 function );
+
+			result = -1;
+		}
 		memory_free(
 		 *inode_table );
 
 		*inode_table = NULL;
 	}
-	return( 1 );
+	return( result );
 }
 
-/* Reads the inode_table data
+/* Retrieves a specific inode
  * Returns 1 if successful or -1 on error
  */
-int libfsext_inode_table_read_data(
+int libfsext_inode_table_get_inode_by_number(
      libfsext_inode_table_t *inode_table,
-     const uint8_t *data,
-     size_t data_size,
-     off64_t file_offset,
+     libbfio_handle_t *file_io_handle,
+     uint32_t inode_number,
+     libfsext_inode_t **inode,
      libcerror_error_t **error )
 {
-	libfsext_inode_t *inode = NULL;
-	static char *function   = "libfsext_inode_table_read_data";
-	size_t data_offset      = 0;
+	static char *function = "libfsext_inode_table_get_inode_by_number";
 
 	if( inode_table == NULL )
 	{
@@ -160,216 +332,36 @@ int libfsext_inode_table_read_data(
 
 		return( -1 );
 	}
-	if( data == NULL )
+	if( inode_number == 0 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid data.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
+		 "%s: invalid inode number value zero or less.",
 		 function );
 
 		return( -1 );
 	}
-	if( data_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	while( ( data_size > sizeof( fsext_inode_t ) )
-	    && ( data_offset < ( data_size - sizeof( fsext_inode_t ) ) ) )
-	{
-		if( libfsext_inode_initialize(
-		     &inode,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to inode.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfsext_inode_read_data(
-		     inode,
-		     &( data[ data_offset ] ),
-		     data_size - data_offset,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read inode at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-			 function,
-			 file_offset + (off64_t) data_offset,
-			 file_offset + (off64_t) data_offset );
-
-			goto on_error;
-		}
-		data_offset += sizeof( fsext_inode_t );
-
-		if( libfsext_inode_free(
-		     &inode,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free inode.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	return( 1 );
-
-on_error:
-	if( inode != NULL )
-	{
-		libfsext_inode_free(
-		 &inode,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Reads the inode_table from a Basic File IO (bfio) handle
- * Returns 1 if successful or -1 on error
- */
-int libfsext_inode_table_read_file_io_handle(
-     libfsext_inode_table_t *inode_table,
-     libfsext_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     libcerror_error_t **error )
-{
-	uint8_t *data         = NULL;
-	static char *function = "libfsext_inode_table_read_file_io_handle";
-	ssize_t read_count    = 0;
-
-	if( io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
-		 function );
-
-		return( -1 );
-	}
-#if SIZEOF_SIZE_T <= 4
-	if( io_handle->block_size > (uint32_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid IO handle - block size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-#endif
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading inode table at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 file_offset,
-		 file_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek inode table offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		goto on_error;
-	}
-	data = (uint8_t *) memory_allocate(
-	                    sizeof( uint8_t ) * io_handle->block_size );
-
-	if( data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create data.",
-		 function );
-
-		goto on_error;
-	}
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
-	              data,
-	              (size_t) io_handle->block_size,
-	              error );
-
-	if( read_count != (ssize_t) io_handle->block_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read inode table at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		goto on_error;
-	}
-	if( libfsext_inode_table_read_data(
-	     inode_table,
-	     data,
-	     (size_t) io_handle->block_size,
-	     file_offset,
+	if( libfdata_vector_get_element_value_by_index(
+	     inode_table->inodes_vector,
+	     (intptr_t *) file_io_handle,
+	     inode_table->inodes_cache,
+	     inode_number - 1,
+	     (intptr_t **) inode,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read inode table at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve inode: %" PRIu32 ".",
 		 function,
-		 file_offset,
-		 file_offset );
+		 inode_number );
 
-		goto on_error;
+		return( -1 );
 	}
-	memory_free(
-	 data );
-
 	return( 1 );
-
-on_error:
-	if( data != NULL )
-	{
-		memory_free(
-		 data );
-	}
-	return( -1 );
 }
 

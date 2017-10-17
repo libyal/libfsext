@@ -1,5 +1,5 @@
 /*
- * Library inode_table type test program
+ * Library block type test program
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,12 +33,12 @@
 #include "fsext_test_memory.h"
 #include "fsext_test_unused.h"
 
-#include "../libfsext/libfsext_inode_table.h"
+#include "../libfsext/libfsext_block.h"
 
-/* Tests the libfsext_inode_table_free function
+/* Tests the libfsext_block_free function
  * Returns 1 if successful or 0 if not
  */
-int fsext_test_inode_table_free(
+int fsext_test_block_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -46,7 +46,7 @@ int fsext_test_inode_table_free(
 
 	/* Test error cases
 	 */
-	result = libfsext_inode_table_free(
+	result = libfsext_block_free(
 	          NULL,
 	          &error );
 
@@ -94,15 +94,13 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
-	/* TODO: add tests for libfsext_inode_table_initialize */
+	/* TODO: add tests for libfsext_block_initialize */
 
 	FSEXT_TEST_RUN(
-	 "libfsext_inode_table_free",
-	 fsext_test_inode_table_free );
+	 "libfsext_block_free",
+	 fsext_test_block_free );
 
-	/* TODO: add tests for libfsext_inode_table_read_data */
-
-	/* TODO: add tests for libfsext_inode_table_get_inode_by_number */
+	/* TODO: add tests for libfsext_block_read_element_data */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 

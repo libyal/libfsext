@@ -24,11 +24,15 @@ libfsext_la_SOURCES = \
 	fsext_superblock.h \
 	libfsext.c \
 	libfsext_bitmap.c libfsext_bitmap.h \
+	libfsext_block.c libfsext_block.h \
+	libfsext_block_vector.c libfsext_block_vector.h \
 	libfsext_debug.c libfsext_debug.h \
 	libfsext_definitions.h \
+	libfsext_directory.c libfsext_directory.h \
 	libfsext_directory_entry.c libfsext_directory_entry.h \
 	libfsext_error.c libfsext_error.h \
 	libfsext_extern.h \
+	libfsext_file_entry.c libfsext_file_entry.h \
 	libfsext_group_descriptor.c libfsext_group_descriptor.h \
 	libfsext_inode.c libfsext_inode.h \
 	libfsext_inode_table.c libfsext_inode_table.h \

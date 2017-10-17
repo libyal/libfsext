@@ -1679,6 +1679,273 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libfsext_volume_get_last_mount_time function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_get_last_mount_time(
+     libfsext_volume_t *volume )
+{
+	libcerror_error_t *error   = NULL;
+	uint32_t last_mount_time   = 0;
+	int last_mount_time_is_set = 0;
+	int result                 = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_volume_get_last_mount_time(
+	          volume,
+	          &last_mount_time,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	last_mount_time_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libfsext_volume_get_last_mount_time(
+	          NULL,
+	          &last_mount_time,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( last_mount_time_is_set != 0 )
+	{
+		result = libfsext_volume_get_last_mount_time(
+		          volume,
+		          NULL,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_volume_get_last_written_time function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_get_last_written_time(
+     libfsext_volume_t *volume )
+{
+	libcerror_error_t *error     = NULL;
+	uint32_t last_written_time   = 0;
+	int last_written_time_is_set = 0;
+	int result                   = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_volume_get_last_written_time(
+	          volume,
+	          &last_written_time,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	last_written_time_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libfsext_volume_get_last_written_time(
+	          NULL,
+	          &last_written_time,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( last_written_time_is_set != 0 )
+	{
+		result = libfsext_volume_get_last_written_time(
+		          volume,
+		          NULL,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_volume_get_root_directory function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_volume_get_root_directory(
+     libfsext_volume_t *volume )
+{
+	libcerror_error_t *error              = NULL;
+	libfsext_file_entry_t *root_directory = 0;
+	int result                            = 0;
+	int root_directory_is_set             = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_volume_get_root_directory(
+	          volume,
+	          &root_directory,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	root_directory_is_set = result;
+
+	if( root_directory_is_set != 0 )
+	{
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "root_directory",
+		 root_directory );
+
+		result = libfsext_file_entry_free(
+		          &root_directory,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	/* Test error cases
+	 */
+	result = libfsext_volume_get_root_directory(
+	          NULL,
+	          &root_directory,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "root_directory",
+	 root_directory );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( root_directory_is_set != 0 )
+	{
+		result = libfsext_volume_get_root_directory(
+		          volume,
+		          NULL,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "root_directory",
+		 root_directory );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( root_directory != NULL )
+	{
+		libfsext_file_entry_free(
+		 &root_directory,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -1816,6 +2083,8 @@ int main(
 
 		/* TODO: add tests for libfsext_volume_open_read */
 
+		/* TODO: add tests for libfsext_volume_read_group_descriptors */
+
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 		FSEXT_TEST_RUN_WITH_ARGS(
@@ -1836,6 +2105,21 @@ int main(
 		FSEXT_TEST_RUN_WITH_ARGS(
 		 "libfsext_volume_get_utf16_label",
 		 fsext_test_volume_get_utf16_label,
+		 volume );
+
+		FSEXT_TEST_RUN_WITH_ARGS(
+		 "libfsext_volume_get_last_mount_time",
+		 fsext_test_volume_get_last_mount_time,
+		 volume );
+
+		FSEXT_TEST_RUN_WITH_ARGS(
+		 "libfsext_volume_get_last_written_time",
+		 fsext_test_volume_get_last_written_time,
+		 volume );
+
+		FSEXT_TEST_RUN_WITH_ARGS(
+		 "libfsext_volume_get_root_directory",
+		 fsext_test_volume_get_root_directory,
 		 volume );
 
 		/* Clean up

@@ -1,5 +1,5 @@
 /*
- * Inode table functions
+ * Directory functions
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,63 +19,61 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBFSEXT_INODE_TABLE_H )
-#define _LIBFSEXT_INODE_TABLE_H
+#if !defined( _LIBFSEXT_DIRECTORY_H )
+#define _LIBFSEXT_DIRECTORY_H
 
 #include <common.h>
 #include <types.h>
 
+#include "libfsext_directory_entry.h"
 #include "libfsext_inode.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
-#include "libfsext_libcerror.h"
 #include "libfsext_libcdata.h"
-#include "libfsext_libfcache.h"
-#include "libfsext_libfdata.h"
-#include "libfsext_superblock.h"
+#include "libfsext_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libfsext_inode_table libfsext_inode_table_t;
+typedef struct libfsext_directory libfsext_directory_t;
 
-struct libfsext_inode_table
+struct libfsext_directory
 {
-	/* The inode data size
+	/* Entries array
 	 */
-	size_t inode_data_size;
-
-	/* The inodes vector
-	 */
-	libfdata_vector_t *inodes_vector;
-
-	/* The inodes cache
-	 */
-	libfcache_cache_t *inodes_cache;
+	libcdata_array_t *entries_array;
 };
 
-int libfsext_inode_table_initialize(
-     libfsext_inode_table_t **inode_table,
+int libfsext_directory_initialize(
+     libfsext_directory_t **directory,
+     libcerror_error_t **error );
+
+int libfsext_directory_free(
+     libfsext_directory_t **directory,
+     libcerror_error_t **error );
+
+int libfsext_directory_read_file_io_handle(
+     libfsext_directory_t *directory,
      libfsext_io_handle_t *io_handle,
-     libfsext_superblock_t *superblock,
-     libcdata_array_t *group_descriptors_array,
-     libcerror_error_t **error );
-
-int libfsext_inode_table_free(
-     libfsext_inode_table_t **inode_table,
-     libcerror_error_t **error );
-
-int libfsext_inode_table_get_inode_by_number(
-     libfsext_inode_table_t *inode_table,
      libbfio_handle_t *file_io_handle,
-     uint32_t inode_number,
-     libfsext_inode_t **inode,
+     libfsext_inode_t *inode,
+     libcerror_error_t **error );
+
+int libfsext_directory_get_number_of_entries(
+     libfsext_directory_t *directory,
+     int *number_of_entries,
+     libcerror_error_t **error );
+
+int libfsext_directory_get_entry_by_index(
+     libfsext_directory_t *directory,
+     int entry_index,
+     libfsext_directory_entry_t **directory_entry,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _LIBFSEXT_INODE_TABLE_H ) */
+#endif /* !defined( _LIBFSEXT_DIRECTORY_H ) */
 

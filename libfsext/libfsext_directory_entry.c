@@ -24,9 +24,11 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libfsext_debug.h"
+#include "libfsext_directory_entry.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
-#include "libfsext_directory_entry.h"
+#include "libfsext_libuna.h"
 
 #include "fsext_directory_entry.h"
 
@@ -63,7 +65,7 @@ int libfsext_directory_entry_initialize(
 		return( -1 );
 	}
 	*directory_entry = memory_allocate_structure(
-	              libfsext_directory_entry_t );
+	                    libfsext_directory_entry_t );
 
 	if( *directory_entry == NULL )
 	{
@@ -125,12 +127,129 @@ int libfsext_directory_entry_free(
 	}
 	if( *directory_entry != NULL )
 	{
+		if( ( *directory_entry )->name != NULL )
+		{
+			memory_free(
+			 ( *directory_entry )->name );
+		}
 		memory_free(
 		 *directory_entry );
 
 		*directory_entry = NULL;
 	}
 	return( 1 );
+}
+
+/* Clones a directory entry
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_directory_entry_clone(
+     libfsext_directory_entry_t **destination_directory_entry,
+     libfsext_directory_entry_t *source_directory_entry,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_directory_entry_clone";
+
+	if( destination_directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *destination_directory_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid destination directory entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( source_directory_entry == NULL )
+	{
+		*destination_directory_entry = source_directory_entry;
+
+		return( 1 );
+	}
+	*destination_directory_entry = memory_allocate_structure(
+	                                libfsext_directory_entry_t );
+
+	if( destination_directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create destination directory entry.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_copy(
+	     *destination_directory_entry,
+	     source_directory_entry,
+	     sizeof( libfsext_directory_entry_t ) ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy directory entry.",
+		 function );
+
+		goto on_error;
+	}
+	( *destination_directory_entry )->name = (uint8_t *) memory_allocate(
+	                                                      sizeof( uint8_t ) * source_directory_entry->name_size );
+
+	if( ( *destination_directory_entry )->name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create name.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_copy(
+	     ( *destination_directory_entry )->name,
+	     source_directory_entry->name,
+	     source_directory_entry->name_size ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy name.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( *destination_directory_entry != NULL )
+	{
+		if( ( *destination_directory_entry )->name != NULL )
+		{
+			memory_free(
+			 ( *destination_directory_entry )->name );
+		}
+		memory_free(
+		 *destination_directory_entry );
+
+		*destination_directory_entry = NULL;
+	}
+	return( -1 );
 }
 
 /* Reads the directory entry data
@@ -143,11 +262,7 @@ int libfsext_directory_entry_read_data(
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_directory_entry_read_data";
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit  = 0;
-	uint16_t value_16bit  = 0;
-#endif
+	uint8_t name_size     = 0;
 
 	if( directory_entry == NULL )
 	{
@@ -156,6 +271,17 @@ int libfsext_directory_entry_read_data(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid directory entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( directory_entry->name != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid directory entry - name value already set.",
 		 function );
 
 		return( -1 );
@@ -193,6 +319,22 @@ int libfsext_directory_entry_read_data(
 
 		return( -1 );
 	}
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_directory_entry_t *) data )->size,
+	 directory_entry->size );
+
+	if( ( directory_entry->size < 8 )
+	 || ( directory_entry->size > data_size ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid directory entry - data size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -201,131 +343,271 @@ int libfsext_directory_entry_read_data(
 		 function );
 		libcnotify_print_data(
 		 data,
-		 sizeof( fsext_directory_entry_t ),
-		 0 );
+		 directory_entry->size,
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_directory_entry_t *) data )->inode_number,
 	 directory_entry->inode_number );
 
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_directory_entry_t *) data )->size,
-	 directory_entry->size );
+	name_size = ( (fsext_directory_entry_t *) data )->name_size;
 
-	/* TODO: name_string_size */
-
-	/* TODO: file_type */
-
-	/* TODO: name_string */
+	directory_entry->file_type = ( (fsext_directory_entry_t *) data )->file_type;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: inode number\t: %" PRIu32 "\n",
+		 "%s: inode number\t\t\t: %" PRIu32 "\n",
 		 function,
 		 directory_entry->inode_number );
 
 		libcnotify_printf(
-		 "%s: size\t: %" PRIu16 "\n",
+		 "%s: size\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 directory_entry->size );
 
 		libcnotify_printf(
-		 "%s: name string size\t: %" PRIu8 "\n",
+		 "%s: name size\t\t\t\t: %" PRIu8 "\n",
 		 function,
-		 directory_entry->name_string_size );
+		 name_size );
 
 		libcnotify_printf(
-		 "%s: file type\t: %" PRIu8 "\n",
+		 "%s: file type\t\t\t\t: %" PRIu8 " (%s)\n",
 		 function,
-		 directory_entry->file_type );
-
-		/* TODO: name_string */
-
-		libcnotify_printf(
-		 "\n" );
+		 directory_entry->file_type,
+		 libfsext_debug_print_file_type(
+		  directory_entry->file_type ) );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	return( 1 );
-}
+	if( name_size > ( directory_entry->size - 8 ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid directory entry - name size value out of bounds.",
+		 function );
 
-/* Reads the directory entry from a Basic File IO (bfio) handle
- * Returns 1 if successful or -1 on error
- */
-int libfsext_directory_entry_read_file_io_handle(
-     libfsext_directory_entry_t *directory_entry,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     libcerror_error_t **error )
-{
-	uint8_t data[ sizeof( fsext_directory_entry_t ) ];
-
-	static char *function = "libfsext_directory_entry_read_file_io_handle";
-	ssize_t read_count    = 0;
-
+		goto on_error;
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+/* TODO print as string */
 		libcnotify_printf(
-		 "%s: reading directory entry at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 file_offset,
-		 file_offset );
+		 "%s: name data:\n",
+		 function );
+		libcnotify_print_data(
+		 &( data[ 8 ] ),
+		 name_size,
+		 0 );
 	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+	directory_entry->name = (uint8_t *) memory_allocate(
+	                                     sizeof( uint8_t ) * ( name_size + 1 ) );
+
+	if( directory_entry->name == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek directory entry offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create name.",
+		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
-	              data,
-	              sizeof( fsext_directory_entry_t ),
-	              error );
-
-	if( read_count != (ssize_t) sizeof( fsext_directory_entry_t ) )
+	if( memory_copy(
+	     directory_entry->name,
+	     &( data[ 8 ] ),
+	     name_size ) == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read directory entry at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy name.",
+		 function );
+
+		goto on_error;
+	}
+	( directory_entry->name )[ name_size ] = 0;
+	directory_entry->name_size             = name_size + 1;
+
+	return( 1 );
+
+on_error:
+	if( directory_entry->name != NULL )
+	{
+		memory_free(
+		 directory_entry->name );
+
+		directory_entry->name = NULL;
+	}
+	return( -1 );
+}
+
+/* Retrieves the size of the UTF-8 encoded name
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_directory_entry_get_utf8_name_size(
+     libfsext_directory_entry_t *directory_entry,
+     size_t *utf8_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_directory_entry_get_utf8_name_size";
+
+	if( directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory entry.",
+		 function );
 
 		return( -1 );
 	}
-	if( libfsext_directory_entry_read_data(
-	     directory_entry,
-	     data,
-	     sizeof( fsext_directory_entry_t ),
+	if( libuna_utf8_string_size_from_utf8_stream(
+	     directory_entry->name,
+	     (size_t) directory_entry->name_size,
+	     utf8_string_size,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read directory entry at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 encoded name
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_directory_entry_get_utf8_name(
+     libfsext_directory_entry_t *directory_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_directory_entry_get_utf8_name";
+
+	if( directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf8_string_copy_from_utf8_stream(
+	     utf8_string,
+	     utf8_string_size,
+	     directory_entry->name,
+	     (size_t) directory_entry->name_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the size of the UTF-16 encoded name
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_directory_entry_get_utf16_name_size(
+     libfsext_directory_entry_t *directory_entry,
+     size_t *utf16_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_directory_entry_get_utf16_name_size";
+
+	if( directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf16_string_size_from_utf8_stream(
+	     directory_entry->name,
+	     (size_t) directory_entry->name_size,
+	     utf16_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 encoded name
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_directory_entry_get_utf16_name(
+     libfsext_directory_entry_t *directory_entry,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_directory_entry_get_utf16_name";
+
+	if( directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf16_string_copy_from_utf8_stream(
+	     utf16_string,
+	     utf16_string_size,
+	     directory_entry->name,
+	     (size_t) directory_entry->name_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string.",
+		 function );
 
 		return( -1 );
 	}

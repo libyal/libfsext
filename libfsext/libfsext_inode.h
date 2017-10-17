@@ -25,7 +25,11 @@
 #include <common.h>
 #include <types.h>
 
+#include "libfsext_io_handle.h"
+#include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
+#include "libfsext_libfcache.h"
+#include "libfsext_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -39,49 +43,13 @@ struct libfsext_inode
 	 */
 	uint16_t file_mode;
 
-	/* User identifier
-	 */
-	uint32_t user_identifier;
-
 	/* Data size
 	 */
-	uint32_t data_size;
-
-	/* Last access time
-	 */
-	uint32_t last_access_time;
-
-	/* Last inode change time
-	 */
-	uint32_t last_inode_change_time;
-
-	/* Last modification time
-	 */
-	uint32_t last_modification_time;
-
-	/* Deletion time
-	 */
-	uint32_t deletion_time;
-
-	/* Group identifier
-	 */
-	uint32_t group_identifier;
-
-	/* Link count
-	 */
-	uint16_t link_count;
-
-	/* Sector count
-	 */
-	uint32_t sector_count;
-
-	/* Flags
-	 */
-	uint32_t flags;
+	uint64_t data_size;
 
 	/* Direct block numbers
 	 */
-	uint32_t direct_block_number[ 48 ];
+	uint32_t direct_block_number[ 12 ];
 
 	/* Indirect block number
 	 */
@@ -95,17 +63,13 @@ struct libfsext_inode
 	 */
 	uint32_t triple_indirect_block_number;
 
-	/* Nfs generation number
+	/* Links count
 	 */
-	uint32_t nfs_generation_number;
+	uint16_t links_count;
 
-	/* File acl
+	/* Blocks count
 	 */
-	uint32_t file_acl;
-
-	/* Directory acl
-	 */
-	uint32_t directory_acl;
+	uint32_t blocks_count;
 
 	/* Fragment block address
 	 */
@@ -118,6 +82,50 @@ struct libfsext_inode
 	/* Fragment size
 	 */
 	uint8_t fragment_size;
+
+	/* Access time
+	 */
+	uint64_t access_time;
+
+	/* Creation time
+	 */
+	uint64_t creation_time;
+
+	/* Inode change time
+	 */
+	uint64_t inode_change_time;
+
+	/* Modification time
+	 */
+	uint64_t modification_time;
+
+	/* Deletion time
+	 */
+	uint64_t deletion_time;
+
+	/* Flags
+	 */
+	uint32_t flags;
+
+	/* User identifier
+	 */
+	uint32_t user_identifier;
+
+	/* Group identifier
+	 */
+	uint32_t group_identifier;
+
+	/* File ACL
+	 */
+	uint32_t file_acl;
+
+	/* Directory ACL
+	 */
+	uint32_t directory_acl;
+
+	/* NFS generation number
+	 */
+	uint32_t nfs_generation_number;
 };
 
 int libfsext_inode_initialize(
@@ -128,10 +136,49 @@ int libfsext_inode_free(
      libfsext_inode_t **inode,
      libcerror_error_t **error );
 
+int libfsext_inode_clone(
+     libfsext_inode_t **destination_inode,
+     libfsext_inode_t *source_inode,
+     libcerror_error_t **error );
+
 int libfsext_inode_read_data(
      libfsext_inode_t *inode,
+     libfsext_io_handle_t *io_handle,
      const uint8_t *data,
      size_t data_size,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_access_time(
+     libfsext_inode_t *inode,
+     uint32_t *posix_time,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_inode_change_time(
+     libfsext_inode_t *inode,
+     uint32_t *posix_time,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_modification_time(
+     libfsext_inode_t *inode,
+     uint32_t *posix_time,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_deletion_time(
+     libfsext_inode_t *inode,
+     uint32_t *posix_time,
+     libcerror_error_t **error );
+
+int libfsext_inode_read_element_data(
+     libfsext_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libfdata_vector_t *vector,
+     libfcache_cache_t *cache,
+     int element_index,
+     int element_data_file_index,
+     off64_t element_data_offset,
+     size64_t element_data_size,
+     uint32_t element_flags,
+     uint8_t read_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

@@ -1,5 +1,5 @@
 /*
- * Library file_entry type testing program
+ * Library file_entry type test program
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,6 +33,50 @@
 #include "fsext_test_memory.h"
 #include "fsext_test_unused.h"
 
+#include "../libfsext/libfsext_file_entry.h"
+
+/* Tests the libfsext_file_entry_free function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_file_entry_free(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libfsext_file_entry_free(
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -47,6 +91,58 @@ int main(
 {
 	FSEXT_TEST_UNREFERENCED_PARAMETER( argc )
 	FSEXT_TEST_UNREFERENCED_PARAMETER( argv )
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
+	/* TODO: add tests for libfsext_file_entry_initialize */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
+	FSEXT_TEST_RUN(
+	 "libfsext_file_entry_free",
+	 fsext_test_file_entry_free );
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
+	/* TODO: add tests for libfsext_file_entry_get_access_time */
+
+	/* TODO: add tests for libfsext_file_entry_get_inode_change_time */
+
+	/* TODO: add tests for libfsext_file_entry_get_modification_time */
+
+	/* TODO: add tests for libfsext_file_entry_get_deletion_time */
+
+	/* TODO: add tests for libfsext_file_entry_get_utf8_name_size */
+
+	/* TODO: add tests for libfsext_file_entry_get_utf8_name */
+
+	/* TODO: add tests for libfsext_file_entry_get_utf16_name_size */
+
+	/* TODO: add tests for libfsext_file_entry_get_utf16_name */
+
+	/* TODO: add tests for libfsext_file_entry_get_number_of_sub_file_entries */
+
+	/* TODO: add tests for libfsext_file_entry_get_sub_file_entry_by_index */
+
+	/* TODO: add tests for libfsext_file_entry_get_sub_file_entry_by_utf8_name */
+
+	/* TODO: add tests for libfsext_file_entry_get_sub_file_entry_by_utf16_name */
+
+	/* TODO: add tests for libfsext_file_entry_read_buffer */
+
+	/* TODO: add tests for libfsext_file_entry_read_buffer_at_offset */
+
+	/* TODO: add tests for libfsext_file_entry_seek_offset */
+
+	/* TODO: add tests for libfsext_file_entry_get_offset */
+
+	/* TODO: add tests for libfsext_file_entry_get_size */
+
+	/* TODO: add tests for libfsext_file_entry_get_number_of_extents */
+
+	/* TODO: add tests for libfsext_file_entry_get_extent_by_index */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

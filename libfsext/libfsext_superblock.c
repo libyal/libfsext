@@ -28,6 +28,7 @@
 #include <wide_string.h>
 
 #include "libfsext_debug.h"
+#include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
 #include "libfsext_libfdatetime.h"
@@ -153,18 +154,11 @@ int libfsext_superblock_read_data(
      libcerror_error_t **error )
 {
 	static char *function                     = "libfsext_superblock_read_data";
-	uint32_t number_of_blocks                 = 0;
 	uint32_t number_of_blocks_per_block_group = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	system_character_t posix_time_string[ 32 ];
-	system_character_t guid_string[ 48 ];
-
-	libfdatetime_posix_time_t *posix_time     = NULL;
-	libfguid_identifier_t *guid               = NULL;
 	uint32_t value_32bit                      = 0;
 	uint16_t value_16bit                      = 0;
-	int result                                = 0;
 #endif
 
 	if( superblock == NULL )
@@ -258,11 +252,27 @@ int libfsext_superblock_read_data(
 		 "%s: invalid signature.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_superblock_ext2_t *) data )->number_of_inodes,
+	 superblock->number_of_inodes );
+
+	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_superblock_ext2_t *) data )->number_of_blocks,
-	 number_of_blocks );
+	 superblock->number_of_blocks );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_superblock_ext2_t *) data )->number_of_reserved_blocks,
+	 superblock->number_of_reserved_blocks );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_superblock_ext2_t *) data )->number_of_unallocated_blocks,
+	 superblock->number_of_unallocated_blocks );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_superblock_ext2_t *) data )->number_of_unallocated_inodes,
+	 superblock->number_of_unallocated_inodes );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_superblock_ext2_t *) data )->block_size,
@@ -276,71 +286,45 @@ int libfsext_superblock_read_data(
 	 ( (fsext_superblock_ext2_t *) data )->format_revision,
 	 superblock->format_revision );
 
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_superblock_ext2_t *) data )->number_of_inodes_per_block_group,
+	 superblock->number_of_inodes_per_block_group );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_superblock_ext2_t *) data )->last_mount_time,
+	 superblock->last_mount_time );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_superblock_ext2_t *) data )->last_written_time,
+	 superblock->last_written_time );
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		if( libfdatetime_posix_time_initialize(
-		     &posix_time,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create POSIX time.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfguid_identifier_initialize(
-		     &guid,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create GUID.",
-			 function );
-
-			goto on_error;
-		}
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_superblock_ext2_t *) data )->number_of_inodes,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of inodes\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 superblock->number_of_inodes );
 
 		libcnotify_printf(
 		 "%s: number of blocks\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 number_of_blocks );
+		 superblock->number_of_blocks );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_superblock_ext2_t *) data )->number_of_reserved_blocks,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of reserved blocks\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 superblock->number_of_reserved_blocks );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_superblock_ext2_t *) data )->number_of_unallocated_blocks,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of unallocated blocks\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 superblock->number_of_unallocated_blocks );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_superblock_ext2_t *) data )->number_of_unallocated_inodes,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of unallocated inodes\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 superblock->number_of_unallocated_inodes );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_superblock_ext2_t *) data )->first_data_block_number,
@@ -378,110 +362,49 @@ int libfsext_superblock_read_data(
 		 function,
 		 value_32bit );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_superblock_ext2_t *) data )->number_of_inodes_per_block_group,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of inodes per block group\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 superblock->number_of_inodes_per_block_group );
 
-		if( libfdatetime_posix_time_copy_from_byte_stream(
-		     posix_time,
+		if( libfsext_debug_print_posix_time_value(
+		     function,
+		     "last mount time\t\t\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->last_mount_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
 		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to copy POSIX time from byte stream.",
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print posix time value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		result = libfdatetime_posix_time_copy_to_utf16_string(
-			  posix_time,
-			  (uint16_t *) posix_time_string,
-			  32,
-			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-			  error );
-#else
-		result = libfdatetime_posix_time_copy_to_utf8_string(
-			  posix_time,
-			  (uint8_t *) posix_time_string,
-			  32,
-			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-			  error );
-#endif
-		if( result != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to copy POSIX time to string.",
-			 function );
-
-			goto on_error;
-		}
-		libcnotify_printf(
-		 "%s: last mount time\t\t\t\t: %" PRIs_SYSTEM " UTC\n",
-		 function,
-		 posix_time_string );
-
-		if( libfdatetime_posix_time_copy_from_byte_stream(
-		     posix_time,
+		if( libfsext_debug_print_posix_time_value(
+		     function,
+		     "last written time\t\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->last_written_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
 		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to copy POSIX time from byte stream.",
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print posix time value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		result = libfdatetime_posix_time_copy_to_utf16_string(
-			  posix_time,
-			  (uint16_t *) posix_time_string,
-			  32,
-			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-			  error );
-#else
-		result = libfdatetime_posix_time_copy_to_utf8_string(
-			  posix_time,
-			  (uint8_t *) posix_time_string,
-			  32,
-			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-			  error );
-#endif
-		if( result != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to copy POSIX time to string.",
-			 function );
-
-			goto on_error;
-		}
-		libcnotify_printf(
-		 "%s: last written time\t\t\t: %" PRIs_SYSTEM " UTC\n",
-		 function,
-		 posix_time_string );
-
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_superblock_ext2_t *) data )->mount_count,
 		 value_16bit );
@@ -534,53 +457,25 @@ int libfsext_superblock_read_data(
 		 function,
 		 value_16bit );
 
-		if( libfdatetime_posix_time_copy_from_byte_stream(
-		     posix_time,
+		if( libfsext_debug_print_posix_time_value(
+		     function,
+		     "last consistency check time\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->last_consistency_check_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
 		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to copy POSIX time from byte stream.",
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print posix time value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		result = libfdatetime_posix_time_copy_to_utf16_string(
-			  posix_time,
-			  (uint16_t *) posix_time_string,
-			  32,
-			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-			  error );
-#else
-		result = libfdatetime_posix_time_copy_to_utf8_string(
-			  posix_time,
-			  (uint8_t *) posix_time_string,
-			  32,
-			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-			  error );
-#endif
-		if( result != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to copy POSIX time to string.",
-			 function );
-
-			goto on_error;
-		}
-		libcnotify_printf(
-		 "%s: last consistency check time\t\t: %" PRIs_SYSTEM " UTC\n",
-		 function,
-		 posix_time_string );
 
 /* TODO print interval as duration? */
 		byte_stream_copy_to_uint32_little_endian(
@@ -639,7 +534,7 @@ int libfsext_superblock_read_data(
 		 function,
 		 superblock->format_revision );
 
-		goto on_error;
+		return( -1 );
 	}
 	if( superblock->format_revision == 1 )
 	{
@@ -667,7 +562,7 @@ int libfsext_superblock_read_data(
 			 "%s: unable to copy file system identifier.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 		if( memory_copy(
 		     superblock->volume_label,
@@ -681,7 +576,7 @@ int libfsext_superblock_read_data(
 			 "%s: unable to copy volume label.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 		if( memory_copy(
 		     superblock->last_mounted_path,
@@ -695,7 +590,7 @@ int libfsext_superblock_read_data(
 			 "%s: unable to copy last mounted path.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
@@ -751,52 +646,24 @@ int libfsext_superblock_read_data(
 			libcnotify_printf(
 			 "\n" );
 
-			if( libfguid_identifier_copy_from_byte_stream(
-			     guid,
+			if( libfsext_debug_print_guid_value(
+			     function,
+			     "file system identifier\t\t\t",
 			     ( (fsext_superblock_ext2_t *) data )->file_system_identifier,
 			     16,
 			     LIBFGUID_ENDIAN_LITTLE,
+			     LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy byte stream to GUID.",
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print GUID value.",
 				 function );
 
-				goto on_error;
+				return( -1 );
 			}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libfguid_identifier_copy_to_utf16_string(
-				  guid,
-				  (uint16_t *) guid_string,
-				  48,
-				  LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
-				  error );
-#else
-			result = libfguid_identifier_copy_to_utf8_string(
-				  guid,
-				  (uint8_t *) guid_string,
-				  48,
-				  LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
-				  error );
-#endif
-			if( result != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy GUID to string.",
-				 function );
-
-				goto on_error;
-			}
-			libcnotify_printf(
-			 "%s: file system identifier\t\t\t: %" PRIs_SYSTEM "\n",
-			 function,
-			 guid_string );
 
 /* TODO print as string */
 			libcnotify_printf(
@@ -872,53 +739,24 @@ int libfsext_superblock_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		if( libfguid_identifier_copy_from_byte_stream(
-		     guid,
+		if( libfsext_debug_print_guid_value(
+		     function,
+		     "journal identifier\t\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->journal_identifier,
 		     16,
 		     LIBFGUID_ENDIAN_LITTLE,
+		     LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy byte stream to GUID.",
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print GUID value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		result = libfguid_identifier_copy_to_utf16_string(
-			  guid,
-			  (uint16_t *) guid_string,
-			  48,
-			  LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
-			  error );
-#else
-		result = libfguid_identifier_copy_to_utf8_string(
-			  guid,
-			  (uint8_t *) guid_string,
-			  48,
-			  LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
-			  error );
-#endif
-		if( result != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy GUID to string.",
-			 function );
-
-			goto on_error;
-		}
-		libcnotify_printf(
-		 "%s: journal identifier\t\t\t: %" PRIs_SYSTEM "\n",
-		 function,
-		 guid_string );
-
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_superblock_ext2_t *) data )->journal_inode_number,
 		 value_32bit );
@@ -987,54 +825,25 @@ int libfsext_superblock_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
-			if( libfdatetime_posix_time_copy_from_byte_stream(
-			     posix_time,
+			if( libfsext_debug_print_posix_time_value(
+			     function,
+			     "file system creation time\t\t",
 			     ( (fsext_superblock_ext4_t *) data )->file_system_creation_time,
 			     4,
 			     LIBFDATETIME_ENDIAN_LITTLE,
 			     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+			     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to copy POSIX time from byte stream.",
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print posix time value.",
 				 function );
 
-				goto on_error;
+				return( -1 );
 			}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libfdatetime_posix_time_copy_to_utf16_string(
-				  posix_time,
-				  (uint16_t *) posix_time_string,
-				  32,
-				  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-				  error );
-#else
-			result = libfdatetime_posix_time_copy_to_utf8_string(
-				  posix_time,
-				  (uint8_t *) posix_time_string,
-				  32,
-				  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-				  error );
-#endif
-			if( result != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to copy POSIX time to string.",
-				 function );
-
-				goto on_error;
-			}
-			libcnotify_printf(
-			 "%s: file system creation time\t\t: %" PRIs_SYSTEM " UTC\n",
-			 function,
-			 posix_time_string );
-
 			libcnotify_printf(
 			 "%s: backup journal inodes:\n",
 			 function );
@@ -1064,39 +873,7 @@ int libfsext_superblock_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		if( libfguid_identifier_free(
-		     &guid,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free GUID.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfdatetime_posix_time_free(
-		     &posix_time,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free POSIX time.",
-			 function );
-
-			goto on_error;
-		}
-	}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
-	if( number_of_blocks == 0 )
+	if( superblock->number_of_blocks == 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1105,7 +882,7 @@ int libfsext_superblock_read_data(
 		 "%s: invalid number of blocks value out of bounds.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 	if( number_of_blocks_per_block_group == 0 )
 	{
@@ -1116,11 +893,11 @@ int libfsext_superblock_read_data(
 		 "%s: invalid number of blocks per block group value out of bounds.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	*number_of_block_groups = number_of_blocks / number_of_blocks_per_block_group;
+	*number_of_block_groups = superblock->number_of_blocks / number_of_blocks_per_block_group;
 
-	if( ( number_of_blocks % number_of_blocks_per_block_group ) != 0 )
+	if( ( superblock->number_of_blocks % number_of_blocks_per_block_group ) != 0 )
 	{
 		*number_of_block_groups += 1;
 	}
@@ -1143,24 +920,6 @@ int libfsext_superblock_read_data(
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	return( 1 );
-
-on_error:
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( guid != NULL )
-	{
-		libfguid_identifier_free(
-		 &guid,
-		 NULL );
-	}
-	if( posix_time != NULL )
-	{
-		libfdatetime_posix_time_free(
-		 &posix_time,
-		 NULL );
-	}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
-	return( -1 );
 }
 
 /* Reads the superblock from a Basic File IO (bfio) handle

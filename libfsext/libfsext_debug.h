@@ -46,17 +46,42 @@ void libfsext_debug_print_incompatible_features_flags(
 void libfsext_debug_print_read_only_compatible_features_flags(
       uint32_t read_only_compatible_features_flags );
 
+void libfsext_debug_print_file_mode(
+      uint16_t file_mode );
+
 const char *libfsext_debug_print_error_handling_status(
              uint16_t error_handling_status );
 
 const char *libfsext_debug_print_creator_operating_system(
              uint32_t creator_operating_system );
 
+const char *libfsext_debug_print_file_type(
+             uint16_t file_type );
+
+int libfsext_debug_print_posix_time_value(
+     const char *function_name,
+     const char *value_name,
+     const uint8_t *byte_stream,
+     size_t byte_stream_size,
+     int byte_order,
+     uint8_t value_type,
+     uint32_t string_format_flags,
+     libcerror_error_t **error );
+
+int libfsext_debug_print_guid_value(
+     const char *function_name,
+     const char *value_name,
+     const uint8_t *byte_stream,
+     size_t byte_stream_size,
+     int byte_order,
+     uint32_t string_format_flags,
+     libcerror_error_t **error );
+
 int libfsext_debug_print_read_offsets(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 #if defined( __cplusplus )
 }

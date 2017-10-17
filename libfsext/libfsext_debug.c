@@ -28,6 +28,8 @@
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
+#include "libfsext_libfdatetime.h"
+#include "libfsext_libfguid.h"
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
@@ -234,6 +236,139 @@ void libfsext_debug_print_read_only_compatible_features_flags(
 	}
 }
 
+/* Prints the file mode
+ */
+void libfsext_debug_print_file_mode(
+      uint16_t file_mode )
+{
+	if( ( file_mode & 0x0007 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tAccess other: " );
+
+		if( ( file_mode & 0x0004 ) != 0 )
+		{
+			libcnotify_printf(
+			 "R" );
+		}
+		if( ( file_mode & 0x0002 ) != 0 )
+		{
+			libcnotify_printf(
+			 "W" );
+		}
+		if( ( file_mode & 0x0001 ) != 0 )
+		{
+			libcnotify_printf(
+			 "X" );
+		}
+		libcnotify_printf(
+		 "\n" );
+	}
+	if( ( file_mode & 0x0038 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tAccess group: " );
+
+		if( ( file_mode & 0x0020 ) != 0 )
+		{
+			libcnotify_printf(
+			 "R" );
+		}
+		if( ( file_mode & 0x0010 ) != 0 )
+		{
+			libcnotify_printf(
+			 "W" );
+		}
+		if( ( file_mode & 0x0008 ) != 0 )
+		{
+			libcnotify_printf(
+			 "X" );
+		}
+		libcnotify_printf(
+		 "\n" );
+	}
+	if( ( file_mode & 0x01c0 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tAccess user: " );
+
+		if( ( file_mode & 0x0100 ) != 0 )
+		{
+			libcnotify_printf(
+			 "R" );
+		}
+		if( ( file_mode & 0x0080 ) != 0 )
+		{
+			libcnotify_printf(
+			 "W" );
+		}
+		if( ( file_mode & 0x0040 ) != 0 )
+		{
+			libcnotify_printf(
+			 "X" );
+		}
+		libcnotify_printf(
+		 "\n" );
+	}
+	if( ( file_mode & 0x0200 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tSticky bit (S_ISTXT)" );
+	}
+	if( ( file_mode & 0x0400 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tSet group identifer (GID) on execution (S_ISGID)\n" );
+	}
+	if( ( file_mode & 0x0800 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tSet user identifer (UID) on execution (S_ISUID)\n" );
+	}
+	switch( file_mode & 0xf000 )
+	{
+		case 0x1000:
+			libcnotify_printf(
+			 "\tNamed pipe (FIFO) (S_IFIFO)\n" );
+			break;
+
+		case 0x2000:
+			libcnotify_printf(
+			 "\tCharacter device (S_IFCHR)\n" );
+			break;
+
+		case 0x4000:
+			libcnotify_printf(
+			 "\tDirectory (S_IFDIR)\n" );
+			break;
+
+		case 0x6000:
+			libcnotify_printf(
+			 "\tBlock device (S_IFBLK)\n" );
+			break;
+
+		case 0x8000:
+			libcnotify_printf(
+			 "\tRegular file (S_IFREG)\n" );
+			break;
+
+		case 0xa000:
+			libcnotify_printf(
+			 "\tSymbolic link (S_IFLNK)\n" );
+			break;
+
+		case 0xc000:
+			libcnotify_printf(
+			 "\tSocket (S_IFSOCK)\n" );
+			break;
+
+		default:
+			break;
+	}
+	libcnotify_printf(
+	 "\n" );
+}
+
 /* Prints the error handling status
  */
 const char *libfsext_debug_print_error_handling_status(
@@ -276,6 +411,228 @@ const char *libfsext_debug_print_creator_operating_system(
 			return( "Lites" );
 	}
 	return( "Unknown" );
+}
+
+/* Prints the file type
+ */
+const char *libfsext_debug_print_file_type(
+             uint16_t file_type )
+{
+	switch( file_type )
+	{
+		case 0:
+			return( "Unknown (EXT2_FT_UNKNOWN)" );
+
+		case 1:
+			return( "Regular file (EXT2_FT_REG_FILE)" );
+
+		case 2:
+			return( "Directory (EXT2_FT_DIR)" );
+
+		case 3:
+			return( "Character device (EXT2_FT_CHRDEV)" );
+
+		case 4:
+			return( "Block device (EXT2_FT_BLKDEV)" );
+
+		case 5:
+			return( "FIFO queue (EXT2_FT_FIFO)" );
+
+		case 6:
+			return( "Socket (EXT2_FT_SOCK)" );
+
+		case 7:
+			return( "Symbolic link (EXT2_FT_SYMLINK)" );
+	}
+	return( "Unknown" );
+}
+
+/* Prints a POSIX value
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_debug_print_posix_time_value(
+     const char *function_name,
+     const char *value_name,
+     const uint8_t *byte_stream,
+     size_t byte_stream_size,
+     int byte_order,
+     uint8_t value_type,
+     uint32_t string_format_flags,
+     libcerror_error_t **error )
+{
+	char date_time_string[ 32 ];
+
+	libfdatetime_posix_time_t *posix_time = NULL;
+	static char *function                 = "libfsext_debug_print_posix_time_value";
+
+	if( libfdatetime_posix_time_initialize(
+	     &posix_time,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create posix time.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdatetime_posix_time_copy_from_byte_stream(
+	     posix_time,
+	     byte_stream,
+	     byte_stream_size,
+	     byte_order,
+	     value_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy byte stream to posix time.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdatetime_posix_time_copy_to_utf8_string(
+	     posix_time,
+	     (uint8_t *) date_time_string,
+	     32,
+	     string_format_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy posix_time to string.",
+		 function );
+
+		goto on_error;
+	}
+	libcnotify_printf(
+	 "%s: %s: %s UTC\n",
+	 function_name,
+	 value_name,
+	 date_time_string );
+
+	if( libfdatetime_posix_time_free(
+	     &posix_time,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free posix time.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( posix_time != NULL )
+	{
+		libfdatetime_posix_time_free(
+		 &posix_time,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Prints a GUID/UUID value
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_debug_print_guid_value(
+     const char *function_name,
+     const char *value_name,
+     const uint8_t *byte_stream,
+     size_t byte_stream_size,
+     int byte_order,
+     uint32_t string_format_flags,
+     libcerror_error_t **error )
+{
+        system_character_t guid_string[ 48 ];
+
+        libfguid_identifier_t *guid = NULL;
+	static char *function       = "libfsext_debug_print_guid_value";
+
+	if( libfguid_identifier_initialize(
+	     &guid,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create GUID.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfguid_identifier_copy_from_byte_stream(
+	     guid,
+	     byte_stream,
+	     byte_stream_size,
+	     byte_order,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy byte stream to GUID.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfguid_identifier_copy_to_utf8_string(
+	     guid,
+	     (uint8_t *) guid_string,
+	     48,
+	     string_format_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy GUID to string.",
+		 function );
+
+		goto on_error;
+	}
+	libcnotify_printf(
+	 "%s: %s: %s\n",
+	 function_name,
+	 value_name,
+	 guid_string );
+
+	if( libfguid_identifier_free(
+	     &guid,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free GUID.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( guid != NULL )
+	{
+		libfguid_identifier_free(
+		 &guid,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Prints the read offsets
@@ -354,5 +711,5 @@ int libfsext_debug_print_read_offsets(
 	return( 1 );
 }
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 

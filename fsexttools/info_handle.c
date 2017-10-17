@@ -163,180 +163,6 @@ int fsexttools_system_string_copy_from_64_bit_in_decimal(
 	return( 1 );
 }
 
-/* Prints the file attribute flags to the notify stream
- */
-void info_handle_file_attribute_flags_fprint(
-      uint32_t file_attribute_flags,
-      FILE *notify_stream )
-{
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_READ_ONLY ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs read-only (FILE_ATTRIBUTE_READ_ONLY)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_HIDDEN ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs hidden (FILE_ATTRIBUTE_HIDDEN)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_SYSTEM ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs system (FILE_ATTRIBUTE_SYSTEM)\n" );
-	}
-
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_DIRECTORY ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs directory (FILE_ATTRIBUTE_DIRECTORY)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_ARCHIVE ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tShould be archived (FILE_ATTRIBUTE_ARCHIVE)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_DEVICE ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs device (FILE_ATTRIBUTE_DEVICE)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_NORMAL ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs normal (FILE_ATTRIBUTE_NORMAL)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_TEMPORARY ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs temporary (FILE_ATTRIBUTE_TEMPORARY)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_SPARSE_FILE ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs a sparse file (FILE_ATTRIBUTE_SPARSE_FILE)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_REPARSE_POINT ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs a reparse point or symbolic link (FILE_ATTRIBUTE_FLAG_REPARSE_POINT)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_COMPRESSED ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs compressed (FILE_ATTRIBUTE_COMPRESSED)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_OFFLINE ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs offline (FILE_ATTRIBUTE_OFFLINE)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_NOT_CONTENT_INDEXED ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tContent should not be indexed (FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)\n" );
-	}
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_ENCRYPTED ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs encrypted (FILE_ATTRIBUTE_ENCRYPTED)\n" );
-	}
-
-	if( ( file_attribute_flags & LIBFSEXT_FILE_ATTRIBUTE_FLAG_VIRTUAL ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tIs virtual (FILE_ATTRIBUTE_VIRTUAL)\n" );
-	}
-
-	if( ( file_attribute_flags & 0x10000000 ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tUnknown: 0x10000000\n" );
-	}
-	if( ( file_attribute_flags & 0x20000000 ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\tUnknown: 0x20000000\n" );
-	}
-}
-
-/* Retrieves the attribute type description
- */
-const char *info_handle_get_attribute_type_description(
-             uint32_t attribute_type )
-{
-	switch( attribute_type )
-	{
-		case LIBFSEXT_ATTRIBUTE_TYPE_UNUSED:
-			return( "Unused" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_STANDARD_INFORMATION:
-			return( "$STANDARD_INFORMATION" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_ATTRIBUTE_LIST:
-			return( "$ATTRIBUTE_LIST" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_FILE_NAME:
-			return( "$FILE_NAME" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_OBJECT_IDENTIFIER:
-			return( "$OBJECT_ID" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_SECURITY_DESCRIPTOR:
-			return( "$SECURITY_DESCRIPTOR" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_VOLUME_NAME:
-			return( "$VOLUME_NAME" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_VOLUME_INFORMATION:
-			return( "$VOLUME_INFORMATION" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_DATA:
-			return( "$DATA" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_INDEX_ROOT:
-			return( "$INDEX_ROOT" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_INDEX_ALLOCATION:
-			return( "$INDEX_ALLOCATION" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_BITMAP:
-			return( "$BITMAP" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_REPARSE_POINT:
-			return( "$REPARSE_POINT" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_EXTENDED_INFORMATION:
-			return( "$EA_INFORMATION" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_EXTENDED:
-			return( "$EA" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_PROPERTY_SET:
-			return( "$PROPERTY_SET" );
-
-		case LIBFSEXT_ATTRIBUTE_TYPE_LOGGED_UTILITY_STREAM:
-			return( "$LOGGED_UTILITY_STREAM" );
-	}
-	return( "Unknown" );
-}
-
 /* Creates an info handle
  * Make sure the value info_handle is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
@@ -720,6 +546,406 @@ int info_handle_close_input(
 	return( 0 );
 }
 
+/* Prints a POSIX value
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_posix_time_value_fprint(
+     info_handle_t *info_handle,
+     const char *value_name,
+     uint32_t value_32bit,
+     libcerror_error_t **error )
+{
+	system_character_t date_time_string[ 32 ];
+
+	libfdatetime_posix_time_t *posix_time = NULL;
+	static char *function                 = "info_handle_posix_time_fprint";
+	int result                            = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_32bit == 0 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "%s: Not set (0)\n",
+		 value_name );
+	}
+	else
+	{
+		if( libfdatetime_posix_time_initialize(
+		     &posix_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create POSIX time.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfdatetime_posix_time_copy_from_32bit(
+		     posix_time,
+		     value_32bit,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from 32-bit.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) date_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) date_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
+		fprintf(
+		 info_handle->notify_stream,
+		 "%s: %" PRIs_SYSTEM " UTC\n",
+		 value_name,
+		 date_time_string );
+
+		if( libfdatetime_posix_time_free(
+		     &posix_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free POSIX time.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( 1 );
+
+on_error:
+	if( posix_time != NULL )
+	{
+		libfdatetime_posix_time_free(
+		 &posix_time,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Prints file entry information as part of the file system hierarchy
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_file_system_hierarchy_fprint_file_entry(
+     info_handle_t *info_handle,
+     libfsext_file_entry_t *file_entry,
+     int indentation_level,
+     libcerror_error_t **error )
+{
+	libfsext_file_entry_t *sub_file_entry = NULL;
+	system_character_t *file_entry_name   = NULL;
+	static char *function                 = "info_handle_file_system_hierarchy_fprint_file_entry";
+	size_t file_entry_name_size           = 0;
+	int indentation_level_iterator        = 0;
+	int number_of_sub_file_entries        = 0;
+	int result                            = 0;
+	int sub_file_entry_index              = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfsext_file_entry_get_number_of_sub_file_entries(
+	     file_entry,
+	     &number_of_sub_file_entries,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of sub file entries.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libfsext_file_entry_get_utf16_name_size(
+	          file_entry,
+	          &file_entry_name_size,
+	          error );
+#else
+	result = libfsext_file_entry_get_utf8_name_size(
+	          file_entry,
+	          &file_entry_name_size,
+	          error );
+#endif
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file entry name string size.",
+		 function );
+
+		goto on_error;
+	}
+	if( ( result == 1 )
+	 && ( file_entry_name_size > 0 ) )
+	{
+		file_entry_name = system_string_allocate(
+		                   file_entry_name_size );
+
+		if( file_entry_name == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create file entry name string.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfsext_file_entry_get_utf16_name(
+		          file_entry,
+		          (uint16_t *) file_entry_name,
+		          file_entry_name_size,
+		          error );
+#else
+		result = libfsext_file_entry_get_utf8_name(
+		          file_entry,
+		          (uint8_t *) file_entry_name,
+		          file_entry_name_size,
+		          error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve file entry name string.",
+			 function );
+
+			goto on_error;
+		}
+		for( indentation_level_iterator = 0;
+		     indentation_level_iterator < indentation_level;
+		     indentation_level_iterator++ )
+		{
+			fprintf(
+			 info_handle->notify_stream,
+			 " " );
+		}
+		fprintf(
+		 info_handle->notify_stream,
+		 "%" PRIs_SYSTEM "\n",
+		 file_entry_name );
+
+		memory_free(
+		 file_entry_name );
+
+		file_entry_name = NULL;
+	}
+	for( sub_file_entry_index = 0;
+	     sub_file_entry_index < number_of_sub_file_entries;
+	     sub_file_entry_index++ )
+	{
+		if( libfsext_file_entry_get_sub_file_entry_by_index(
+		     file_entry,
+		     sub_file_entry_index,
+		     &sub_file_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve sub file entry: %d.",
+			 function,
+			 sub_file_entry_index );
+
+			goto on_error;
+		}
+		if( info_handle_file_system_hierarchy_fprint_file_entry(
+		     info_handle,
+		     sub_file_entry,
+		     indentation_level + 1,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print file entry: %d information.",
+			 function,
+			 sub_file_entry_index );
+
+			goto on_error;
+		}
+		if( libfsext_file_entry_free(
+		     &sub_file_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free sub file entry: %d.",
+			 function,
+			 sub_file_entry_index );
+
+			goto on_error;
+		}
+	}
+	return( 1 );
+
+on_error:
+	if( sub_file_entry != NULL )
+	{
+		libfsext_file_entry_free(
+		 &sub_file_entry,
+		 NULL );
+	}
+	if( file_entry_name != NULL )
+	{
+		memory_free(
+		 file_entry_name );
+	}
+	return( -1 );
+}
+
+/* Prints the file system hierarchy entry information
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_file_system_hierarchy_fprint(
+     info_handle_t *info_handle,
+     libcerror_error_t **error )
+{
+	libfsext_file_entry_t *file_entry = NULL;
+	static char *function             = "info_handle_file_system_hierarchy_fprint";
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "Extended File System information:\n\n" );
+
+	fprintf(
+	 info_handle->notify_stream,
+	 "File system hierarchy:\n" );
+
+	if( libfsext_volume_get_root_directory(
+	     info_handle->input_volume,
+	     &file_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve root directory file entry.",
+		 function );
+
+		goto on_error;
+	}
+	if( info_handle_file_system_hierarchy_fprint_file_entry(
+	     info_handle,
+	     file_entry,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+		 "%s: unable to print root directory file entry information.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_file_entry_free(
+	     &file_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file entry.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "\n" );
+
+	return( 1 );
+
+on_error:
+	if( file_entry != NULL )
+	{
+		libfsext_file_entry_free(
+		 &file_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
 /* Prints the volume information
  * Returns 1 if successful or -1 on error
  */
@@ -730,6 +956,7 @@ int info_handle_volume_fprint(
 	system_character_t *volume_label = NULL;
 	static char *function            = "info_handle_volume_fprint";
 	size_t volume_label_size         = 0;
+	uint32_t value_32bit             = 0;
 	int result                       = 0;
 
 	if( info_handle == NULL )
@@ -831,6 +1058,64 @@ int info_handle_volume_fprint(
 	 info_handle->notify_stream,
 	 "\n" );
 
+	if( libfsext_volume_get_last_mount_time(
+	     info_handle->input_volume,
+	     &value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve last mount time.",
+		 function );
+
+		goto on_error;
+	}
+	if( info_handle_posix_time_value_fprint(
+	     info_handle,
+	     "\tLast mount time\t\t\t",
+	     value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+		 "%s: unable to print POSIX time value.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_volume_get_last_written_time(
+	     info_handle->input_volume,
+	     &value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve last written time.",
+		 function );
+
+		goto on_error;
+	}
+	if( info_handle_posix_time_value_fprint(
+	     info_handle,
+	     "\tLast written time\t\t",
+	     value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+		 "%s: unable to print POSIX time value.",
+		 function );
+
+		goto on_error;
+	}
 /* TODO print more info */
 
 	fprintf(

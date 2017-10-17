@@ -178,7 +178,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_block.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_block_vector.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_debug.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_directory.c"
 				>
 			</File>
 			<File
@@ -187,6 +199,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_error.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_file_entry.c"
 				>
 			</File>
 			<File
@@ -248,11 +264,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_block.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_block_vector.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_debug.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_definitions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_directory.h"
 				>
 			</File>
 			<File
@@ -265,6 +293,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_extern.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_file_entry.h"
 				>
 			</File>
 			<File

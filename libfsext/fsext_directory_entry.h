@@ -43,19 +43,18 @@ struct fsext_directory_entry
 	 */
 	uint8_t size[ 2 ];
 
-	/* Name string size
+	/* Name size
 	 * Consists of 1 byte
 	 */
-	uint8_t name_string_size;
+	uint8_t name_size;
 
 	/* File type
 	 * Consists of 1 byte
 	 */
 	uint8_t file_type;
 
-	/* Name string
+	/* Name
 	 */
-	/* TODO: unknown size */
 };
 
 #if defined( __cplusplus )

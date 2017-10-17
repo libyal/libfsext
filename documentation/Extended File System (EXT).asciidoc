@@ -101,6 +101,96 @@ The block size is defined in the super block.
 == The superblock
 The primary superblock is stored at offset 1024 of the volume.
 
+=== The ext2 and ext3 superblock
+
+The ext2 and ext3 superblock is 454 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | Number of inodes
+| 4 | 4 | | Number of blocks
+| 8 | 4 | | Number of reserved blocks +
+These are used to prevent the file system from filling up
+| 12 | 4 | | Number of unallocated blocks
+| 16 | 4 | | Number of unallocated inodes
+| 20 | 4 | | First data block number +
+Value contains the block number relative from the start of the volume
+| 24 | 4 | | Block size +
+Contains the number of bits to shift 1024 to the MSB (left)
+| 28 | 4 | | Fragment size +
+Contains the number of bits to shift 1024 to the MSB (left)
+| 32 | 4 | | Number of blocks per block group
+| 36 | 4 | | Number of fragments per block group
+| 40 | 4 | | Number of inodes per block group
+| 44 | 4 | | Last mount time +
+Contains POSIX timestamp
+| 48 | 4 | | Last written time +
+Contains POSIX timestamp +
+[yellow-background]*Superblock last written?*
+| 52 | 2 | | (current) mount count
+| 54 | 2 | | Maximum mount count
+| 56 | 2 | 0x53 0xef | Signature
+| 58 | 2 | | File system state flags +
+See section: <<file_system_state_flags,File system state flags>>
+| 60 | 2 | | Error-handling status +
+See section: <<error_handling_status,Error-handling status>>
+| 62 | 2 | | Minor format revision
+| 64 | 4 | | Last consistency check time +
+Contains POSIX timestamp
+| 68 | 4 | | Consistency check interval +
+Contains POSIX timestamp
+| 72 | 4 | | Creator operating system +
+See section: <<creator_operating_system,Creator operating system>>
+| 76 | 4 | | Format revision +
+See section: <<format_revisision,Format revision>>
+| 80 | 2 | | Reserved block user identifier (UID)
+| 82 | 2 | | Reserved block group identifier (GID)
+4+| _Dynamic inode information_ +
+_If major version is EXT2_DYNAMIC_REV_
+| 84 | 4 | | First non-reserved inode
+| 88 | 2 | | Inode size
+| 90 | 2 | | Block group
+| 92 | 4 | | Compatible feature flags +
+See section: <<compatible_features_flags,Compatible features flags>>
+| 96 | 4 | | Incompatible feature flags +
+See section: <<incompatible_features_flags,Incompatible features flags>>
+| 100 | 4 | | Read-only compatible feature flags +
+See section: <<read_only_compatible_features_flags,Read-only compatible features flags>>
+| 104 | 16 | | File system identifier +
+Contains GUID/UUID
+| 120 | 16 | | Volume (label) name +
+Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
+| 136 | 64 | | Last mounted path +
+Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
+| 200 | 4 | | Algorithm usage bitmap
+4+| _Performance hints_ +
+_If EXT2_COMPAT_PREALLOC is set_
+| 204 | 1 | | Number of pre-allocated blocks per file
+| 205 | 1 | | Number of pre-allocated blocks per directory
+| 206 | 2 | | Unknown (padding)
+4+| _Journalling support_ +
+_If EXT3_FEATURE_COMPAT_HAS_JOURNAL is set_
+| 208 | 16 | | Journal identifier +
+Contains GUID/UUID
+| 224 | 4 | | Journal inode
+| 228 | 4 | | Journal device +
+[yellow-background]*What does this value contain?*
+| 232 | 4 | | Orphan inode list head +
+The orphan inode list is a list of inodes to delete +
+[yellow-background]*What does this value contain?*
+| 236 | 4 x 4 | | HTREE hash seed
+| 252 | 1 | | Default hash version
+| 253 | 3 | | Unknown (padding)
+| 256 | 4 | | Default mount options
+| 260 | 4 | | First metadata block group (or metablock)
+| 264 | 190 | | Unknown (reserved)
+|===
+
+[yellow-background]*Does ext3 have file system creation time?*
+
+=== The ext4 superblock
+
 The superblock is 1024 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -112,9 +202,9 @@ Contains the lower 32-bit of the value if 64-bit support is enabled
 | 8 | 4 | | Number of reserved blocks +
 Contains the lower 32-bit of the value if 64-bit support is enabled +
 These are used to prevent the file system from filling up
-| 12 | 4 | | Number of unallocated blocks
+| 12 | 4 | | Number of unallocated blocks +
 Contains the lower 32-bit of the value if 64-bit support is enabled
-| 16 | 4 | | Number of unallocated inodes }
+| 16 | 4 | | Number of unallocated inodes +
 Contains the lower 32-bit of the value if 64-bit support is enabled
 | 20 | 4 | | Root group block number +
 Value contains the block number relative from the start of the volume
@@ -170,7 +260,7 @@ Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on o
 _If EXT2_COMPAT_PREALLOC is set_
 | 204 | 1 | | Number of pre-allocated blocks per file
 | 205 | 1 | | Number of pre-allocated blocks per directory
-| 206 | 2 | | Padding
+| 206 | 2 | | Unknown (padding)
 4+| _Journalling support_ +
 _If EXT3_FEATURE_COMPAT_HAS_JOURNAL is set_
 | 208 | 16 | | Journal identifier +
@@ -183,7 +273,7 @@ The orphan inode list is a list of inodes to delete +
 [yellow-background]*What does this value contain?*
 | 236 | 4 x 4 | | HTREE hash seed
 | 252 | 1 | | Default hash version
-| 253 | 3 | | Padding
+| 253 | 3 | | Unknown (padding)
 | 256 | 4 | | Default mount options
 | 260 | 4 | | First metadata block group (or metablock)
 4+| _Defined in ext3 reserved in earlier versions_
@@ -200,7 +290,7 @@ Contains the upper 32-bit of the value if 64-bit support is enabled
 Contains the upper 32-bit of the value if 64-bit support is enabled
 4+| _Defined in ext4 reserved in earlier versions_
 4+| _Common_ +
-| ... | ... | | Unused (Reserved)
+| ... | ... | | Unknown (reserved)
 |===
 
 ....
@@ -379,7 +469,29 @@ EXT4_FEATURE_RO_COMPAT_ can be used interchangeably.
 == The group descriptor
 The group descriptor is stored in the block following the super block.
 
-The group descriptor is 32 or 68 bytes of size and consists of:
+=== The ext2 and ext3 group descriptor
+
+The ext2 and ext3 group descriptor is 32 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | Block bitmap block number +
+Value contains the block number relative from the start of the volume
+| 4 | 4 | | Inode bitmap block number +
+Value contains the block number relative from the start of the volume
+| 8 | 4 | | Inode table block number +
+Value contains the block number relative from the start of the volume
+| 12 | 2 | | Number of unallocated blocks
+| 14 | 2 | | Number of unallocated inodes
+| 16 | 2 | | Number of directories
+| 18 | 2 | | Unknown (padding)
+| 20 | 3 x 4 | | Unknown (reserved)
+|===
+
+=== The ext4 group descriptor
+
+The ext4 group descriptor is 68 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
@@ -399,10 +511,6 @@ Contains the lower 16-bit of the value if 64-bit support is enabled
 Contains the lower 16-bit of the value if 64-bit support is enabled
 | 16 | 2 | | Number of directories +
 Contains the lower 16-bit of the value if 64-bit support is enabled
-4+| _ext2 and ext3_
-| 18 | 2 | | Padding
-| 20 | 3 x 4 | | Reserved
-4+| _ext4_
 | 18 | 2 | | Block group flags +
 See section: <<block_group_flags,Block group flags>>
 | 20 | 4 | | Exclude bitmap block number +
@@ -446,7 +554,7 @@ The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap
 | 60 | 2 | | Inode bitmap checksum +
 Contains the upper 16-bit of the value if 64-bit support is enabled +
 The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
-| 64 | 4 | | Reserved
+| 64 | 4 | | Unknown (reserved)
 |===
 
 === [[block_group_flags]]Block group flags
@@ -482,30 +590,33 @@ struct ext4_extent_idx {
 ....
 
 == The inode
-The standard inode is 128 bytes of size and consists of:
+
+=== The ext2 inode
+
+The ext2 inode is 128 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
 | 0 | 2 | | File mode +
-Contains file type and permissions
+Contains file type and permissions +
+See section: <<file_mode,File mode>>
 | 2 | 2 | | Lower part of user identifier (UID)
-| 4 | 4 | | Lower part of data size
-| 8 | 4 | | Last access time +
+| 4 | 4 | | Data size
+| 8 | 4 | | (last) access time +
 Contains a POSIX timestamp
-| 12 | 4 | | Last inode change time +
+| 12 | 4 | | (last) inode change time +
 Contains a POSIX timestamp
-| 16 | 4 | | Last modification time +
+| 16 | 4 | | (last) modification time +
 Contains a POSIX timestamp
 | 20 | 4 | | Deletion time +
 Contains a POSIX timestamp
 | 24 | 2 | | Lower part of group identifier (GID)
-| 26 | 2 | | Link count
-| 28 | 4 | | Sector count
+| 26 | 2 | | Links count
+| 28 | 4 | | Blocks count
 | 32 | 4 | | Flags +
 [yellow-background]*TODO add value table*
-| 36 | 4 | | Reserved +
-[yellow-background]*Or h_i_translator on GNU herd*
+| 36 | 4 | | Unknown (reserved)
 | 40 | 12 x 4 | | Array of direct block numbers
 | 88 | 4 | | Indirect block number
 | 92 | 4 | | Double indirect block number
@@ -513,30 +624,185 @@ Contains a POSIX timestamp
 | 100 | 4 | | NFS generation number
 | 104 | 4 | | File ACL +
 [yellow-background]*Extended attributes block number?*
-| 108 | 4 | | Directory ACL +
-[yellow-background]*Upper part of data size?*
+| 108 | 4 | | Directory ACL
 | 112 | 4 | | Fragment block address
 | 116 | 1 | | Fragment block index
 | 117 | 1 | | Fragment size
-| 118 | 2 | | Padding +
-[yellow-background]*Or h_i_mode_high on GNU herd*
-| 120 | 2 | | Upper part of user identifier (UID) +
-[yellow-background]*Or reserved on masix*
-| 122 | 2 | | Upper part of group identifier (GID) +
-[yellow-background]*Or reserved on masix*
-| 124 | 4 | | Reserved +
-[yellow-background]*Or h_i_author on GNU herd*
+| 118 | 2 | | Unknown (padding)
+| 120 | 2 | | Upper part of user identifier (UID)
+| 122 | 2 | | Upper part of group identifier (GID)
+| 124 | 4 | | Unknown (reserved)
 |===
 
-If the "dynamic" version in the major version of the superblock is set the 
-inode can be larger than the standard version.
+=== The ext3 inode
 
-[yellow-background]*Last access time: if directory/file is accessed (read)*
-[yellow-background]*Last inode change time: on creation of permission/ownership changes*
-[yellow-background]*Last modification time: if directory/file is modified (written)*
-[yellow-background]*Deletion time: if a directory/file is deleted (unlinked)*
+The ext3 inode is 132 bytes of size and consists of:
 
-== The directory entry
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | File mode +
+Contains file type and permissions +
+See section: <<file_mode,File mode>>
+| 2 | 2 | | Lower part of user identifier (UID)
+| 4 | 4 | | Data size
+| 8 | 4 | | (last) access time +
+Contains a POSIX timestamp
+| 12 | 4 | | (last) inode change time +
+Contains a POSIX timestamp
+| 16 | 4 | | (last) modification time +
+Contains a POSIX timestamp
+| 20 | 4 | | Deletion time +
+Contains a POSIX timestamp
+| 24 | 2 | | Lower part of group identifier (GID)
+| 26 | 2 | | Links count
+| 28 | 4 | | Blocks count
+| 32 | 4 | | Flags +
+[yellow-background]*TODO add value table*
+| 36 | 4 | | Unknown (reserved)
+| 40 | 12 x 4 | | Array of direct block numbers
+| 88 | 4 | | Indirect block number
+| 92 | 4 | | Double indirect block number
+| 96 | 4 | | Triple indirect block number
+| 100 | 4 | | NFS generation number
+| 104 | 4 | | File ACL
+| 108 | 4 | | Directory ACL
+| 112 | 4 | | Fragment block address
+| 116 | 1 | | Fragment block index
+| 117 | 1 | | Fragment size
+| 118 | 2 | | Unknown (padding)
+| 120 | 2 | | Upper part of user identifier (UID)
+| 122 | 2 | | Upper part of group identifier (GID)
+| 124 | 4 | | Unknown (reserved)
+| 128 | 2 | | Unknown (inode extra size?)
+| 130 | 2 | | Unknown (padding)
+|===
+
+=== The ext4 inode
+
+The ext4 inode is 156 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | File mode +
+Contains file type and permissions +
+See section: <<file_mode,File mode>>
+| 2 | 2 | | Lower part of user identifier (UID)
+| 4 | 4 | | Lower part of data size
+| 8 | 4 | | (last) access time +
+Contains a POSIX timestamp
+| 12 | 4 | | (last) inode change time +
+Contains a POSIX timestamp
+| 16 | 4 | | (last) modification time +
+Contains a POSIX timestamp
+| 20 | 4 | | Deletion time +
+Contains a POSIX timestamp
+| 24 | 2 | | Lower part of group identifier (GID)
+| 26 | 2 | | Links count
+| 28 | 4 | | Lower part of blocks count
+| 32 | 4 | | Flags +
+[yellow-background]*TODO add value table*
+| 36 | 4 | | Unknown (lower part of version)
+| 40 | 12 x 4 | | Array of direct block numbers
+| 88 | 4 | | Indirect block number
+| 92 | 4 | | Double indirect block number
+| 96 | 4 | | Triple indirect block number
+| 100 | 4 | | NFS generation number
+| 104 | 4 | | Lower part of file ACL +
+[yellow-background]*Extended attributes block number?*
+| 108 | 4 | | Upper part of data size
+| 112 | 4 | | Fragment block address
+| 116 | 2 | | Upper part of blocks count
+| 118 | 2 | | Upper part of file ACL
+| 120 | 2 | | Upper part of user identifier (UID)
+| 122 | 2 | | Upper part of group identifier (GID)
+| 124 | 2 | | Lower part of checksum
+| 126 | 2 | | Unknown (reserved)
+| 128 | 2 | | Unknown (inode extra size?) +
+[yellow-background]*Or h_i_author on GNU herd*
+| 130 | 2 | | Unknown (padding)
+| 130 | 2 | | Upper part of checksum
+| 132 | 4 | | (last) inode change time extra precision
+| 136 | 4 | | (last) modification time extra precision
+| 140 | 4 | | (last) access time extra precision
+| 144 | 4 | | Creation time
+| 148 | 4 | | Creation time extra precision
+| 152 | 4 | | Unknown (upper part of version)
+|===
+
+[yellow-background]*TODO describe extra precision*
+
+=== [[file_mode]]File mode
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+3+| _Access other_ +
+_Bitmask: 0x0007 (S_IRWXO)_
+| 0x0001 | S_IXOTH | X-access for other
+| 0x0002 | S_IWOTH | W-access for other
+| 0x0004 | S_IROTH | R-access for other
+3+| _Access group_ +
+_Bitmask: 0x0038 (S_IRWXG)_
+| 0x0008 | S_IXGRP | X-access for group
+| 0x0010 | S_IWGRP | W-access for group
+| 0x0020 | S_IRGRP | R-access for group
+3+| _Access user_ +
+_Bitmask: 0x01c0 (S_IRWXU)_
+| 0x0040 | S_IXUSR | X-access for user
+| 0x0080 | S_IWUSR | W-access for user
+| 0x0100 | S_IRUSR | R-access for user
+3+| _Other_
+| 0x0200 | S_ISTXT | Sticky bit
+| 0x0400 | S_ISGID | Set group identifer (GID) on execution
+| 0x0800 | S_ISUID | Set user identifer (UID) on execution
+3+| _Type of file_ +
+_Bitmask: 0xf000 (S_IFMT)_
+| 0x1000 | S_IFIFO | Named pipe (FIFO)
+| 0x2000 | S_IFCHR | Character device
+| 0x4000 | S_IFDIR | Directory
+| 0x6000 | S_IFBLK | Block device
+| 0x8000 | S_IFREG | Regular file
+| 0xa000 | S_IFLNK | Symbolic link
+| 0xc000 | S_IFSOCK | Socket
+|===
+
+=== Reserved inode numbers
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 1 | EXT2_BAD_INO +
+EXT3_BAD_INO +
+EXT4_BAD_INO | Bad blocks inode
+| 2 | EXT2_ROOT_INO +
+EXT3_ROOT_INO +
+EXT4_ROOT_INO | Root inode
+| 3 | EXT4_USR_QUOTA_INO | User quota inode
+| 4 | EXT4_USR_QUOTA_INO | Group quota inode
+| 5 | EXT2_BOOT_LOADER_INO +
+EXT3_BOOT_LOADER_INO +
+EXT4_BOOT_LOADER_INO | Boot loader inode
+| 6 | EXT2_UNDEL_DIR_INO +
+EXT3_UNDEL_DIR_INO +
+EXT4_UNDEL_DIR_INO | Undelete directory inode
+| 7 | EXT3_RESIZE_INO +
+EXT4_RESIZE_INO | Reserved group descriptors inode
+| 8 | EXT3_JOURNAL_INO +
+EXT4_JOURNAL_INO | Journal inode
+|===
+
+== Directory entries
+Directories entries are stored in the data blocks of directory inodes.
+
+Directory entries consists of:
+
+* directory entry for "." (self)
+* directory entry for ".." (parent)
+* directory entry for other file system entries
+
+=== The directory entry
 The directory entry is [yellow-background]*32 bytes* of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -545,10 +811,11 @@ The directory entry is [yellow-background]*32 bytes* of size and consists of:
 | 0 | 4 | | Inode number
 | 4 | 2 | | Directory entry size
 | 6 | 1 | | Name size +
+Contains the size of the name without the end-of-string character +
 Maximum of 255
 | 7 | 1 | | File type +
 See section: <<file_type,File type>>
-| 8 | ... | | Name string +
+| 8 | ... | | Name +
 [yellow-background]*Contains an UTF-8 string*
 |===
 
@@ -556,7 +823,7 @@ Older directory entry structures considered the name size a 16-bit value, but
 the upper byte was never used.
 
 The name can contain any UTF-8 character value except the path separator '/' 
-and the NUL-character. [yellow-background]*Is the name string in extended ASCII 
+and the NUL-character. [yellow-background]*Is the name in extended ASCII 
 on older platforms?*
 
 === [[file_type]]File type
@@ -580,7 +847,44 @@ The journal was introduced in ext3.
 [yellow-background]*TODO: add text*
 
 == Notes
-[yellow-background]*TODO: add text*
+
+....
+	EXT4_INODE_SECRM	= 0,	/* Secure deletion */
+	EXT4_INODE_UNRM		= 1,	/* Undelete */
+	EXT4_INODE_COMPR	= 2,	/* Compress file */
+	EXT4_INODE_SYNC		= 3,	/* Synchronous updates */
+	EXT4_INODE_IMMUTABLE	= 4,	/* Immutable file */
+	EXT4_INODE_APPEND	= 5,	/* writes to file may only append */
+	EXT4_INODE_NODUMP	= 6,	/* do not dump file */
+	EXT4_INODE_NOATIME	= 7,	/* do not update atime */
+/* Reserved for compression usage... */
+	EXT4_INODE_DIRTY	= 8,
+	EXT4_INODE_COMPRBLK	= 9,	/* One or more compressed clusters */
+	EXT4_INODE_NOCOMPR	= 10,	/* Don't compress */
+	EXT4_INODE_ECOMPR	= 11,	/* Compression error */
+/* End compression flags --- maybe not all used */
+	EXT4_INODE_INDEX	= 12,	/* hash-indexed directory */
+	EXT4_INODE_IMAGIC	= 13,	/* AFS directory */
+	EXT4_INODE_JOURNAL_DATA	= 14,	/* file data should be journaled */
+	EXT4_INODE_NOTAIL	= 15,	/* file tail should not be merged */
+	EXT4_INODE_DIRSYNC	= 16,	/* dirsync behaviour (directories only) */
+	EXT4_INODE_TOPDIR	= 17,	/* Top of directory hierarchies*/
+	EXT4_INODE_HUGE_FILE	= 18,	/* Set to each huge file */
+	EXT4_INODE_EXTENTS	= 19,	/* Inode uses extents */
+	EXT4_INODE_EA_INODE	= 21,	/* Inode used for large EA */
+	EXT4_INODE_EOFBLOCKS	= 22,	/* Blocks allocated beyond EOF */
+	EXT4_INODE_RESERVED	= 31,	/* reserved for ext4 lib */
+....
+
+....
+#define EXT4_STATE_JDATA	0x00000001 /* journaled data exists */
+#define EXT4_STATE_NEW	0x00000002 /* inode is newly created */
+#define EXT4_STATE_XATTR	0x00000004 /* has in-inode xattrs */
+#define EXT4_STATE_NO_EXPAND	0x00000008 /* No space for expansion */
+#define EXT4_STATE_DA_ALLOC_CLOSE	0x00000010 /* Alloc DA blks on close */
+#define EXT4_STATE_EXT_MIGRATE	0x00000020 /* Inode is migrating */
+#define EXT4_STATE_DIO_UNWRITTEN	0x00000040 /* need convert on dio done*/
+....
 
 :numbered!:
 [appendix]

@@ -19,6 +19,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_bitmap", "fsext_
 		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_block", "fsext_test_block\fsext_test_block.vcproj", "{073E23D7-4686-4F7C-9530-5E912B4BCC9E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
+		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_directory", "fsext_test_directory\fsext_test_directory.vcproj", "{48961EF8-B5F1-47E5-AAAB-10143CA07083}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
+		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_directory_entry", "fsext_test_directory_entry\fsext_test_directory_entry.vcproj", "{A4DF97BA-994B-4A04-82A6-BB83BCA068E0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
@@ -28,6 +40,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_error", "fsext_test_error\fsext_test_error.vcproj", "{A01C618A-11CC-42BC-9E4A-8564E2B25FF3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_file_entry", "fsext_test_file_entry\fsext_test_file_entry.vcproj", "{B0B970DA-07A6-4C39-82B8-CCDFD2181400}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
+		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_group_descriptor", "fsext_test_group_descriptor\fsext_test_group_descriptor.vcproj", "{72FE122C-2397-41EE-921B-5C480A5D192F}"
@@ -230,6 +248,14 @@ Global
 		{C6C6349F-31F3-4C05-B931-3F99DE069B2E}.Release|Win32.Build.0 = Release|Win32
 		{C6C6349F-31F3-4C05-B931-3F99DE069B2E}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{C6C6349F-31F3-4C05-B931-3F99DE069B2E}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{073E23D7-4686-4F7C-9530-5E912B4BCC9E}.Release|Win32.ActiveCfg = Release|Win32
+		{073E23D7-4686-4F7C-9530-5E912B4BCC9E}.Release|Win32.Build.0 = Release|Win32
+		{073E23D7-4686-4F7C-9530-5E912B4BCC9E}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{073E23D7-4686-4F7C-9530-5E912B4BCC9E}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{48961EF8-B5F1-47E5-AAAB-10143CA07083}.Release|Win32.ActiveCfg = Release|Win32
+		{48961EF8-B5F1-47E5-AAAB-10143CA07083}.Release|Win32.Build.0 = Release|Win32
+		{48961EF8-B5F1-47E5-AAAB-10143CA07083}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{48961EF8-B5F1-47E5-AAAB-10143CA07083}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{A4DF97BA-994B-4A04-82A6-BB83BCA068E0}.Release|Win32.ActiveCfg = Release|Win32
 		{A4DF97BA-994B-4A04-82A6-BB83BCA068E0}.Release|Win32.Build.0 = Release|Win32
 		{A4DF97BA-994B-4A04-82A6-BB83BCA068E0}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
@@ -238,6 +264,10 @@ Global
 		{A01C618A-11CC-42BC-9E4A-8564E2B25FF3}.Release|Win32.Build.0 = Release|Win32
 		{A01C618A-11CC-42BC-9E4A-8564E2B25FF3}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{A01C618A-11CC-42BC-9E4A-8564E2B25FF3}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{B0B970DA-07A6-4C39-82B8-CCDFD2181400}.Release|Win32.ActiveCfg = Release|Win32
+		{B0B970DA-07A6-4C39-82B8-CCDFD2181400}.Release|Win32.Build.0 = Release|Win32
+		{B0B970DA-07A6-4C39-82B8-CCDFD2181400}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{B0B970DA-07A6-4C39-82B8-CCDFD2181400}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{72FE122C-2397-41EE-921B-5C480A5D192F}.Release|Win32.ActiveCfg = Release|Win32
 		{72FE122C-2397-41EE-921B-5C480A5D192F}.Release|Win32.Build.0 = Release|Win32
 		{72FE122C-2397-41EE-921B-5C480A5D192F}.VSDebug|Win32.ActiveCfg = VSDebug|Win32

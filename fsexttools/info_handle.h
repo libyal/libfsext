@@ -91,6 +91,22 @@ int info_handle_close_input(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
+int info_handle_posix_time_value_fprint(
+     info_handle_t *info_handle,
+     const char *value_name,
+     uint32_t value_32bit,
+     libcerror_error_t **error );
+
+int info_handle_file_system_hierarchy_fprint_file_entry(
+     info_handle_t *info_handle,
+     libfsext_file_entry_t *file_entry,
+     int indentation_level,
+     libcerror_error_t **error );
+
+int info_handle_file_system_hierarchy_fprint(
+     info_handle_t *info_handle,
+     libcerror_error_t **error );
+
 int info_handle_volume_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );

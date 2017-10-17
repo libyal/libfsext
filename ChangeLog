@@ -1,23 +1,16 @@
-Format support:
-* add support for extended volume header values
-* add support for alternate super blocks
-* add support for block groups
-* add support for inodes
+TODO:
+* directory replace array by data structure that is more efficient for large
+  number of comparisions, e.g. a b-tree.
 
-Debug print:
-* major version
+Create test images:
+* with multiple block groups
+* with file where indirect blocks are used
+* with file where double indirect blocks are used
+* with large number of directory entries where indirect blocks are used
+* with huge number of directory entries where double indirect blocks are used
 
-20160108
-* 2016 update
-
-20150508
-* worked on format support
-
-20150507
-* worked on format support
-
-20150504
-* Code updates
+20150429
+* see `git log' for more recent change log
 
 20110203
 * 2011 updates

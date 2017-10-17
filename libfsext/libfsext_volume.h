@@ -26,8 +26,11 @@
 #include <types.h>
 
 #include "libfsext_extern.h"
+#include "libfsext_inode.h"
+#include "libfsext_inode_table.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
+#include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_superblock.h"
 #include "libfsext_types.h"
@@ -43,6 +46,14 @@ struct libfsext_internal_volume
 	/* The superblock
 	 */
 	libfsext_superblock_t *superblock;
+
+	/* Group descriptors array
+	 */
+	libcdata_array_t *group_descriptors_array;
+
+	/* The inode table
+	 */
+	libfsext_inode_table_t *inode_table;
 
 	/* The IO handle
 	 */
@@ -109,6 +120,13 @@ int libfsext_volume_open_read(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
+int libfsext_volume_read_group_descriptors(
+     libfsext_internal_volume_t *internal_volume,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     uint32_t number_of_block_groups,
+     libcerror_error_t **error );
+
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_utf8_label_size(
      libfsext_volume_t *volume,
@@ -133,6 +151,24 @@ int libfsext_volume_get_utf16_label(
      libfsext_volume_t *volume,
      uint16_t *utf16_string,
      size_t utf16_string_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_last_mount_time(
+     libfsext_volume_t *volume,
+     uint32_t *posix_time,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_last_written_time(
+     libfsext_volume_t *volume,
+     uint32_t *posix_time,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_root_directory(
+     libfsext_volume_t *volume,
+     libfsext_file_entry_t **root_directory_file_entry,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

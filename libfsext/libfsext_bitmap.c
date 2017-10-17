@@ -26,6 +26,7 @@
 
 #include "libfsext_bitmap.h"
 #include "libfsext_io_handle.h"
+#include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
 

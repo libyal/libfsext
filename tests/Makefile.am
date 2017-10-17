@@ -38,8 +38,11 @@ EXTRA_DIST = \
 
 check_PROGRAMS = \
 	fsext_test_bitmap \
+	fsext_test_block \
+	fsext_test_directory \
 	fsext_test_directory_entry \
 	fsext_test_error \
+	fsext_test_file_entry \
 	fsext_test_group_descriptor \
 	fsext_test_inode \
 	fsext_test_inode_table \
@@ -58,6 +61,30 @@ fsext_test_bitmap_SOURCES = \
 	fsext_test_unused.h
 
 fsext_test_bitmap_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_block_SOURCES = \
+	fsext_test_block.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_block_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_directory_SOURCES = \
+	fsext_test_directory.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_directory_LDADD = \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 
@@ -81,6 +108,18 @@ fsext_test_error_SOURCES = \
 
 fsext_test_error_LDADD = \
 	../libfsext/libfsext.la
+
+fsext_test_file_entry_SOURCES = \
+	fsext_test_file_entry.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_file_entry_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
 
 fsext_test_group_descriptor_SOURCES = \
 	fsext_test_group_descriptor.c \

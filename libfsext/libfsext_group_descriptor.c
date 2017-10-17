@@ -26,6 +26,7 @@
 
 #include "libfsext_group_descriptor.h"
 #include "libfsext_io_handle.h"
+#include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
 
@@ -176,13 +177,13 @@ int libfsext_group_descriptor_read_data(
 
 		return( -1 );
 	}
-	if( ( io_handle->incompatible_features_flags & 0x00000080UL ) == 0 )
+	if( io_handle->format_version == 4 )
 	{
-		group_descriptor_data_size = sizeof( fsext_group_descriptor_ext2_t );
+		group_descriptor_data_size = sizeof( fsext_group_descriptor_ext4_t );
 	}
 	else
 	{
-		group_descriptor_data_size = sizeof( fsext_group_descriptor_ext4_t );
+		group_descriptor_data_size = sizeof( fsext_group_descriptor_ext2_t );
 	}
 	if( data == NULL )
 	{

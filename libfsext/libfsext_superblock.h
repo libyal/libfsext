@@ -98,10 +98,6 @@ struct libfsext_superblock
 	 */
 	uint16_t maximum_mount_count;
 
-	/* Signature
-	 */
-	uint16_t signature;
-
 	/* File system state flags
 	 */
 	uint16_t file_system_state_flags;
