@@ -170,13 +170,15 @@ fsext_test_io_handle_LDADD = \
 	@LIBCERROR_LIBADD@
 
 fsext_test_notify_SOURCES = \
+	fsext_test_libcerror.h \
 	fsext_test_libfsext.h \
 	fsext_test_macros.h \
 	fsext_test_notify.c \
 	fsext_test_unused.h
 
 fsext_test_notify_LDADD = \
-	../libfsext/libfsext.la
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
 
 fsext_test_superblock_SOURCES = \
 	fsext_test_libcerror.h \
@@ -192,6 +194,7 @@ fsext_test_superblock_LDADD = \
 
 fsext_test_support_SOURCES = \
 	fsext_test_getopt.c fsext_test_getopt.h \
+	fsext_test_functions.c fsext_test_functions.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
 	fsext_test_libclocale.h \
@@ -199,7 +202,9 @@ fsext_test_support_SOURCES = \
 	fsext_test_libfsext.h \
 	fsext_test_libuna.h \
 	fsext_test_macros.h \
-	fsext_test_support.c
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_support.c \
+	fsext_test_unused.h
 
 fsext_test_support_LDADD = \
 	@LIBBFIO_LIBADD@ \
@@ -215,6 +220,8 @@ fsext_test_support_LDADD = \
 
 fsext_test_volume_SOURCES = \
 	fsext_test_getopt.c fsext_test_getopt.h \
+	fsext_test_functions.c fsext_test_functions.h \
+	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
 	fsext_test_libclocale.h \
 	fsext_test_libcnotify.h \
@@ -222,10 +229,15 @@ fsext_test_volume_SOURCES = \
 	fsext_test_libuna.h \
 	fsext_test_macros.h \
 	fsext_test_memory.c fsext_test_memory.h \
-	fsext_test_volume.c
+	fsext_test_volume.c \
+	fsext_test_unused.h
 
 fsext_test_volume_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \

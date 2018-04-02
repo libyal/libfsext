@@ -1,4 +1,4 @@
-Library and tools to access the Extended File System (EXT).
+libfsext is a library to access the Extended File System (ext).
 
 Note that this project currently only focuses on the analysis of the format.
 
