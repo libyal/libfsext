@@ -35,6 +35,8 @@
 
 #include "../libfsext/libfsext_block.h"
 
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
 /* Tests the libfsext_block_free function
  * Returns 1 if successful or 0 if not
  */
@@ -72,8 +74,6 @@ on_error:
 	}
 	return( 0 );
 }
-
-#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
