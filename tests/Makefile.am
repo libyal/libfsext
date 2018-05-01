@@ -193,8 +193,8 @@ fsext_test_superblock_LDADD = \
 	@LIBCERROR_LIBADD@
 
 fsext_test_support_SOURCES = \
-	fsext_test_getopt.c fsext_test_getopt.h \
 	fsext_test_functions.c fsext_test_functions.h \
+	fsext_test_getopt.c fsext_test_getopt.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
 	fsext_test_libclocale.h \
@@ -219,8 +219,8 @@ fsext_test_support_LDADD = \
 	@LIBCERROR_LIBADD@
 
 fsext_test_volume_SOURCES = \
-	fsext_test_getopt.c fsext_test_getopt.h \
 	fsext_test_functions.c fsext_test_functions.h \
+	fsext_test_getopt.c fsext_test_getopt.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
 	fsext_test_libclocale.h \

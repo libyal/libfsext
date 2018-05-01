@@ -374,6 +374,108 @@ int fsext_test_directory_entry_clone(
 	libcerror_error_free(
 	 &error );
 
+	destination_directory_entry = (libfsext_directory_entry_t *) 0x12345678UL;
+
+	result = libfsext_directory_entry_clone(
+	          &destination_directory_entry,
+	          source_directory_entry,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	destination_directory_entry = NULL;
+
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+
+	/* Test libfsext_directory_entry_clone with malloc failing
+	 */
+	fsext_test_malloc_attempts_before_fail = 0;
+
+	result = libfsext_directory_entry_clone(
+	          &destination_directory_entry,
+	          source_directory_entry,
+	          &error );
+
+	if( fsext_test_malloc_attempts_before_fail != -1 )
+	{
+		fsext_test_malloc_attempts_before_fail = -1;
+
+		if( destination_directory_entry != NULL )
+		{
+			libfsext_directory_entry_free(
+			 &destination_directory_entry,
+			 NULL );
+		}
+	}
+	else
+	{
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "destination_directory_entry",
+		 destination_directory_entry );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+
+	/* Test libfsext_directory_entry_clone with memcpy failing
+	 */
+	fsext_test_memcpy_attempts_before_fail = 0;
+
+	result = libfsext_directory_entry_clone(
+	          &destination_directory_entry,
+	          source_directory_entry,
+	          &error );
+
+	if( fsext_test_memcpy_attempts_before_fail != -1 )
+	{
+		fsext_test_memcpy_attempts_before_fail = -1;
+
+		if( destination_directory_entry != NULL )
+		{
+			libfsext_directory_entry_free(
+			 &destination_directory_entry,
+			 NULL );
+		}
+	}
+	else
+	{
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "destination_directory_entry",
+		 destination_directory_entry );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
+
 	/* Clean up
 	 */
 	result = libfsext_directory_entry_free(

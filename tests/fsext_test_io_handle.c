@@ -332,6 +332,36 @@ int fsext_test_io_handle_clear(
 	libcerror_error_free(
 	 &error );
 
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+
+	/* Test libfsext_io_handle_clear with memset failing
+	 */
+	fsext_test_memset_attempts_before_fail = 0;
+
+	result = libfsext_io_handle_clear(
+	          io_handle,
+	          &error );
+
+	if( fsext_test_memset_attempts_before_fail != -1 )
+	{
+		fsext_test_memset_attempts_before_fail = -1;
+	}
+	else
+	{
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
+
 	/* Clean up
 	 */
 	result = libfsext_io_handle_free(

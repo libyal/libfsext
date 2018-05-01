@@ -393,6 +393,174 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libfsext_directory_get_entry_by_index function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_directory_get_entry_by_index(
+     void )
+{
+	libcerror_error_t *error                   = NULL;
+	libfsext_directory_t *directory            = NULL;
+	libfsext_directory_entry_t *entry_by_index = 0;
+	int result                                 = 0;
+
+	/* Initialize test
+	 */
+	result = libfsext_directory_initialize(
+	          &directory,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "directory",
+	 directory );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libfsext_directory_get_entry_by_index(
+	          directory,
+	          0,
+	          &entry_by_index,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "entry_by_index",
+	 entry_by_index );
+
+	result = libfsext_directory_entry_free(
+	          &entry_by_index,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_directory_get_entry_by_index(
+	          NULL,
+	          0,
+	          &entry_by_index,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "entry_by_index",
+	 entry_by_index );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_get_entry_by_index(
+	          directory,
+	          -1,
+	          &entry_by_index,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "entry_by_index",
+	 entry_by_index );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_get_entry_by_index(
+	          directory,
+	          0,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "entry_by_index",
+	 entry_by_index );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libfsext_directory_free(
+	          &directory,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "directory",
+	 directory );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( directory != NULL )
+	{
+		libfsext_directory_free(
+		 &directory,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 /* The main program
@@ -426,7 +594,13 @@ int main(
 	 "libfsext_directory_get_number_of_entries",
 	 fsext_test_directory_get_number_of_entries );
 
-	/* TODO: add tests for libfsext_directory_get_entry_by_index */
+#ifdef TODO
+
+	FSEXT_TEST_RUN(
+	 "libfsext_directory_get_entry_by_index",
+	 fsext_test_directory_get_entry_by_index );
+
+#endif /* TODO */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 

@@ -181,7 +181,7 @@ int libfsext_directory_entry_clone(
 	*destination_directory_entry = memory_allocate_structure(
 	                                libfsext_directory_entry_t );
 
-	if( destination_directory_entry == NULL )
+	if( *destination_directory_entry == NULL )
 	{
 		libcerror_error_set(
 		 error,
