@@ -34,6 +34,18 @@
 #include "fsext_test_unused.h"
 
 #include "../libfsext/libfsext_inode.h"
+#include "../libfsext/libfsext_io_handle.h"
+
+uint8_t fsext_test_inode_data1[ 132 ] = {
+	0x00, 0x04, 0x00, 0x00, 0x3d, 0x13, 0xc1, 0x3f, 0x44, 0x13, 0xc1, 0x3f, 0x44, 0x13, 0xc1, 0x3f,
+	0x00, 0x00, 0x00, 0x00, 0xf4, 0x01, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00 };
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
@@ -518,20 +530,38 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libfsext_inode_get_access_time function
+/* Tests the libfsext_inode_read_data function
  * Returns 1 if successful or 0 if not
  */
-int fsext_test_inode_get_access_time(
+int fsext_test_inode_read_data(
      void )
 {
-	libcerror_error_t *error = NULL;
-	libfsext_inode_t *inode  = NULL;
-	uint32_t access_time     = 0;
-	int access_time_is_set   = 0;
-	int result               = 0;
+	libcerror_error_t *error        = NULL;
+	libfsext_inode_t *inode         = NULL;
+	libfsext_io_handle_t *io_handle = NULL;
+	int result                      = 0;
 
 	/* Initialize test
 	 */
+	result = libfsext_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	io_handle->format_version = 3;
+
 	result = libfsext_inode_initialize(
 	          &inode,
 	          &error );
@@ -548,6 +578,191 @@ int fsext_test_inode_get_access_time(
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_read_data(
+	          inode,
+	          io_handle,
+	          fsext_test_inode_data1,
+	          132,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_read_data(
+	          NULL,
+	          io_handle,
+	          fsext_test_inode_data1,
+	          132,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_read_data(
+	          inode,
+	          NULL,
+	          fsext_test_inode_data1,
+	          132,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_read_data(
+	          inode,
+	          io_handle,
+	          NULL,
+	          132,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_read_data(
+	          inode,
+	          io_handle,
+	          fsext_test_inode_data1,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_read_data(
+	          inode,
+	          io_handle,
+	          fsext_test_inode_data1,
+	          0,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libfsext_inode_free(
+	          &inode,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "inode",
+	 inode );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfsext_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( inode != NULL )
+	{
+		libfsext_inode_free(
+		 &inode,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libfsext_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_access_time function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_access_time(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error = NULL;
+	uint32_t access_time     = 0;
+	int access_time_is_set   = 0;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
@@ -605,25 +820,6 @@ int fsext_test_inode_get_access_time(
 		libcerror_error_free(
 		 &error );
 	}
-	/* Clean up
-	 */
-	result = libfsext_inode_free(
-	          &inode,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "inode",
-	 inode );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -632,12 +828,6 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( inode != NULL )
-	{
-		libfsext_inode_free(
-		 &inode,
-		 NULL );
-	}
 	return( 0 );
 }
 
@@ -645,32 +835,12 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int fsext_test_inode_get_inode_change_time(
-     void )
+     libfsext_inode_t *inode )
 {
 	libcerror_error_t *error     = NULL;
-	libfsext_inode_t *inode      = NULL;
 	uint32_t inode_change_time   = 0;
 	int inode_change_time_is_set = 0;
 	int result                   = 0;
-
-	/* Initialize test
-	 */
-	result = libfsext_inode_initialize(
-	          &inode,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "inode",
-	 inode );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
 
 	/* Test regular cases
 	 */
@@ -728,25 +898,6 @@ int fsext_test_inode_get_inode_change_time(
 		libcerror_error_free(
 		 &error );
 	}
-	/* Clean up
-	 */
-	result = libfsext_inode_free(
-	          &inode,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "inode",
-	 inode );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -755,12 +906,6 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( inode != NULL )
-	{
-		libfsext_inode_free(
-		 &inode,
-		 NULL );
-	}
 	return( 0 );
 }
 
@@ -768,32 +913,12 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int fsext_test_inode_get_modification_time(
-     void )
+     libfsext_inode_t *inode )
 {
 	libcerror_error_t *error     = NULL;
-	libfsext_inode_t *inode      = NULL;
 	uint32_t modification_time   = 0;
 	int modification_time_is_set = 0;
 	int result                   = 0;
-
-	/* Initialize test
-	 */
-	result = libfsext_inode_initialize(
-	          &inode,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "inode",
-	 inode );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
 
 	/* Test regular cases
 	 */
@@ -851,25 +976,6 @@ int fsext_test_inode_get_modification_time(
 		libcerror_error_free(
 		 &error );
 	}
-	/* Clean up
-	 */
-	result = libfsext_inode_free(
-	          &inode,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "inode",
-	 inode );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -878,12 +984,6 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( inode != NULL )
-	{
-		libfsext_inode_free(
-		 &inode,
-		 NULL );
-	}
 	return( 0 );
 }
 
@@ -891,32 +991,12 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int fsext_test_inode_get_deletion_time(
-     void )
+     libfsext_inode_t *inode )
 {
 	libcerror_error_t *error = NULL;
-	libfsext_inode_t *inode  = NULL;
 	uint32_t deletion_time   = 0;
 	int deletion_time_is_set = 0;
 	int result               = 0;
-
-	/* Initialize test
-	 */
-	result = libfsext_inode_initialize(
-	          &inode,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "inode",
-	 inode );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
 
 	/* Test regular cases
 	 */
@@ -974,6 +1054,141 @@ int fsext_test_inode_get_deletion_time(
 		libcerror_error_free(
 		 &error );
 	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
+/* The main program
+ */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+int wmain(
+     int argc FSEXT_TEST_ATTRIBUTE_UNUSED,
+     wchar_t * const argv[] FSEXT_TEST_ATTRIBUTE_UNUSED )
+#else
+int main(
+     int argc FSEXT_TEST_ATTRIBUTE_UNUSED,
+     char * const argv[] FSEXT_TEST_ATTRIBUTE_UNUSED )
+#endif
+{
+	libcerror_error_t *error        = NULL;
+	libfsext_inode_t *inode         = NULL;
+	libfsext_io_handle_t *io_handle = NULL;
+	int result                      = 0;
+
+	FSEXT_TEST_UNREFERENCED_PARAMETER( argc )
+	FSEXT_TEST_UNREFERENCED_PARAMETER( argv )
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
+	FSEXT_TEST_RUN(
+	 "libfsext_inode_initialize",
+	 fsext_test_inode_initialize );
+
+	FSEXT_TEST_RUN(
+	 "libfsext_inode_free",
+	 fsext_test_inode_free );
+
+	FSEXT_TEST_RUN(
+	 "libfsext_inode_clone",
+	 fsext_test_inode_clone );
+
+	FSEXT_TEST_RUN(
+	 "libfsext_inode_read_data",
+	 fsext_test_inode_read_data );
+
+	/* TODO: add tests for libfsext_inode_read_element_data */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
+	/* Initialize inode for tests
+	 */
+	result = libfsext_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	io_handle->format_version = 3;
+
+	result = libfsext_inode_initialize(
+	          &inode,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "inode",
+	 inode );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfsext_inode_read_data(
+	          inode,
+	          io_handle,
+	          fsext_test_inode_data1,
+	          132,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_access_time",
+	 fsext_test_inode_get_access_time,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_inode_change_time",
+	 fsext_test_inode_get_inode_change_time,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_modification_time",
+	 fsext_test_inode_get_modification_time,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_deletion_time",
+	 fsext_test_inode_get_deletion_time,
+	 inode );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
 	/* Clean up
 	 */
 	result = libfsext_inode_free(
@@ -993,7 +1208,26 @@ int fsext_test_inode_get_deletion_time(
 	 "error",
 	 error );
 
-	return( 1 );
+	result = libfsext_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
+	return( EXIT_SUCCESS );
 
 on_error:
 	if( error != NULL )
@@ -1007,65 +1241,12 @@ on_error:
 		 &inode,
 		 NULL );
 	}
-	return( 0 );
-}
-
-#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
-
-/* The main program
- */
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-int wmain(
-     int argc FSEXT_TEST_ATTRIBUTE_UNUSED,
-     wchar_t * const argv[] FSEXT_TEST_ATTRIBUTE_UNUSED )
-#else
-int main(
-     int argc FSEXT_TEST_ATTRIBUTE_UNUSED,
-     char * const argv[] FSEXT_TEST_ATTRIBUTE_UNUSED )
-#endif
-{
-	FSEXT_TEST_UNREFERENCED_PARAMETER( argc )
-	FSEXT_TEST_UNREFERENCED_PARAMETER( argv )
-
-#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
-
-	FSEXT_TEST_RUN(
-	 "libfsext_inode_initialize",
-	 fsext_test_inode_initialize );
-
-	FSEXT_TEST_RUN(
-	 "libfsext_inode_free",
-	 fsext_test_inode_free );
-
-	FSEXT_TEST_RUN(
-	 "libfsext_inode_clone",
-	 fsext_test_inode_clone );
-
-	/* TODO: add tests for libfsext_inode_read_data */
-
-	FSEXT_TEST_RUN(
-	 "libfsext_inode_get_access_time",
-	 fsext_test_inode_get_access_time );
-
-	FSEXT_TEST_RUN(
-	 "libfsext_inode_get_inode_change_time",
-	 fsext_test_inode_get_inode_change_time );
-
-	FSEXT_TEST_RUN(
-	 "libfsext_inode_get_modification_time",
-	 fsext_test_inode_get_modification_time );
-
-	FSEXT_TEST_RUN(
-	 "libfsext_inode_get_deletion_time",
-	 fsext_test_inode_get_deletion_time );
-
-	/* TODO: add tests for libfsext_inode_read_element_data */
-
-#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
-
-	return( EXIT_SUCCESS );
-
-on_error:
+	if( io_handle != NULL )
+	{
+		libfsext_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
 	return( EXIT_FAILURE );
 }
 
