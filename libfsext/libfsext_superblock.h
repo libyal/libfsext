@@ -228,7 +228,15 @@ struct libfsext_superblock
 
 	/* Backup journal inodes
 	 */
-	/* TODO: implement */
+/* TODO: implement */
+
+	/* Format version
+	 */
+	int format_version;
+
+	/* Number of block groups
+	 */
+	uint32_t number_of_block_groups;
 };
 
 int libfsext_superblock_initialize(
@@ -243,16 +251,12 @@ int libfsext_superblock_read_data(
      libfsext_superblock_t *superblock,
      const uint8_t *data,
      size_t data_size,
-     int *format_version,
-     uint32_t *number_of_block_groups,
      libcerror_error_t **error );
 
 int libfsext_superblock_read_file_io_handle(
      libfsext_superblock_t *superblock,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
-     int *format_version,
-     uint32_t *number_of_block_groups,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

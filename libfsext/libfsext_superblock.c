@@ -149,8 +149,6 @@ int libfsext_superblock_read_data(
      libfsext_superblock_t *superblock,
      const uint8_t *data,
      size_t data_size,
-     int *format_version,
-     uint32_t *number_of_block_groups,
      libcerror_error_t **error )
 {
 	static char *function                     = "libfsext_superblock_read_data";
@@ -201,28 +199,6 @@ int libfsext_superblock_read_data(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( format_version == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid format version.",
-		 function );
-
-		return( -1 );
-	}
-	if( number_of_block_groups == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid number of block groups.",
 		 function );
 
 		return( -1 );
@@ -700,16 +676,16 @@ int libfsext_superblock_read_data(
 	 || ( ( superblock->incompatible_features_flags & 0x0001f7c0 ) != 0 )
 	 || ( ( superblock->read_only_compatible_features_flags & 0x00000378 ) != 0 ) )
 	{
-		*format_version = 4;
+		superblock->format_version = 4;
 	}
 	else if( ( ( superblock->compatible_features_flags & 0x00000004 ) != 0 )
 	      || ( ( superblock->incompatible_features_flags & 0x0000000c ) != 0 ) )
 	{
-		*format_version = 3;
+		superblock->format_version = 3;
 	}
 	else
 	{
-		*format_version = 2;
+		superblock->format_version = 2;
 	}
 	if( ( superblock->compatible_features_flags & 0x00000001UL ) != 0 )
 	{
@@ -820,7 +796,7 @@ int libfsext_superblock_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( *format_version == 4 )
+	if( superblock->format_version == 4 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
@@ -858,7 +834,7 @@ int libfsext_superblock_read_data(
 	}
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( *format_version < 4 )
+	if( superblock->format_version < 4 )
 	{
 		if( libcnotify_verbose != 0 )
 		{
@@ -895,11 +871,11 @@ int libfsext_superblock_read_data(
 
 		return( -1 );
 	}
-	*number_of_block_groups = superblock->number_of_blocks / number_of_blocks_per_block_group;
+	superblock->number_of_block_groups = superblock->number_of_blocks / number_of_blocks_per_block_group;
 
 	if( ( superblock->number_of_blocks % number_of_blocks_per_block_group ) != 0 )
 	{
-		*number_of_block_groups += 1;
+		superblock->number_of_block_groups += 1;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -907,12 +883,12 @@ int libfsext_superblock_read_data(
 		libcnotify_printf(
 		 "%s: format version\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 *format_version );
+		 superblock->format_version );
 
 		libcnotify_printf(
 		 "%s: number of block groups\t\t\t: %" PRIu32 "\n",
 		 function,
-		 *number_of_block_groups );
+		 superblock->number_of_block_groups );
 
 		libcnotify_printf(
 		 "\n" );
@@ -929,8 +905,6 @@ int libfsext_superblock_read_file_io_handle(
      libfsext_superblock_t *superblock,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
-     int *format_version,
-     uint32_t *number_of_block_groups,
      libcerror_error_t **error )
 {
 	uint8_t data[ 1024 ];
@@ -988,8 +962,6 @@ int libfsext_superblock_read_file_io_handle(
 	     superblock,
 	     data,
 	     1024,
-	     format_version,
-	     number_of_block_groups,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

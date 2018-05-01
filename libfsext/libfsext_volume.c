@@ -838,9 +838,8 @@ int libfsext_volume_open_read(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function           = "libfsext_volume_open_read";
-	off64_t file_offset             = 1024;
-	uint32_t number_of_block_groups = 0;
+	static char *function = "libfsext_volume_open_read";
+	off64_t file_offset   = 1024;
 
 	if( internal_volume == NULL )
 	{
@@ -888,8 +887,6 @@ int libfsext_volume_open_read(
 	     internal_volume->superblock,
 	     file_io_handle,
 	     file_offset,
-	     &( internal_volume->io_handle->format_version ),
-	     &number_of_block_groups,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -908,6 +905,7 @@ int libfsext_volume_open_read(
 	internal_volume->io_handle->compatible_features_flags           = internal_volume->superblock->compatible_features_flags;
 	internal_volume->io_handle->incompatible_features_flags         = internal_volume->superblock->incompatible_features_flags;
 	internal_volume->io_handle->read_only_compatible_features_flags = internal_volume->superblock->read_only_compatible_features_flags;
+	internal_volume->io_handle->format_version                      = internal_volume->superblock->format_version;
 
 	/* The group descriptors are stored in the first block after the superblock
 	 */
@@ -921,7 +919,7 @@ int libfsext_volume_open_read(
 	     internal_volume,
 	     file_io_handle,
 	     file_offset,
-	     number_of_block_groups,
+	     internal_volume->superblock->number_of_block_groups,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
