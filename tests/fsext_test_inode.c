@@ -374,6 +374,108 @@ int fsext_test_inode_clone(
 	libcerror_error_free(
 	 &error );
 
+	destination_inode = (libfsext_inode_t *) 0x12345678UL;
+
+	result = libfsext_inode_clone(
+	          &destination_inode,
+	          source_inode,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	destination_inode = NULL;
+
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+
+	/* Test libfsext_inode_clone with malloc failing
+	 */
+	fsext_test_malloc_attempts_before_fail = 0;
+
+	result = libfsext_inode_clone(
+	          &destination_inode,
+	          source_inode,
+	          &error );
+
+	if( fsext_test_malloc_attempts_before_fail != -1 )
+	{
+		fsext_test_malloc_attempts_before_fail = -1;
+
+		if( destination_inode != NULL )
+		{
+			libfsext_inode_free(
+			 &destination_inode,
+			 NULL );
+		}
+	}
+	else
+	{
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "destination_inode",
+		 destination_inode );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+
+	/* Test libfsext_inode_clone with memcpy failing
+	 */
+	fsext_test_memcpy_attempts_before_fail = 0;
+
+	result = libfsext_inode_clone(
+	          &destination_inode,
+	          source_inode,
+	          &error );
+
+	if( fsext_test_memcpy_attempts_before_fail != -1 )
+	{
+		fsext_test_memcpy_attempts_before_fail = -1;
+
+		if( destination_inode != NULL )
+		{
+			libfsext_inode_free(
+			 &destination_inode,
+			 NULL );
+		}
+	}
+	else
+	{
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NULL(
+		 "destination_inode",
+		 destination_inode );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
+
 	/* Clean up
 	 */
 	result = libfsext_inode_free(

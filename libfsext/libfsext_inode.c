@@ -196,7 +196,7 @@ int libfsext_inode_clone(
 	*destination_inode = memory_allocate_structure(
 	                      libfsext_inode_t );
 
-	if( destination_inode == NULL )
+	if( *destination_inode == NULL )
 	{
 		libcerror_error_set(
 		 error,
