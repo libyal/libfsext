@@ -54,6 +54,8 @@ check_PROGRAMS = \
 
 fsext_test_bitmap_SOURCES = \
 	fsext_test_bitmap.c \
+	fsext_test_functions.c fsext_test_functions.h \
+	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
 	fsext_test_libfsext.h \
 	fsext_test_macros.h \
@@ -61,6 +63,14 @@ fsext_test_bitmap_SOURCES = \
 	fsext_test_unused.h
 
 fsext_test_bitmap_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 
