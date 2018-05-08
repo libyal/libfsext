@@ -1079,10 +1079,12 @@ int main(
      char * const argv[] FSEXT_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 	libcerror_error_t *error        = NULL;
 	libfsext_inode_t *inode         = NULL;
 	libfsext_io_handle_t *io_handle = NULL;
 	int result                      = 0;
+#endif
 
 	FSEXT_TEST_UNREFERENCED_PARAMETER( argc )
 	FSEXT_TEST_UNREFERENCED_PARAMETER( argv )
@@ -1106,8 +1108,6 @@ int main(
 	 fsext_test_inode_read_data );
 
 	/* TODO: add tests for libfsext_inode_read_element_data */
-
-#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 
@@ -1165,8 +1165,6 @@ int main(
 	 "error",
 	 error );
 
-#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
-
 	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_inode_get_access_time",
 	 fsext_test_inode_get_access_time,
@@ -1186,8 +1184,6 @@ int main(
 	 "libfsext_inode_get_deletion_time",
 	 fsext_test_inode_get_deletion_time,
 	 inode );
-
-#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 	/* Clean up
 	 */
@@ -1227,7 +1223,11 @@ int main(
 
 #endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
 
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
 	return( EXIT_SUCCESS );
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
 on_error:
 	if( error != NULL )
@@ -1248,5 +1248,7 @@ on_error:
 		 NULL );
 	}
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 }
 
