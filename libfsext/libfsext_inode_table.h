@@ -57,6 +57,7 @@ struct libfsext_inode_table
 
 int libfsext_inode_table_initialize(
      libfsext_inode_table_t **inode_table,
+     uint16_t inode_size,
      libfsext_io_handle_t *io_handle,
      libfsext_superblock_t *superblock,
      libcdata_array_t *group_descriptors_array,

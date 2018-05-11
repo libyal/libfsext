@@ -246,7 +246,6 @@ int libfsext_inode_read_data(
 {
 	static char *function             = "libfsext_inode_read_data";
 	size_t data_offset                = 0;
-	size_t inode_data_size            = 0;
 	uint64_t value_64bit              = 0;
 	uint32_t value_32bit              = 0;
 	uint8_t direct_block_number_index = 0;
@@ -277,18 +276,6 @@ int libfsext_inode_read_data(
 
 		return( -1 );
 	}
-	if( io_handle->format_version == 4 )
-	{
-		inode_data_size = sizeof( fsext_inode_ext4_t );
-	}
-	else if( io_handle->format_version == 3 )
-	{
-		inode_data_size = sizeof( fsext_inode_ext3_t );
-	}
-	else
-	{
-		inode_data_size = sizeof( fsext_inode_ext2_t );
-	}
 	if( data == NULL )
 	{
 		libcerror_error_set(
@@ -300,13 +287,15 @@ int libfsext_inode_read_data(
 
 		return( -1 );
 	}
-	if( data_size < inode_data_size )
+	if( ( data_size != sizeof( fsext_inode_ext2_t ) )
+	 && ( data_size != sizeof( fsext_inode_ext3_t ) )
+	 && ( data_size != sizeof( fsext_inode_ext4_t ) ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: invalid data size value too small.",
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data size.",
 		 function );
 
 		return( -1 );
@@ -417,8 +406,8 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_ext2_t *) data )->file_acl,
 	 inode->file_acl );
 
-	if( ( io_handle->format_version == 2 )
-	 || ( io_handle->format_version == 3 ) )
+	if( ( data_size == sizeof( fsext_inode_ext2_t ) )
+	 || ( data_size == sizeof( fsext_inode_ext3_t ) ) )
 	{
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext2_t *) data )->directory_acl,
@@ -432,7 +421,7 @@ int libfsext_inode_read_data(
 
 	/* TODO: fragment_size */
 
-	if( io_handle->format_version == 4 )
+	if( data_size == sizeof( fsext_inode_ext4_t ) )
 	{
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->creation_time,
@@ -442,8 +431,9 @@ int libfsext_inode_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: file mode\t\t\t\t\t: %" PRIo16 "\n",
+		 "%s: file mode\t\t\t\t\t: %" PRIo16 " (0x%04" PRIx16 ")\n",
 		 function,
+		 inode->file_mode,
 		 inode->file_mode );
 		libfsext_debug_print_file_mode(
 		 inode->file_mode );
@@ -453,7 +443,7 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->user_identifier );
 
-		if( io_handle->format_version == 4 )
+		if( data_size == sizeof( fsext_inode_ext4_t ) )
 		{
 			libcnotify_printf(
 			 "%s: data size (lower)\t\t\t\t: %" PRIu32 "\n",
@@ -553,7 +543,7 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->links_count );
 
-		if( io_handle->format_version == 4 )
+		if( data_size == sizeof( fsext_inode_ext4_t ) )
 		{
 			libcnotify_printf(
 			 "%s: blocks count (lower)\t\t\t\t: %" PRIu32 "\n",
@@ -572,7 +562,7 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->flags );
 
-		if( io_handle->format_version == 4 )
+		if( data_size == sizeof( fsext_inode_ext4_t ) )
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->version_lower,
@@ -636,7 +626,7 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->nfs_generation_number );
 
-		if( io_handle->format_version == 4 )
+		if( data_size == sizeof( fsext_inode_ext4_t ) )
 		{
 			libcnotify_printf(
 			 "%s: file acl (lower)\t\t\t\t: %" PRIu32 "\n",
@@ -650,7 +640,7 @@ int libfsext_inode_read_data(
 			 function,
 			 inode->file_acl );
 		}
-		if( io_handle->format_version == 4 )
+		if( data_size == sizeof( fsext_inode_ext4_t ) )
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->data_size_upper,
@@ -706,7 +696,7 @@ int libfsext_inode_read_data(
 		 function,
 		 value_16bit );
 
-		if( io_handle->format_version == 4 )
+		if( data_size == sizeof( fsext_inode_ext4_t ) )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->checksum_lower,
@@ -734,8 +724,8 @@ int libfsext_inode_read_data(
 			 function,
 			 value_32bit );
 		}
-		if( ( io_handle->format_version == 3 )
-		 || ( io_handle->format_version == 4 ) )
+		if( ( data_size == sizeof( fsext_inode_ext3_t ) )
+		 || ( data_size == sizeof( fsext_inode_ext4_t ) ) )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_inode_ext3_t *) data )->unknown3,
@@ -753,7 +743,7 @@ int libfsext_inode_read_data(
 			 function,
 			 value_16bit );
 		}
-		if( io_handle->format_version == 4 )
+		if( data_size == sizeof( fsext_inode_ext4_t ) )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->checksum_upper,
@@ -847,7 +837,7 @@ int libfsext_inode_read_data(
 
 	inode->group_identifier |= value_32bit << 16;
 
-	if( io_handle->format_version == 4 )
+	if( data_size == sizeof( fsext_inode_ext4_t ) )
 	{
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->blocks_count_upper,

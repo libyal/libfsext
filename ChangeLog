@@ -3,6 +3,12 @@ TODO:
   number of comparisions, e.g. a b-tree.
 
 Create test images:
+* ext2 without dynamic inode information
+* ext2 with dynamic inode information
+* ext3 without dynamic inode information
+* ext3 with dynamic inode information
+* ext4 without dynamic inode information
+* ext4 with dynamic inode information
 * with multiple block groups
 * with file where indirect blocks are used
 * with file where double indirect blocks are used

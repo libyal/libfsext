@@ -592,6 +592,10 @@ struct ext4_extent_idx {
 
 == The inode
 
+[NOTE]
+The size of the inode is defined in the superblock when dynamic inode
+information is present.
+
 === The ext2 inode
 
 The ext2 inode is 128 bytes of size and consists of:

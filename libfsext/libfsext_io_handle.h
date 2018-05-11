@@ -44,6 +44,10 @@ struct libfsext_io_handle
 	 */
 	uint32_t block_size;
 
+	/* Inode size
+	 */
+	uint16_t inode_size;
+
 	/* The format revision
 	 */
 	uint32_t format_revision;

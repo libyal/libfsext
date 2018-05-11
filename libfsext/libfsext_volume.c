@@ -28,7 +28,6 @@
 #include "libfsext_bitmap.h"
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
-#include "libfsext_directory.h"
 #include "libfsext_group_descriptor.h"
 #include "libfsext_file_entry.h"
 #include "libfsext_inode_table.h"
@@ -901,6 +900,7 @@ int libfsext_volume_open_read(
 		goto on_error;
 	}
 	internal_volume->io_handle->block_size                          = internal_volume->superblock->block_size;
+	internal_volume->io_handle->inode_size                          = internal_volume->superblock->inode_size;
 	internal_volume->io_handle->format_revision                     = internal_volume->superblock->format_revision;
 	internal_volume->io_handle->compatible_features_flags           = internal_volume->superblock->compatible_features_flags;
 	internal_volume->io_handle->incompatible_features_flags         = internal_volume->superblock->incompatible_features_flags;
@@ -935,6 +935,7 @@ int libfsext_volume_open_read(
 	}
 	if( libfsext_inode_table_initialize(
 	     &( internal_volume->inode_table ),
+	     internal_volume->io_handle->inode_size,
 	     internal_volume->io_handle,
 	     internal_volume->superblock,
 	     internal_volume->group_descriptors_array,

@@ -37,6 +37,223 @@
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
+/* Tests the libfsext_block_initialize function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_block_initialize(
+     void )
+{
+	libcerror_error_t *error        = NULL;
+	libfsext_block_t *block         = NULL;
+	int result                      = 0;
+
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Test regular cases
+	 */
+	result = libfsext_block_initialize(
+	          &block,
+	          4096,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "block",
+	 block );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfsext_block_free(
+	          &block,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "block",
+	 block );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_block_initialize(
+	          NULL,
+	          4096,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	block = (libfsext_block_t *) 0x12345678UL;
+
+	result = libfsext_block_initialize(
+	          &block,
+	          4096,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	block = NULL;
+
+	result = libfsext_block_initialize(
+	          &block,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libfsext_block_initialize with malloc failing
+		 */
+		fsext_test_malloc_attempts_before_fail = test_number;
+
+		result = libfsext_block_initialize(
+		          &block,
+		          4096,
+		          &error );
+
+		if( fsext_test_malloc_attempts_before_fail != -1 )
+		{
+			fsext_test_malloc_attempts_before_fail = -1;
+
+			if( block != NULL )
+			{
+				libfsext_block_free(
+				 &block,
+				 NULL );
+			}
+		}
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "block",
+			 block );
+
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libfsext_block_initialize with memset failing
+		 */
+		fsext_test_memset_attempts_before_fail = test_number;
+
+		result = libfsext_block_initialize(
+		          &block,
+		          4096,
+		          &error );
+
+		if( fsext_test_memset_attempts_before_fail != -1 )
+		{
+			fsext_test_memset_attempts_before_fail = -1;
+
+			if( block != NULL )
+			{
+				libfsext_block_free(
+				 &block,
+				 NULL );
+			}
+		}
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "block",
+			 block );
+
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( block != NULL )
+	{
+		libfsext_block_free(
+		 &block,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libfsext_block_free function
  * Returns 1 if successful or 0 if not
  */
@@ -75,6 +292,54 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libfsext_block_read_element_data function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_block_read_element_data(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libfsext_block_read_element_data(
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 /* The main program
@@ -94,13 +359,17 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
-	/* TODO: add tests for libfsext_block_initialize */
+	FSEXT_TEST_RUN(
+	 "libfsext_block_initialize",
+	 fsext_test_block_initialize );
 
 	FSEXT_TEST_RUN(
 	 "libfsext_block_free",
 	 fsext_test_block_free );
 
-	/* TODO: add tests for libfsext_block_read_element_data */
+	FSEXT_TEST_RUN(
+	 "libfsext_block_read_element_data",
+	 fsext_test_block_read_element_data );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 

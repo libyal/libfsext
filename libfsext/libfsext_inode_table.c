@@ -44,6 +44,7 @@
  */
 int libfsext_inode_table_initialize(
      libfsext_inode_table_t **inode_table,
+     uint16_t inode_size,
      libfsext_io_handle_t *io_handle,
      libfsext_superblock_t *superblock,
      libcdata_array_t *group_descriptors_array,
@@ -76,6 +77,20 @@ int libfsext_inode_table_initialize(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid inode table value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( inode_size != 0 )
+	 && ( (size_t) inode_size != sizeof( fsext_inode_ext2_t ) )
+	 && ( (size_t) inode_size != sizeof( fsext_inode_ext3_t ) )
+	 && ( (size_t) inode_size != sizeof( fsext_inode_ext4_t ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported inode size.",
 		 function );
 
 		return( -1 );
@@ -119,7 +134,11 @@ int libfsext_inode_table_initialize(
 
 		goto on_error;
 	}
-	if( io_handle->format_version == 4 )
+	if( inode_size != 0 )
+	{
+		inode_data_size = (size_t) inode_size;
+	}
+	else if( io_handle->format_version == 4 )
 	{
 		inode_data_size = sizeof( fsext_inode_ext4_t );
 	}

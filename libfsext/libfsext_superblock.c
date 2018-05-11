@@ -514,6 +514,10 @@ int libfsext_superblock_read_data(
 	}
 	if( superblock->format_revision == 1 )
 	{
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_superblock_ext2_t *) data )->inode_size,
+		 superblock->inode_size );
+
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_superblock_ext2_t *) data )->compatible_features_flags,
 		 superblock->compatible_features_flags );
@@ -579,13 +583,10 @@ int libfsext_superblock_read_data(
 			 function,
 			 value_32bit );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_superblock_ext2_t *) data )->inode_size,
-			 value_16bit );
 			libcnotify_printf(
 			 "%s: inode size\t\t\t\t: %" PRIu16 "\n",
 			 function,
-			 value_16bit );
+			 superblock->inode_size );
 
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_superblock_ext2_t *) data )->block_group,

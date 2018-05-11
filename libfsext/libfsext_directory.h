@@ -71,6 +71,12 @@ int libfsext_directory_get_entry_by_index(
      libfsext_directory_entry_t **directory_entry,
      libcerror_error_t **error );
 
+int libfsext_directory_get_entry_by_inode_number(
+     libfsext_directory_t *directory,
+     uint32_t inode_number,
+     libfsext_directory_entry_t **directory_entry,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif
