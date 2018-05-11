@@ -330,17 +330,17 @@ int libfsext_group_descriptor_read_data(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: block bitmap block number (lower)\t: %" PRIu64 "\n",
+			 "%s: block bitmap block number (lower)\t\t: %" PRIu64 "\n",
 			 function,
 			 group_descriptor->block_bitmap_block_number );
 
 			libcnotify_printf(
-			 "%s: inode bitmap block number (lower)\t: %" PRIu64 "\n",
+			 "%s: inode bitmap block number (lower)\t\t: %" PRIu64 "\n",
 			 function,
 			 group_descriptor->inode_bitmap_block_number );
 
 			libcnotify_printf(
-			 "%s: inode table block number (lower)\t: %" PRIu64 "\n",
+			 "%s: inode table block number (lower)\t\t: %" PRIu64 "\n",
 			 function,
 			 group_descriptor->inode_table_block_number );
 
@@ -375,7 +375,7 @@ int libfsext_group_descriptor_read_data(
 			 group_descriptor->inode_bitmap_checksum );
 
 			libcnotify_printf(
-			 "%s: number of unused inodes (lower)\t: %" PRIu32 "\n",
+			 "%s: number of unused inodes (lower)\t\t: %" PRIu32 "\n",
 			 function,
 			 group_descriptor->number_of_unused_inodes );
 
@@ -383,7 +383,7 @@ int libfsext_group_descriptor_read_data(
 			 ( (fsext_group_descriptor_ext4_t *) data )->checksum,
 			 value_16bit );
 			libcnotify_printf(
-			 "%s: checksum\t\t\t\t: 0x%04" PRIx16 "\n",
+			 "%s: checksum\t\t\t\t\t: 0x%04" PRIx16 "\n",
 			 function,
 			 value_16bit );
 
@@ -391,7 +391,7 @@ int libfsext_group_descriptor_read_data(
 			 ( (fsext_group_descriptor_ext4_t *) data )->block_bitmap_block_number_upper,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: block bitmap block number (upper)\t: %" PRIu32 "\n",
+			 "%s: block bitmap block number (upper)\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
@@ -399,7 +399,7 @@ int libfsext_group_descriptor_read_data(
 			 ( (fsext_group_descriptor_ext4_t *) data )->inode_bitmap_block_number_upper,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: inode bitmap block number (upper)\t: %" PRIu32 "\n",
+			 "%s: inode bitmap block number (upper)\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
@@ -407,7 +407,7 @@ int libfsext_group_descriptor_read_data(
 			 ( (fsext_group_descriptor_ext4_t *) data )->inode_table_block_number_upper,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: inode table block number (upper)\t: %" PRIu32 "\n",
+			 "%s: inode table block number (upper)\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
@@ -439,7 +439,7 @@ int libfsext_group_descriptor_read_data(
 			 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unused_inodes_upper,
 			 value_16bit );
 			libcnotify_printf(
-			 "%s: number of unused inodes (upper)\t: %" PRIu16 "\n",
+			 "%s: number of unused inodes (upper)\t\t: %" PRIu16 "\n",
 			 function,
 			 value_16bit );
 

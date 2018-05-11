@@ -46,6 +46,9 @@ void libfsext_debug_print_incompatible_features_flags(
 void libfsext_debug_print_read_only_compatible_features_flags(
       uint32_t read_only_compatible_features_flags );
 
+void libfsext_debug_print_inode_flags(
+      uint32_t inode_flags );
+
 void libfsext_debug_print_file_mode(
       uint16_t file_mode );
 

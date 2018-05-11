@@ -406,8 +406,8 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_ext2_t *) data )->file_acl,
 	 inode->file_acl );
 
-	if( ( data_size == sizeof( fsext_inode_ext2_t ) )
-	 || ( data_size == sizeof( fsext_inode_ext3_t ) ) )
+	if( ( io_handle->format_version == 2 )
+	 || ( io_handle->format_version == 3 ) )
 	{
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext2_t *) data )->directory_acl,
@@ -421,7 +421,7 @@ int libfsext_inode_read_data(
 
 	/* TODO: fragment_size */
 
-	if( data_size == sizeof( fsext_inode_ext4_t ) )
+	if( io_handle->format_version == 4 )
 	{
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->creation_time,
@@ -443,7 +443,7 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->user_identifier );
 
-		if( data_size == sizeof( fsext_inode_ext4_t ) )
+		if( io_handle->format_version == 4 )
 		{
 			libcnotify_printf(
 			 "%s: data size (lower)\t\t\t\t: %" PRIu32 "\n",
@@ -543,7 +543,7 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->links_count );
 
-		if( data_size == sizeof( fsext_inode_ext4_t ) )
+		if( io_handle->format_version == 4 )
 		{
 			libcnotify_printf(
 			 "%s: blocks count (lower)\t\t\t\t: %" PRIu32 "\n",
@@ -561,8 +561,12 @@ int libfsext_inode_read_data(
 		 "%s: flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 inode->flags );
+		libfsext_debug_print_inode_flags(
+		 inode->flags );
+		libcnotify_printf(
+		 "\n" );
 
-		if( data_size == sizeof( fsext_inode_ext4_t ) )
+		if( io_handle->format_version == 4 )
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->version_lower,
@@ -626,7 +630,7 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->nfs_generation_number );
 
-		if( data_size == sizeof( fsext_inode_ext4_t ) )
+		if( io_handle->format_version == 4 )
 		{
 			libcnotify_printf(
 			 "%s: file acl (lower)\t\t\t\t: %" PRIu32 "\n",
@@ -640,7 +644,7 @@ int libfsext_inode_read_data(
 			 function,
 			 inode->file_acl );
 		}
-		if( data_size == sizeof( fsext_inode_ext4_t ) )
+		if( io_handle->format_version == 4 )
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->data_size_upper,
@@ -696,7 +700,7 @@ int libfsext_inode_read_data(
 		 function,
 		 value_16bit );
 
-		if( data_size == sizeof( fsext_inode_ext4_t ) )
+		if( io_handle->format_version == 4 )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->checksum_lower,
@@ -724,8 +728,11 @@ int libfsext_inode_read_data(
 			 function,
 			 value_32bit );
 		}
-		if( ( data_size == sizeof( fsext_inode_ext3_t ) )
-		 || ( data_size == sizeof( fsext_inode_ext4_t ) ) )
+	}
+	if( data_size > sizeof( fsext_inode_ext2_t ) )
+	{
+		if( ( io_handle->format_version == 3 )
+		 || ( io_handle->format_version == 4 ) )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_inode_ext3_t *) data )->unknown3,
@@ -743,7 +750,10 @@ int libfsext_inode_read_data(
 			 function,
 			 value_16bit );
 		}
-		if( data_size == sizeof( fsext_inode_ext4_t ) )
+	}
+	if( data_size > sizeof( fsext_inode_ext3_t ) )
+	{
+		if( io_handle->format_version == 4 )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->checksum_upper,
@@ -837,7 +847,7 @@ int libfsext_inode_read_data(
 
 	inode->group_identifier |= value_32bit << 16;
 
-	if( data_size == sizeof( fsext_inode_ext4_t ) )
+	if( io_handle->format_version == 4 )
 	{
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->blocks_count_upper,

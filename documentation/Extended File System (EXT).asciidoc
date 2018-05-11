@@ -46,6 +46,7 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.4 | J.B. Metz | May 2015 | Additional information.
 | 0.0.5 | J.B. Metz | October 2017 | Additional information.
 | 0.0.6 | J.B. Metz | January 2018 | Textual changes.
+| 0.0.7 | J.B. Metz | May 2018 | Additional information.
 |===
 
 :numbered:
@@ -620,7 +621,7 @@ Contains a POSIX timestamp
 | 26 | 2 | | Links count
 | 28 | 4 | | Blocks count
 | 32 | 4 | | Flags +
-[yellow-background]*TODO add value table*
+See section: <<inode_flags,Inode flags>>
 | 36 | 4 | | Unknown (reserved)
 | 40 | 12 x 4 | | Array of direct block numbers
 | 88 | 4 | | Indirect block number
@@ -663,7 +664,7 @@ Contains a POSIX timestamp
 | 26 | 2 | | Links count
 | 28 | 4 | | Blocks count
 | 32 | 4 | | Flags +
-[yellow-background]*TODO add value table*
+See section: <<inode_flags,Inode flags>>
 | 36 | 4 | | Unknown (reserved)
 | 40 | 12 x 4 | | Array of direct block numbers
 | 88 | 4 | | Indirect block number
@@ -707,7 +708,7 @@ Contains a POSIX timestamp
 | 26 | 2 | | Links count
 | 28 | 4 | | Lower part of blocks count
 | 32 | 4 | | Flags +
-[yellow-background]*TODO add value table*
+See section: <<inode_flags,Inode flags>>
 | 36 | 4 | | Unknown (lower part of version)
 | 40 | 12 x 4 | | Array of direct block numbers
 | 88 | 4 | | Indirect block number
@@ -771,6 +772,81 @@ _Bitmask: 0xf000 (S_IFMT)_
 | 0x8000 | S_IFREG | Regular file
 | 0xa000 | S_IFLNK | Symbolic link
 | 0xc000 | S_IFSOCK | Socket
+|===
+
+=== [[inode_flags]]Inode flags
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000001 | EXT2_SECRM_FL +
+EXT3_SECRM_FL +
+EXT4_SECRM_FL | Secure deletion
+| 0x00000002 | EXT2_UNRM_FL +
+EXT3_UNRM_FL +
+EXT4_UNRM_FL | Undelete
+| 0x00000004 | EXT2_COMPR_FL +
+EXT3_COMPR_FL +
+EXT4_COMPR_FL | Compress file
+| 0x00000008 | EXT2_SYNC_FL +
+EXT3_SYNC_FL +
+EXT4_SYNC_FL | Synchronous updates
+| 0x00000010 | EXT2_IMMUTABLE_FL +
+EXT3_IMMUTABLE_FL +
+EXT4_IMMUTABLE_FL | Immutable file
+| 0x00000020 | EXT2_APPEND_FL +
+EXT3_APPEND_FL +
+EXT4_APPEND_FL | Writes to file may only append
+| 0x00000040 | EXT2_NODUMP_FL +
+EXT3_NODUMP_FL +
+EXT4_NODUMP_FL | Do not dump file
+| 0x00000080 | EXT2_NOATIME_FL +
+EXT3_NOATIME_FL +
+EXT4_NOATIME_FL | Do not update atime
+| 0x00000100 | EXT2_DIRTY_FL +
+EXT3_DIRTY_FL +
+EXT4_DIRTY_FL |
+| 0x00000200 | EXT2_COMPRBLK_FL +
+EXT3_COMPRBLK_FL +
+EXT4_COMPRBLK_FL | One or more compressed clusters
+| 0x00000400 | EXT2_NOCOMP_FL +
+EXT3_NOCOMP_FL +
+EXT4_NOCOMPR_FL | Do not compress
+3+| _ext2 and ext3_
+| 0x00000800 | EXT2_ECOMPR_FL +
+EXT3_ECOMPR_FL | Encrypted Compression error
+3+| _ext4_
+| 0x00000800 | EXT4_ENCRYPT_FL | Encrypted file
+3+| _ext2_
+| 0x00001000 | EXT2_BTREE_FL | B-tree format directory
+3+| _Common_
+| 0x00001000 | EXT2_INDEX_FL +
+EXT3_INDEX_FL +
+EXT4_INDEX_FL | Hash-indexed directory
+| 0x00002000 | EXT2_IMAGIC_FL +
+EXT3_IMAGIC_FL +
+EXT4_IMAGIC_FL | AFS directory
+| 0x00004000 | EXT2_JOURNAL_DATA_FL +
+EXT3_JOURNAL_DATA_FL +
+EXT4_JOURNAL_DATA_FL | File data should be journaled
+| 0x00008000 | EXT2_NOTAIL_FL +
+EXT3_NOTAIL_FL +
+EXT4_NOTAIL_FL | File tail should not be merged
+| 0x00010000 | EXT2_DIRSYNC_FL +
+EXT3_DIRSYNC_FL +
+EXT4_DIRSYNC_FL | Dirsync behaviour (directories only)
+| 0x00020000 | EXT2_TOPDIR_FL +
+EXT3_TOPDIR_FL +
+EXT4_TOPDIR_FL | Top of directory hierarchies
+3+| _ext4_
+| 0x00040000 | EXT4_HUGE_FILE_FL | Set to each huge file
+| 0x00080000 | EXT4_EXTENTS_FL | Inode uses extents
+| | |
+| 0x00200000 | EXT4_EA_INODE_FL | Inode used for large EA
+| 0x00400000 | EXT4_EOFBLOCKS_FL | Blocks allocated beyond EOF
+| | |
+| 0x10000000 | EXT4_INLINE_DATA_FL | Inode has inline data
+| 0x20000000 | EXT4_PROJINHERIT_FL | Create with parents projid
 |===
 
 === Reserved inode numbers

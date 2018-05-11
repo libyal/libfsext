@@ -236,6 +236,135 @@ void libfsext_debug_print_read_only_compatible_features_flags(
 	}
 }
 
+/* Prints the inode flags
+ */
+void libfsext_debug_print_inode_flags(
+      uint32_t inode_flags )
+{
+	if( ( inode_flags & 0x00000001UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tSecure deletion (EXT2_SECRM_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000002UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tUndelete (EXT2_UNRM_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000004UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tCompress file (EXT2_COMPR_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000008UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tSynchronous updates (EXT2_SYNC_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000010UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tImmutable file (EXT2_IMMUTABLE_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000020UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tWrites to file may only append (EXT2_APPEND_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000040UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tDo not dump file (EXT2_NODUMP_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000080UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tDo not update atime (EXT2_NOATIME_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000100UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tReserved for compression usage (EXT2_DIRTY_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000200UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tOne or more compressed clusters (EXT2_COMPRBLK_FL)\n" );
+	}
+	if( ( inode_flags & 0x00000400UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tDo no compress (EXT2_NOCOMPR_FL)\n" );
+	}
+/* TODO add ext2 and ext3 support */
+	if( ( inode_flags & 0x00000800UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tEncrypted file (EXT4_ENCRYPT_FL)\n" );
+	}
+/* TODO add ext2 b-tree support */
+	if( ( inode_flags & 0x00001000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tHash-indexed directory (EXT2_INDEX_FL)\n" );
+	}
+	if( ( inode_flags & 0x00002000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tAFS directory (EXT2_IMAGIC_FL)\n" );
+	}
+	if( ( inode_flags & 0x00004000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tFile data should be journaled (EXT2_JOURNAL_DATA_FL)\n" );
+	}
+	if( ( inode_flags & 0x00008000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tFile tail should not be merged (EXT2_NOTAIL_FL)\n" );
+	}
+	if( ( inode_flags & 0x00010000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tDirsync behaviour (EXT2_DIRSYNC_FL)\n" );
+	}
+	if( ( inode_flags & 0x00020000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tTop of directory hierarchie (EXT2_TOPDIR_FL)\n" );
+	}
+	if( ( inode_flags & 0x00040000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tSet to each huge file (EXT4_HUGE_FILE_FL)\n" );
+	}
+	if( ( inode_flags & 0x00080000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tInode uses extents (EXT4_EXTENTS_FL)\n" );
+	}
+	if( ( inode_flags & 0x00200000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tInode used for large EA (EXT4_EA_INODE_FL)\n" );
+	}
+	if( ( inode_flags & 0x00400000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tBlocks allocated beyond EOF (EXT4_EOFBLOCKS_FL)\n" );
+	}
+	if( ( inode_flags & 0x10000000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tInode has inline data (EXT4_INLINE_DATA_FL)\n" );
+	}
+	if( ( inode_flags & 0x20000000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\tCreate with parents projid (EXT4_PROJINHERIT_FL)\n" );
+	}
+}
+
 /* Prints the file mode
  */
 void libfsext_debug_print_file_mode(
