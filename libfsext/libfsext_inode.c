@@ -28,6 +28,8 @@
 #include <wide_string.h>
 
 #include "libfsext_debug.h"
+#include "libfsext_extent.h"
+#include "libfsext_extents_header.h"
 #include "libfsext_inode.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
@@ -244,14 +246,16 @@ int libfsext_inode_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function             = "libfsext_inode_read_data";
-	size_t data_offset                = 0;
-	uint64_t value_64bit              = 0;
-	uint32_t value_32bit              = 0;
-	uint8_t direct_block_number_index = 0;
+	libfsext_extent_t *extent                 = NULL;
+	libfsext_extents_header_t *extents_header = NULL;
+	static char *function                     = "libfsext_inode_read_data";
+	size_t data_offset                        = 0;
+	uint64_t value_64bit                      = 0;
+	uint32_t value_32bit                      = 0;
+	uint8_t block_number_index                = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint16_t value_16bit              = 0;
+	uint16_t value_16bit                      = 0;
 #endif
 
 	if( inode == NULL )
@@ -374,59 +378,6 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_ext2_t *) data )->flags,
 	 inode->flags );
 
-	data_offset = 0;
-
-	for( direct_block_number_index = 0;
-	     direct_block_number_index < 12;
-	     direct_block_number_index++ )
-	{
-		byte_stream_copy_to_uint32_little_endian(
-		 &( ( ( (fsext_inode_ext2_t *) data )->direct_block_numbers )[ data_offset ] ),
-		 ( inode->direct_block_number )[ direct_block_number_index ] );
-
-		data_offset += 4;
-	}
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->indirect_block_number,
-	 inode->indirect_block_number );
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->double_indirect_block_number,
-	 inode->double_indirect_block_number );
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->triple_indirect_block_number,
-	 inode->triple_indirect_block_number );
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->nfs_generation_number,
-	 inode->nfs_generation_number );
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->file_acl,
-	 inode->file_acl );
-
-	if( ( io_handle->format_version == 2 )
-	 || ( io_handle->format_version == 3 ) )
-	{
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_inode_ext2_t *) data )->directory_acl,
-		 inode->directory_acl );
-	}
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->fragment_block_address,
-	 inode->fragment_block_address );
-
-	/* TODO: fragment_block_index */
-
-	/* TODO: fragment_size */
-
-	if( io_handle->format_version == 4 )
-	{
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_inode_ext4_t *) data )->creation_time,
-		 inode->creation_time );
-	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -474,7 +425,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
@@ -493,7 +444,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
@@ -512,7 +463,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
@@ -531,7 +482,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		libcnotify_printf(
 		 "%s: group identifier (lower)\t\t\t: %" PRIu16 "\n",
@@ -586,45 +537,211 @@ int libfsext_inode_read_data(
 			 function,
 			 value_32bit );
 		}
-		libcnotify_printf(
-		 "%s: direct block numbers\t\t\t\t:",
-		 function );
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-		for( direct_block_number_index = 0;
-		     direct_block_number_index < 12;
-		     direct_block_number_index++ )
+	data_offset = 0;
+
+	if( ( io_handle->format_version == 4 )
+	 && ( ( inode->flags & 0x00080000UL ) != 0 ) )
+	{
+		if( libfsext_extents_header_initialize(
+		     &extents_header,
+		     error ) != 1 )
 		{
-			if( direct_block_number_index == 0 )
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create extents header.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_extents_header_read_data(
+		     extents_header,
+		     &( ( ( (fsext_inode_ext4_t *) data )->data_block_numbers )[ data_offset ] ),
+		     12,
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read extents header.",
+			 function );
+
+			goto on_error;
+		}
+		data_offset += 12;
+
+		if( libfsext_extents_header_free(
+		     &extents_header,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free extents header.",
+			 function );
+
+			goto on_error;
+		}
+		for( block_number_index = 0;
+		     block_number_index < 3;
+		     block_number_index++ )
+		{
+			if( libfsext_extent_initialize(
+			     &extent,
+			     error ) != 1 )
 			{
-				libcnotify_printf(
-				 " %" PRIu32 "",
-				 inode->direct_block_number[ direct_block_number_index ] );
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create extent.",
+				 function );
+
+				goto on_error;
 			}
-			else
+			if( libfsext_extent_read_data(
+			     extent,
+			     io_handle,
+			     &( ( ( (fsext_inode_ext4_t *) data )->data_block_numbers )[ data_offset ] ),
+			     12,
+			     error ) == -1 )
 			{
-				libcnotify_printf(
-				 ", %" PRIu32 "",
-				 inode->direct_block_number[ direct_block_number_index ] );
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read extent.",
+				 function );
+
+				goto on_error;
+			}
+			data_offset += 12;
+
+			if( libfsext_extent_free(
+			     &extent,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free extent.",
+				 function );
+
+				goto on_error;
 			}
 		}
-		libcnotify_printf(
-		 "\n" );
+	}
+	else
+	{
+		for( block_number_index = 0;
+		     block_number_index < 12;
+		     block_number_index++ )
+		{
+			byte_stream_copy_to_uint32_little_endian(
+			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
+			 ( inode->direct_block_number )[ block_number_index ] );
 
-		libcnotify_printf(
-		 "%s: indirect block number\t\t\t\t: %" PRIu32 "\n",
-		 function,
+			data_offset += 4;
+		}
+		byte_stream_copy_to_uint32_little_endian(
+		 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
 		 inode->indirect_block_number );
 
-		libcnotify_printf(
-		 "%s: double indirect block number\t\t\t: %" PRIu32 "\n",
-		 function,
+		data_offset += 4;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
 		 inode->double_indirect_block_number );
 
-		libcnotify_printf(
-		 "%s: triple indirect block number\t\t\t: %" PRIu32 "\n",
-		 function,
+		data_offset += 4;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
 		 inode->triple_indirect_block_number );
 
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: direct block numbers\t\t\t\t:",
+			 function );
+
+			for( block_number_index = 0;
+			     block_number_index < 12;
+			     block_number_index++ )
+			{
+				if( block_number_index == 0 )
+				{
+					libcnotify_printf(
+					 " %" PRIu32 "",
+					 inode->direct_block_number[ block_number_index ] );
+				}
+				else
+				{
+					libcnotify_printf(
+					 ", %" PRIu32 "",
+					 inode->direct_block_number[ block_number_index ] );
+				}
+			}
+			libcnotify_printf(
+			 "\n" );
+
+			libcnotify_printf(
+			 "%s: indirect block number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 inode->indirect_block_number );
+
+			libcnotify_printf(
+			 "%s: double indirect block number\t\t\t: %" PRIu32 "\n",
+			 function,
+			 inode->double_indirect_block_number );
+
+			libcnotify_printf(
+			 "%s: triple indirect block number\t\t\t: %" PRIu32 "\n",
+			 function,
+			 inode->triple_indirect_block_number );
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+	}
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->nfs_generation_number,
+	 inode->nfs_generation_number );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->file_acl,
+	 inode->file_acl );
+
+	if( ( io_handle->format_version == 2 )
+	 || ( io_handle->format_version == 3 ) )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext2_t *) data )->directory_acl,
+		 inode->directory_acl );
+	}
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->fragment_block_address,
+	 inode->fragment_block_address );
+
+	/* TODO: fragment_block_index */
+
+	/* TODO: fragment_size */
+
+	if( io_handle->format_version == 4 )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext4_t *) data )->creation_time,
+		 inode->creation_time );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
 		libcnotify_printf(
 		 "%s: nfs generation number\t\t\t\t: %" PRIu32 "\n",
 		 function,
@@ -870,6 +987,21 @@ int libfsext_inode_read_data(
 /* TODO handle extra precision */
 	}
 	return( 1 );
+
+on_error:
+	if( extent != NULL )
+	{
+		libfsext_extent_free(
+		 &extent,
+		 NULL );
+	}
+	if( extents_header != NULL )
+	{
+		libfsext_extents_header_free(
+		 &extents_header,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the access date and time

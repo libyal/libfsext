@@ -19,6 +19,7 @@ lib_LTLIBRARIES = libfsext.la
 
 libfsext_la_SOURCES = \
 	fsext_directory_entry.h \
+	fsext_extents.h \
 	fsext_inode.h \
 	fsext_group_descriptor.h \
 	fsext_superblock.h \
@@ -31,6 +32,8 @@ libfsext_la_SOURCES = \
 	libfsext_directory.c libfsext_directory.h \
 	libfsext_directory_entry.c libfsext_directory_entry.h \
 	libfsext_error.c libfsext_error.h \
+	libfsext_extent.c libfsext_extent.h \
+	libfsext_extents_header.c libfsext_extents_header.h \
 	libfsext_extern.h \
 	libfsext_file_entry.c libfsext_file_entry.h \
 	libfsext_group_descriptor.c libfsext_group_descriptor.h \

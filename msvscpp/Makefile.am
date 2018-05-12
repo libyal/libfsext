@@ -4,6 +4,8 @@ MSVSCPP_FILES = \
 	fsext_test_directory/fsext_test_directory.vcproj \
 	fsext_test_directory_entry/fsext_test_directory_entry.vcproj \
 	fsext_test_error/fsext_test_error.vcproj \
+	fsext_test_extent/fsext_test_extent.vcproj \
+	fsext_test_extents_header/fsext_test_extents_header.vcproj \
 	fsext_test_file_entry/fsext_test_file_entry.vcproj \
 	fsext_test_group_descriptor/fsext_test_group_descriptor.vcproj \
 	fsext_test_inode/fsext_test_inode.vcproj \

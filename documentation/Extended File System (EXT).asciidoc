@@ -563,25 +563,58 @@ The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap
 *TODO: add description*
 
 == The extents
+
 The extents were introduced in ext4 and are controlled by
 EXT4_FEATURE_INCOMPAT_EXTENTS.
 
-....
-/*
- * This is the extent on-disk structure.
- * It's used at the bottom of the tree.
- */
-struct ext4_extent {
-        __le32  ee_block;       /* first logical block extent covers */
-        __le16  ee_len;         /* number of blocks covered by extent */
-        __le16  ee_start_hi;    /* high 16 bits of physical block */
-        __le32  ee_start_lo;    /* low 32 bits of physical block */
-};
+The extents form an extent B-Tree of which the nodes are stored as:
 
-/*
- * This is index on-disk structure.
- * It's used at all the levels except the bottom.
- */
+* extents header
+* extents or extent indexes
+
+=== [[ext4_extents_header]]The ext4 extents header
+
+The ext4 extents header (ext4_extent_header) is 12 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | 0xf30a | Signature
+| 2 | 2 | | Number of extents or extent indexes
+| 4 | 2 | | Maximum number of extents or extent indexes
+| 6 | 2 | | Depth +
+Where 0 reprensents a leaf node and 1 to 5 different levels of branch nodes.
+| 8 | 4 | | Generation +
+Used by Lustre, but not standard ext4.
+|===
+
+=== [[ext4_extent]]The ext4 extent
+
+The ext4 extents store the leaf nodes of the extent B-Tree.
+
+The ext4 extent (ext4_extent) is 12 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | Logical block number
+| 4 | 2 | | Number of blocks
+| 6 | 2 | | Lower part of physical block number
+| 8 | 4 | | Upper part of physical block number
+|===
+
+=== [[ext4_extent_index]]The ext4 extent index
+
+The ext4 extent indexes store the branch nodes of the extent B-Tree.
+
+The ext4 extent index (ext4_extent_idx) is 12 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+|===
+
+....
 struct ext4_extent_idx {
         __le32  ei_block;       /* index covers logical blocks from 'block' */
         __le32  ei_leaf_lo;     /* pointer to the physical block of the next *
@@ -710,10 +743,17 @@ Contains a POSIX timestamp
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
 | 36 | 4 | | Unknown (lower part of version)
+4+| _If EXT4_EXTENTS_FL not set_
 | 40 | 12 x 4 | | Array of direct block numbers
 | 88 | 4 | | Indirect block number
 | 92 | 4 | | Double indirect block number
 | 96 | 4 | | Triple indirect block number
+4+| _If EXT4_EXTENTS_FL set_
+| 40 | 12 | | Extents header +
+Also see: <<ext4_extents_header,The ext4 extents header>>
+| 52 | 4 x 12 | | Extents or extents indexes +
+Also see: <<ext4_extent,The ext4 extent>> or <<ext4_extent_index,The ext4 extent index>>
+4+| _Common_
 | 100 | 4 | | NFS generation number
 | 104 | 4 | | Lower part of file ACL +
 [yellow-background]*Extended attributes block number?*
@@ -928,34 +968,6 @@ The journal was introduced in ext3.
 [yellow-background]*TODO: add text*
 
 == Notes
-
-....
-	EXT4_INODE_SECRM	= 0,	/* Secure deletion */
-	EXT4_INODE_UNRM		= 1,	/* Undelete */
-	EXT4_INODE_COMPR	= 2,	/* Compress file */
-	EXT4_INODE_SYNC		= 3,	/* Synchronous updates */
-	EXT4_INODE_IMMUTABLE	= 4,	/* Immutable file */
-	EXT4_INODE_APPEND	= 5,	/* writes to file may only append */
-	EXT4_INODE_NODUMP	= 6,	/* do not dump file */
-	EXT4_INODE_NOATIME	= 7,	/* do not update atime */
-/* Reserved for compression usage... */
-	EXT4_INODE_DIRTY	= 8,
-	EXT4_INODE_COMPRBLK	= 9,	/* One or more compressed clusters */
-	EXT4_INODE_NOCOMPR	= 10,	/* Don't compress */
-	EXT4_INODE_ECOMPR	= 11,	/* Compression error */
-/* End compression flags --- maybe not all used */
-	EXT4_INODE_INDEX	= 12,	/* hash-indexed directory */
-	EXT4_INODE_IMAGIC	= 13,	/* AFS directory */
-	EXT4_INODE_JOURNAL_DATA	= 14,	/* file data should be journaled */
-	EXT4_INODE_NOTAIL	= 15,	/* file tail should not be merged */
-	EXT4_INODE_DIRSYNC	= 16,	/* dirsync behaviour (directories only) */
-	EXT4_INODE_TOPDIR	= 17,	/* Top of directory hierarchies*/
-	EXT4_INODE_HUGE_FILE	= 18,	/* Set to each huge file */
-	EXT4_INODE_EXTENTS	= 19,	/* Inode uses extents */
-	EXT4_INODE_EA_INODE	= 21,	/* Inode used for large EA */
-	EXT4_INODE_EOFBLOCKS	= 22,	/* Blocks allocated beyond EOF */
-	EXT4_INODE_RESERVED	= 31,	/* reserved for ext4 lib */
-....
 
 ....
 #define EXT4_STATE_JDATA	0x00000001 /* journaled data exists */

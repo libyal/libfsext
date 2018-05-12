@@ -93,25 +93,11 @@ struct fsext_inode_ext2
 	 */
 	uint8_t unknown1[ 4 ];
 
-	/* Direct block numbers
-	 * Consists of 48 bytes
+	/* Data block numbers
+	 * Consists of 60 bytes
+	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
 	 */
-	uint8_t direct_block_numbers[ 48 ];
-
-	/* Indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t indirect_block_number[ 4 ];
-
-	/* Double indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t double_indirect_block_number[ 4 ];
-
-	/* Triple indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t triple_indirect_block_number[ 4 ];
+	uint8_t data_block_numbers[ 60 ];
 
 	/* NFS generation number
 	 * Consists of 4 bytes
@@ -228,25 +214,11 @@ struct fsext_inode_ext3
 	 */
 	uint8_t unknown1[ 4 ];
 
-	/* Direct block numbers
-	 * Consists of 48 bytes
+	/* Data block numbers
+	 * Consists of 60 bytes
+	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
 	 */
-	uint8_t direct_block_numbers[ 48 ];
-
-	/* Indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t indirect_block_number[ 4 ];
-
-	/* Double indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t double_indirect_block_number[ 4 ];
-
-	/* Triple indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t triple_indirect_block_number[ 4 ];
+	uint8_t data_block_numbers[ 60 ];
 
 	/* NFS generation number
 	 * Consists of 4 bytes
@@ -373,25 +345,12 @@ struct fsext_inode_ext4
 	 */
 	uint8_t version_lower[ 4 ];
 
-	/* Direct block numbers
-	 * Consists of 48 bytes
+	/* Data block numbers or extents
+	 * Consists of 60 bytes
+	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
+	 * or 3 extents or 3 extent indexes
 	 */
-	uint8_t direct_block_numbers[ 48 ];
-
-	/* Indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t indirect_block_number[ 4 ];
-
-	/* Double indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t double_indirect_block_number[ 4 ];
-
-	/* Triple indirect block number
-	 * Consists of 4 bytes
-	 */
-	uint8_t triple_indirect_block_number[ 4 ];
+	uint8_t data_block_numbers[ 60 ];
 
 	/* NFS generation number
 	 * Consists of 4 bytes

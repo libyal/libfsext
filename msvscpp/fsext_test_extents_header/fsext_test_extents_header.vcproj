@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="fsext_test_directory"
-	ProjectGUID="{48961EF8-B5F1-47E5-AAAB-10143CA07083}"
-	RootNamespace="fsext_test_directory"
+	Name="fsext_test_extents_header"
+	ProjectGUID="{6DA172A3-6944-4648-A4AC-E0C2C7F357D8}"
+	RootNamespace="fsext_test_extents_header"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,11 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\fsext_test_directory.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\fsext_test_functions.c"
+				RelativePath="..\..\tests\fsext_test_extents_header.c"
 				>
 			</File>
 			<File
@@ -193,14 +189,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\..\tests\fsext_test_functions.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\fsext_test_libbfio.h"
-				>
-			</File>
 			<File
 				RelativePath="..\..\tests\fsext_test_libcerror.h"
 				>

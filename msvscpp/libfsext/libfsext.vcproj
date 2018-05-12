@@ -202,6 +202,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_extent.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_extents_header.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_file_entry.c"
 				>
 			</File>
@@ -248,6 +256,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\fsext_extents.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\fsext_group_descriptor.h"
 				>
 			</File>
@@ -289,6 +301,14 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_error.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_extent.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_extents_header.h"
 				>
 			</File>
 			<File

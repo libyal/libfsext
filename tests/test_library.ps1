@@ -6,7 +6,7 @@ $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "bitmap block directory directory_entry error file_entry group_descriptor inode inode_table io_handle notify superblock"
+$LibraryTests = "bitmap block directory directory_entry error extent extents_header file_entry group_descriptor inode inode_table io_handle notify superblock"
 $LibraryTestsWithInput = "support volume"
 
 Function GetTestToolDirectory
