@@ -476,6 +476,7 @@ int libfsext_group_descriptor_read_data(
 			 0 );
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_group_descriptor_ext4_t *) data )->block_bitmap_block_number_upper,
 		 value_64bit );
@@ -536,21 +537,6 @@ int libfsext_group_descriptor_read_data(
 
 		group_descriptor->inode_bitmap_checksum |= value_32bit << 16;
 	}
-	data_offset += group_descriptor_data_size;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: trailing data:\n",
-		 function );
-		libcnotify_print_data(
-		 (uint8_t *) &( data[ data_offset ] ),
-		 (size_t) data_size - data_offset,
-		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
-	}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
 	return( 1 );
 }
 
@@ -561,12 +547,12 @@ int libfsext_group_descriptor_read_file_io_handle(
      libfsext_group_descriptor_t *group_descriptor,
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
      libcerror_error_t **error )
 {
-	uint8_t *data         = NULL;
-	static char *function = "libfsext_group_descriptor_read_file_io_handle";
-	ssize_t read_count    = 0;
+	uint8_t *data                     = NULL;
+	static char *function             = "libfsext_group_descriptor_read_file_io_handle";
+	size_t group_descriptor_data_size = 0;
+	ssize_t read_count                = 0;
 
 	if( io_handle == NULL )
 	{
@@ -579,48 +565,27 @@ int libfsext_group_descriptor_read_file_io_handle(
 
 		return( -1 );
 	}
-#if SIZEOF_SIZE_T <= 4
-	if( io_handle->block_size > (uint32_t) SSIZE_MAX )
+	if( io_handle == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid IO handle - block size value exceeds maximum.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
 	}
-#endif
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
+	if( io_handle->format_version == 4 )
 	{
-		libcnotify_printf(
-		 "%s: reading group descriptor at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 file_offset,
-		 file_offset );
+		group_descriptor_data_size = sizeof( fsext_group_descriptor_ext4_t );
 	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
+	else
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek group descriptor offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		goto on_error;
+		group_descriptor_data_size = sizeof( fsext_group_descriptor_ext2_t );
 	}
 	data = (uint8_t *) memory_allocate(
-	                    sizeof( uint8_t ) * io_handle->block_size );
+	                    sizeof( uint8_t ) * group_descriptor_data_size );
 
 	if( data == NULL )
 	{
@@ -636,19 +601,17 @@ int libfsext_group_descriptor_read_file_io_handle(
 	read_count = libbfio_handle_read_buffer(
 	              file_io_handle,
 	              data,
-	              (size_t) io_handle->block_size,
+	              group_descriptor_data_size,
 	              error );
 
-	if( read_count != (ssize_t) io_handle->block_size )
+	if( read_count != (ssize_t) group_descriptor_data_size )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read group descriptor at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		 "%s: unable to read group descriptor.",
+		 function );
 
 		goto on_error;
 	}
@@ -656,17 +619,15 @@ int libfsext_group_descriptor_read_file_io_handle(
 	     group_descriptor,
 	     io_handle,
 	     data,
-	     (size_t) io_handle->block_size,
+	     group_descriptor_data_size,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read group descriptor at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		 "%s: unable to read group descriptor.",
+		 function );
 
 		goto on_error;
 	}

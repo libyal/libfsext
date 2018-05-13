@@ -206,7 +206,7 @@ int libfsext_bitmap_read_data(
 		libcnotify_print_data(
 		 data,
 		 data_size,
-		 0 );
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 

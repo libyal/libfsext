@@ -862,74 +862,17 @@ int libfsext_volume_open_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "Reading superblock:\n" );
-	}
-#endif
-	if( libfsext_superblock_initialize(
-	     &( internal_volume->superblock ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create superblock.",
-		 function );
-
-		goto on_error;
-	}
-	if( libfsext_superblock_read_file_io_handle(
-	     internal_volume->superblock,
-	     file_io_handle,
-	     file_offset,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read superblock at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		goto on_error;
-	}
-	internal_volume->io_handle->block_size                          = internal_volume->superblock->block_size;
-	internal_volume->io_handle->inode_size                          = internal_volume->superblock->inode_size;
-	internal_volume->io_handle->format_revision                     = internal_volume->superblock->format_revision;
-	internal_volume->io_handle->compatible_features_flags           = internal_volume->superblock->compatible_features_flags;
-	internal_volume->io_handle->incompatible_features_flags         = internal_volume->superblock->incompatible_features_flags;
-	internal_volume->io_handle->read_only_compatible_features_flags = internal_volume->superblock->read_only_compatible_features_flags;
-	internal_volume->io_handle->format_version                      = internal_volume->superblock->format_version;
-
-	/* The group descriptors are stored in the first block after the superblock
-	 */
-	file_offset = internal_volume->io_handle->block_size;
-
-	if( file_offset == 1024 )
-	{
-		file_offset += internal_volume->io_handle->block_size;
-	}
-	if( libfsext_volume_read_group_descriptors(
+	if( libfsext_volume_read_block_groups(
 	     internal_volume,
 	     file_io_handle,
-	     file_offset,
-	     internal_volume->superblock->number_of_block_groups,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read block group descriptors at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		 "%s: unable to read block groups.",
+		 function );
 
 		goto on_error;
 	}
@@ -973,20 +916,30 @@ on_error:
 	return( -1 );
 }
 
-/* Reads the group descriptors
+/* Reads the block groups
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_read_group_descriptors(
+int libfsext_volume_read_block_groups(
      libfsext_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     uint32_t number_of_block_groups,
      libcerror_error_t **error )
 {
 	libfsext_bitmap_t *bitmap                     = NULL;
 	libfsext_group_descriptor_t *group_descriptor = NULL;
-	static char *function                         = "libfsext_volume_read_group_descriptors";
+	libfsext_superblock_t *superblock             = NULL;
+	static char *function                         = "libfsext_volume_read_block_groups";
+	off64_t block_bitmap_offset                   = 0;
+	off64_t block_group_offset                    = 0;
+	off64_t group_descriptor_offset               = 0;
+	off64_t inode_bitmap_offset                   = 0;
+	off64_t superblock_offset                     = 0;
 	uint32_t block_group_index                    = 0;
+	uint32_t exponent3                            = 3;
+	uint32_t exponent5                            = 5;
+	uint32_t exponent7                            = 7;
+	uint32_t group_descriptor_index               = 0;
+	uint32_t number_of_block_groups               = 0;
+	uint8_t block_group_has_superblock            = 0;
 	int entry_index                               = 0;
 
 	if( internal_volume == NULL )
@@ -1024,113 +977,279 @@ int libfsext_volume_read_group_descriptors(
 		return( -1 );
 	}
 #endif
-	for( block_group_index = 0;
-	     block_group_index < number_of_block_groups;
-	     block_group_index++ )
+	do
 	{
+		if( exponent7 < block_group_index )
+		{
+			exponent7 *= 7;
+		}
+		if( exponent5 < block_group_index )
+		{
+			exponent5 *= 5;
+		}
+		if( exponent3 < block_group_index )
+		{
+			exponent3 *= 3;
+		}
+		block_group_has_superblock = 0;
+
+		if( ( block_group_index == 0 )
+		 || ( block_group_index == 1 ) )
+		{
+			block_group_has_superblock = 1;
+		}
+		else if( ( internal_volume->superblock != NULL )
+		      && ( ( internal_volume->superblock->read_only_compatible_features_flags & 0x00000001UL ) != 0 ) )
+		{
+			if( ( block_group_index == exponent3 )
+			 || ( block_group_index == exponent5 )
+			 || ( block_group_index == exponent7 ) )
+			{
+				block_group_has_superblock = 1;
+			}
+		}
+		group_descriptor_offset = block_group_offset;
+
+		if( block_group_has_superblock != 0 )
+		{
+			if( ( block_group_offset == 0 )
+			 || ( internal_volume->io_handle->block_size == 1024 ) )
+			{
+				superblock_offset = block_group_offset + 1024;
+			}
+			else
+			{
+				superblock_offset = block_group_offset;
+			}
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "Reading superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
+				 block_group_index,
+				 superblock_offset,
+				 superblock_offset );
+			}
+#endif
+			if( libfsext_superblock_initialize(
+			     &superblock,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create superblock.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfsext_superblock_read_file_io_handle(
+			     superblock,
+			     file_io_handle,
+			     superblock_offset,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+				 function,
+				 block_group_index,
+				 superblock_offset,
+				 superblock_offset );
+
+				goto on_error;
+			}
+			if( block_group_index == 0 )
+			{
+				internal_volume->io_handle->block_size                          = superblock->block_size;
+				internal_volume->io_handle->inode_size                          = superblock->inode_size;
+				internal_volume->io_handle->format_revision                     = superblock->format_revision;
+				internal_volume->io_handle->compatible_features_flags           = superblock->compatible_features_flags;
+				internal_volume->io_handle->incompatible_features_flags         = superblock->incompatible_features_flags;
+				internal_volume->io_handle->read_only_compatible_features_flags = superblock->read_only_compatible_features_flags;
+				internal_volume->io_handle->format_version                      = superblock->format_version;
+
+				number_of_block_groups = superblock->number_of_block_groups;
+
+				internal_volume->superblock = superblock;
+				superblock                  = NULL;
+			}
+			else
+			{
+/* TODO compare superblocks */
+				if( libfsext_superblock_free(
+				     &superblock,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free superblock.",
+					 function );
+
+					goto on_error;
+				}
+			}
+			/* The group descriptors are stored in the first block after the superblock
+			 */
+			if( internal_volume->io_handle->block_size == 1024 )
+			{
+				group_descriptor_offset = block_group_offset + 1024 + internal_volume->io_handle->block_size;
+			}
+			else
+			{
+				group_descriptor_offset = block_group_offset + internal_volume->io_handle->block_size;
+			}
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "Reading group descriptors: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
+				 block_group_index,
+				 group_descriptor_offset,
+				 group_descriptor_offset );
+			}
+#endif
+			if( libbfio_handle_seek_offset(
+			     file_io_handle,
+			     group_descriptor_offset,
+			     SEEK_SET,
+			     error ) == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_SEEK_FAILED,
+				 "%s: unable to seek group descriptors: %" PRIu32 " offset: %" PRIi64 " (0x%08" PRIx64 ").",
+				 function,
+				 block_group_index,
+				 group_descriptor_offset,
+				 group_descriptor_offset );
+
+				goto on_error;
+			}
+			for( group_descriptor_index = 0;
+			     group_descriptor_index < number_of_block_groups;
+			     group_descriptor_index++ )
+			{
+				if( libfsext_group_descriptor_initialize(
+				     &group_descriptor,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to create group descriptor.",
+					 function );
+
+					goto on_error;
+				}
+				if( libfsext_group_descriptor_read_file_io_handle(
+				     group_descriptor,
+				     internal_volume->io_handle,
+				     file_io_handle,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_READ_FAILED,
+					 "%s: unable to read group descriptor: %" PRIu32 ".",
+					 function,
+					 group_descriptor_index );
+
+					goto on_error;
+				}
+				if( block_group_index == 0 )
+				{
+					if( libcdata_array_append_entry(
+					     internal_volume->group_descriptors_array,
+					     &entry_index,
+					     (intptr_t *) group_descriptor,
+					     error ) != 1 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 "%s: unable to append group descriptor: %" PRIu32 " to array.",
+						 function,
+						 group_descriptor_index );
+
+						goto on_error;
+					}
+					group_descriptor = NULL;
+				}
+				else
+				{
+/* TODO compare group descriptors */
+					if( libfsext_group_descriptor_free(
+					     &group_descriptor,
+					     error ) != 1 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+						 "%s: unable to free group descriptor: %" PRIu32 ".",
+						 function,
+						 group_descriptor_index );
+
+						goto on_error;
+					}
+				}
+			}
+		}
+#ifdef TODO
+/* TODO get group descriptor of block group */
+
+		block_bitmap_offset  = group_descriptor->block_bitmap_block_number * internal_volume->io_handle->block_size;
+		inode_bitmap_offset  = group_descriptor->inode_bitmap_block_number * internal_volume->io_handle->block_size;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "Reading group descriptor: %" PRIu32 "\n",
-			 block_group_index );
+			 "Reading block bitmap: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
+			 block_group_index,
+			 block_bitmap_offset,
+			 block_bitmap_offset );
 		}
 #endif
-		if( libfsext_group_descriptor_initialize(
-		     &group_descriptor,
+		if( libfsext_bitmap_initialize(
+		     &bitmap,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create group descriptor: %" PRIu32 ".",
-			 function,
-			 block_group_index );
+			 "%s: unable to create bitmap.",
+			 function );
 
 			goto on_error;
 		}
-		if( libfsext_group_descriptor_read_file_io_handle(
-		     group_descriptor,
+		if( libfsext_bitmap_read_file_io_handle(
+		     bitmap,
 		     internal_volume->io_handle,
 		     file_io_handle,
-		     file_offset,
+		     block_bitmap_offset,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read group descriptor: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 "%s: unable to read block bitmap: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 			 function,
 			 block_group_index,
-			 file_offset,
-			 file_offset );
-
-			goto on_error;
-		}
-		if( libcdata_array_append_entry(
-		     internal_volume->group_descriptors_array,
-		     &entry_index,
-		     (intptr_t *) group_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-			 "%s: unable to append group descriptor: %" PRIu32 " to array.",
-			 function,
-			 block_group_index );
-
-			goto on_error;
-		}
-		group_descriptor = NULL;
-
-/* TODO handle multiple group descriptors */
-	}
-#if defined( HAVE_DEBUG_OUTPUT ) && defined( TODO )
-	for( block_group_index = 0;
-	     block_group_index < number_of_block_groups;
-	     block_group_index++ )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "Reading block bitmap.\n" );
-		}
-#endif
-		if( libfsext_bitmap_initialize(
-		     &bitmap,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to bitmap.",
-			 function );
-
-			goto on_error;
-		}
-		file_offset = group_descriptor->block_bitmap_block_number * internal_volume->io_handle->block_size;
-
-		if( libfsext_bitmap_read_file_io_handle(
-		     bitmap,
-		     internal_volume->io_handle,
-		     file_io_handle,
-		     file_offset,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read bitmap at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-			 function,
-			 file_offset,
-			 file_offset );
+			 block_bitmap_offset,
+			 block_bitmap_offset );
 
 			goto on_error;
 		}
@@ -1151,7 +1270,10 @@ int libfsext_volume_read_group_descriptors(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "Reading inode bitmap.\n" );
+			 "Reading inode bitmap: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
+			 block_group_index,
+			 inode_bitmap_offset,
+			 inode_bitmap_offset );
 		}
 #endif
 		if( libfsext_bitmap_initialize(
@@ -1162,28 +1284,26 @@ int libfsext_volume_read_group_descriptors(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to bitmap.",
+			 "%s: unable to create bitmap.",
 			 function );
 
 			goto on_error;
 		}
-		file_offset = group_descriptor->inode_bitmap_block_number * internal_volume->io_handle->block_size;
-
 		if( libfsext_bitmap_read_file_io_handle(
 		     bitmap,
 		     internal_volume->io_handle,
 		     file_io_handle,
-		     file_offset,
+		     inode_bitmap_offset,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read bitmap at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 "%s: unable to read inode bitmap at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 			 function,
-			 file_offset,
-			 file_offset );
+			 inode_bitmap_offset,
+			 inode_bitmap_offset );
 
 			goto on_error;
 		}
@@ -1200,8 +1320,13 @@ int libfsext_volume_read_group_descriptors(
 
 			goto on_error;
 		}
+#endif /* TODO */
+		block_group_offset += internal_volume->superblock->block_group_size;
+
+		block_group_index++;
 	}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+	while( block_group_index < number_of_block_groups );
+
 	return( 1 );
 
 on_error:
@@ -1215,6 +1340,12 @@ on_error:
 	{
 		libfsext_group_descriptor_free(
 		 &group_descriptor,
+		 NULL );
+	}
+	if( superblock != NULL )
+	{
+		libfsext_superblock_free(
+		 &superblock,
 		 NULL );
 	}
 	return( -1 );

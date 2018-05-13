@@ -151,12 +151,11 @@ int libfsext_superblock_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function                     = "libfsext_superblock_read_data";
-	uint32_t number_of_blocks_per_block_group = 0;
+	static char *function = "libfsext_superblock_read_data";
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit                      = 0;
-	uint16_t value_16bit                      = 0;
+	uint32_t value_32bit  = 0;
+	uint16_t value_16bit  = 0;
 #endif
 
 	if( superblock == NULL )
@@ -256,7 +255,7 @@ int libfsext_superblock_read_data(
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_superblock_ext2_t *) data )->number_of_blocks_per_block_group,
-	 number_of_blocks_per_block_group );
+	 superblock->number_of_blocks_per_block_group );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_superblock_ext2_t *) data )->format_revision,
@@ -328,7 +327,7 @@ int libfsext_superblock_read_data(
 		libcnotify_printf(
 		 "%s: number of blocks per block group\t\t: %" PRIu32 "\n",
 		 function,
-		 number_of_blocks_per_block_group );
+		 superblock->number_of_blocks_per_block_group );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_superblock_ext2_t *) data )->number_of_fragments_per_block_group,
@@ -861,7 +860,7 @@ int libfsext_superblock_read_data(
 
 		return( -1 );
 	}
-	if( number_of_blocks_per_block_group == 0 )
+	if( superblock->number_of_blocks_per_block_group == 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -872,12 +871,14 @@ int libfsext_superblock_read_data(
 
 		return( -1 );
 	}
-	superblock->number_of_block_groups = superblock->number_of_blocks / number_of_blocks_per_block_group;
+	superblock->number_of_block_groups = superblock->number_of_blocks / superblock->number_of_blocks_per_block_group;
 
-	if( ( superblock->number_of_blocks % number_of_blocks_per_block_group ) != 0 )
+	if( ( superblock->number_of_blocks % superblock->number_of_blocks_per_block_group ) != 0 )
 	{
 		superblock->number_of_block_groups += 1;
 	}
+	superblock->block_group_size = superblock->number_of_blocks_per_block_group * superblock->block_size;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -890,6 +891,11 @@ int libfsext_superblock_read_data(
 		 "%s: number of block groups\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->number_of_block_groups );
+
+		libcnotify_printf(
+		 "%s: block group size\t\t\t\t: %" PRIu64 "\n",
+		 function,
+		 superblock->block_group_size );
 
 		libcnotify_printf(
 		 "\n" );

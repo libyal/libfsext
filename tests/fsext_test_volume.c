@@ -2111,7 +2111,7 @@ int main(
 
 		/* TODO: add tests for libfsext_volume_open_read */
 
-		/* TODO: add tests for libfsext_volume_read_group_descriptors */
+		/* TODO: add tests for libfsext_volume_read_block_groups */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 

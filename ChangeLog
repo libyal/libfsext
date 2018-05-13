@@ -1,9 +1,12 @@
 TODO:
-* add support for indirect block number in inode
-* add support for double indirect block number in inode
-* add support for tripple indirect block number in inode
-* add support for extents header depth > 0 in inode
-* add support for EXT4_INLINE_DATA_FL
+* msvscpp fix missing PRIo16
+* complete get file entry by path
+* move reading inode extents in separate function
+  * add support for indirect block number in inode
+  * add support for double indirect block number in inode
+  * add support for tripple indirect block number in inode
+  * add support for extents header depth > 0 in inode
+  * add support for EXT4_INLINE_DATA_FL
 * add support for EXT2_COMPRBLK_FL
 * add support for hash-tree directories
 * directory replace array by data structure that is more efficient for large
@@ -19,12 +22,9 @@ Create test images:
 * ext4 without dynamic inode information
 * ext4 with dynamic inode information
 * ext4 with inline data
-* with multiple block groups
-* with file where indirect blocks are used
-* with file where double indirect blocks are used
-* with large number of directory entries where indirect blocks are used
-* with huge number of directory entries where double indirect blocks are used
-* with linear directory
+* without sparse superblock
+* with inode where double indirect blocks are used
+* with inode where tripple indirect blocks are used
 * with hash-tree directory
 
 20150429

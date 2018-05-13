@@ -101,7 +101,6 @@ int libfsext_group_descriptor_read_file_io_handle(
      libfsext_group_descriptor_t *group_descriptor,
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

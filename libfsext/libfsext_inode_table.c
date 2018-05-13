@@ -362,6 +362,14 @@ int libfsext_inode_table_get_inode_by_number(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "Retrieving inode: %" PRIu32 ".\n",
+		 inode_number );
+	}
+#endif
 	if( libfdata_vector_get_element_value_by_index(
 	     inode_table->inodes_vector,
 	     (intptr_t *) file_io_handle,

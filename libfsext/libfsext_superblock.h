@@ -237,6 +237,10 @@ struct libfsext_superblock
 	/* Number of block groups
 	 */
 	uint32_t number_of_block_groups;
+
+	/* Block group size
+	 */
+	uint64_t block_group_size;
 };
 
 int libfsext_superblock_initialize(

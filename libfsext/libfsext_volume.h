@@ -120,11 +120,9 @@ int libfsext_volume_open_read(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
-int libfsext_volume_read_group_descriptors(
+int libfsext_volume_read_block_groups(
      libfsext_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     uint32_t number_of_block_groups,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \

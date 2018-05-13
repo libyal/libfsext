@@ -86,22 +86,48 @@ document:
 [yellow-background]*TODO: add text*
 
 == The volume
+
 An ext volume consists of:
 
-* 1024 bytes of boot code or zero bytes (at offset: 0)
-* primary superblock (at offset: 1024)
-* group descriptor (stored in the block after the superblock)
-* file data
+* one or more block groups
 
-The file system divides the volume in blocks:
+=== Block group
+
+A block group consists of:
+
+* optional 1024 bytes of boot code or zero bytes (at offset: 0)
+* optional superblock
+* optional group descriptor table
+* block bitmap
+* inode bitmap
+* allocated and unallocated blocks
+
+The primary superblock is stored at offset 1024 relative from the start of the 
+volume. Backup superblocks are stored at offset 1024 relative from the start of
+the block group if block size <= 1024 or otherwise at offset 0 from the start
+of the block group.
+
+The group descriptor table is stored in the block after the superblock.
+
+The ext2 revision 0 stores a copy at the start of every block group, along with 
+backups of the group descriptor table. Later revisions can reduce the number of
+backup copies by only putting backups in specific groups (sparse superblock
+feature EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER).
+
+[NOTE]
+Not all values in the back superblock and backup group descriptor tables always
+match those of the primary superblock and group descriptor table.
+
+=== Blocks
+
+The volume is devided in blocks:
 ....
 block offset = block number x block size
 ....
 
-The block size is defined in the super block.
+The block size is defined in the superblock.
 
 == The superblock
-The primary superblock is stored at offset 1024 of the volume.
 
 === The ext2 and ext3 superblock
 
@@ -451,7 +477,9 @@ EXT4_FEATURE_INCOMPAT_ can be used interchangeably.
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0x00000001 | EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER | Has sparse superblocks and group descriptor tables
+| 0x00000001 | EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER | Has sparse superblocks and group descriptor tables. +
+Superblocks are stored in block groups 0, 1 and those that are powers of 3, 5 and 7. +
+Otherwise superblocks are stored in every block group.
 | 0x00000002 | EXT2_FEATURE_RO_COMPAT_LARGE_FILE | Contains large files
 | 0x00000004 | EXT2_FEATURE_RO_COMPAT_BTREE_DIR | Use directory B-tree +
 [yellow-background]*Not implemented*
@@ -468,8 +496,13 @@ EXT4_FEATURE_INCOMPAT_ can be used interchangeably.
 That the EXT2_FEATURE_RO_COMPAT_, EXT3_FEATURE_RO_COMPAT_ and
 EXT4_FEATURE_RO_COMPAT_ can be used interchangeably.
 
-== The group descriptor
-The group descriptor is stored in the block following the super block.
+== The group descriptor table
+
+The group descriptor table is stored in the block following the super block.
+
+The group descriptor table consist of:
+
+* one or more group descriptors
 
 === The ext2 and ext3 group descriptor
 
@@ -560,6 +593,7 @@ The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap
 |===
 
 === [[block_group_flags]]Block group flags
+
 *TODO: add description*
 
 == The extents
@@ -664,10 +698,14 @@ Contains a POSIX timestamp
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
 | 36 | 4 | | Unknown (reserved)
-| 40 | 12 x 4 | | Array of direct block numbers
-| 88 | 4 | | Indirect block number
-| 92 | 4 | | Double indirect block number
-| 96 | 4 | | Triple indirect block number
+| 40 | 12 x 4 | | Array of direct block numbers +
+Value contains the block number relative from the start of the volume
+| 88 | 4 | | Indirect block number +
+Value contains the block number relative from the start of the volume
+| 92 | 4 | | Double indirect block number +
+Value contains the block number relative from the start of the volume
+| 96 | 4 | | Triple indirect block number +
+Value contains the block number relative from the start of the volume
 | 100 | 4 | | NFS generation number
 | 104 | 4 | | File ACL +
 [yellow-background]*Extended attributes block number?*
@@ -707,10 +745,14 @@ Contains a POSIX timestamp
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
 | 36 | 4 | | Unknown (reserved)
-| 40 | 12 x 4 | | Array of direct block numbers
-| 88 | 4 | | Indirect block number
-| 92 | 4 | | Double indirect block number
-| 96 | 4 | | Triple indirect block number
+| 40 | 12 x 4 | | Array of direct block numbers +
+Value contains the block number relative from the start of the volume
+| 88 | 4 | | Indirect block number +
+Value contains the block number relative from the start of the volume
+| 92 | 4 | | Double indirect block number +
+Value contains the block number relative from the start of the volume
+| 96 | 4 | | Triple indirect block number +
+Value contains the block number relative from the start of the volume
 | 100 | 4 | | NFS generation number
 | 104 | 4 | | File ACL
 | 108 | 4 | | Directory ACL
@@ -752,10 +794,14 @@ Contains a POSIX timestamp
 See section: <<inode_flags,Inode flags>>
 | 36 | 4 | | Unknown (lower part of version)
 4+| _If EXT4_EXTENTS_FL and EXT4_INLINE_DATA_FL are not set_
-| 40 | 12 x 4 | | Array of direct block numbers
-| 88 | 4 | | Indirect block number
-| 92 | 4 | | Double indirect block number
-| 96 | 4 | | Triple indirect block number
+| 40 | 12 x 4 | | Array of direct block numbers +
+Value contains the block number relative from the start of the volume
+| 88 | 4 | | Indirect block number +
+Value contains the block number relative from the start of the volume
+| 92 | 4 | | Double indirect block number +
+Value contains the block number relative from the start of the volume
+| 96 | 4 | | Triple indirect block number +
+Value contains the block number relative from the start of the volume
 4+| _If EXT4_EXTENTS_FL is set_
 | 40 | 12 | | Extents header +
 Also see: <<ext4_extents_header,The ext4 extents header>>

@@ -589,8 +589,6 @@ int libfsext_inode_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	data_offset = 0;
-
 	if( ( io_handle->format_version == 4 )
 	 && ( ( inode->flags & 0x00000200UL ) != 0 ) )
 	{
@@ -618,6 +616,8 @@ int libfsext_inode_read_data(
 	if( ( io_handle->format_version == 4 )
 	 && ( ( inode->flags & 0x00080000UL ) != 0 ) )
 	{
+		data_offset = 0;
+
 		if( libfsext_extents_header_initialize(
 		     &extents_header,
 		     error ) != 1 )
@@ -757,6 +757,77 @@ int libfsext_inode_read_data(
 	}
 	else
 	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			data_offset = 0;
+
+			libcnotify_printf(
+			 "%s: direct block numbers\t\t\t\t:",
+			 function );
+
+			for( block_number_index = 0;
+			     block_number_index < 12;
+			     block_number_index++ )
+			{
+				byte_stream_copy_to_uint32_little_endian(
+				 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
+				 value_32bit );
+
+				data_offset += 4;
+
+				if( block_number_index == 0 )
+				{
+					libcnotify_printf(
+					 " %" PRIu32 "",
+					 value_32bit );
+				}
+				else
+				{
+					libcnotify_printf(
+					 ", %" PRIu32 "",
+					 value_32bit );
+				}
+			}
+			libcnotify_printf(
+			 "\n" );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
+			 value_32bit );
+
+			data_offset += 4;
+
+			libcnotify_printf(
+			 "%s: indirect block number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
+			 value_32bit );
+
+			data_offset += 4;
+
+			libcnotify_printf(
+			 "%s: double indirect block number\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
+			 value_32bit );
+
+			data_offset += 4;
+
+			libcnotify_printf(
+			 "%s: triple indirect block number\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+		data_offset = 0;
+
 		for( block_number_index = 0;
 		     block_number_index < 12;
 		     block_number_index++ )
@@ -854,75 +925,6 @@ int libfsext_inode_read_data(
 
 			goto on_error;
 		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			data_offset = 0;
-
-			libcnotify_printf(
-			 "%s: direct block numbers\t\t\t\t:",
-			 function );
-
-			for( block_number_index = 0;
-			     block_number_index < 12;
-			     block_number_index++ )
-			{
-				byte_stream_copy_to_uint32_little_endian(
-				 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-				 value_32bit );
-
-				data_offset += 4;
-
-				if( block_number_index == 0 )
-				{
-					libcnotify_printf(
-					 " %" PRIu32 "",
-					 value_32bit );
-				}
-				else
-				{
-					libcnotify_printf(
-					 ", %" PRIu32 "",
-					 value_32bit );
-				}
-			}
-			libcnotify_printf(
-			 "\n" );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-			 value_32bit );
-
-			data_offset += 4;
-
-			libcnotify_printf(
-			 "%s: indirect block number\t\t\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-			 value_32bit );
-
-			data_offset += 4;
-
-			libcnotify_printf(
-			 "%s: double indirect block number\t\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-			 value_32bit );
-
-			data_offset += 4;
-
-			libcnotify_printf(
-			 "%s: triple indirect block number\t\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
-		}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->nfs_generation_number,
