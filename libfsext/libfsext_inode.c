@@ -358,17 +358,6 @@ int libfsext_inode_read_data(
 
 		return( -1 );
 	}
-	if( data_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
 	if( memory_compare(
 	     empty_inode_data,
 	     data,
@@ -596,6 +585,18 @@ int libfsext_inode_read_data(
 
 	data_offset = 0;
 
+	if( ( io_handle->format_version == 4 )
+	 && ( ( inode->flags & 0x00000200UL ) != 0 ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: compressed data currently not supported.",
+		 function );
+
+		goto on_error;
+	}
 	if( ( io_handle->format_version == 4 )
 	 && ( ( inode->flags & 0x10000000UL ) != 0 ) )
 	{

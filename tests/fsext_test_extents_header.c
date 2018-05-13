@@ -38,6 +38,9 @@
 uint8_t fsext_test_extents_header_data1[ 12 ] = {
 	0x0a, 0xf3, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+uint8_t fsext_test_extents_header_error_data1[ 12 ] = {
+	0xff, 0xff, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
 /* Tests the libfsext_extents_header_initialize function
@@ -379,6 +382,26 @@ int fsext_test_extents_header_read_data(
 	          extents_header,
 	          fsext_test_extents_header_data1,
 	          0,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test data invalid
+	 */
+	result = libfsext_extents_header_read_data(
+	          extents_header,
+	          fsext_test_extents_header_error_data1,
+	          12,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(

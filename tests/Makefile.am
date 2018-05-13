@@ -39,6 +39,7 @@ EXTRA_DIST = \
 check_PROGRAMS = \
 	fsext_test_bitmap \
 	fsext_test_block \
+	fsext_test_block_vector \
 	fsext_test_directory \
 	fsext_test_directory_entry \
 	fsext_test_error \
@@ -78,6 +79,8 @@ fsext_test_bitmap_LDADD = \
 
 fsext_test_block_SOURCES = \
 	fsext_test_block.c \
+	fsext_test_functions.c fsext_test_functions.h \
+	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
 	fsext_test_libfsext.h \
 	fsext_test_macros.h \
@@ -85,6 +88,27 @@ fsext_test_block_SOURCES = \
 	fsext_test_unused.h
 
 fsext_test_block_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_block_vector_SOURCES = \
+	fsext_test_block_vector.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfdata.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_block_vector_LDADD = \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 

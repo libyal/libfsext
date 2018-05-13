@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #endif
 
+#include "fsext_test_functions.h"
+#include "fsext_test_libbfio.h"
 #include "fsext_test_libcerror.h"
 #include "fsext_test_libfsext.h"
 #include "fsext_test_macros.h"
@@ -34,6 +36,7 @@
 #include "fsext_test_unused.h"
 
 #include "../libfsext/libfsext_block.h"
+#include "../libfsext/libfsext_io_handle.h"
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
@@ -48,7 +51,7 @@ int fsext_test_block_initialize(
 	int result                      = 0;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 1;
+	int number_of_malloc_fail_tests = 2;
 	int number_of_memset_fail_tests = 1;
 	int test_number                 = 0;
 #endif
@@ -298,13 +301,59 @@ on_error:
 int fsext_test_block_read_element_data(
      void )
 {
-	libcerror_error_t *error = NULL;
-	int result               = 0;
+	libbfio_handle_t *file_io_handle = NULL;
+	libcerror_error_t *error         = NULL;
+	libfsext_io_handle_t *io_handle  = NULL;
+	int result                       = 0;
+
+	/* Initialize test
+	 */
+	result = libfsext_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
 	result = libfsext_block_read_element_data(
 	          NULL,
+	          file_io_handle,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_block_read_element_data(
+	          io_handle,
 	          NULL,
 	          NULL,
 	          NULL,
@@ -328,6 +377,25 @@ int fsext_test_block_read_element_data(
 	libcerror_error_free(
 	 &error );
 
+	/* Clean up
+	 */
+	result = libfsext_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	return( 1 );
 
 on_error:
@@ -336,9 +404,14 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	return( 0 );
+	if( io_handle != NULL )
+	{
+		libfsext_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 1 );
 }
-
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 

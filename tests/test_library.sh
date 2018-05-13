@@ -7,7 +7,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="bitmap block directory directory_entry error extent extents_header file_entry group_descriptor inode inode_table io_handle notify superblock";
+LIBRARY_TESTS="bitmap block block_vector directory directory_entry error extent extents_header file_entry group_descriptor inode inode_table io_handle notify superblock";
 LIBRARY_TESTS_WITH_INPUT="support volume";
 OPTION_SETS="";
 

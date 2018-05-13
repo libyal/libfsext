@@ -33,9 +33,11 @@
 #include "fsext_test_memory.h"
 #include "fsext_test_unused.h"
 
+#include "../libfsext/libfsext_extent.h"
 #include "../libfsext/libfsext_inode.h"
 #include "../libfsext/libfsext_io_handle.h"
 
+/* ext3 indode */
 uint8_t fsext_test_inode_data1[ 132 ] = {
 	0x00, 0x04, 0x00, 0x00, 0x3d, 0x13, 0xc1, 0x3f, 0x44, 0x13, 0xc1, 0x3f, 0x44, 0x13, 0xc1, 0x3f,
 	0x00, 0x00, 0x00, 0x00, 0xf4, 0x01, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -46,6 +48,39 @@ uint8_t fsext_test_inode_data1[ 132 ] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00 };
+
+/* ext4 indode without EXT4_EXTENTS_FL */
+uint8_t fsext_test_inode_data2[ 128 ] = {
+	0xed, 0x41, 0xe8, 0x03, 0x00, 0x04, 0x00, 0x00, 0xdf, 0xc3, 0xd7, 0x49, 0xdf, 0xc3, 0xd7, 0x49,
+	0xdf, 0xc3, 0xd7, 0x49, 0x00, 0x00, 0x00, 0x00, 0xe8, 0x03, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+/* ext4 indode with EXT4_EXTENTS_FL */
+uint8_t fsext_test_inode_data3[ 128 ] = {
+	0xed, 0x41, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0xb4, 0x69, 0x47, 0x55, 0xb4, 0x69, 0x47, 0x55,
+	0xb4, 0x69, 0x47, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0xf3, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+/* empty indode */
+uint8_t fsext_test_inode_data4[ 128 ] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
@@ -60,7 +95,7 @@ int fsext_test_inode_initialize(
 	int result                      = 0;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 1;
+	int number_of_malloc_fail_tests = 2;
 	int number_of_memset_fail_tests = 1;
 	int test_number                 = 0;
 #endif
@@ -293,6 +328,12 @@ int fsext_test_inode_clone(
 	libfsext_inode_t *source_inode      = NULL;
 	int result                          = 0;
 
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 2;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
 	/* Initialize test
 	 */
 	result = libfsext_inode_initialize(
@@ -409,82 +450,91 @@ int fsext_test_inode_clone(
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
-	/* Test libfsext_inode_clone with malloc failing
-	 */
-	fsext_test_malloc_attempts_before_fail = 0;
-
-	result = libfsext_inode_clone(
-	          &destination_inode,
-	          source_inode,
-	          &error );
-
-	if( fsext_test_malloc_attempts_before_fail != -1 )
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
 	{
-		fsext_test_malloc_attempts_before_fail = -1;
+		/* Test libfsext_inode_clone with malloc failing
+		 */
+		fsext_test_malloc_attempts_before_fail = test_number;
 
-		if( destination_inode != NULL )
+		result = libfsext_inode_clone(
+		          &destination_inode,
+		          source_inode,
+		          &error );
+
+		if( fsext_test_malloc_attempts_before_fail != -1 )
 		{
-			libfsext_inode_free(
-			 &destination_inode,
-			 NULL );
+			fsext_test_malloc_attempts_before_fail = -1;
+
+			if( destination_inode != NULL )
+			{
+				libfsext_inode_free(
+				 &destination_inode,
+				 NULL );
+			}
+		}
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "destination_inode",
+			 destination_inode );
+
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
 		}
 	}
-	else
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
 	{
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		/* Test libfsext_inode_clone with memcpy failing
+		 */
+		fsext_test_memcpy_attempts_before_fail = 0;
 
-		FSEXT_TEST_ASSERT_IS_NULL(
-		 "destination_inode",
-		 destination_inode );
+		result = libfsext_inode_clone(
+		          &destination_inode,
+		          source_inode,
+		          &error );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-
-	/* Test libfsext_inode_clone with memcpy failing
-	 */
-	fsext_test_memcpy_attempts_before_fail = 0;
-
-	result = libfsext_inode_clone(
-	          &destination_inode,
-	          source_inode,
-	          &error );
-
-	if( fsext_test_memcpy_attempts_before_fail != -1 )
-	{
-		fsext_test_memcpy_attempts_before_fail = -1;
-
-		if( destination_inode != NULL )
+		if( fsext_test_memcpy_attempts_before_fail != -1 )
 		{
-			libfsext_inode_free(
-			 &destination_inode,
-			 NULL );
+			fsext_test_memcpy_attempts_before_fail = -1;
+
+			if( destination_inode != NULL )
+			{
+				libfsext_inode_free(
+				 &destination_inode,
+				 NULL );
+			}
 		}
-	}
-	else
-	{
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NULL(
-		 "destination_inode",
-		 destination_inode );
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "destination_inode",
+			 destination_inode );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
 
-		libcerror_error_free(
-		 &error );
+			libcerror_error_free(
+			 &error );
+		}
 	}
 #endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
 
@@ -560,8 +610,6 @@ int fsext_test_inode_read_data(
 	 "error",
 	 error );
 
-	io_handle->format_version = 3;
-
 	result = libfsext_inode_initialize(
 	          &inode,
 	          &error );
@@ -581,6 +629,9 @@ int fsext_test_inode_read_data(
 
 	/* Test regular cases
 	 */
+	io_handle->format_version = 3;
+	io_handle->inode_size     = 0;
+
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
@@ -597,8 +648,68 @@ int fsext_test_inode_read_data(
 	 "error",
 	 error );
 
+	io_handle->format_version = 4;
+	io_handle->inode_size     = 128;
+
+	result = libfsext_inode_read_data(
+	          inode,
+	          io_handle,
+	          fsext_test_inode_data2,
+	          128,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	io_handle->format_version = 4;
+	io_handle->inode_size     = 128;
+
+	result = libfsext_inode_read_data(
+	          inode,
+	          io_handle,
+	          fsext_test_inode_data3,
+	          128,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	io_handle->format_version = 2;
+	io_handle->inode_size     = 0;
+
+	result = libfsext_inode_read_data(
+	          inode,
+	          io_handle,
+	          fsext_test_inode_data4,
+	          128,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	/* Test error cases
 	 */
+	io_handle->format_version = 3;
+	io_handle->inode_size     = 0;
+
 	result = libfsext_inode_read_data(
 	          NULL,
 	          io_handle,
@@ -749,6 +860,155 @@ on_error:
 		libfsext_io_handle_free(
 		 &io_handle,
 		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_number_of_extents function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_number_of_extents(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error = NULL;
+	int number_of_extents    = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_number_of_extents(
+	          inode,
+	          &number_of_extents,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_number_of_extents(
+	          NULL,
+	          &number_of_extents,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_number_of_extents(
+	          inode,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_extent_by_index function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_extent_by_index(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error  = NULL;
+	libfsext_extent_t *extent = NULL;
+	int result                = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_extent_by_index(
+	          inode,
+	          0,
+	          &extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_extent_by_index(
+	          NULL,
+	          0,
+	          &extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_extent_by_index(
+	          inode,
+	          0,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
 	}
 	return( 0 );
 }
@@ -1130,7 +1390,8 @@ int main(
 	 "error",
 	 error );
 
-	io_handle->format_version = 3;
+	io_handle->format_version = 4;
+	io_handle->inode_size     = 128;
 
 	result = libfsext_inode_initialize(
 	          &inode,
@@ -1152,8 +1413,8 @@ int main(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          fsext_test_inode_data1,
-	          132,
+	          fsext_test_inode_data3,
+	          128,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -1164,6 +1425,16 @@ int main(
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_number_of_extents",
+	 fsext_test_inode_get_number_of_extents,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_extent_by_index",
+	 fsext_test_inode_get_extent_by_index,
+	 inode );
 
 	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_inode_get_access_time",
@@ -1184,6 +1455,8 @@ int main(
 	 "libfsext_inode_get_deletion_time",
 	 fsext_test_inode_get_deletion_time,
 	 inode );
+
+/* TODO add test for libfsext_inode_read_element_data */
 
 	/* Clean up
 	 */
