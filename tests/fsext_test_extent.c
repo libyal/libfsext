@@ -34,7 +34,6 @@
 #include "fsext_test_unused.h"
 
 #include "../libfsext/libfsext_extent.h"
-#include "../libfsext/libfsext_io_handle.h"
 
 uint8_t fsext_test_extent_data1[ 12 ] = {
 	0x0a, 0xf3, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -280,32 +279,12 @@ on_error:
 int fsext_test_extent_read_data(
      void )
 {
-	libcerror_error_t *error        = NULL;
-	libfsext_extent_t *extent       = NULL;
-	libfsext_io_handle_t *io_handle = NULL;
-	int result                      = 0;
+	libcerror_error_t *error  = NULL;
+	libfsext_extent_t *extent = NULL;
+	int result                = 0;
 
 	/* Initialize test
 	 */
-	result = libfsext_io_handle_initialize(
-	          &io_handle,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	io_handle->format_version = 4;
-
 	result = libfsext_extent_initialize(
 	          &extent,
 	          &error );
@@ -327,7 +306,6 @@ int fsext_test_extent_read_data(
 	 */
 	result = libfsext_extent_read_data(
 	          extent,
-	          io_handle,
 	          fsext_test_extent_data1,
 	          12,
 	          &error );
@@ -345,7 +323,6 @@ int fsext_test_extent_read_data(
 	 */
 	result = libfsext_extent_read_data(
 	          NULL,
-	          io_handle,
 	          fsext_test_extent_data1,
 	          12,
 	          &error );
@@ -365,7 +342,6 @@ int fsext_test_extent_read_data(
 	result = libfsext_extent_read_data(
 	          extent,
 	          NULL,
-	          fsext_test_extent_data1,
 	          12,
 	          &error );
 
@@ -383,26 +359,6 @@ int fsext_test_extent_read_data(
 
 	result = libfsext_extent_read_data(
 	          extent,
-	          io_handle,
-	          NULL,
-	          12,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libfsext_extent_read_data(
-	          extent,
-	          io_handle,
 	          fsext_test_extent_data1,
 	          (size_t) SSIZE_MAX + 1,
 	          &error );
@@ -421,7 +377,6 @@ int fsext_test_extent_read_data(
 
 	result = libfsext_extent_read_data(
 	          extent,
-	          io_handle,
 	          fsext_test_extent_data1,
 	          0,
 	          &error );
@@ -457,23 +412,6 @@ int fsext_test_extent_read_data(
 	 "error",
 	 error );
 
-	result = libfsext_io_handle_free(
-	          &io_handle,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -486,12 +424,6 @@ on_error:
 	{
 		libfsext_extent_free(
 		 &extent,
-		 NULL );
-	}
-	if( io_handle != NULL )
-	{
-		libfsext_io_handle_free(
-		 &io_handle,
 		 NULL );
 	}
 	return( 0 );

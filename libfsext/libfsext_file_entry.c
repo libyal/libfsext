@@ -137,7 +137,7 @@ int libfsext_file_entry_initialize(
 
 		return( -1 );
 	}
-	if( ( inode->file_mode & 0x4000 ) != 0 )
+	if( ( inode->file_mode & LIBFSEXT_FILE_TYPE_DIRECTORY ) != 0 )
 	{
 		if( libfsext_directory_initialize(
 		     &( internal_file_entry->directory ),

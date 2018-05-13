@@ -181,7 +181,7 @@ Contains GUID/UUID
 | 232 | 4 | | Orphan inode list head +
 The orphan inode list is a list of inodes to delete +
 [yellow-background]*What does this value contain?*
-| 236 | 4 x 4 | | HTREE hash seed
+| 236 | 4 x 4 | | hash-tree seed
 | 252 | 1 | | Default hash version
 | 253 | 3 | | Unknown (padding)
 | 256 | 4 | | Default mount options
@@ -273,7 +273,7 @@ Contains GUID/UUID
 | 232 | 4 | | Head of orphan inode list +
 The orphan inode list is a list of inodes to delete +
 [yellow-background]*What does this value contain?*
-| 236 | 4 x 4 | | HTREE hash seed
+| 236 | 4 x 4 | | hash-tree seed
 | 252 | 1 | | Default hash version
 | 253 | 3 | | Unknown (padding)
 | 256 | 4 | | Default mount options
@@ -599,8 +599,8 @@ The ext4 extent (ext4_extent) is 12 bytes of size and consists of:
 | Offset | Size | Value | Description
 | 0 | 4 | | Logical block number
 | 4 | 2 | | Number of blocks
-| 6 | 2 | | Lower part of physical block number
-| 8 | 4 | | Upper part of physical block number
+| 6 | 2 | | Upper part of physical block number
+| 8 | 4 | | Lower part of physical block number
 |===
 
 === [[ext4_extent_index]]The ext4 extent index
@@ -612,17 +612,25 @@ The ext4 extent index (ext4_extent_idx) is 12 bytes of size and consists of:
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
+| 0 | 4 | | Logical block number +
+Contains the first logical block number of next depth extents block
+| 4 | 4 | | Lower part of physical block number +
+Contains the block number of the next depth extents block
+| 8 | 2 | | Upper part of physical block number +
+Contains the block number of the next depth extents block
+| 10 | 2 | | [yellow-background]*Unused*
 |===
 
-....
-struct ext4_extent_idx {
-        __le32  ei_block;       /* index covers logical blocks from 'block' */
-        __le32  ei_leaf_lo;     /* pointer to the physical block of the next *
-                                 * level. leaf or next index could be there */
-        __le16  ei_leaf_hi;     /* high 16 bits of physical block */
-        __u16   ei_unused;
-};
-....
+=== The ext4 extents footer
+
+The ext4 extents footer (ext4_extent_tail) is 4 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | Checksum of an extents block +
+Contains a CRC32
+|===
 
 == The inode
 
@@ -743,16 +751,18 @@ Contains a POSIX timestamp
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
 | 36 | 4 | | Unknown (lower part of version)
-4+| _If EXT4_EXTENTS_FL not set_
+4+| _If EXT4_EXTENTS_FL and EXT4_INLINE_DATA_FL are not set_
 | 40 | 12 x 4 | | Array of direct block numbers
 | 88 | 4 | | Indirect block number
 | 92 | 4 | | Double indirect block number
 | 96 | 4 | | Triple indirect block number
-4+| _If EXT4_EXTENTS_FL set_
+4+| _If EXT4_EXTENTS_FL is set_
 | 40 | 12 | | Extents header +
 Also see: <<ext4_extents_header,The ext4 extents header>>
-| 52 | 4 x 12 | | Extents or extents indexes +
+| 52 | 4 x 12 | | extents or extents indexes +
 Also see: <<ext4_extent,The ext4 extent>> or <<ext4_extent_index,The ext4 extent index>>
+4+| _If EXT4_INLINE_DATA_FL is set_
+| 40 | 60 | | File entry data
 4+| _Common_
 | 100 | 4 | | NFS generation number
 | 104 | 4 | | Lower part of file ACL +
@@ -915,22 +925,33 @@ EXT4_JOURNAL_INO | Journal inode
 |===
 
 == Directory entries
-Directories entries are stored in the data blocks of directory inodes.
 
-Directory entries consists of:
+Directories entries are stored in the data blocks of directory inodes. The
+directory entries can be stored in multiple ways:
+
+* linear directory entries
+* hash-tree directory entries
+
+=== Linear directory entries
+
+Linear directories entries are stored in a series of allocation blocks.
+
+Linear directory entries contain:
 
 * directory entry for "." (self)
 * directory entry for ".." (parent)
 * directory entry for other file system entries
 
-=== The directory entry
-The directory entry is [yellow-background]*32 bytes* of size and consists of:
+==== The directory entry
+
+The directory entry is variable of size, at most 263 bytes, and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | | Inode number
-| 4 | 2 | | Directory entry size
+| 4 | 2 | | Directory entry size +
+Must be a multitude of 4.
 | 6 | 1 | | Name size +
 Contains the size of the name without the end-of-string character +
 Maximum of 255
@@ -946,6 +967,8 @@ the upper byte was never used.
 The name can contain any UTF-8 character value except the path separator '/'
 and the NUL-character. [yellow-background]*Is the name in extended ASCII
 on older platforms?*
+
+=== Hash-tree directory entries
 
 === [[file_type]]File type
 

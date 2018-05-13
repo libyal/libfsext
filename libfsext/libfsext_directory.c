@@ -24,6 +24,9 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libfsext_block.h"
+#include "libfsext_block_vector.h"
+#include "libfsext_definitions.h"
 #include "libfsext_directory.h"
 #include "libfsext_directory_entry.h"
 #include "libfsext_inode.h"
@@ -32,6 +35,8 @@
 #include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
+#include "libfsext_libfdata.h"
+#include "libfsext_libfcache.h"
 
 /* Creates a directory
  * Make sure the value directory is referencing, is set to NULL
@@ -180,16 +185,17 @@ int libfsext_directory_read_file_io_handle(
      libfsext_inode_t *inode,
      libcerror_error_t **error )
 {
+	libfcache_cache_t *block_cache              = NULL;
+	libfdata_vector_t *block_vector             = NULL;
+	libfsext_block_t *block                     = NULL;
 	libfsext_directory_entry_t *directory_entry = NULL;
-	uint8_t *data                               = NULL;
 	static char *function                       = "libfsext_directory_read_file_io_handle";
-	size_t data_offset                          = 0;
-	ssize_t read_count                          = 0;
-	off64_t file_offset                         = 0;
-	uint32_t block_number                       = 0;
+	size_t block_offset                         = 0;
+	size_t block_size                           = 0;
 	uint32_t directory_entry_index              = 0;
-	uint8_t direct_block_index                  = 0;
+	int block_index                             = 0;
 	int entry_index                             = 0;
+	int number_of_blocks                        = 0;
 
 	if( directory == NULL )
 	{
@@ -224,100 +230,107 @@ int libfsext_directory_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( ( inode->file_mode & 0x4000 ) == 0 ) 
+	if( ( inode->file_mode & LIBFSEXT_FILE_TYPE_DIRECTORY ) == 0 ) 
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: invalid inode - unsupported file mode.",
+		 "%s: invalid inode - unsupported file type.",
 		 function );
 
 		return( -1 );
 	}
-/* TODO replace by block vector or stream */
-	for( direct_block_index = 0;
-	     direct_block_index < 12;
-	     direct_block_index++ )
+	if( libfsext_block_vector_initialize(
+	     &block_vector,
+	     io_handle,
+	     inode,
+	     error ) != 1 )
 	{
-		block_number = inode->direct_block_number[ direct_block_index ];
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create block vector.",
+		 function );
 
-		if( block_number == 0 )
-		{
-			break;
-		}
-		file_offset = block_number * io_handle->block_size;
+		goto on_error;
+	}
+	if( libfcache_cache_initialize(
+	     &block_cache,
+	     LIBFSEXT_MAXIMUM_CACHE_ENTRIES_BLOCKS,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create block cache.",
+		 function );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: reading directory entries at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-			 function,
-			 file_offset,
-			 file_offset );
-		}
-#endif
-		if( libbfio_handle_seek_offset(
-		     file_io_handle,
-		     file_offset,
-		     SEEK_SET,
-		     error ) == -1 )
+		goto on_error;
+	}
+	if( libfdata_vector_get_number_of_elements(
+	     block_vector,
+	     &number_of_blocks,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of blocks.",
+		 function );
+
+		goto on_error;
+	}
+	for( block_index = 0;
+	     block_index < number_of_blocks;
+	     block_index++ )
+	{
+		if( libfdata_vector_get_element_value_by_index(
+		     block_vector,
+		     (intptr_t *) file_io_handle,
+		     block_cache,
+		     block_index,
+		     (intptr_t **) &block,
+		     0,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek directory entries offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve block: %d.",
 			 function,
-			 file_offset,
-			 file_offset );
+			 block_index );
 
 			goto on_error;
 		}
-		data = (uint8_t *) memory_allocate(
-		                    sizeof( uint8_t ) * (size_t) io_handle->block_size );
-
-		if( data == NULL )
+		if( block == NULL )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create data.",
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid block.",
 			 function );
 
 			goto on_error;
 		}
-		read_count = libbfio_handle_read_buffer(
-		              file_io_handle,
-		              data,
-		              (size_t) io_handle->block_size,
-		              error );
+		block_offset = 0;
+		block_size   = block->data_size;
 
-		if( read_count != (ssize_t) io_handle->block_size )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read directory entries at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-			 function,
-			 file_offset,
-			 file_offset );
-
-			goto on_error;
-		}
-		data_offset = 0;
-
-		while( data_offset < (size_t) io_handle->block_size )
+		while( block_offset < (size_t) block->data_size )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "Reading directory entry: %" PRIu32 "\n",
-				 directory_entry_index );
+				 "Reading directory entry: %" PRIu32 " at offset: %" PRIzd " (0x%08" PRIzx ")\n",
+				 directory_entry_index,
+				 block_offset,
+				 block_offset );
 			}
 #endif
 			if( libfsext_directory_entry_initialize(
@@ -336,23 +349,24 @@ int libfsext_directory_read_file_io_handle(
 			}
 			if( libfsext_directory_entry_read_data(
 			     directory_entry,
-			     &( data[ data_offset ] ),
-			     (size_t) io_handle->block_size - data_offset,
+			     &( block->data[ block_offset ] ),
+			     block_size,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read directory entry: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+				 "%s: unable to read directory entry: %" PRIu32 " at offset: %" PRIzd " (0x%08" PRIzx ").",
 				 function,
 				 directory_entry_index,
-				 file_offset + (off64_t) data_offset,
-				 file_offset + (off64_t) data_offset );
+				 block_offset,
+				 block_offset );
 
 				goto on_error;
 			}
-			data_offset += directory_entry->size;
+			block_offset += directory_entry->size;
+			block_size   -= directory_entry->size;
 
 /* TODO lost+found has directory entries with size but no values */
 			if( ( ( directory_entry->name_size == 2 )
@@ -400,10 +414,32 @@ int libfsext_directory_read_file_io_handle(
 
 			directory_entry_index++;
 		}
-		memory_free(
-		 data );
+	}
+	if( libfcache_cache_free(
+	     &block_cache,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free block cache.",
+		 function );
 
-		data = NULL;
+		goto on_error;
+	}
+	if( libfdata_vector_free(
+	     &block_vector,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free block vector.",
+		 function );
+
+		goto on_error;
 	}
 	return( 1 );
 
@@ -414,10 +450,17 @@ on_error:
 		 &directory_entry,
 		 NULL );
 	}
-	if( data != NULL )
+	if( block_cache != NULL )
 	{
-		memory_free(
-		 data );
+		libfcache_cache_free(
+		 &block_cache,
+		 NULL );
+	}
+	if( block_vector != NULL )
+	{
+		libfdata_vector_free(
+		 &block_vector,
+		 NULL );
 	}
 	return( -1 );
 }

@@ -31,6 +31,8 @@
 
 #include "fsext_extents.h"
 
+const char *fsext_extents_header_signature = "\x0a\xf3";
+
 /* Creates an extents header
  * Make sure the value extents_header is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
@@ -146,7 +148,6 @@ int libfsext_extents_header_read_data(
 	static char *function = "libfsext_extents_header_read_data";
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit  = 0;
 	uint16_t value_16bit  = 0;
 #endif
 
@@ -206,6 +207,32 @@ int libfsext_extents_header_read_data(
 		 0 );
 	}
 #endif
+	if( memory_compare(
+	     ( (fsext_extents_header_ext4_t *) data )->signature,
+	     fsext_extents_header_signature,
+	     2 ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: invalid signature.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_extents_header_ext4_t *) data )->number_of_extents,
+	 extents_header->number_of_extents );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_extents_header_ext4_t *) data )->depth,
+	 extents_header->depth );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_extents_header_ext4_t *) data )->generation,
+	 extents_header->generation );
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -217,9 +244,6 @@ int libfsext_extents_header_read_data(
 		 function,
 		 value_16bit );
 
-		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_extents_header_ext4_t *) data )->number_of_extents,
-		 value_16bit );
 		libcnotify_printf(
 		 "%s: number of extents\t\t\t: %" PRIu16 "\n",
 		 function,
@@ -233,21 +257,15 @@ int libfsext_extents_header_read_data(
 		 function,
 		 value_16bit );
 
-		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_extents_header_ext4_t *) data )->depth,
-		 value_16bit );
 		libcnotify_printf(
 		 "%s: depth\t\t\t\t: %" PRIu16 "\n",
 		 function,
-		 value_16bit );
+		 extents_header->depth );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_extents_header_ext4_t *) data )->generation,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: generation\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 extents_header->generation );
 
 		libcnotify_printf(
 		 "\n" );

@@ -35,17 +35,17 @@ typedef struct libfsext_extents_header libfsext_extents_header_t;
 
 struct libfsext_extents_header
 {
-	/* Logical block number
+	/* Number of extents
 	 */
-	uint32_t logical_block_number;
+	uint16_t number_of_extents;
 
-	/* Offset
+	/* Depth
 	 */
-	off64_t offset;
+	uint16_t depth;
 
-	/* Size
+	/* Generation
 	 */
-	size64_t size;
+	uint32_t generation;
 };
 
 int libfsext_extents_header_initialize(

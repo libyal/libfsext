@@ -73,15 +73,15 @@ struct fsext_extent_ext4
 	 */
 	uint8_t number_of_blocks[ 2 ];
 
-	/* Physical block number (lower 16-bit)
+	/* Physical block number (upper 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t physical_block_number_lower[ 2 ];
+	uint8_t physical_block_number_upper[ 2 ];
 
-	/* Physical block number (upper 32-bit)
+	/* Physical block number (lower 32-bit)
 	 * Consists of 4 bytes
 	 */
-	uint8_t physical_block_number_upper[ 4 ];
+	uint8_t physical_block_number_lower[ 4 ];
 };
 
 #if defined( __cplusplus )

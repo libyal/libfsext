@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "libfsext_io_handle.h"
 #include "libfsext_libcerror.h"
 
 #if defined( __cplusplus )
@@ -40,13 +39,13 @@ struct libfsext_extent
 	 */
 	uint32_t logical_block_number;
 
-	/* Offset
+	/* Physical block number
 	 */
-	off64_t offset;
+	uint64_t physical_block_number;
 
-	/* Size
+	/* Number of blocks
 	 */
-	size64_t size;
+	uint16_t number_of_blocks;
 };
 
 int libfsext_extent_initialize(
@@ -57,9 +56,13 @@ int libfsext_extent_free(
      libfsext_extent_t **extent,
      libcerror_error_t **error );
 
+int libfsext_extent_clone(
+     libfsext_extent_t **destination_extent,
+     libfsext_extent_t *source_extent,
+     libcerror_error_t **error );
+
 int libfsext_extent_read_data(
      libfsext_extent_t *extent,
-     libfsext_io_handle_t *io_handle,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error );

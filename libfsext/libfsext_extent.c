@@ -25,7 +25,6 @@
 #include <types.h>
 
 #include "libfsext_extent.h"
-#include "libfsext_io_handle.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
 
@@ -134,12 +133,90 @@ int libfsext_extent_free(
 	return( 1 );
 }
 
+/* Clones an extent
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_extent_clone(
+     libfsext_extent_t **destination_extent,
+     libfsext_extent_t *source_extent,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_extent_clone";
+
+	if( destination_extent == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid extent.",
+		 function );
+
+		return( -1 );
+	}
+	if( *destination_extent != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid destination extent value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( source_extent == NULL )
+	{
+		*destination_extent = source_extent;
+
+		return( 1 );
+	}
+	*destination_extent = memory_allocate_structure(
+	                       libfsext_extent_t );
+
+	if( *destination_extent == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create destination extent.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_copy(
+	     *destination_extent,
+	     source_extent,
+	     sizeof( libfsext_extent_t ) ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy source to destination extent.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( *destination_extent != NULL )
+	{
+		memory_free(
+		 *destination_extent );
+
+		*destination_extent = NULL;
+	}
+	return( -1 );
+}
+
 /* Reads the extent data
  * Returns 1 if successful or -1 on error
  */
 int libfsext_extent_read_data(
      libfsext_extent_t *extent,
-     libfsext_io_handle_t *io_handle,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
@@ -155,17 +232,6 @@ int libfsext_extent_read_data(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid extent.",
-		 function );
-
-		return( -1 );
-	}
-	if( io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -221,15 +287,15 @@ int libfsext_extent_read_data(
 
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (fsext_extent_ext4_t *) data )->number_of_blocks,
-	 extent->size );
+	 extent->number_of_blocks );
 
 	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_extent_ext4_t *) data )->physical_block_number_lower,
-	 physical_block_number_lower );
-
-	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_extent_ext4_t *) data )->physical_block_number_upper,
 	 physical_block_number_upper );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_extent_ext4_t *) data )->physical_block_number_lower,
+	 physical_block_number_lower );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -240,28 +306,26 @@ int libfsext_extent_read_data(
 		 extent->logical_block_number );
 
 		libcnotify_printf(
-		 "%s: number of blocks\t\t\t\t: %" PRIu64 "\n",
+		 "%s: number of blocks\t\t\t\t: %" PRIu16 "\n",
 		 function,
-		 extent->size );
+		 extent->number_of_blocks );
 
 		libcnotify_printf(
-		 "%s: physical block number (lower)\t\t: %" PRIu16 "\n",
-		 function,
-		 physical_block_number_lower );
-
-		libcnotify_printf(
-		 "%s: physical block number (upper)\t\t: %" PRIu32 "\n",
+		 "%s: physical block number (upper)\t\t: %" PRIu16 "\n",
 		 function,
 		 physical_block_number_upper );
+
+		libcnotify_printf(
+		 "%s: physical block number (lower)\t\t: %" PRIu32 "\n",
+		 function,
+		 physical_block_number_lower );
 
 		libcnotify_printf(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	extent->offset  = ( (off64_t) physical_block_number_upper << 16 ) | physical_block_number_lower;
-	extent->offset *= io_handle->block_size;
-	extent->size   *= io_handle->block_size;
+	extent->physical_block_number = ( (uint64_t) physical_block_number_upper << 32 ) | physical_block_number_lower;
 
 	return( 1 );
 }

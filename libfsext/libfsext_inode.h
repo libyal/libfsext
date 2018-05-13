@@ -25,8 +25,10 @@
 #include <common.h>
 #include <types.h>
 
+#include "libfsext_extent.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
+#include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libfcache.h"
 #include "libfsext_libfdata.h"
@@ -46,22 +48,6 @@ struct libfsext_inode
 	/* Data size
 	 */
 	uint64_t data_size;
-
-	/* Direct block numbers
-	 */
-	uint32_t direct_block_number[ 12 ];
-
-	/* Indirect block number
-	 */
-	uint32_t indirect_block_number;
-
-	/* Double indirect block number
-	 */
-	uint32_t double_indirect_block_number;
-
-	/* Triple indirect block number
-	 */
-	uint32_t triple_indirect_block_number;
 
 	/* Links count
 	 */
@@ -126,6 +112,10 @@ struct libfsext_inode
 	/* NFS generation number
 	 */
 	uint32_t nfs_generation_number;
+
+	/* Data extents array
+	 */
+	libcdata_array_t *data_extents_array;
 };
 
 int libfsext_inode_initialize(
@@ -146,6 +136,17 @@ int libfsext_inode_read_data(
      libfsext_io_handle_t *io_handle,
      const uint8_t *data,
      size_t data_size,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_number_of_extents(
+     libfsext_inode_t *inode,
+     int *number_of_extents,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_extent_by_index(
+     libfsext_inode_t *inode,
+     int extent_index,
+     libfsext_extent_t **extent,
      libcerror_error_t **error );
 
 int libfsext_inode_get_access_time(
