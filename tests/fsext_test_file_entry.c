@@ -104,6 +104,8 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
+	/* TODO: add tests for libfsext_file_entry_is_empty */
+
 	/* TODO: add tests for libfsext_file_entry_get_access_time */
 
 	/* TODO: add tests for libfsext_file_entry_get_inode_change_time */
@@ -111,6 +113,12 @@ int main(
 	/* TODO: add tests for libfsext_file_entry_get_modification_time */
 
 	/* TODO: add tests for libfsext_file_entry_get_deletion_time */
+
+	/* TODO: add tests for libfsext_file_entry_get_file_mode */
+
+	/* TODO: add tests for libfsext_file_entry_get_user_identifier */
+
+	/* TODO: add tests for libfsext_file_entry_get_group_identifier */
 
 	/* TODO: add tests for libfsext_file_entry_get_utf8_name_size */
 

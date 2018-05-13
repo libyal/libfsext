@@ -273,6 +273,269 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libfsext_extent_clone function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_extent_clone(
+     void )
+{
+	libcerror_error_t *error              = NULL;
+	libfsext_extent_t *destination_extent = NULL;
+	libfsext_extent_t *source_extent      = NULL;
+	int result                            = 0;
+
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+	int number_of_malloc_fail_tests       = 1;
+	int number_of_memset_fail_tests       = 1;
+	int test_number                       = 0;
+#endif
+
+	/* Initialize test
+	 */
+	result = libfsext_extent_initialize(
+	          &source_extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "source_extent",
+	 source_extent );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libfsext_extent_clone(
+	          &destination_extent,
+	          source_extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "destination_extent",
+	 destination_extent );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfsext_extent_free(
+	          &destination_extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "destination_extent",
+	 destination_extent );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfsext_extent_clone(
+	          &destination_extent,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "destination_extent",
+	 destination_extent );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_extent_clone(
+	          NULL,
+	          source_extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	destination_extent = (libfsext_extent_t *) 0x12345678UL;
+
+	result = libfsext_extent_clone(
+	          &destination_extent,
+	          source_extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	destination_extent = NULL;
+
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libfsext_extent_clone with malloc failing
+		 */
+		fsext_test_malloc_attempts_before_fail = test_number;
+
+		result = libfsext_extent_clone(
+		          &destination_extent,
+		          source_extent,
+		          &error );
+
+		if( fsext_test_malloc_attempts_before_fail != -1 )
+		{
+			fsext_test_malloc_attempts_before_fail = -1;
+
+			if( destination_extent != NULL )
+			{
+				libfsext_extent_free(
+				 &destination_extent,
+				 NULL );
+			}
+		}
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "destination_extent",
+			 destination_extent );
+
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libfsext_extent_clone with memcpy failing
+		 */
+		fsext_test_memcpy_attempts_before_fail = 0;
+
+		result = libfsext_extent_clone(
+		          &destination_extent,
+		          source_extent,
+		          &error );
+
+		if( fsext_test_memcpy_attempts_before_fail != -1 )
+		{
+			fsext_test_memcpy_attempts_before_fail = -1;
+
+			if( destination_extent != NULL )
+			{
+				libfsext_extent_free(
+				 &destination_extent,
+				 NULL );
+			}
+		}
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "destination_extent",
+			 destination_extent );
+
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
+
+	/* Clean up
+	 */
+	result = libfsext_extent_free(
+	          &source_extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "source_extent",
+	 source_extent );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( destination_extent != NULL )
+	{
+		libfsext_extent_free(
+		 &destination_extent,
+		 NULL );
+	}
+	if( source_extent != NULL )
+	{
+		libfsext_extent_free(
+		 &source_extent,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libfsext_extent_read_data function
  * Returns 1 if successful or 0 if not
  */
@@ -455,6 +718,10 @@ int main(
 	FSEXT_TEST_RUN(
 	 "libfsext_extent_free",
 	 fsext_test_extent_free );
+
+	FSEXT_TEST_RUN(
+	 "libfsext_extent_clone",
+	 fsext_test_extent_clone );
 
 	FSEXT_TEST_RUN(
 	 "libfsext_extent_read_data",

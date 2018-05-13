@@ -1064,7 +1064,9 @@ int info_handle_inode_fprint(
 {
 	libfsext_file_entry_t *file_entry = NULL;
 	static char *function             = "info_handle_inode_fprint";
-	int result                        = 0;
+	uint32_t value_32bit              = 0;
+	uint16_t value_16bit              = 0;
+	int is_empty                      = 0;
 
 	if( info_handle == NULL )
 	{
@@ -1083,6 +1085,12 @@ int info_handle_inode_fprint(
 	     &file_entry,
 	     error ) != 1 )
 	{
+		if( ( error != NULL )
+		 && ( *error != NULL ) )
+		{
+			libcnotify_print_error_backtrace(
+			 *error );
+		}
 		libcerror_error_free(
 		 error );
 
@@ -1098,8 +1106,205 @@ int info_handle_inode_fprint(
 	 "inode: %" PRIu32 " information:\n",
 	 inode_number );
 
-/* TODO implement */
+	is_empty = libfsext_file_entry_is_empty(
+	            file_entry,
+	            error );
 
+	if( is_empty == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if file entry is empty.",
+		 function );
+
+		goto on_error;
+	}
+	else if( is_empty != 0 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tIs empty\n" );
+	}
+	else
+	{
+/* TODO implement is allocated */
+		if( libfsext_file_entry_get_access_time(
+		     file_entry,
+		     &value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve access time.",
+			 function );
+
+			goto on_error;
+		}
+		if( info_handle_posix_time_value_fprint(
+		     info_handle,
+		     "\tAccess time\t\t",
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print POSIX time value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_file_entry_get_inode_change_time(
+		     file_entry,
+		     &value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve inode change time.",
+			 function );
+
+			goto on_error;
+		}
+		if( info_handle_posix_time_value_fprint(
+		     info_handle,
+		     "\tInode change time\t",
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print POSIX time value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_file_entry_get_modification_time(
+		     file_entry,
+		     &value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve modification time.",
+			 function );
+
+			goto on_error;
+		}
+		if( info_handle_posix_time_value_fprint(
+		     info_handle,
+		     "\tModification time\t",
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print POSIX time value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_file_entry_get_deletion_time(
+		     file_entry,
+		     &value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve deletion time.",
+			 function );
+
+			goto on_error;
+		}
+		if( info_handle_posix_time_value_fprint(
+		     info_handle,
+		     "\tDeletion time\t\t",
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print POSIX time value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_file_entry_get_file_mode(
+		     file_entry,
+		     &value_16bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve file mode.",
+			 function );
+
+			goto on_error;
+		}
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tFile mode\t\t: %" PRIo16 "\n",
+		 value_16bit );
+
+/* TODO print semantic representation of file mode */
+
+		if( libfsext_file_entry_get_user_identifier(
+		     file_entry,
+		     &value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve user identifier.",
+			 function );
+
+			goto on_error;
+		}
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tUser identifier\t\t: %" PRIu32 "\n",
+		 value_32bit );
+
+		if( libfsext_file_entry_get_group_identifier(
+		     file_entry,
+		     &value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve group identifier.",
+			 function );
+
+			goto on_error;
+		}
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tGroup identifier\t: %" PRIu32 "\n",
+		 value_32bit );
+	}
 	if( libfsext_file_entry_free(
 	     &file_entry,
 	     error ) != 1 )
@@ -1113,6 +1318,10 @@ int info_handle_inode_fprint(
 
 		goto on_error;
 	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "\n" );
+
 	return( 1 );
 
 on_error:

@@ -382,6 +382,14 @@ int libfsext_file_entry_free(
      libfsext_file_entry_t **file_entry,
      libfsext_error_t **error );
 
+/* Determines if the file entry is emtpy
+ * Returns 1 if empty, 0 if not or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_is_empty(
+     libfsext_file_entry_t *file_entry,
+     libfsext_error_t **error );
+
 /* Retrieves the access date and time
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error
@@ -420,6 +428,36 @@ LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_deletion_time(
      libfsext_file_entry_t *file_entry,
      uint32_t *posix_time,
+     libfsext_error_t **error );
+
+/* Retrieves the file mode
+ * This value is retrieved from the inode
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_file_mode(
+     libfsext_file_entry_t *file_entry,
+     uint16_t *file_mode,
+     libfsext_error_t **error );
+
+/* Retrieves the user identifier
+ * This value is retrieved from the inode
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_user_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *user_identifier,
+     libfsext_error_t **error );
+
+/* Retrieves the group identifier
+ * This value is retrieved from the inode
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_group_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *group_identifier,
      libfsext_error_t **error );
 
 /* Retrieves the size of the UTF-8 encoded name
@@ -485,6 +523,39 @@ int libfsext_file_entry_get_sub_file_entry_by_index(
      libfsext_file_entry_t *file_entry,
      int sub_file_entry_index,
      libfsext_file_entry_t **sub_file_entry,
+     libfsext_error_t **error );
+
+/* TODO add read and seek functions */
+/* TODO add get offset function */
+
+/* Retrieves the size of the data
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_size(
+     libfsext_file_entry_t *file_entry,
+     size64_t *size,
+     libfsext_error_t **error );
+
+/* Retrieves the number of extents
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_number_of_extents(
+     libfsext_file_entry_t *file_entry,
+     int *number_of_extents,
+     libfsext_error_t **error );
+
+/* Retrieves a specific extent
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_extent_by_index(
+     libfsext_file_entry_t *file_entry,
+     int extent_index,
+     off64_t *extent_offset,
+     size64_t *extent_size,
+     uint32_t *extent_flags,
      libfsext_error_t **error );
 
 #if defined( __cplusplus )

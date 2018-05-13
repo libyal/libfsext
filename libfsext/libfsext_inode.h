@@ -116,6 +116,10 @@ struct libfsext_inode
 	/* Data extents array
 	 */
 	libcdata_array_t *data_extents_array;
+
+	/* Value to indicate the inode is empty
+	 */
+	uint8_t is_empty;
 };
 
 int libfsext_inode_initialize(
@@ -138,15 +142,8 @@ int libfsext_inode_read_data(
      size_t data_size,
      libcerror_error_t **error );
 
-int libfsext_inode_get_number_of_extents(
+int libfsext_inode_is_empty(
      libfsext_inode_t *inode,
-     int *number_of_extents,
-     libcerror_error_t **error );
-
-int libfsext_inode_get_extent_by_index(
-     libfsext_inode_t *inode,
-     int extent_index,
-     libfsext_extent_t **extent,
      libcerror_error_t **error );
 
 int libfsext_inode_get_access_time(
@@ -167,6 +164,37 @@ int libfsext_inode_get_modification_time(
 int libfsext_inode_get_deletion_time(
      libfsext_inode_t *inode,
      uint32_t *posix_time,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_file_mode(
+     libfsext_inode_t *inode,
+     uint16_t *file_mode,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_data_size(
+     libfsext_inode_t *inode,
+     uint64_t *data_size,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_user_identifier(
+     libfsext_inode_t *inode,
+     uint32_t *user_identifier,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_group_identifier(
+     libfsext_inode_t *inode,
+     uint32_t *group_identifier,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_number_of_extents(
+     libfsext_inode_t *inode,
+     int *number_of_extents,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_extent_by_index(
+     libfsext_inode_t *inode,
+     int extent_index,
+     libfsext_extent_t **extent,
      libcerror_error_t **error );
 
 int libfsext_inode_read_element_data(

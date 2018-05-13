@@ -290,7 +290,7 @@ on_error:
 }
 
 /* Reads the inode data
- * Returns 1 if successful, 0 if the inode is empty or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libfsext_inode_read_data(
      libfsext_inode_t *inode,
@@ -358,13 +358,6 @@ int libfsext_inode_read_data(
 
 		return( -1 );
 	}
-	if( memory_compare(
-	     empty_inode_data,
-	     data,
-	     data_size ) == 0 )
-	{
-		return( 0 );
-	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -374,9 +367,22 @@ int libfsext_inode_read_data(
 		libcnotify_print_data(
 		 data,
 		 data_size,
-		 0 );
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
+	if( memory_compare(
+	     empty_inode_data,
+	     data,
+	     data_size ) == 0 )
+	{
+		inode->is_empty = 1;
+
+		return( 1 );
+	}
+	else
+	{
+		inode->is_empty = 0;
+	}
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->file_mode,
 	 inode->file_mode );
@@ -1218,6 +1224,325 @@ on_error:
 	return( -1 );
 }
 
+/* Determines if the inode is empty
+ * Returns 1 if empty, 0 if not or -1 on error
+ */
+int libfsext_inode_is_empty(
+     libfsext_inode_t *inode,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_is_empty";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	return( (int) inode->is_empty );
+}
+
+/* Retrieves the access date and time
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_access_time(
+     libfsext_inode_t *inode,
+     uint32_t *posix_time,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_access_time";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( posix_time == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid POSIX time.",
+		 function );
+
+		return( -1 );
+	}
+	*posix_time = inode->access_time;
+
+	return( 1 );
+}
+
+/* Retrieves the inode change time date and time
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_inode_change_time(
+     libfsext_inode_t *inode,
+     uint32_t *posix_time,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_inode_change_time";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( posix_time == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid POSIX time.",
+		 function );
+
+		return( -1 );
+	}
+	*posix_time = inode->inode_change_time;
+
+	return( 1 );
+}
+
+/* Retrieves the modification date and time
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_modification_time(
+     libfsext_inode_t *inode,
+     uint32_t *posix_time,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_modification_time";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( posix_time == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid POSIX time.",
+		 function );
+
+		return( -1 );
+	}
+	*posix_time = inode->modification_time;
+
+	return( 1 );
+}
+
+/* Retrieves the deletion date and time
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_deletion_time(
+     libfsext_inode_t *inode,
+     uint32_t *posix_time,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_deletion_time";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( posix_time == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid POSIX time.",
+		 function );
+
+		return( -1 );
+	}
+	*posix_time = inode->deletion_time;
+
+	return( 1 );
+}
+
+/* Retrieves the file mode
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_file_mode(
+     libfsext_inode_t *inode,
+     uint16_t *file_mode,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_file_mode";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( file_mode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file mode.",
+		 function );
+
+		return( -1 );
+	}
+	*file_mode = inode->file_mode;
+
+	return( 1 );
+}
+
+/* Retrieves the data size
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_data_size(
+     libfsext_inode_t *inode,
+     uint64_t *data_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_data_size";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data size.",
+		 function );
+
+		return( -1 );
+	}
+	*data_size = inode->data_size;
+
+	return( 1 );
+}
+
+/* Retrieves the user identifier
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_user_identifier(
+     libfsext_inode_t *inode,
+     uint32_t *user_identifier,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_user_identifier";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( user_identifier == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid user identifier.",
+		 function );
+
+		return( -1 );
+	}
+	*user_identifier = inode->user_identifier;
+
+	return( 1 );
+}
+
+/* Retrieves the group identifier
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_group_identifier(
+     libfsext_inode_t *inode,
+     uint32_t *group_identifier,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_group_identifier";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( group_identifier == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid group identifier.",
+		 function );
+
+		return( -1 );
+	}
+	*group_identifier = inode->group_identifier;
+
+	return( 1 );
+}
+
 /* Retrieves the number of extents
  * Returns 1 if successful or -1 on error
  */
@@ -1294,158 +1619,6 @@ int libfsext_inode_get_extent_by_index(
 
 		return( -1 );
 	}
-	return( 1 );
-}
-
-/* Retrieves the access date and time
- * This value is retrieved from the inode
- * Returns 1 if successful or -1 on error
- */
-int libfsext_inode_get_access_time(
-     libfsext_inode_t *inode,
-     uint32_t *posix_time,
-     libcerror_error_t **error )
-{
-	static char *function = "libfsext_inode_get_access_time";
-
-	if( inode == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid inode.",
-		 function );
-
-		return( -1 );
-	}
-	if( posix_time == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid POSIX time.",
-		 function );
-
-		return( -1 );
-	}
-	*posix_time = inode->access_time;
-
-	return( 1 );
-}
-
-/* Retrieves the inode change time date and time
- * This value is retrieved from the inode
- * Returns 1 if successful or -1 on error
- */
-int libfsext_inode_get_inode_change_time(
-     libfsext_inode_t *inode,
-     uint32_t *posix_time,
-     libcerror_error_t **error )
-{
-	static char *function = "libfsext_inode_get_inode_change_time";
-
-	if( inode == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid inode.",
-		 function );
-
-		return( -1 );
-	}
-	if( posix_time == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid POSIX time.",
-		 function );
-
-		return( -1 );
-	}
-	*posix_time = inode->inode_change_time;
-
-	return( 1 );
-}
-
-/* Retrieves the modification date and time
- * This value is retrieved from the inode
- * Returns 1 if successful or -1 on error
- */
-int libfsext_inode_get_modification_time(
-     libfsext_inode_t *inode,
-     uint32_t *posix_time,
-     libcerror_error_t **error )
-{
-	static char *function = "libfsext_inode_get_modification_time";
-
-	if( inode == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid inode.",
-		 function );
-
-		return( -1 );
-	}
-	if( posix_time == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid POSIX time.",
-		 function );
-
-		return( -1 );
-	}
-	*posix_time = inode->modification_time;
-
-	return( 1 );
-}
-
-/* Retrieves the deletion date and time
- * This value is retrieved from the inode
- * Returns 1 if successful or -1 on error
- */
-int libfsext_inode_get_deletion_time(
-     libfsext_inode_t *inode,
-     uint32_t *posix_time,
-     libcerror_error_t **error )
-{
-	static char *function = "libfsext_inode_get_deletion_time";
-
-	if( inode == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid inode.",
-		 function );
-
-		return( -1 );
-	}
-	if( posix_time == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid POSIX time.",
-		 function );
-
-		return( -1 );
-	}
-	*posix_time = inode->deletion_time;
-
 	return( 1 );
 }
 
@@ -1575,7 +1748,7 @@ int libfsext_inode_read_element_data(
 	     io_handle,
 	     data,
 	     (size_t) element_data_size,
-	     error ) == -1 )
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,

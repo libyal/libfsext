@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBFSEXT_INTERNAL_FILE_ENTRY_H )
-#define _LIBFSEXT_INTERNAL_FILE_ENTRY_H
+#if !defined( _LIBFSEXT_FILE_ENTRY_H )
+#define _LIBFSEXT_FILE_ENTRY_H
 
 #include <common.h>
 #include <types.h>
@@ -93,6 +93,11 @@ int libfsext_file_entry_free(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_file_entry_is_empty(
+     libfsext_file_entry_t *file_entry,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_access_time(
      libfsext_file_entry_t *file_entry,
      uint32_t *posix_time,
@@ -114,6 +119,24 @@ LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_deletion_time(
      libfsext_file_entry_t *file_entry,
      uint32_t *posix_time,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_file_mode(
+     libfsext_file_entry_t *file_entry,
+     uint16_t *file_mode,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_user_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *user_identifier,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_group_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *group_identifier,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
@@ -224,5 +247,5 @@ int libfsext_file_entry_get_extent_by_index(
 }
 #endif
 
-#endif /* !defined( _LIBFSEXT_INTERNAL_FILE_ENTRY_H ) */
+#endif /* !defined( _LIBFSEXT_FILE_ENTRY_H ) */
 

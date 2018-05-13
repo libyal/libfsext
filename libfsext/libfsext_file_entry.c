@@ -137,7 +137,7 @@ int libfsext_file_entry_initialize(
 
 		return( -1 );
 	}
-	if( ( inode->file_mode & LIBFSEXT_FILE_TYPE_DIRECTORY ) != 0 )
+	if( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_DIRECTORY )
 	{
 		if( libfsext_directory_initialize(
 		     &( internal_file_entry->directory ),
@@ -166,6 +166,23 @@ int libfsext_file_entry_initialize(
 			 "%s: unable to read directory for inode: %" PRIu32 ".",
 			 function,
 			 inode_number );
+
+			goto on_error;
+		}
+	}
+	else if( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_REGULAR_FILE )
+	{
+		if( libfsext_inode_get_data_size(
+		     inode,
+		     (uint64_t *) &( internal_file_entry->data_size ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve data size from inode.",
+			 function );
 
 			goto on_error;
 		}
@@ -275,6 +292,48 @@ int libfsext_file_entry_free(
 		}
 		memory_free(
 		 internal_file_entry );
+	}
+	return( result );
+}
+
+/* Determines if the file entry is empty
+ * Returns 1 if empty, 0 if not or -1 on error
+ */
+int libfsext_file_entry_is_empty(
+     libfsext_file_entry_t *file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_is_empty";
+	int result                                          = 0;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+	result = libfsext_inode_is_empty(
+	          internal_file_entry->inode,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if inode is empty.",
+		 function );
+
+		return( -1 );
 	}
 	return( result );
 }
@@ -484,6 +543,165 @@ int libfsext_file_entry_get_deletion_time(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve deletion time from inode.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the file mode
+ * This value is retrieved from the inode
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_file_entry_get_file_mode(
+     libfsext_file_entry_t *file_entry,
+     uint16_t *file_mode,
+     libcerror_error_t **error )
+{
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_get_file_mode";
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfsext_inode_get_file_mode(
+	     internal_file_entry->inode,
+	     file_mode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file mode from inode.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the user identifier
+ * This value is retrieved from the inode
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_file_entry_get_user_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *user_identifier,
+     libcerror_error_t **error )
+{
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_get_user_identifier";
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfsext_inode_get_user_identifier(
+	     internal_file_entry->inode,
+	     user_identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve user identifier from inode.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the group identifier
+ * This value is retrieved from the inode
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_file_entry_get_group_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *group_identifier,
+     libcerror_error_t **error )
+{
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_get_group_identifier";
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfsext_inode_get_group_identifier(
+	     internal_file_entry->inode,
+	     group_identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve group identifier from inode.",
 		 function );
 
 		return( -1 );
@@ -1294,7 +1512,7 @@ on_error:
 	return( -1 );
 }
 
-/* Reads data at the current offset from the default data stream (nameless $DATA attribute)
+/* Reads data at the current offset
  * Returns the number of bytes read or -1 on error
  */
 ssize_t libfsext_file_entry_read_buffer(
@@ -1357,7 +1575,7 @@ ssize_t libfsext_file_entry_read_buffer(
 	return( read_count );
 }
 
-/* Reads data at a specific offset from the default data stream (nameless $DATA attribute)
+/* Reads data at a specific offset
  * Returns the number of bytes read or -1 on error
  */
 ssize_t libfsext_file_entry_read_buffer_at_offset(
@@ -1405,7 +1623,7 @@ ssize_t libfsext_file_entry_read_buffer_at_offset(
 	return( read_count );
 }
 
-/* Seeks a certain offset in the default data stream (nameless $DATA attribute)
+/* Seeks a certain offset in the data
  * Returns the offset if seek is successful or -1 on error
  */
 off64_t libfsext_file_entry_seek_offset(
@@ -1461,7 +1679,7 @@ off64_t libfsext_file_entry_seek_offset(
 	return( offset );
 }
 
-/* Retrieves the current offset of the default data stream (nameless $DATA attribute)
+/* Retrieves the current offset of the data
  * Returns the offset if successful or -1 on error
  */
 int libfsext_file_entry_get_offset(
@@ -1513,7 +1731,9 @@ int libfsext_file_entry_get_offset(
 	return( 1 );
 }
 
-/* Retrieves the size of the default data stream (nameless $DATA attribute)
+#endif /* TODO */
+
+/* Retrieves the size of the data
  * Returns 1 if successful or -1 on error
  */
 int libfsext_file_entry_get_size(
@@ -1522,7 +1742,7 @@ int libfsext_file_entry_get_size(
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_size";
+	static char *function                               = "libfsext_file_entry_get_size";
 
 	if( file_entry == NULL )
 	{
@@ -1537,17 +1757,6 @@ int libfsext_file_entry_get_size(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( internal_file_entry->data_attribute == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file entry - missing data attribute.",
-		 function );
-
-		return( -1 );
-	}
 	if( size == NULL )
 	{
 		libcerror_error_set(
@@ -1564,7 +1773,7 @@ int libfsext_file_entry_get_size(
 	return( 1 );
 }
 
-/* Retrieves the number of extents (decoded data runs) of the default data stream (nameless $DATA attribute)
+/* Retrieves the number of extents of the data
  * Returns 1 if successful or -1 on error
  */
 int libfsext_file_entry_get_number_of_extents(
@@ -1573,7 +1782,7 @@ int libfsext_file_entry_get_number_of_extents(
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_number_of_extents";
+	static char *function                               = "libfsext_file_entry_get_number_of_extents";
 
 	if( file_entry == NULL )
 	{
@@ -1588,42 +1797,35 @@ int libfsext_file_entry_get_number_of_extents(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( internal_file_entry->data_cluster_block_stream == NULL )
+	if( internal_file_entry->inode == NULL )
 	{
-		if( number_of_extents == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid number of extents.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
 
-			return( -1 );
-		}
-		*number_of_extents = 0;
+		return( -1 );
 	}
-	else
+	if( libfsext_inode_get_number_of_extents(
+	     internal_file_entry->inode,
+	     number_of_extents,
+	     error ) != 1 )
 	{
-		if( libfdata_stream_get_number_of_segments(
-		     internal_file_entry->data_cluster_block_stream,
-		     number_of_extents,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve data cluster block stream number of segments.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of extents from inode.",
+		 function );
 
-			return( -1 );
-		}
+		return( -1 );
 	}
 	return( 1 );
 }
 
-/* Retrieves a specific extent (decoded data run) of the default data stream (nameless $DATA attribute)
+/* Retrieves a specific extent of the data
  * Returns 1 if successful or -1 on error
  */
 int libfsext_file_entry_get_extent_by_index(
@@ -1634,11 +1836,9 @@ int libfsext_file_entry_get_extent_by_index(
      uint32_t *extent_flags,
      libcerror_error_t **error )
 {
+	libfsext_extent_t *extent                           = NULL;
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_extent_by_index";
-	size64_t data_size                                   = 0;
-	uint32_t range_flags                                 = 0;
-	int segment_file_index                               = 0;
+	static char *function                               = "libfsext_file_entry_get_extent_by_index";
 
 	if( file_entry == NULL )
 	{
@@ -1653,13 +1853,24 @@ int libfsext_file_entry_get_extent_by_index(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( internal_file_entry->data_cluster_block_stream == NULL )
+	if( internal_file_entry->io_handle == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid extent index value out of bounds.",
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
 		 function );
 
 		return( -1 );
@@ -1697,72 +1908,26 @@ int libfsext_file_entry_get_extent_by_index(
 
 		return( -1 );
 	}
-	if( libfdata_stream_get_segment_by_index(
-	     internal_file_entry->data_cluster_block_stream,
+	if( libfsext_inode_get_extent_by_index(
+	     internal_file_entry->inode,
 	     extent_index,
-	     &segment_file_index,
-	     extent_offset,
-	     extent_size,
-	     &range_flags,
+	     &extent,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data cluster block stream segment: %d.",
+		 "%s: unable to retrieve extent: %d from inode.",
 		 function,
 		 extent_index );
 
 		return( -1 );
 	}
-	if( libfdata_stream_get_segment_mapped_range(
-	     internal_file_entry->data_cluster_block_stream,
-	     extent_index,
-	     extent_offset,
-	     extent_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data cluster block stream segment: %d mapped range.",
-		 function,
-		 extent_index );
+	*extent_offset = (off64_t) extent->physical_block_number * (off64_t) internal_file_entry->io_handle->block_size;
+	*extent_size   = (size64_t) extent->number_of_blocks * (size64_t) internal_file_entry->io_handle->block_size;
+	*extent_flags  = 0;
 
-		return( -1 );
-	}
-	if( ( *extent_offset < 0 )
-	 || ( (size64_t) *extent_offset >= internal_file_entry->data_size ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid extent offset value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	data_size = internal_file_entry->data_size - *extent_offset;
-
-	if( *extent_size > data_size )
-	{
-		*extent_size = data_size;
-	}
-	*extent_flags = 0;
-
-	if( ( range_flags & LIBFDATA_RANGE_FLAG_IS_SPARSE ) != 0 )
-	{
-		*extent_flags |= LIBFSEXT_EXTENT_FLAG_IS_SPARSE;
-	}
-	if( ( range_flags & LIBFDATA_RANGE_FLAG_IS_COMPRESSED ) != 0 )
-	{
-		*extent_flags |= LIBFSEXT_EXTENT_FLAG_IS_COMPRESSED;
-	}
 	return( 1 );
 }
-
-#endif /* TODO */
 

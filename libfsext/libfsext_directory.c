@@ -230,7 +230,7 @@ int libfsext_directory_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( ( inode->file_mode & LIBFSEXT_FILE_TYPE_DIRECTORY ) == 0 ) 
+	if( ( inode->file_mode & 0xf000 ) != LIBFSEXT_FILE_TYPE_DIRECTORY )
 	{
 		libcerror_error_set(
 		 error,
