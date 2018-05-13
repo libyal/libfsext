@@ -859,7 +859,115 @@ on_error:
 	return( -1 );
 }
 
-/* Prints the file system hierarchy entry information
+/* Prints the file entry information
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_file_entry_fprint(
+     info_handle_t *info_handle,
+     const system_character_t *path,
+     libcerror_error_t **error )
+{
+	libfsext_file_entry_t *file_entry = NULL;
+	static char *function              = "info_handle_file_entry_fprint";
+	size_t path_length                 = 0;
+	int result                         = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	path_length = system_string_length(
+	               path );
+
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libfsext_volume_get_file_entry_by_utf16_path(
+	          info_handle->input_volume,
+	          (uint16_t *) path,
+	          path_length,
+	          &file_entry,
+	          error );
+#else
+	result = libfsext_volume_get_file_entry_by_utf8_path(
+	          info_handle->input_volume,
+	          (uint8_t *) path,
+	          path_length,
+	          &file_entry,
+	          error );
+#endif
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file entry.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: file entry not found.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "Extended File System information:\n\n" );
+
+	fprintf(
+	 info_handle->notify_stream,
+	 "File entry:\n" );
+
+	fprintf(
+	 info_handle->notify_stream,
+	 "\tPath\t\t\t\t: %" PRIs_SYSTEM "\n",
+	 path );
+
+/* TODO implement */
+
+	if( libfsext_file_entry_free(
+	     &file_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file entry.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "\n" );
+
+	return( 1 );
+
+on_error:
+	if( file_entry != NULL )
+	{
+		libfsext_file_entry_free(
+		 &file_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Prints the file system hierarchy information
  * Returns 1 if successful or -1 on error
  */
 int info_handle_file_system_hierarchy_fprint(
@@ -944,6 +1052,125 @@ on_error:
 		 NULL );
 	}
 	return( -1 );
+}
+
+/* Prints the inode information
+ * Returns 1 if successful, 0 if not or -1 on error
+ */
+int info_handle_inode_fprint(
+     info_handle_t *info_handle,
+     uint32_t inode_number,
+     libcerror_error_t **error )
+{
+	libfsext_file_entry_t *file_entry = NULL;
+	static char *function             = "info_handle_inode_fprint";
+	int result                        = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfsext_volume_get_file_entry_by_index(
+	     info_handle->input_volume,
+	     inode_number,
+	     &file_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_free(
+		 error );
+
+		fprintf(
+		 info_handle->notify_stream,
+		 "Error reading inode: %" PRIu32 "\n\n",
+		 inode_number );
+
+		return( 0 );
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "inode: %" PRIu32 " information:\n",
+	 inode_number );
+
+/* TODO implement */
+
+	if( libfsext_file_entry_free(
+	     &file_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file entry.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( file_entry != NULL )
+	{
+		libfsext_file_entry_free(
+		 &file_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Prints the inodes information
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_inodes_fprint(
+     info_handle_t *info_handle,
+     libcerror_error_t **error )
+{
+	static char *function           = "info_handle_inodes_fprint";
+	uint64_t file_entry_index       = 0;
+	uint32_t number_of_file_entries = 0;
+
+	if( libfsext_volume_get_number_of_file_entries(
+	     info_handle->input_volume,
+	     &number_of_file_entries,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of file entries.",
+		 function );
+
+		return( -1 );
+	}
+	for( file_entry_index = 0;
+	     file_entry_index < (uint64_t) number_of_file_entries;
+	     file_entry_index++ )
+	{
+		if( info_handle_inode_fprint(
+		     info_handle,
+		     (uint32_t) file_entry_index,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print inode: %" PRIu64 ".",
+			 function,
+			 file_entry_index );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
 }
 
 /* Prints the volume information

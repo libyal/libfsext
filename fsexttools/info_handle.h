@@ -103,6 +103,20 @@ int info_handle_file_system_hierarchy_fprint_file_entry(
      int indentation_level,
      libcerror_error_t **error );
 
+int info_handle_inode_fprint(
+     info_handle_t *info_handle,
+     uint32_t inode_number,
+     libcerror_error_t **error );
+
+int info_handle_inodes_fprint(
+     info_handle_t *info_handle,
+     libcerror_error_t **error );
+
+int info_handle_file_entry_fprint(
+     info_handle_t *info_handle,
+     const system_character_t *path,
+     libcerror_error_t **error );
+
 int info_handle_file_system_hierarchy_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );

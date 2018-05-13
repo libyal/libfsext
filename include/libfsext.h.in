@@ -320,12 +320,53 @@ int libfsext_volume_get_last_written_time(
      uint32_t *posix_time,
      libfsext_error_t **error );
 
+/* Retrieves the number of file entries (inodes)
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_number_of_file_entries(
+     libfsext_volume_t *volume,
+     uint32_t *number_of_file_entries,
+     libfsext_error_t **error );
+
+/* Retrieves the file entry of a specific inode number
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_file_entry_by_index(
+     libfsext_volume_t *volume,
+     uint32_t inode_number,
+     libfsext_file_entry_t **file_entry,
+     libfsext_error_t **error );
+
 /* Retrieves the root directory file entry
  * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_root_directory(
      libfsext_volume_t *volume,
+     libfsext_file_entry_t **file_entry,
+     libfsext_error_t **error );
+
+/* Retrieves the file entry for an UTF-8 encoded path
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_file_entry_by_utf8_path(
+     libfsext_volume_t *volume,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_file_entry_t **file_entry,
+     libfsext_error_t **error );
+
+/* Retrieves the file entry for an UTF-16 encoded path
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_file_entry_by_utf16_path(
+     libfsext_volume_t *volume,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      libfsext_file_entry_t **file_entry,
      libfsext_error_t **error );
 

@@ -2145,6 +2145,10 @@ int main(
 		 fsext_test_volume_get_last_written_time,
 		 volume );
 
+		/* TODO: add tests for libfsntfs_volume_get_number_of_file_entries */
+
+		/* TODO: add tests for libfsntfs_volume_get_file_entry_by_index */
+
 		FSEXT_TEST_RUN_WITH_ARGS(
 		 "libfsext_volume_get_root_directory",
 		 fsext_test_volume_get_root_directory,

@@ -166,9 +166,30 @@ int libfsext_volume_get_last_written_time(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_volume_get_number_of_file_entries(
+     libfsext_volume_t *volume,
+     uint32_t *number_of_file_entries,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_file_entry_by_index(
+     libfsext_volume_t *volume,
+     uint32_t inode_number,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_volume_get_root_directory(
      libfsext_volume_t *volume,
      libfsext_file_entry_t **root_directory_file_entry,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_file_entry_by_utf8_path(
+     libfsext_volume_t *volume,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_file_entry_t **sub_file_entry,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

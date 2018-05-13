@@ -1600,6 +1600,183 @@ int libfsext_volume_get_last_written_time(
 	return( 1 );
 }
 
+/* Retrieves the number of file entries (MFT entries)
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_volume_get_number_of_file_entries(
+     libfsext_volume_t *volume,
+     uint32_t *number_of_file_entries,
+     libcerror_error_t **error )
+{
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libfsext_volume_get_number_of_file_entries";
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( internal_volume->superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid volume - missing superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( number_of_file_entries == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid number of file entries.",
+		 function );
+
+		return( -1 );
+	}
+	*number_of_file_entries = internal_volume->superblock->number_of_inodes;
+
+	return( 1 );
+}
+
+/* Retrieves the file entry of a specific MFT entry index
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_volume_get_file_entry_by_index(
+     libfsext_volume_t *volume,
+     uint32_t inode_number,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_inode_t *inode                     = NULL;
+	libfsext_inode_t *safe_inode                = NULL;
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libfsext_volume_get_file_entry_by_index";
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfsext_inode_table_get_inode_by_number(
+	     internal_volume->inode_table,
+	     internal_volume->file_io_handle,
+	     inode_number,
+	     &inode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve inode number: %" PRIu32 ".",
+		 function,
+		 inode_number );
+
+		goto on_error;
+	}
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing inode: %" PRIu32 ".",
+		 function,
+		 inode_number );
+
+		goto on_error;
+	}
+	if( libfsext_inode_clone(
+	     &safe_inode,
+	     inode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create inode.",
+		 function );
+
+		goto on_error;
+	}
+	/* libfsext_file_entry_initialize takes over management of safe_inode
+	 */
+	if( libfsext_file_entry_initialize(
+	     file_entry,
+	     internal_volume->io_handle,
+	     internal_volume->file_io_handle,
+	     internal_volume->inode_table,
+	     inode_number,
+	     safe_inode,
+	     NULL,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file entry.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( safe_inode != NULL )
+	{
+		libfsext_inode_free(
+		 &safe_inode,
+		 NULL );
+	}
+	return( -1 );
+}
+
 /* Retrieves the root directory file entry
  * Returns 1 if successful or -1 on error
  */
@@ -1718,6 +1895,69 @@ on_error:
 	{
 		libfsext_inode_free(
 		 &safe_inode,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves the file entry for an UTF-8 encoded path
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+int libfsext_volume_get_file_entry_by_utf8_path(
+     libfsext_volume_t *volume,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_directory_entry_t *directory_entry = NULL;
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                        = "libfsext_volume_get_file_entry_by_utf8_path";
+	int result                                   = 0;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+/* TODO */
+	return( result );
+
+on_error:
+	if( directory_entry != NULL )
+	{
+		libfsext_directory_entry_free(
+		 &directory_entry,
 		 NULL );
 	}
 	return( -1 );

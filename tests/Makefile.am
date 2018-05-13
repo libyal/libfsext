@@ -109,6 +109,10 @@ fsext_test_block_vector_SOURCES = \
 	fsext_test_unused.h
 
 fsext_test_block_vector_LDADD = \
+	@LIBFDATA_LIBADD@ \
+	@LIBFCACHE_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 
