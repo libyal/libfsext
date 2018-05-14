@@ -883,7 +883,8 @@ EXT3_UNRM_FL +
 EXT4_UNRM_FL | Undelete
 | 0x00000004 | EXT2_COMPR_FL +
 EXT3_COMPR_FL +
-EXT4_COMPR_FL | Compress file
+EXT4_COMPR_FL | Compressed file +
+[yellow-background]*Not yet supported*
 | 0x00000008 | EXT2_SYNC_FL +
 EXT3_SYNC_FL +
 EXT4_SYNC_FL | Synchronous updates
@@ -901,13 +902,16 @@ EXT3_NOATIME_FL +
 EXT4_NOATIME_FL | Do not update atime
 | 0x00000100 | EXT2_DIRTY_FL +
 EXT3_DIRTY_FL +
-EXT4_DIRTY_FL |
+EXT4_DIRTY_FL | Dirty compressed file +
+[yellow-background]*Not used*
 | 0x00000200 | EXT2_COMPRBLK_FL +
 EXT3_COMPRBLK_FL +
-EXT4_COMPRBLK_FL | One or more compressed clusters
+EXT4_COMPRBLK_FL | One or more compressed clusters +
+[yellow-background]*Not used*
 | 0x00000400 | EXT2_NOCOMP_FL +
 EXT3_NOCOMP_FL +
-EXT4_NOCOMPR_FL | Do not compress
+EXT4_NOCOMPR_FL | Do not compress +
+[yellow-background]*Not used*
 3+| _ext2 and ext3_
 | 0x00000800 | EXT2_ECOMPR_FL +
 EXT3_ECOMPR_FL | Encrypted Compression error
@@ -927,7 +931,8 @@ EXT3_JOURNAL_DATA_FL +
 EXT4_JOURNAL_DATA_FL | File data should be journaled
 | 0x00008000 | EXT2_NOTAIL_FL +
 EXT3_NOTAIL_FL +
-EXT4_NOTAIL_FL | File tail should not be merged
+EXT4_NOTAIL_FL | File tail should not be merged +
+[yellow-background]*Not used by ext4*
 | 0x00010000 | EXT2_DIRSYNC_FL +
 EXT3_DIRSYNC_FL +
 EXT4_DIRSYNC_FL | Dirsync behaviour (directories only)
@@ -938,7 +943,7 @@ EXT4_TOPDIR_FL | Top of directory hierarchies
 | 0x00040000 | EXT4_HUGE_FILE_FL | Set to each huge file
 | 0x00080000 | EXT4_EXTENTS_FL | Inode uses extents
 | | |
-| 0x00200000 | EXT4_EA_INODE_FL | Inode used for large EA
+| 0x00200000 | EXT4_EA_INODE_FL | Inode used for large extended attribute
 | 0x00400000 | EXT4_EOFBLOCKS_FL | Blocks allocated beyond EOF
 | | |
 | 0x10000000 | EXT4_INLINE_DATA_FL | Inode has inline data

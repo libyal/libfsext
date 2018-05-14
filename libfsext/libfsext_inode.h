@@ -113,6 +113,10 @@ struct libfsext_inode
 	 */
 	uint32_t nfs_generation_number;
 
+	/* Data reference
+	 */
+	uint8_t data_reference[ 60 ];
+
 	/* Data extents array
 	 */
 	libcdata_array_t *data_extents_array;
@@ -140,6 +144,12 @@ int libfsext_inode_read_data(
      libfsext_io_handle_t *io_handle,
      const uint8_t *data,
      size_t data_size,
+     libcerror_error_t **error );
+
+int libfsext_inode_read_data_reference(
+     libfsext_inode_t *inode,
+     libfsext_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 int libfsext_inode_is_empty(

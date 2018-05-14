@@ -1,5 +1,5 @@
 /*
- * The internal libfsext header
+ * The libfsext header wrapper
  *
  * Copyright (C) 2010-2018, Joachim Metz <joachim.metz@gmail.com>
  *

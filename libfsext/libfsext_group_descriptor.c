@@ -146,7 +146,6 @@ int libfsext_group_descriptor_read_data(
      libcerror_error_t **error )
 {
 	static char *function             = "libfsext_group_descriptor_read_data";
-	size_t data_offset                = 0;
 	size_t group_descriptor_data_size = 0;
 	uint64_t value_64bit              = 0;
 	uint32_t value_32bit              = 0;

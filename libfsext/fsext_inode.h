@@ -93,11 +93,11 @@ struct fsext_inode_ext2
 	 */
 	uint8_t unknown1[ 4 ];
 
-	/* Data block numbers
+	/* Data reference
 	 * Consists of 60 bytes
 	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
 	 */
-	uint8_t data_block_numbers[ 60 ];
+	uint8_t data_reference[ 60 ];
 
 	/* NFS generation number
 	 * Consists of 4 bytes
@@ -214,11 +214,11 @@ struct fsext_inode_ext3
 	 */
 	uint8_t unknown1[ 4 ];
 
-	/* Data block numbers
+	/* Data reference
 	 * Consists of 60 bytes
 	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
 	 */
-	uint8_t data_block_numbers[ 60 ];
+	uint8_t data_reference[ 60 ];
 
 	/* NFS generation number
 	 * Consists of 4 bytes
@@ -345,12 +345,14 @@ struct fsext_inode_ext4
 	 */
 	uint8_t version_lower[ 4 ];
 
-	/* Data block numbers or extents
+	/* Data reference
 	 * Consists of 60 bytes
-	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
-	 * or 3 extents or 3 extent indexes
+	 * Contains either
+	 * 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
+	 * or data extents
+	 * or data
 	 */
-	uint8_t data_block_numbers[ 60 ];
+	uint8_t data_reference[ 60 ];
 
 	/* NFS generation number
 	 * Consists of 4 bytes

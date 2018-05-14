@@ -299,17 +299,12 @@ int libfsext_inode_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	libfsext_extent_t *extent                 = NULL;
-	libfsext_extents_header_t *extents_header = NULL;
-	static char *function                     = "libfsext_inode_read_data";
-	size_t data_offset                        = 0;
-	uint64_t value_64bit                      = 0;
-	uint32_t value_32bit                      = 0;
-	uint8_t block_number_index                = 0;
-	int entry_index                           = 0;
+	static char *function = "libfsext_inode_read_data";
+	uint64_t value_64bit  = 0;
+	uint32_t value_32bit  = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint16_t value_16bit                      = 0;
+	uint16_t value_16bit  = 0;
 #endif
 
 	if( inode == NULL )
@@ -474,7 +469,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
@@ -493,7 +488,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
@@ -512,7 +507,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
@@ -531,7 +526,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 		libcnotify_printf(
 		 "%s: group identifier (lower)\t\t\t: %" PRIu16 "\n",
@@ -589,342 +584,19 @@ int libfsext_inode_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( ( io_handle->format_version == 4 )
-	 && ( ( inode->flags & 0x00000200UL ) != 0 ) )
+	if( memory_copy(
+	     inode->data_reference,
+	     ( (fsext_inode_ext2_t *) data )->data_reference,
+	     60 ) == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: compressed data currently not supported.",
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy data reference.",
 		 function );
 
-		goto on_error;
-	}
-	if( ( io_handle->format_version == 4 )
-	 && ( ( inode->flags & 0x10000000UL ) != 0 ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: inline data currently not supported.",
-		 function );
-
-		goto on_error;
-	}
-	if( ( io_handle->format_version == 4 )
-	 && ( ( inode->flags & 0x00080000UL ) != 0 ) )
-	{
-		data_offset = 0;
-
-		if( libfsext_extents_header_initialize(
-		     &extents_header,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create extents header.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfsext_extents_header_read_data(
-		     extents_header,
-		     &( ( ( (fsext_inode_ext4_t *) data )->data_block_numbers )[ data_offset ] ),
-		     12,
-		     error ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read extents header.",
-			 function );
-
-			goto on_error;
-		}
-		data_offset += 12;
-
-		if( extents_header->number_of_extents > 4 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported number of extents.",
-			 function );
-
-			goto on_error;
-		}
-		if( extents_header->depth != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported depth.",
-			 function );
-
-			goto on_error;
-		}
-		for( block_number_index = 0;
-		     block_number_index < extents_header->number_of_extents;
-		     block_number_index++ )
-		{
-			if( libfsext_extent_initialize(
-			     &extent,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create extent.",
-				 function );
-
-				goto on_error;
-			}
-			if( libfsext_extent_read_data(
-			     extent,
-			     &( ( ( (fsext_inode_ext4_t *) data )->data_block_numbers )[ data_offset ] ),
-			     12,
-			     error ) == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read extent.",
-				 function );
-
-				goto on_error;
-			}
-			data_offset += 12;
-
-			if( extent->number_of_blocks == 0 )
-			{
-				if( libfsext_extent_free(
-				     &extent,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-					 "%s: unable to free extent.",
-					 function );
-
-					goto on_error;
-				}
-			}
-			else
-			{
-				if( libcdata_array_append_entry(
-				     inode->data_extents_array,
-				     &entry_index,
-				     (intptr_t *) extent,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-					 "%s: unable to append data extent to array.",
-					 function );
-
-					goto on_error;
-				}
-				extent = NULL;
-			}
-		}
-/* TODO debug print remaining extents */
-		if( libfsext_extents_header_free(
-		     &extents_header,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free extents header.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	else
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			data_offset = 0;
-
-			libcnotify_printf(
-			 "%s: direct block numbers\t\t\t\t:",
-			 function );
-
-			for( block_number_index = 0;
-			     block_number_index < 12;
-			     block_number_index++ )
-			{
-				byte_stream_copy_to_uint32_little_endian(
-				 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-				 value_32bit );
-
-				data_offset += 4;
-
-				if( block_number_index == 0 )
-				{
-					libcnotify_printf(
-					 " %" PRIu32 "",
-					 value_32bit );
-				}
-				else
-				{
-					libcnotify_printf(
-					 ", %" PRIu32 "",
-					 value_32bit );
-				}
-			}
-			libcnotify_printf(
-			 "\n" );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-			 value_32bit );
-
-			data_offset += 4;
-
-			libcnotify_printf(
-			 "%s: indirect block number\t\t\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-			 value_32bit );
-
-			data_offset += 4;
-
-			libcnotify_printf(
-			 "%s: double indirect block number\t\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-			 value_32bit );
-
-			data_offset += 4;
-
-			libcnotify_printf(
-			 "%s: triple indirect block number\t\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
-		}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-		data_offset = 0;
-
-		for( block_number_index = 0;
-		     block_number_index < 12;
-		     block_number_index++ )
-		{
-			byte_stream_copy_to_uint32_little_endian(
-			 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-			 value_32bit );
-
-			if( value_32bit == 0 )
-			{
-				break;
-			}
-			if( libfsext_extent_initialize(
-			     &extent,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create extent.",
-				 function );
-
-				goto on_error;
-			}
-			extent->logical_block_number  = block_number_index;
-			extent->physical_block_number = value_32bit;
-			extent->number_of_blocks      = 1;
-
-			data_offset += 4;
-
-			if( libcdata_array_append_entry(
-			     inode->data_extents_array,
-			     &entry_index,
-			     (intptr_t *) extent,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append data extent to array.",
-				 function );
-
-				goto on_error;
-			}
-			extent = NULL;
-		}
-		byte_stream_copy_to_uint32_little_endian(
-		 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-		 value_32bit );
-
-		data_offset += 4;
-
-		if( value_32bit != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported indirect block number.",
-			 function );
-
-			goto on_error;
-		}
-		byte_stream_copy_to_uint32_little_endian(
-		 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-		 value_32bit );
-
-		data_offset += 4;
-
-		if( value_32bit != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported double indirect block number.",
-			 function );
-
-			goto on_error;
-		}
-		byte_stream_copy_to_uint32_little_endian(
-		 &( ( ( (fsext_inode_ext2_t *) data )->data_block_numbers )[ data_offset ] ),
-		 value_32bit );
-
-		if( value_32bit != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported tripple indirect block number.",
-			 function );
-
-			goto on_error;
-		}
+		return( -1 );
 	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->nfs_generation_number,
@@ -952,6 +624,14 @@ int libfsext_inode_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		libcnotify_printf(
+		 "%s: data reference:\n",
+		 function );
+		libcnotify_print_data(
+		 ( (fsext_inode_ext2_t *) data )->data_reference,
+		 60,
+		 0 );
+
 		libcnotify_printf(
 		 "%s: nfs generation number\t\t\t\t: %" PRIu32 "\n",
 		 function,
@@ -1207,6 +887,395 @@ int libfsext_inode_read_data(
 		inode->data_size |= value_64bit << 32;
 
 /* TODO handle extra precision */
+	}
+	return( 1 );
+}
+
+/* Reads the inode data reference
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_read_data_reference(
+     libfsext_inode_t *inode,
+     libfsext_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libcerror_error_t **error )
+{
+	libfsext_extent_t *extent                 = NULL;
+	libfsext_extent_t *previous_extent        = NULL;
+	libfsext_extents_header_t *extents_header = NULL;
+	static char *function                     = "libfsext_inode_read_data_reference";
+	size_t data_offset                        = 0;
+	uint32_t block_number                     = 0;
+	uint8_t block_number_index                = 0;
+	int entry_index                           = 0;
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( io_handle->format_version == 4 )
+	 && ( ( inode->flags & 0x00000200UL ) != 0 ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: compressed data currently not supported.",
+		 function );
+
+		goto on_error;
+	}
+	if( ( io_handle->format_version == 4 )
+	 && ( ( inode->flags & 0x10000000UL ) != 0 ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: inline data currently not supported.",
+		 function );
+
+		goto on_error;
+	}
+	if( ( io_handle->format_version == 4 )
+	 && ( ( inode->flags & 0x00080000UL ) != 0 ) )
+	{
+		data_offset = 0;
+
+		if( libfsext_extents_header_initialize(
+		     &extents_header,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create extents header.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_extents_header_read_data(
+		     extents_header,
+		     &( ( inode->data_reference )[ data_offset ] ),
+		     12,
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read extents header.",
+			 function );
+
+			goto on_error;
+		}
+		data_offset += 12;
+
+		if( extents_header->number_of_extents > 4 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported number of extents.",
+			 function );
+
+			goto on_error;
+		}
+		if( extents_header->depth != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported depth.",
+			 function );
+
+			goto on_error;
+		}
+		for( block_number_index = 0;
+		     block_number_index < extents_header->number_of_extents;
+		     block_number_index++ )
+		{
+			if( libfsext_extent_initialize(
+			     &extent,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create extent.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfsext_extent_read_data(
+			     extent,
+			     &( ( inode->data_reference )[ data_offset ] ),
+			     12,
+			     error ) == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read extent.",
+				 function );
+
+				goto on_error;
+			}
+			data_offset += 12;
+
+			if( extent->number_of_blocks == 0 )
+			{
+				if( libfsext_extent_free(
+				     &extent,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free extent.",
+					 function );
+
+					goto on_error;
+				}
+			}
+			else
+			{
+				if( libcdata_array_append_entry(
+				     inode->data_extents_array,
+				     &entry_index,
+				     (intptr_t *) extent,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append data extent to array.",
+					 function );
+
+					goto on_error;
+				}
+				extent = NULL;
+			}
+		}
+/* TODO debug print remaining extents */
+		if( libfsext_extents_header_free(
+		     &extents_header,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free extents header.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	else
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			data_offset = 0;
+
+			libcnotify_printf(
+			 "%s: direct block numbers\t\t:",
+			 function );
+
+			for( block_number_index = 0;
+			     block_number_index < 12;
+			     block_number_index++ )
+			{
+				byte_stream_copy_to_uint32_little_endian(
+				 &( ( inode->data_reference )[ data_offset ] ),
+				 block_number );
+
+				data_offset += 4;
+
+				if( block_number_index == 0 )
+				{
+					libcnotify_printf(
+					 " %" PRIu32 "",
+					 block_number );
+				}
+				else
+				{
+					libcnotify_printf(
+					 ", %" PRIu32 "",
+					 block_number );
+				}
+			}
+			libcnotify_printf(
+			 "\n" );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 &( ( inode->data_reference )[ data_offset ] ),
+			 block_number );
+
+			data_offset += 4;
+
+			libcnotify_printf(
+			 "%s: indirect block number\t\t: %" PRIu32 "\n",
+			 function,
+			 block_number );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 &( ( inode->data_reference )[ data_offset ] ),
+			 block_number );
+
+			data_offset += 4;
+
+			libcnotify_printf(
+			 "%s: double indirect block number\t: %" PRIu32 "\n",
+			 function,
+			 block_number );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 &( ( inode->data_reference )[ data_offset ] ),
+			 block_number );
+
+			data_offset += 4;
+
+			libcnotify_printf(
+			 "%s: triple indirect block number\t: %" PRIu32 "\n",
+			 function,
+			 block_number );
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+		data_offset = 0;
+
+		for( block_number_index = 0;
+		     block_number_index < 12;
+		     block_number_index++ )
+		{
+			byte_stream_copy_to_uint32_little_endian(
+			 &( ( inode->data_reference )[ data_offset ] ),
+			 block_number );
+
+			data_offset += 4;
+
+			if( block_number == 0 )
+			{
+				break;
+			}
+			if( ( previous_extent != NULL )
+			 && ( previous_extent->physical_block_number == ( block_number - 1 ) ) )
+			{
+				previous_extent->number_of_blocks += 1;
+			}
+			else
+			{
+				if( libfsext_extent_initialize(
+				     &extent,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to create extent.",
+					 function );
+
+					goto on_error;
+				}
+				extent->logical_block_number  = block_number_index;
+				extent->physical_block_number = block_number;
+				extent->number_of_blocks      = 1;
+
+				if( libcdata_array_append_entry(
+				     inode->data_extents_array,
+				     &entry_index,
+				     (intptr_t *) extent,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append data extent to array.",
+					 function );
+
+					goto on_error;
+				}
+				previous_extent = extent;
+				extent          = NULL;
+			}
+		}
+		byte_stream_copy_to_uint32_little_endian(
+		 &( ( inode->data_reference )[ data_offset ] ),
+		 block_number );
+
+		data_offset += 4;
+
+		if( block_number != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported indirect block number.",
+			 function );
+
+			goto on_error;
+		}
+		byte_stream_copy_to_uint32_little_endian(
+		 &( ( inode->data_reference )[ data_offset ] ),
+		 block_number );
+
+		data_offset += 4;
+
+		if( block_number != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported double indirect block number.",
+			 function );
+
+			goto on_error;
+		}
+		byte_stream_copy_to_uint32_little_endian(
+		 &( ( inode->data_reference )[ data_offset ] ),
+		 block_number );
+
+		if( block_number != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported tripple indirect block number.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	return( 1 );
 
@@ -1760,6 +1829,21 @@ int libfsext_inode_read_element_data(
 		 function,
 		 element_data_offset,
 		 element_data_offset );
+
+		goto on_error;
+	}
+	if( libfsext_inode_read_data_reference(
+	     inode,
+	     io_handle,
+	     file_io_handle,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read inode data reference.",
+		 function );
 
 		goto on_error;
 	}

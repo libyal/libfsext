@@ -1,5 +1,6 @@
 TODO:
 * msvscpp fix missing PRIo16
+* add support for EXT4_EA_INODE_FL
 * complete get file entry by path
 * move reading inode extents in separate function
   * add support for indirect block number in inode
