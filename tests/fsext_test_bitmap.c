@@ -662,6 +662,62 @@ int fsext_test_bitmap_read_file_io_handle(
 	libcerror_error_free(
 	 &error );
 
+	io_handle->block_size = 0;
+
+	result = libfsext_bitmap_read_file_io_handle(
+	          bitmap,
+	          io_handle,
+	          file_io_handle,
+	          1024,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	io_handle->block_size = 1024;
+
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+
+	/* Test libfsext_bitmap_read_file_io_handle with malloc failing
+	 */
+	fsext_test_malloc_attempts_before_fail = 0;
+
+	result = libfsext_bitmap_read_file_io_handle(
+	          bitmap,
+	          io_handle,
+	          file_io_handle,
+	          1024,
+	          &error );
+
+	if( fsext_test_malloc_attempts_before_fail != -1 )
+	{
+		fsext_test_malloc_attempts_before_fail = -1;
+	}
+	else
+	{
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
+
 	/* Clean up file IO handle
 	 */
 	result = fsext_test_close_file_io_handle(

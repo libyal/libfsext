@@ -1380,7 +1380,7 @@ int libfsext_inode_read_direct_block_number_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: indirect block data:\n",
+		 "%s: direct block number data:\n",
 		 function );
 		libcnotify_print_data(
 		 data,
