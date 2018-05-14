@@ -73,6 +73,17 @@ int libfsext_block_vector_initialize(
 
 		return( -1 );
 	}
+	if( io_handle->block_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid IO handle - missing block size.",
+		 function );
+
+		return( -1 );
+	}
 	if( inode == NULL )
 	{
 		libcerror_error_set(

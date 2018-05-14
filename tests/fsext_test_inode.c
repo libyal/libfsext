@@ -1436,6 +1436,21 @@ int main(
 	 "error",
 	 error );
 
+	result = libfsext_inode_read_data_reference(
+	          inode,
+	          io_handle,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_inode_get_number_of_extents",
 	 fsext_test_inode_get_number_of_extents,

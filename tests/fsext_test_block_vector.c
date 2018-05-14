@@ -90,6 +90,8 @@ int fsext_test_block_vector_initialize(
 
 	/* Test regular cases
 	 */
+	io_handle->block_size = 1024;
+
 	result = libfsext_block_vector_initialize(
 	          &block_vector,
 	          io_handle,
@@ -181,6 +183,28 @@ int fsext_test_block_vector_initialize(
 
 	libcerror_error_free(
 	 &error );
+
+	io_handle->block_size = 0;
+
+	result = libfsext_block_vector_initialize(
+	          &block_vector,
+	          io_handle,
+	          inode,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	io_handle->block_size = 1024;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
