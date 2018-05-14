@@ -176,6 +176,77 @@ int libfsext_block_free(
 }
 
 /* Reads a block
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_block_read_file_io_handle(
+     libfsext_block_t *block,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_block_read_file_io_handle";
+	ssize_t read_count    = 0;
+
+	if( block == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid block.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading block at offset: %" PRIi64 " (0x%08" PRIx64 ") with size: %" PRIu64 ".\n",
+		 function,
+		 file_offset,
+		 file_offset,
+		 block->data_size );
+	}
+#endif
+	if( libbfio_handle_seek_offset(
+	     file_io_handle,
+	     file_offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 file_offset,
+		 file_offset );
+
+		return( -1 );
+	}
+	read_count = libbfio_handle_read_buffer(
+	              file_io_handle,
+	              block->data,
+	              block->data_size,
+	              error );
+
+	if( read_count != (ssize_t) block->data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read block.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Reads a block
  * Callback function for the block vector
  * Returns 1 if successful or -1 on error
  */
@@ -188,16 +259,16 @@ int libfsext_block_read_element_data(
      int element_data_file_index LIBFSEXT_ATTRIBUTE_UNUSED,
      off64_t block_offset,
      size64_t block_size,
-     uint32_t range_flags,
+     uint32_t range_flags LIBFSEXT_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBFSEXT_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
 	libfsext_block_t *block = NULL;
 	static char *function   = "libfsext_block_read_element_data";
-	ssize_t read_count      = 0;
 
 	LIBFSEXT_UNREFERENCED_PARAMETER( element_index )
 	LIBFSEXT_UNREFERENCED_PARAMETER( element_data_file_index )
+	LIBFSEXT_UNREFERENCED_PARAMETER( range_flags )
 	LIBFSEXT_UNREFERENCED_PARAMETER( read_flags )
 
 	if( io_handle == NULL )
@@ -248,68 +319,20 @@ int libfsext_block_read_element_data(
 
 		goto on_error;
 	}
-	if( ( range_flags & LIBFDATA_RANGE_FLAG_IS_SPARSE ) != 0 )
+	if( libfsext_block_read_file_io_handle(
+	     block,
+	     file_io_handle,
+	     block_offset,
+	     error ) != 1 )
 	{
-		if( memory_set(
-		     block->data,
-		     0,
-		     block->data_size ) == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear block data.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read block.",
+		 function );
 
-			goto on_error;
-		}
-	}
-	else
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: reading block at offset: 0x%08" PRIx64 " with size: %" PRIu64 ".\n",
-			 function,
-			 block_offset,
-			 block_size );
-		}
-#endif
-		if( libbfio_handle_seek_offset(
-		     file_io_handle,
-		     block_offset,
-		     SEEK_SET,
-		     error ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek offset: 0x%08" PRIx64 ".",
-			 function,
-			 block_offset );
-
-			goto on_error;
-		}
-		read_count = libbfio_handle_read_buffer(
-		              file_io_handle,
-		              block->data,
-		              block->data_size,
-		              error );
-
-		if( read_count != (ssize_t) block->data_size )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read block.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	if( libfdata_vector_set_element_value_by_index(
 	     vector,

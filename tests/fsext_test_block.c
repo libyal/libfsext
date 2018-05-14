@@ -440,6 +440,8 @@ int main(
 	 "libfsext_block_free",
 	 fsext_test_block_free );
 
+	/* TODO add test for libfsext_block_read_file_io_handle */
+
 	FSEXT_TEST_RUN(
 	 "libfsext_block_read_element_data",
 	 fsext_test_block_read_element_data );

@@ -152,6 +152,12 @@ int libfsext_inode_read_data_reference(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
+int libfsext_inode_read_direct_block_number_data(
+     libfsext_inode_t *inode,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
 int libfsext_inode_is_empty(
      libfsext_inode_t *inode,
      libcerror_error_t **error );

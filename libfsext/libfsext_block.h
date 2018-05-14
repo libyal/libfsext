@@ -57,6 +57,12 @@ int libfsext_block_free(
      libfsext_block_t **block,
      libcerror_error_t **error );
 
+int libfsext_block_read_file_io_handle(
+     libfsext_block_t *block,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     libcerror_error_t **error );
+
 int libfsext_block_read_element_data(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
