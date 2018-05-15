@@ -101,7 +101,9 @@ fsext_test_block_LDADD = \
 
 fsext_test_block_vector_SOURCES = \
 	fsext_test_block_vector.c \
+	fsext_test_functions.c fsext_test_functions.h \
 	fsext_test_libcerror.h \
+	fsext_test_libfcache.h \
 	fsext_test_libfdata.h \
 	fsext_test_libfsext.h \
 	fsext_test_macros.h \
@@ -111,7 +113,13 @@ fsext_test_block_vector_SOURCES = \
 fsext_test_block_vector_LDADD = \
 	@LIBFDATA_LIBADD@ \
 	@LIBFCACHE_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@

@@ -29,6 +29,7 @@
 #include "libfsext_definitions.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libcerror.h"
+#include "libfsext_libbfio.h"
 #include "libfsext_libfcache.h"
 #include "libfsext_libfdata.h"
 #include "libfsext_unused.h"
@@ -101,7 +102,7 @@ int libfsext_block_vector_initialize(
 	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libfsext_block_read_element_data,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libfsext_block_vector_read_element_data,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -195,6 +196,125 @@ on_error:
 	{
 		libfdata_vector_free(
 		 block_vector,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Reads a block
+ * Callback function for the block vector
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_block_vector_read_element_data(
+     libfsext_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libfdata_vector_t *vector,
+     libfcache_cache_t *cache,
+     int element_index LIBFSEXT_ATTRIBUTE_UNUSED,
+     int element_data_file_index LIBFSEXT_ATTRIBUTE_UNUSED,
+     off64_t block_offset,
+     size64_t block_size,
+     uint32_t range_flags LIBFSEXT_ATTRIBUTE_UNUSED,
+     uint8_t read_flags LIBFSEXT_ATTRIBUTE_UNUSED,
+     libcerror_error_t **error )
+{
+	libfsext_block_t *block = NULL;
+	static char *function   = "libfsext_block_vector_read_element_data";
+
+	LIBFSEXT_UNREFERENCED_PARAMETER( element_index )
+	LIBFSEXT_UNREFERENCED_PARAMETER( element_data_file_index )
+	LIBFSEXT_UNREFERENCED_PARAMETER( range_flags )
+	LIBFSEXT_UNREFERENCED_PARAMETER( read_flags )
+
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( block_size == 0 )
+	 || ( block_size > (size64_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid block size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfsext_block_initialize(
+	     &block,
+	     (size_t) block_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create block.",
+		 function );
+
+		goto on_error;
+	}
+	if( block == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing block.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_block_read_file_io_handle(
+	     block,
+	     file_io_handle,
+	     block_offset,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read block.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdata_vector_set_element_value_by_index(
+	     vector,
+	     (intptr_t *) file_io_handle,
+	     cache,
+	     element_index,
+	     (intptr_t *) block,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_block_free,
+	     LIBFDATA_VECTOR_ELEMENT_VALUE_FLAG_MANAGED,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set block as element value.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( block != NULL )
+	{
+		libfsext_block_free(
+		 &block,
 		 NULL );
 	}
 	return( -1 );

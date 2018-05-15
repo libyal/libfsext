@@ -1,5 +1,5 @@
 /*
- * Block functions
+ * The libfcache header wrapper
  *
  * Copyright (C) 2010-2018, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,50 +19,32 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBFSEXT_BLOCK_H )
-#define _LIBFSEXT_BLOCK_H
+#if !defined( _FSEXT_TEST_LIBFCACHE_H )
+#define _FSEXT_TEST_LIBFCACHE_H
 
 #include <common.h>
-#include <types.h>
 
-#include "libfsext_libbfio.h"
-#include "libfsext_libcerror.h"
+/* Define HAVE_LOCAL_LIBFCACHE for local use of libfcache
+ */
+#if defined( HAVE_LOCAL_LIBFCACHE )
 
-#if defined( __cplusplus )
-extern "C" {
+#include <libfcache_cache.h>
+#include <libfcache_date_time.h>
+#include <libfcache_definitions.h>
+#include <libfcache_types.h>
+
+#else
+
+/* If libtool DLL support is enabled set LIBFCACHE_DLL_IMPORT
+ * before including libfcache.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBFCACHE_DLL_IMPORT
 #endif
 
-typedef struct libfsext_block libfsext_block_t;
+#include <libfcache.h>
 
-struct libfsext_block
-{
-	/* The data
-	 */
-	uint8_t *data;
+#endif /* defined( HAVE_LOCAL_LIBFCACHE ) */
 
-	/* The data size
-	 */
-	size_t data_size;
-};
-
-int libfsext_block_initialize(
-     libfsext_block_t **block,
-     size_t data_size,
-     libcerror_error_t **error );
-
-int libfsext_block_free(
-     libfsext_block_t **block,
-     libcerror_error_t **error );
-
-int libfsext_block_read_file_io_handle(
-     libfsext_block_t *block,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     libcerror_error_t **error );
-
-#if defined( __cplusplus )
-}
-#endif
-
-#endif /* !defined( _LIBFSEXT_BLOCK_H ) */
+#endif /* !defined( _FSEXT_TEST_LIBFCACHE_H ) */
 

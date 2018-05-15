@@ -36,7 +36,6 @@
 #include "fsext_test_unused.h"
 
 #include "../libfsext/libfsext_block.h"
-#include "../libfsext/libfsext_io_handle.h"
 
 uint8_t fsext_test_block_data1[ 1024 ] = {
 	0x52, 0x21, 0x00, 0x00, 0x53, 0x21, 0x00, 0x00, 0x54, 0x21, 0x00, 0x00, 0x55, 0x21, 0x00, 0x00,
@@ -595,124 +594,6 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libfsext_block_read_element_data function
- * Returns 1 if successful or 0 if not
- */
-int fsext_test_block_read_element_data(
-     void )
-{
-	libbfio_handle_t *file_io_handle = NULL;
-	libcerror_error_t *error         = NULL;
-	libfsext_io_handle_t *io_handle  = NULL;
-	int result                       = 0;
-
-	/* Initialize test
-	 */
-	result = libfsext_io_handle_initialize(
-	          &io_handle,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test error cases
-	 */
-	result = libfsext_block_read_element_data(
-	          NULL,
-	          file_io_handle,
-	          NULL,
-	          NULL,
-	          0,
-	          0,
-	          0,
-	          0,
-	          0,
-	          0,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libfsext_block_read_element_data(
-	          io_handle,
-	          NULL,
-	          NULL,
-	          NULL,
-	          0,
-	          0,
-	          0,
-	          0,
-	          0,
-	          0,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	/* Clean up
-	 */
-	result = libfsext_io_handle_free(
-	          &io_handle,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	if( io_handle != NULL )
-	{
-		libfsext_io_handle_free(
-		 &io_handle,
-		 NULL );
-	}
-	return( 1 );
-}
-
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 /* The main program
@@ -743,10 +624,6 @@ int main(
 	FSEXT_TEST_RUN(
 	 "libfsext_block_read_file_io_handle",
 	 fsext_test_block_read_file_io_handle );
-
-	FSEXT_TEST_RUN(
-	 "libfsext_block_read_element_data",
-	 fsext_test_block_read_element_data );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 

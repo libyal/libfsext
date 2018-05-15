@@ -2094,3 +2094,66 @@ on_error:
 	return( -1 );
 }
 
+/* Retrieves the file entry for an UTF-16 encoded path
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+int libfsext_volume_get_file_entry_by_utf16_path(
+     libfsext_volume_t *volume,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_directory_entry_t *directory_entry = NULL;
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                        = "libfsext_volume_get_file_entry_by_utf16_path";
+	int result                                   = 0;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+/* TODO */
+	return( result );
+
+on_error:
+	if( directory_entry != NULL )
+	{
+		libfsext_directory_entry_free(
+		 &directory_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
