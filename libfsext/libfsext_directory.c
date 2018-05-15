@@ -409,9 +409,8 @@ int libfsext_directory_read_file_io_handle(
 
 					goto on_error;
 				}
+				directory_entry = NULL;
 			}
-			directory_entry = NULL;
-
 			directory_entry_index++;
 		}
 	}

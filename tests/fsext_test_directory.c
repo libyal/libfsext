@@ -37,8 +37,8 @@
 #include "../libfsext/libfsext_directory.h"
 
 /* Define to make fsext_test_directory generate verbose output
- */
 #define FSEXT_TEST_DIRECTORY_VERBOSE
+ */
 
 uint8_t fsext_test_inode_data1[ 128 ] = {
 	0xed, 0x41, 0xf4, 0x01, 0x00, 0x04, 0x00, 0x00, 0x3d, 0x13, 0xc1, 0x3f, 0x44, 0x13, 0xc1, 0x3f,
@@ -867,16 +867,16 @@ on_error:
 int fsext_test_directory_get_entry_by_index(
      libfsext_directory_t *directory )
 {
-	libcerror_error_t *error                   = NULL;
-	libfsext_directory_entry_t *entry_by_index = 0;
-	int result                                 = 0;
+	libcerror_error_t *error                    = NULL;
+	libfsext_directory_entry_t *directory_entry = 0;
+	int result                                  = 0;
 
 	/* Test regular cases
 	 */
 	result = libfsext_directory_get_entry_by_index(
 	          directory,
 	          0,
-	          &entry_by_index,
+	          &directory_entry,
 	          &error );
 
 	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
@@ -889,28 +889,17 @@ int fsext_test_directory_get_entry_by_index(
 	 error );
 
 	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "entry_by_index",
-	 entry_by_index );
+	 "directory_entry",
+	 directory_entry );
 
-	result = libfsext_directory_entry_free(
-	          &entry_by_index,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+	directory_entry = NULL;
 
 	/* Test error cases
 	 */
 	result = libfsext_directory_get_entry_by_index(
 	          NULL,
 	          0,
-	          &entry_by_index,
+	          &directory_entry,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -919,8 +908,8 @@ int fsext_test_directory_get_entry_by_index(
 	 -1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
-	 "entry_by_index",
-	 entry_by_index );
+	 "directory_entry",
+	 directory_entry );
 
 	FSEXT_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
@@ -932,7 +921,7 @@ int fsext_test_directory_get_entry_by_index(
 	result = libfsext_directory_get_entry_by_index(
 	          directory,
 	          -1,
-	          &entry_by_index,
+	          &directory_entry,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -941,8 +930,8 @@ int fsext_test_directory_get_entry_by_index(
 	 -1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
-	 "entry_by_index",
-	 entry_by_index );
+	 "directory_entry",
+	 directory_entry );
 
 	FSEXT_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
@@ -963,8 +952,8 @@ int fsext_test_directory_get_entry_by_index(
 	 -1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
-	 "entry_by_index",
-	 entry_by_index );
+	 "directory_entry",
+	 directory_entry );
 
 	FSEXT_TEST_ASSERT_IS_NOT_NULL(
 	 "error",

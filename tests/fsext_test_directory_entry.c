@@ -35,6 +35,9 @@
 
 #include "../libfsext/libfsext_directory_entry.h"
 
+uint8_t fsext_test_directory_entry_data1[ 16 ] = {
+	0x0c, 0x00, 0x00, 0x00, 0x10, 0x00, 0x05, 0x01, 0x66, 0x69, 0x6c, 0x65, 0x31, 0x00, 0x00, 0x00 };
+
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
 /* Tests the libfsext_directory_entry_initialize function
@@ -281,6 +284,12 @@ int fsext_test_directory_entry_clone(
 	libfsext_directory_entry_t *source_directory_entry      = NULL;
 	int result                                              = 0;
 
+#if defined( HAVE_FSEXT_TEST_MEMORY )
+	int number_of_malloc_fail_tests                         = 2;
+	int number_of_memset_fail_tests                         = 2;
+	int test_number                                         = 0;
+#endif
+
 	/* Initialize test
 	 */
 	result = libfsext_directory_entry_initialize(
@@ -397,82 +406,91 @@ int fsext_test_directory_entry_clone(
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
-	/* Test libfsext_directory_entry_clone with malloc failing
-	 */
-	fsext_test_malloc_attempts_before_fail = 0;
-
-	result = libfsext_directory_entry_clone(
-	          &destination_directory_entry,
-	          source_directory_entry,
-	          &error );
-
-	if( fsext_test_malloc_attempts_before_fail != -1 )
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
 	{
-		fsext_test_malloc_attempts_before_fail = -1;
+		/* Test libfsext_directory_entry_clone with malloc failing
+		 */
+		fsext_test_malloc_attempts_before_fail = test_number;
 
-		if( destination_directory_entry != NULL )
+		result = libfsext_directory_entry_clone(
+		          &destination_directory_entry,
+		          source_directory_entry,
+		          &error );
+
+		if( fsext_test_malloc_attempts_before_fail != -1 )
 		{
-			libfsext_directory_entry_free(
-			 &destination_directory_entry,
-			 NULL );
+			fsext_test_malloc_attempts_before_fail = -1;
+
+			if( destination_directory_entry != NULL )
+			{
+				libfsext_directory_entry_free(
+				 &destination_directory_entry,
+				 NULL );
+			}
+		}
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "destination_directory_entry",
+			 destination_directory_entry );
+
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
 		}
 	}
-	else
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
 	{
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		/* Test libfsext_directory_entry_clone with memcpy failing
+		 */
+		fsext_test_memcpy_attempts_before_fail = test_number;
 
-		FSEXT_TEST_ASSERT_IS_NULL(
-		 "destination_directory_entry",
-		 destination_directory_entry );
+		result = libfsext_directory_entry_clone(
+		          &destination_directory_entry,
+		          source_directory_entry,
+		          &error );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-
-	/* Test libfsext_directory_entry_clone with memcpy failing
-	 */
-	fsext_test_memcpy_attempts_before_fail = 0;
-
-	result = libfsext_directory_entry_clone(
-	          &destination_directory_entry,
-	          source_directory_entry,
-	          &error );
-
-	if( fsext_test_memcpy_attempts_before_fail != -1 )
-	{
-		fsext_test_memcpy_attempts_before_fail = -1;
-
-		if( destination_directory_entry != NULL )
+		if( fsext_test_memcpy_attempts_before_fail != -1 )
 		{
-			libfsext_directory_entry_free(
-			 &destination_directory_entry,
-			 NULL );
+			fsext_test_memcpy_attempts_before_fail = -1;
+
+			if( destination_directory_entry != NULL )
+			{
+				libfsext_directory_entry_free(
+				 &destination_directory_entry,
+				 NULL );
+			}
 		}
-	}
-	else
-	{
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		else
+		{
+			FSEXT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NULL(
-		 "destination_directory_entry",
-		 destination_directory_entry );
+			FSEXT_TEST_ASSERT_IS_NULL(
+			 "destination_directory_entry",
+			 destination_directory_entry );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+			FSEXT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
 
-		libcerror_error_free(
-		 &error );
+			libcerror_error_free(
+			 &error );
+		}
 	}
 #endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
 
@@ -518,17 +536,15 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libfsext_directory_entry_get_utf8_name_size function
+/* Tests the libfsext_directory_entry_read_data function
  * Returns 1 if successful or 0 if not
  */
-int fsext_test_directory_entry_get_utf8_name_size(
+int fsext_test_directory_entry_read_data(
      void )
 {
 	libcerror_error_t *error                    = NULL;
 	libfsext_directory_entry_t *directory_entry = NULL;
-	size_t utf8_name_size                       = 0;
 	int result                                  = 0;
-	int utf8_name_size_is_set                   = 0;
 
 	/* Initialize test
 	 */
@@ -551,27 +567,27 @@ int fsext_test_directory_entry_get_utf8_name_size(
 
 	/* Test regular cases
 	 */
-	result = libfsext_directory_entry_get_utf8_name_size(
+	result = libfsext_directory_entry_read_data(
 	          directory_entry,
-	          &utf8_name_size,
+	          fsext_test_directory_entry_data1,
+	          16,
 	          &error );
 
-	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	utf8_name_size_is_set = result;
-
 	/* Test error cases
 	 */
-	result = libfsext_directory_entry_get_utf8_name_size(
+	result = libfsext_directory_entry_read_data(
 	          NULL,
-	          &utf8_name_size,
+	          fsext_test_directory_entry_data1,
+	          16,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -586,25 +602,60 @@ int fsext_test_directory_entry_get_utf8_name_size(
 	libcerror_error_free(
 	 &error );
 
-	if( utf8_name_size_is_set != 0 )
-	{
-		result = libfsext_directory_entry_get_utf8_name_size(
-		          directory_entry,
-		          NULL,
-		          &error );
+	result = libfsext_directory_entry_read_data(
+	          directory_entry,
+	          NULL,
+	          16,
+	          &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_entry_read_data(
+	          directory_entry,
+	          fsext_test_directory_entry_data1,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_entry_read_data(
+	          directory_entry,
+	          fsext_test_directory_entry_data1,
+	          0,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 	/* Clean up
 	 */
 	result = libfsext_directory_entry_free(
@@ -637,6 +688,79 @@ on_error:
 		libfsext_directory_entry_free(
 		 &directory_entry,
 		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_directory_entry_get_utf8_name_size function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_directory_entry_get_utf8_name_size(
+     libfsext_directory_entry_t *directory_entry )
+{
+	libcerror_error_t *error = NULL;
+	size_t utf8_name_size    = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_directory_entry_get_utf8_name_size(
+	          directory_entry,
+	          &utf8_name_size,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_directory_entry_get_utf8_name_size(
+	          NULL,
+	          &utf8_name_size,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_entry_get_utf8_name_size(
+		  directory_entry,
+		  NULL,
+		  &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
 	}
 	return( 0 );
 }
@@ -645,40 +769,19 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int fsext_test_directory_entry_get_utf8_name(
-     void )
+     libfsext_directory_entry_t *directory_entry )
 {
-	uint8_t utf8_name[ 512 ];
+	uint8_t utf8_name[ 256 ];
 
-	libcerror_error_t *error                    = NULL;
-	libfsext_directory_entry_t *directory_entry = NULL;
-	int result                                  = 0;
-	int utf8_name_is_set                        = 0;
-
-	/* Initialize test
-	 */
-	result = libfsext_directory_entry_initialize(
-	          &directory_entry,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "directory_entry",
-	 directory_entry );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+	libcerror_error_t *error = NULL;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
 	result = libfsext_directory_entry_get_utf8_name(
 	          directory_entry,
 	          utf8_name,
-	          512,
+	          256,
 	          &error );
 
 	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
@@ -690,14 +793,12 @@ int fsext_test_directory_entry_get_utf8_name(
 	 "error",
 	 error );
 
-	utf8_name_is_set = result;
-
 	/* Test error cases
 	 */
 	result = libfsext_directory_entry_get_utf8_name(
 	          NULL,
 	          utf8_name,
-	          512,
+	          256,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -712,80 +813,59 @@ int fsext_test_directory_entry_get_utf8_name(
 	libcerror_error_free(
 	 &error );
 
-	if( utf8_name_is_set != 0 )
-	{
-		result = libfsext_directory_entry_get_utf8_name(
-		          directory_entry,
-		          NULL,
-		          512,
-		          &error );
-
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-
-		result = libfsext_directory_entry_get_utf8_name(
-		          directory_entry,
-		          utf8_name,
-		          0,
-		          &error );
-
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-
-		result = libfsext_directory_entry_get_utf8_name(
-		          directory_entry,
-		          utf8_name,
-		          (size_t) SSIZE_MAX + 1,
-		          &error );
-
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Clean up
-	 */
-	result = libfsext_directory_entry_free(
-	          &directory_entry,
+	result = libfsext_directory_entry_get_utf8_name(
+	          directory_entry,
+	          NULL,
+	          256,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 1 );
+	 -1 );
 
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "directory_entry",
-	 directory_entry );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
 	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_entry_get_utf8_name(
+	          directory_entry,
+	          utf8_name,
+	          0,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_entry_get_utf8_name(
+	          directory_entry,
+	          utf8_name,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
 
 	return( 1 );
 
@@ -794,12 +874,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( directory_entry != NULL )
-	{
-		libfsext_directory_entry_free(
-		 &directory_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -808,32 +882,11 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int fsext_test_directory_entry_get_utf16_name_size(
-     void )
+     libfsext_directory_entry_t *directory_entry )
 {
-	libcerror_error_t *error                    = NULL;
-	libfsext_directory_entry_t *directory_entry = NULL;
-	size_t utf16_name_size                      = 0;
-	int result                                  = 0;
-	int utf16_name_size_is_set                  = 0;
-
-	/* Initialize test
-	 */
-	result = libfsext_directory_entry_initialize(
-	          &directory_entry,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "directory_entry",
-	 directory_entry );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+	libcerror_error_t *error = NULL;
+	size_t utf16_name_size   = 0;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
@@ -850,8 +903,6 @@ int fsext_test_directory_entry_get_utf16_name_size(
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	utf16_name_size_is_set = result;
 
 	/* Test error cases
 	 */
@@ -872,43 +923,22 @@ int fsext_test_directory_entry_get_utf16_name_size(
 	libcerror_error_free(
 	 &error );
 
-	if( utf16_name_size_is_set != 0 )
-	{
-		result = libfsext_directory_entry_get_utf16_name_size(
-		          directory_entry,
-		          NULL,
-		          &error );
-
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Clean up
-	 */
-	result = libfsext_directory_entry_free(
-	          &directory_entry,
-	          &error );
+	result = libfsext_directory_entry_get_utf16_name_size(
+		  directory_entry,
+		  NULL,
+		  &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 1 );
+	 -1 );
 
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "directory_entry",
-	 directory_entry );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
 	 error );
+
+	libcerror_error_free(
+	 &error );
 
 	return( 1 );
 
@@ -917,12 +947,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( directory_entry != NULL )
-	{
-		libfsext_directory_entry_free(
-		 &directory_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -931,40 +955,19 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int fsext_test_directory_entry_get_utf16_name(
-     void )
+     libfsext_directory_entry_t *directory_entry )
 {
-	uint16_t utf16_name[ 512 ];
+	uint16_t utf16_name[ 256 ];
 
-	libcerror_error_t *error                    = NULL;
-	libfsext_directory_entry_t *directory_entry = NULL;
-	int result                                  = 0;
-	int utf16_name_is_set                       = 0;
-
-	/* Initialize test
-	 */
-	result = libfsext_directory_entry_initialize(
-	          &directory_entry,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "directory_entry",
-	 directory_entry );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+	libcerror_error_t *error = NULL;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
 	result = libfsext_directory_entry_get_utf16_name(
 	          directory_entry,
 	          utf16_name,
-	          512,
+	          256,
 	          &error );
 
 	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
@@ -976,14 +979,12 @@ int fsext_test_directory_entry_get_utf16_name(
 	 "error",
 	 error );
 
-	utf16_name_is_set = result;
-
 	/* Test error cases
 	 */
 	result = libfsext_directory_entry_get_utf16_name(
 	          NULL,
 	          utf16_name,
-	          512,
+	          256,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -998,80 +999,59 @@ int fsext_test_directory_entry_get_utf16_name(
 	libcerror_error_free(
 	 &error );
 
-	if( utf16_name_is_set != 0 )
-	{
-		result = libfsext_directory_entry_get_utf16_name(
-		          directory_entry,
-		          NULL,
-		          512,
-		          &error );
-
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-
-		result = libfsext_directory_entry_get_utf16_name(
-		          directory_entry,
-		          utf16_name,
-		          0,
-		          &error );
-
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-
-		result = libfsext_directory_entry_get_utf16_name(
-		          directory_entry,
-		          utf16_name,
-		          (size_t) SSIZE_MAX + 1,
-		          &error );
-
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Clean up
-	 */
-	result = libfsext_directory_entry_free(
-	          &directory_entry,
+	result = libfsext_directory_entry_get_utf16_name(
+	          directory_entry,
+	          NULL,
+	          256,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 1 );
+	 -1 );
 
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "directory_entry",
-	 directory_entry );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
 	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_entry_get_utf16_name(
+	          directory_entry,
+	          utf16_name,
+	          0,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_directory_entry_get_utf16_name(
+	          directory_entry,
+	          utf16_name,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
 
 	return( 1 );
 
@@ -1080,12 +1060,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( directory_entry != NULL )
-	{
-		libfsext_directory_entry_free(
-		 &directory_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -1104,6 +1078,12 @@ int main(
      char * const argv[] FSEXT_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+	libcerror_error_t *error                    = NULL;
+	libfsext_directory_entry_t *directory_entry = NULL;
+	int result                                  = 0;
+#endif
+
 	FSEXT_TEST_UNREFERENCED_PARAMETER( argc )
 	FSEXT_TEST_UNREFERENCED_PARAMETER( argv )
 
@@ -1121,33 +1101,107 @@ int main(
 	 "libfsext_directory_entry_clone",
 	 fsext_test_directory_entry_clone );
 
-	/* TODO: add tests for libfsext_directory_entry_read_data */
-
-#ifdef TODO
-
 	FSEXT_TEST_RUN(
+	 "libfsext_directory_entry_read_data",
+	 fsext_test_directory_entry_read_data );
+
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
+	/* Initialize directory_entry for tests
+	 */
+	result = libfsext_directory_entry_initialize(
+	          &directory_entry,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "directory_entry",
+	 directory_entry );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfsext_directory_entry_read_data(
+	          directory_entry,
+	          fsext_test_directory_entry_data1,
+	          16,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_directory_entry_get_utf8_name_size",
-	 fsext_test_directory_entry_get_utf8_name_size );
+	 fsext_test_directory_entry_get_utf8_name_size,
+	 directory_entry );
 
-	FSEXT_TEST_RUN(
+	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_directory_entry_get_utf8_name",
-	 fsext_test_directory_entry_get_utf8_name );
+	 fsext_test_directory_entry_get_utf8_name,
+	 directory_entry );
 
-	FSEXT_TEST_RUN(
+	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_directory_entry_get_utf16_name_size",
-	 fsext_test_directory_entry_get_utf16_name_size );
+	 fsext_test_directory_entry_get_utf16_name_size,
+	 directory_entry );
 
-	FSEXT_TEST_RUN(
+	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_directory_entry_get_utf16_name",
-	 fsext_test_directory_entry_get_utf16_name );
+	 fsext_test_directory_entry_get_utf16_name,
+	 directory_entry );
 
-#endif /* TODO */
+	/* Clean up
+	 */
+	result = libfsext_directory_entry_free(
+	          &directory_entry,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "directory_entry",
+	 directory_entry );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
 on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( directory_entry != NULL )
+	{
+		libfsext_directory_entry_free(
+		 &directory_entry,
+		 NULL );
+	}
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 }
 

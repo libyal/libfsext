@@ -204,6 +204,8 @@ int libfsext_directory_entry_clone(
 		 "%s: unable to copy directory entry.",
 		 function );
 
+		( *destination_directory_entry )->name = NULL;
+
 		goto on_error;
 	}
 	( *destination_directory_entry )->name = (uint8_t *) memory_allocate(
