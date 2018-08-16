@@ -2078,7 +2078,6 @@ int main(
 		 "libfsext_volume_open_close",
 		 fsext_test_volume_open_close,
 		 source );
-
 	}
 	if( result != 0 )
 	{

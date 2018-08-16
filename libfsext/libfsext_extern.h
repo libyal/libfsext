@@ -28,17 +28,13 @@
  */
 #if !defined( HAVE_LOCAL_LIBFSEXT )
 
-/* If libtool DLL support is enabled set LIBFSEXT_DLL_EXPORT
- * before including libfsext/extern.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBFSEXT_DLL_EXPORT
-#endif
-
 #include <libfsext/extern.h>
 
+#define LIBFSEXT_EXTERN_VARIABLE	LIBFSEXT_EXTERN
+
 #else
-#define LIBFSEXT_EXTERN	/* extern */
+#define LIBFSEXT_EXTERN		/* extern */
+#define LIBFSEXT_EXTERN_VARIABLE	extern
 
 #endif /* !defined( HAVE_LOCAL_LIBFSEXT ) */
 

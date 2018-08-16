@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20180515],
+ [20180816],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -106,10 +106,7 @@ dnl Check if libfsext required headers and functions are available
 AX_LIBFSEXT_CHECK_LOCAL
 
 dnl Check if libfsext Python bindings (pyfsext) required headers and functions are available
-AX_PYTHON_CHECK_PYPREFIX
 AX_PYTHON_CHECK_ENABLE
-AX_PYTHON2_CHECK_ENABLE
-AX_PYTHON3_CHECK_ENABLE
 
 AS_IF(
   [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
@@ -124,10 +121,6 @@ AS_IF(
     ])
   ])
 
-AM_CONDITIONAL(
-  HAVE_PYTHON_TESTS,
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno])
-
 dnl Check if fsexttools required headers and functions are available
 AX_FSEXTTOOLS_CHECK_LOCAL
 
@@ -139,7 +132,7 @@ AS_IF(
  [test "x$enable_shared" = xyes],
  [AS_CASE(
   [$host],
-  [*cygwin* | *mingw*],
+  [*cygwin* | *mingw* | *msys*],
   [AC_DEFINE(
    [HAVE_DLLMAIN],
    [1],
@@ -148,7 +141,10 @@ AS_IF(
    [HAVE_DLLMAIN],
    [1])
 
-  dnl Used in tests
+  AC_SUBST(
+   [LIBFSEXT_DLL_EXPORT],
+   ["-DLIBFSEXT_DLL_EXPORT"])
+
   AC_SUBST(
    [LIBFSEXT_DLL_IMPORT],
    ["-DLIBFSEXT_DLL_IMPORT"])
@@ -247,8 +243,6 @@ Features:
    Wide character type support:                $ac_cv_enable_wide_character_type
    fsexttools are build as static executables: $ac_cv_enable_static_executables
    Python (pyfsext) support:                   $ac_cv_enable_python
-   Python version 2 (pyfsext) support:         $ac_cv_enable_python2
-   Python version 3 (pyfsext) support:         $ac_cv_enable_python3
    Verbose output:                             $ac_cv_enable_verbose_output
    Debug output:                               $ac_cv_enable_debug_output
 ]);

@@ -102,6 +102,7 @@ fsext_test_block_LDADD = \
 fsext_test_block_vector_SOURCES = \
 	fsext_test_block_vector.c \
 	fsext_test_functions.c fsext_test_functions.h \
+	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
 	fsext_test_libfcache.h \
 	fsext_test_libfdata.h \

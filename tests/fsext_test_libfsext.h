@@ -24,13 +24,6 @@
 
 #include <common.h>
 
-/* If Cygwin libtool DLL support is enabled and do not want to create static
- * executables set LIBFSEXT_DLL_IMPORT before including libfsext.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
-#define LIBFSEXT_DLL_IMPORT
-#endif
-
 #include <libfsext.h>
 
 #endif /* !defined( _FSEXT_TEST_LIBFSEXT_H ) */
