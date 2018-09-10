@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tests\fsext_test_libbfio.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\fsext_test_libcerror.h"
 				>
 			</File>

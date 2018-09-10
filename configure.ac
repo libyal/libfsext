@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20180816],
+ [20180910],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -160,9 +160,6 @@ AS_IF(
  [AC_SUBST(
   [libfsext_spec_requires],
   [Requires:])
- AC_SUBST(
-  [libfsext_spec_build_requires],
-  [BuildRequires:])
  ])
 
 dnl Set the date for the dpkg files
