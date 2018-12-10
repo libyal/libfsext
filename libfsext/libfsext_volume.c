@@ -2043,8 +2043,8 @@ int libfsext_volume_get_file_entry_by_utf8_path(
 {
 	libfsext_directory_entry_t *directory_entry = NULL;
 	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                        = "libfsext_volume_get_file_entry_by_utf8_path";
-	int result                                   = 0;
+	static char *function                       = "libfsext_volume_get_file_entry_by_utf8_path";
+	int result                                  = 0;
 
 	if( volume == NULL )
 	{
@@ -2106,8 +2106,8 @@ int libfsext_volume_get_file_entry_by_utf16_path(
 {
 	libfsext_directory_entry_t *directory_entry = NULL;
 	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                        = "libfsext_volume_get_file_entry_by_utf16_path";
-	int result                                   = 0;
+	static char *function                       = "libfsext_volume_get_file_entry_by_utf16_path";
+	int result                                  = 0;
 
 	if( volume == NULL )
 	{

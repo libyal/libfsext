@@ -187,7 +187,7 @@ int libfsext_volume_get_file_entry_by_utf8_path(
      libfsext_volume_t *volume,
      const uint8_t *utf8_string,
      size_t utf8_string_length,
-     libfsext_file_entry_t **sub_file_entry,
+     libfsext_file_entry_t **file_entry,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
@@ -195,7 +195,7 @@ int libfsext_volume_get_file_entry_by_utf16_path(
      libfsext_volume_t *volume,
      const uint16_t *utf16_string,
      size_t utf16_string_length,
-     libfsext_file_entry_t **sub_file_entry,
+     libfsext_file_entry_t **file_entry,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

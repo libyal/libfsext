@@ -1,4 +1,6 @@
 TODO:
+* Change user identifier to owner identifier
+* Add comment about posix time
 * complete get file entry by path
 * add support for EXT4_EA_INODE_FL
 * libfsext_inode_read_data_reference
