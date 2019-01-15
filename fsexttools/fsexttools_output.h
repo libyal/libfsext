@@ -1,7 +1,7 @@
 /*
  * Common output functions for the fsexttools
  *
- * Copyright (C) 2010-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -36,14 +36,14 @@ int fsexttools_output_initialize(
      int stdio_mode,
      libcerror_error_t **error );
 
-void fsextoutput_copyright_fprint(
+void fsexttools_output_copyright_fprint(
       FILE *stream );
 
-void fsextoutput_version_fprint(
+void fsexttools_output_version_fprint(
       FILE *stream,
       const char *program );
 
-void fsextoutput_version_detailed_fprint(
+void fsexttools_output_version_detailed_fprint(
       FILE *stream,
       const char *program );
 

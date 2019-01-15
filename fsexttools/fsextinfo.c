@@ -1,7 +1,7 @@
 /*
  * Shows information obtained from an Extended File System (ext) volume
  *
- * Copyright (C) 2010-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -176,7 +176,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	fsextoutput_version_fprint(
+	fsexttools_output_version_fprint(
 	 stdout,
 	 program );
 
@@ -233,7 +233,7 @@ int main( int argc, char * const argv[] )
 				break;
 
 			case (system_integer_t) 'V':
-				fsextoutput_copyright_fprint(
+				fsexttools_output_copyright_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );

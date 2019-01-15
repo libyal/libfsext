@@ -13,6 +13,14 @@ BuildRequires: gcc @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requ
 %description -n libfsext
 Library to support the Extended File System (ext) format
 
+%package -n libfsext-static
+Summary: Library to support the Extended File System (ext) format
+Group: Development/Libraries
+Requires: libfsext = %{version}-%{release}
+
+%description -n libfsext-static
+Static library version of libfsext.
+
 %package -n libfsext-devel
 Summary: Header files and libraries for developing applications for libfsext
 Group: Development/Libraries
@@ -73,11 +81,16 @@ rm -rf %{buildroot}
 %doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.so.*
 
+%files -n libfsext-static
+%defattr(644,root,root,755)
+%license COPYING
+%doc AUTHORS README
+%attr(755,root,root) %{_libdir}/*.a
+
 %files -n libfsext-devel
 %defattr(644,root,root,755)
 %license COPYING
-%doc AUTHORS README ChangeLog
-%{_libdir}/*.a
+%doc AUTHORS README
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/libfsext.pc

@@ -9,6 +9,8 @@ Homepage: https://github.com/libyal/libfsext
 Package: libfsext
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libfsext1
+Replaces: libfsext1
 Suggests: libfsext-dbg
 Description: Library to support the Extended File System (ext) format
  libfsext is a library to support the Extended File System (ext) format.
@@ -31,6 +33,8 @@ Package: libfsext-tools
 Section: utils
 Architecture: any
 Depends: libfsext (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libfsext-utils
+Replaces: libfsext-utils
 Description: Several tools for reading Extended File System (ext) volumes
  Several tools for reading Extended File System (ext) volumes.
 
@@ -45,6 +49,8 @@ Package: libfsext-python
 Section: python
 Architecture: any
 Depends: libfsext (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python-libfsext
+Replaces: python-libfsext
 Suggests: libfsext-python-dbg
 Description: Python 2 bindings for libfsext
  Python 2 bindings for libfsext.
@@ -60,6 +66,8 @@ Package: libfsext-python3
 Section: python
 Architecture: any
 Depends: libfsext (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python3-libfsext
+Replaces: python3-libfsext
 Suggests: libfsext-python3-dbg
 Description: Python 3 bindings for libfsext
  Python 3 bindings for libfsext.
