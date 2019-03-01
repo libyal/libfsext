@@ -23,6 +23,7 @@ endif
 
 TESTS = \
 	test_library.sh \
+	test_manpage.sh \
 	test_fsextinfo.sh \
 	$(TESTS_PYFSEXT)
 
@@ -30,6 +31,7 @@ check_SCRIPTS = \
 	pyfsext_test_support.py \
 	test_fsextinfo.sh \
 	test_library.sh \
+	test_manpage.sh \
 	test_python_module.sh \
 	test_runner.sh
 

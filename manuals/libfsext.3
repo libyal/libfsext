@@ -1,11 +1,9 @@
-.Dd May  9, 2016
+.Dd March  1, 2019
 .Dt libfsext 3
 .Os libfsext
 .Sh NAME
 .Nm libfsext.h
 .Nd Library to support the Extended File System (ext) format
-.Sh LIBRARY
-.Lb libfsext
 .Sh SYNOPSIS
 .In libfsext.h
 .Pp
@@ -15,27 +13,27 @@ Support functions
 .Ft int
 .Fn libfsext_get_access_flags_read "void"
 .Ft int
-.Fn libfsext_get_codepage "int *codepage, libfsext_error_t **error"
+.Fn libfsext_get_codepage "int *codepage" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_set_codepage "int codepage, libfsext_error_t **error"
+.Fn libfsext_set_codepage "int codepage" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_check_volume_signature "const char *filename, libfsext_error_t **error"
+.Fn libfsext_check_volume_signature "const char *filename" "libfsext_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libfsext_check_volume_signature_wide "const wchar_t *filename, libfsext_error_t **error"
+.Fn libfsext_check_volume_signature_wide "const wchar_t *filename" "libfsext_error_t **error"
 .Pp
 Available when compiled with libbfio support:
 .Ft int
-.Fn libfsext_check_volume_signature_file_io_handle "libbfio_handle_t *file_io_handle, libfsext_error_t **error"
+.Fn libfsext_check_volume_signature_file_io_handle "libbfio_handle_t *file_io_handle" "libfsext_error_t **error"
 .Pp
 Notify functions
 .Ft void
 .Fn libfsext_notify_set_verbose "int verbose"
 .Ft int
-.Fn libfsext_notify_set_stream "FILE *stream, libfsext_error_t **error"
+.Fn libfsext_notify_set_stream "FILE *stream" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_notify_stream_open "const char *filename, libfsext_error_t **error"
+.Fn libfsext_notify_stream_open "const char *filename" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_notify_stream_close "libfsext_error_t **error"
 .Pp
@@ -43,41 +41,93 @@ Error functions
 .Ft void
 .Fn libfsext_error_free "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_error_fprint "libfsext_error_t *error, FILE *stream"
+.Fn libfsext_error_fprint "libfsext_error_t *error" "FILE *stream"
 .Ft int
-.Fn libfsext_error_sprint "libfsext_error_t *error, char *string, size_t size"
+.Fn libfsext_error_sprint "libfsext_error_t *error" "char *string" "size_t size"
 .Ft int
-.Fn libfsext_error_backtrace_fprint "libfsext_error_t *error, FILE *stream"
+.Fn libfsext_error_backtrace_fprint "libfsext_error_t *error" "FILE *stream"
 .Ft int
-.Fn libfsext_error_backtrace_sprint "libfsext_error_t *error, char *string, size_t size"
+.Fn libfsext_error_backtrace_sprint "libfsext_error_t *error" "char *string" "size_t size"
 .Pp
 Volume functions
 .Ft int
-.Fn libfsext_volume_initialize "libfsext_volume_t **volume, libfsext_error_t **error"
+.Fn libfsext_volume_initialize "libfsext_volume_t **volume" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_free "libfsext_volume_t **volume, libfsext_error_t **error"
+.Fn libfsext_volume_free "libfsext_volume_t **volume" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_signal_abort "libfsext_volume_t *volume, libfsext_error_t **error"
+.Fn libfsext_volume_signal_abort "libfsext_volume_t *volume" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_open "libfsext_volume_t *volume, const char *filename, int access_flags, libfsext_error_t **error"
+.Fn libfsext_volume_open "libfsext_volume_t *volume" "const char *filename" "int access_flags" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_close "libfsext_volume_t *volume, libfsext_error_t **error"
+.Fn libfsext_volume_close "libfsext_volume_t *volume" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_get_utf8_label_size "libfsext_volume_t *volume, size_t *utf8_string_size, libfsext_error_t **error"
+.Fn libfsext_volume_get_utf8_label_size "libfsext_volume_t *volume" "size_t *utf8_string_size" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_get_utf8_label "libfsext_volume_t *volume, uint8_t *utf8_string, size_t utf8_string_size, libfsext_error_t **error"
+.Fn libfsext_volume_get_utf8_label "libfsext_volume_t *volume" "uint8_t *utf8_string" "size_t utf8_string_size" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_get_utf16_label_size "libfsext_volume_t *volume, size_t *utf16_string_size, libfsext_error_t **error"
+.Fn libfsext_volume_get_utf16_label_size "libfsext_volume_t *volume" "size_t *utf16_string_size" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_get_utf16_label "libfsext_volume_t *volume, uint16_t *utf16_string, size_t utf16_string_size, libfsext_error_t **error"
+.Fn libfsext_volume_get_utf16_label "libfsext_volume_t *volume" "uint16_t *utf16_string" "size_t utf16_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_last_mount_time "libfsext_volume_t *volume" "uint32_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_last_written_time "libfsext_volume_t *volume" "uint32_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_number_of_file_entries "libfsext_volume_t *volume" "uint32_t *number_of_file_entries" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_file_entry_by_index "libfsext_volume_t *volume" "uint32_t inode_number" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_root_directory "libfsext_volume_t *volume" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_file_entry_by_utf8_path "libfsext_volume_t *volume" "const uint8_t *utf8_string" "size_t utf8_string_length" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_file_entry_by_utf16_path "libfsext_volume_t *volume" "const uint16_t *utf16_string" "size_t utf16_string_length" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libfsext_volume_open_wide "libfsext_volume_t *volume, const wchar_t *filename, int access_flags, libfsext_error_t **error"
+.Fn libfsext_volume_open_wide "libfsext_volume_t *volume" "const wchar_t *filename" "int access_flags" "libfsext_error_t **error"
 .Pp
 Available when compiled with libbfio support:
 .Ft int
-.Fn libfsext_volume_open_file_io_handle "libfsext_volume_t *volume, libbfio_handle_t *file_io_handle, int access_flags, libfsext_error_t **error"
+.Fn libfsext_volume_open_file_io_handle "libfsext_volume_t *volume" "libbfio_handle_t *file_io_handle" "int access_flags" "libfsext_error_t **error"
+.Pp
+File entry functions
+.Ft int
+.Fn libfsext_file_entry_free "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_is_empty "libfsext_file_entry_t *file_entry" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_access_time "libfsext_file_entry_t *file_entry" "uint32_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_inode_change_time "libfsext_file_entry_t *file_entry" "uint32_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_modification_time "libfsext_file_entry_t *file_entry" "uint32_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_deletion_time "libfsext_file_entry_t *file_entry" "uint32_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_file_mode "libfsext_file_entry_t *file_entry" "uint16_t *file_mode" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_user_identifier "libfsext_file_entry_t *file_entry" "uint32_t *user_identifier" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_group_identifier "libfsext_file_entry_t *file_entry" "uint32_t *group_identifier" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_utf8_name_size "libfsext_file_entry_t *file_entry" "size_t *utf8_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_utf8_name "libfsext_file_entry_t *file_entry" "uint8_t *utf8_string" "size_t utf8_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_utf16_name_size "libfsext_file_entry_t *file_entry" "size_t *utf16_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_utf16_name "libfsext_file_entry_t *file_entry" "uint16_t *utf16_string" "size_t utf16_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_number_of_sub_file_entries "libfsext_file_entry_t *file_entry" "int *number_of_sub_entries" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_sub_file_entry_by_index "libfsext_file_entry_t *file_entry" "int sub_file_entry_index" "libfsext_file_entry_t **sub_file_entry" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_size "libfsext_file_entry_t *file_entry" "size64_t *size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_number_of_extents "libfsext_file_entry_t *file_entry" "int *number_of_extents" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_extent_by_index "libfsext_file_entry_t *file_entry" "int extent_index" "off64_t *extent_offset" "size64_t *extent_size" "uint32_t *extent_flags" "libfsext_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libfsext_get_version
@@ -90,8 +140,8 @@ None
 .Sh FILES
 None
 .Sh NOTES
-libfsext allows to be compiled with wide character support (wchar_t).
-
+libfsext can be compiled with wide character support (wchar_t).
+.sp
 To compile libfsext with wide character support use:
 .Ar ./configure --enable-wide-character-type=yes
  or define:
@@ -99,7 +149,7 @@ To compile libfsext with wide character support use:
  or
 .Ar UNICODE
  during compilation.
-
+.sp
 .Ar LIBFSEXT_WIDE_CHARACTER_TYPE
  in libfsext/features.h can be used to determine if libfsext was compiled with wide character support.
 .Sh BUGS
@@ -108,7 +158,7 @@ Please report bugs of any kind on the project issue tracker: https://github.com/
 These man pages are generated from "libfsext.h".
 .Sh COPYRIGHT
 Copyright (C) 2010-2019, Joachim Metz <joachim.metz@gmail.com>.
-
+.sp
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .Sh SEE ALSO
