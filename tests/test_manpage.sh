@@ -1,7 +1,7 @@
 #!/bin/bash
 # Tests man pages.
 #
-# Version: 20190301
+# Version: 20190302
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -25,8 +25,6 @@ run_test()
 	fi
 	if test -s ${TMPDIR}/${TEST_NAME}.warnings;
 	then
-		cat ${TMPDIR}/${TEST_NAME}.warnings;
-
 		RESULT=${EXIT_FAILURE};
 	fi
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -34,6 +32,10 @@ run_test()
 		echo " (FAIL)";
 	else
 		echo " (PASS)";
+	fi
+	if test -s ${TMPDIR}/${TEST_NAME}.warnings;
+	then
+		cat ${TMPDIR}/${TEST_NAME}.warnings;
 	fi
 	return ${RESULT};
 }
