@@ -330,9 +330,12 @@ int fsext_test_inode_clone(
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 	int number_of_malloc_fail_tests = 2;
-	int number_of_memset_fail_tests = 1;
 	int test_number                 = 0;
+
+#if defined( OPTIMIZATION_DISABLED )
+	int number_of_memcpy_fail_tests = 1;
 #endif
+#endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
 
 	/* Initialize test
 	 */
@@ -493,8 +496,10 @@ int fsext_test_inode_clone(
 			 &error );
 		}
 	}
+#if defined( OPTIMIZATION_DISABLED )
+
 	for( test_number = 0;
-	     test_number < number_of_memset_fail_tests;
+	     test_number < number_of_memcpy_fail_tests;
 	     test_number++ )
 	{
 		/* Test libfsext_inode_clone with memcpy failing
@@ -536,6 +541,7 @@ int fsext_test_inode_clone(
 			 &error );
 		}
 	}
+#endif /* defined( OPTIMIZATION_DISABLED ) */
 #endif /* defined( HAVE_FSEXT_TEST_MEMORY ) */
 
 	/* Clean up
