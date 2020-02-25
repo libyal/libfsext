@@ -1,6 +1,6 @@
 # Info tool testing script
 #
-# Version: 20200216
+# Version: 20200126
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -8,9 +8,9 @@ $ExitIgnore = 77
 
 $InputGlob = "*"
 
-Function GetTestExecutablesDirectory
+Function GetTestToolDirectory
 {
-	$TestExecutablesDirectory = ""
+	$TestToolDirectory = ""
 
 	ForEach (${VSDirectory} in "msvscpp vs2008 vs2010 vs2012 vs2013 vs2015 vs2017 vs2019" -split " ")
 	{
@@ -18,34 +18,34 @@ Function GetTestExecutablesDirectory
 		{
 			ForEach (${VSPlatform} in "Win32 x64" -split " ")
 			{
-				$TestExecutablesDirectory = "..\${VSDirectory}\${VSConfiguration}\${VSPlatform}"
+				$TestToolDirectory = "..\${VSDirectory}\${VSConfiguration}\${VSPlatform}"
 
-				If (Test-Path ${TestExecutablesDirectory})
+				If (Test-Path ${TestToolDirectory})
 				{
-					Return ${TestExecutablesDirectory}
+					Return ${TestToolDirectory}
 				}
 			}
-			$TestExecutablesDirectory = "..\${VSDirectory}\${VSConfiguration}"
+			$TestToolDirectory = "..\${VSDirectory}\${VSConfiguration}"
 
-			If (Test-Path ${TestExecutablesDirectory})
+			If (Test-Path ${TestToolDirectory})
 			{
-				Return ${TestExecutablesDirectory}
+				Return ${TestToolDirectory}
 			}
 		}
 	}
-	Return ${TestExecutablesDirectory}
+	Return ${TestToolDirectory}
 }
 
-$TestExecutablesDirectory = GetTestExecutablesDirectory
+$TestToolDirectory = GetTestToolDirectory
 
-If (-Not (Test-Path ${TestExecutablesDirectory}))
+If (-Not (Test-Path ${TestToolDirectory}))
 {
-	Write-Host "Missing test executables directory." -foreground Red
+	Write-Host "Missing test tool directory." -foreground Red
 
 	Exit ${ExitFailure}
 }
 
-$TestExecutable = "${TestExecutablesDirectory}\fsextinfo.exe"
+$TestExecutable = "${TestToolDirectory}\fsextinfo.exe"
 
 If (-Not (Test-Path -Path "input"))
 {
