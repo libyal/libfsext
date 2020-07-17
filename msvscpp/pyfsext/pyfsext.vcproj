@@ -174,7 +174,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pyfsext\pyfsext_datetime.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pyfsext\pyfsext_error.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyfsext\pyfsext_file_entries.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyfsext\pyfsext_file_entry.c"
 				>
 			</File>
 			<File
@@ -200,7 +212,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pyfsext\pyfsext_datetime.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pyfsext\pyfsext_error.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyfsext\pyfsext_file_entries.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyfsext\pyfsext_file_entry.h"
 				>
 			</File>
 			<File

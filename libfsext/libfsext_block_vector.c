@@ -30,7 +30,6 @@
 #include "libfsext_io_handle.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libbfio.h"
-#include "libfsext_libfcache.h"
 #include "libfsext_libfdata.h"
 #include "libfsext_unused.h"
 
@@ -102,7 +101,7 @@ int libfsext_block_vector_initialize(
 	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libfsext_block_vector_read_element_data,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libfsext_block_vector_read_element_data,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -209,7 +208,7 @@ int libfsext_block_vector_read_element_data(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_index LIBFSEXT_ATTRIBUTE_UNUSED,
      int element_data_file_index LIBFSEXT_ATTRIBUTE_UNUSED,
      off64_t block_offset,

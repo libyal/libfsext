@@ -77,6 +77,20 @@ int libfsext_directory_get_entry_by_inode_number(
      libfsext_directory_entry_t **directory_entry,
      libcerror_error_t **error );
 
+int libfsext_directory_get_entry_by_utf8_name(
+     libfsext_directory_t *directory,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_directory_entry_t **directory_entry,
+     libcerror_error_t **error );
+
+int libfsext_directory_get_entry_by_utf16_name(
+     libfsext_directory_t *directory,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libfsext_directory_entry_t **directory_entry,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif

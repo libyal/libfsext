@@ -37,7 +37,6 @@
 #include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
-#include "libfsext_libfcache.h"
 #include "libfsext_libfdata.h"
 #include "libfsext_libfdatetime.h"
 #include "libfsext_unused.h"
@@ -922,6 +921,14 @@ int libfsext_inode_read_data(
 			 "%s: version (upper)\t\t\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
+
+			libcnotify_printf(
+			 "%s: extended attributes data:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (fsext_inode_ext4_t *) data )->extended_attributes_data,
+			 100,
+			 0 );
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 	}
@@ -1954,7 +1961,7 @@ int libfsext_inode_read_element_data(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_index,
      int element_data_file_index LIBFSEXT_ATTRIBUTE_UNUSED,
      off64_t element_data_offset,

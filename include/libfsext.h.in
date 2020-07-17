@@ -340,7 +340,7 @@ int libfsext_volume_get_file_entry_by_index(
      libfsext_error_t **error );
 
 /* Retrieves the root directory file entry
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_root_directory(
@@ -525,8 +525,67 @@ int libfsext_file_entry_get_sub_file_entry_by_index(
      libfsext_file_entry_t **sub_file_entry,
      libfsext_error_t **error );
 
-/* TODO add read and seek functions */
-/* TODO add get offset function */
+/* Retrieves the sub file entry for an UTF-8 encoded name
+ * Returns 1 if successful, 0 if the file entry does not contain such value or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_sub_file_entry_by_utf8_name(
+     libfsext_file_entry_t *file_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_file_entry_t **sub_file_entry,
+     libfsext_error_t **error );
+
+/* Retrieves the sub file entry for an UTF-16 encoded name
+ * Returns 1 if successful, 0 if the file entry does not contain such value or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_sub_file_entry_by_utf16_name(
+     libfsext_file_entry_t *file_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libfsext_file_entry_t **sub_file_entry,
+     libfsext_error_t **error );
+
+/* Reads data at the current offset
+ * Returns the number of bytes read or -1 on error
+ */
+LIBFSEXT_EXTERN \
+ssize_t libfsext_file_entry_read_buffer(
+         libfsext_file_entry_t *file_entry,
+         void *buffer,
+         size_t buffer_size,
+         libfsext_error_t **error );
+
+/* Reads data at a specific offset
+ * Returns the number of bytes read or -1 on error
+ */
+LIBFSEXT_EXTERN \
+ssize_t libfsext_file_entry_read_buffer_at_offset(
+         libfsext_file_entry_t *file_entry,
+         void *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libfsext_error_t **error );
+
+/* Seeks a certain offset
+ * Returns the offset if seek is successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+off64_t libfsext_file_entry_seek_offset(
+         libfsext_file_entry_t *file_entry,
+         off64_t offset,
+         int whence,
+         libfsext_error_t **error );
+
+/* Retrieves the current offset
+ * Returns the offset if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_offset(
+     libfsext_file_entry_t *file_entry,
+     off64_t *offset,
+     libfsext_error_t **error );
 
 /* Retrieves the size of the data
  * Returns 1 if successful or -1 on error

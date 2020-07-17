@@ -53,19 +53,6 @@ struct pyfsext_volume
 extern PyMethodDef pyfsext_volume_object_methods[];
 extern PyTypeObject pyfsext_volume_type_object;
 
-PyObject *pyfsext_volume_new(
-           void );
-
-PyObject *pyfsext_volume_new_open(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
-PyObject *pyfsext_volume_new_open_file_object(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
 int pyfsext_volume_init(
      pyfsext_volume_t *pyfsext_volume );
 
@@ -93,6 +80,35 @@ PyObject *pyfsext_volume_close(
 PyObject *pyfsext_volume_get_label(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments );
+
+PyObject *pyfsext_volume_get_last_mount_time(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments );
+
+PyObject *pyfsext_volume_get_last_mount_time_as_integer(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments );
+
+PyObject *pyfsext_volume_get_last_written_time(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments );
+
+PyObject *pyfsext_volume_get_last_written_time_as_integer(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments );
+
+PyObject *pyfsext_volume_get_number_of_file_entries(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments );
+
+PyObject *pyfsext_volume_get_root_directory(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments );
+
+PyObject *pyfsext_volume_get_file_entry_by_path(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments,
+           PyObject *keywords );
 
 #if defined( __cplusplus )
 }

@@ -977,6 +977,7 @@ int info_handle_file_system_hierarchy_fprint(
 {
 	libfsext_file_entry_t *file_entry = NULL;
 	static char *function             = "info_handle_file_system_hierarchy_fprint";
+	int result                        = 0;
 
 	if( info_handle == NULL )
 	{
@@ -997,10 +998,12 @@ int info_handle_file_system_hierarchy_fprint(
 	 info_handle->notify_stream,
 	 "File system hierarchy:\n" );
 
-	if( libfsext_volume_get_root_directory(
-	     info_handle->input_volume,
-	     &file_entry,
-	     error ) != 1 )
+	result = libfsext_volume_get_root_directory(
+	          info_handle->input_volume,
+	          &file_entry,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1011,33 +1014,36 @@ int info_handle_file_system_hierarchy_fprint(
 
 		goto on_error;
 	}
-	if( info_handle_file_system_hierarchy_fprint_file_entry(
-	     info_handle,
-	     file_entry,
-	     0,
-	     error ) != 1 )
+	else if( result != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-		 "%s: unable to print root directory file entry information.",
-		 function );
+		if( info_handle_file_system_hierarchy_fprint_file_entry(
+		     info_handle,
+		     file_entry,
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print root directory file entry information.",
+			 function );
 
-		goto on_error;
-	}
-	if( libfsext_file_entry_free(
-	     &file_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free file entry.",
-		 function );
+			goto on_error;
+		}
+		if( libfsext_file_entry_free(
+		     &file_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free file entry.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	fprintf(
 	 info_handle->notify_stream,
@@ -1494,6 +1500,8 @@ int info_handle_volume_fprint(
 	fprintf(
 	 info_handle->notify_stream,
 	 "\n" );
+
+/* TODO print libfsext_volume_get_number_of_file_entries */
 
 	if( libfsext_volume_get_last_mount_time(
 	     info_handle->input_volume,

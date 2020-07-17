@@ -1731,7 +1731,7 @@ int libfsext_volume_get_last_written_time(
 	return( 1 );
 }
 
-/* Retrieves the number of file entries (MFT entries)
+/* Retrieves the number of file entries (inodes)
  * Returns 1 if successful or -1 on error
  */
 int libfsext_volume_get_number_of_file_entries(
@@ -1782,7 +1782,7 @@ int libfsext_volume_get_number_of_file_entries(
 	return( 1 );
 }
 
-/* Retrieves the file entry of a specific MFT entry index
+/* Retrieves the file entry of a specific inode
  * Returns 1 if successful or -1 on error
  */
 int libfsext_volume_get_file_entry_by_index(
@@ -1909,7 +1909,7 @@ on_error:
 }
 
 /* Retrieves the root directory file entry
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 int libfsext_volume_get_root_directory(
      libfsext_volume_t *volume,
@@ -1934,6 +1934,17 @@ int libfsext_volume_get_root_directory(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
+	if( internal_volume->superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid volume - missing superblock.",
+		 function );
+
+		return( -1 );
+	}
 	if( file_entry == NULL )
 	{
 		libcerror_error_set(
@@ -1955,6 +1966,10 @@ int libfsext_volume_get_root_directory(
 		 function );
 
 		return( -1 );
+	}
+	if( internal_volume->superblock->number_of_inodes < LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY )
+	{
+		return( 0 );
 	}
 	if( libfsext_inode_table_get_inode_by_number(
 	     internal_volume->inode_table,

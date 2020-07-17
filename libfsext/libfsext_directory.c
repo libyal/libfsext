@@ -37,6 +37,7 @@
 #include "libfsext_libcnotify.h"
 #include "libfsext_libfdata.h"
 #include "libfsext_libfcache.h"
+#include "libfsext_libuna.h"
 
 /* Creates a directory
  * Make sure the value directory is referencing, is set to NULL
@@ -291,7 +292,7 @@ int libfsext_directory_read_file_io_handle(
 		if( libfdata_vector_get_element_value_by_index(
 		     block_vector,
 		     (intptr_t *) file_io_handle,
-		     block_cache,
+		     (libfdata_cache_t *) block_cache,
 		     block_index,
 		     (intptr_t **) &block,
 		     0,
@@ -552,9 +553,10 @@ int libfsext_directory_get_entry_by_inode_number(
      libfsext_directory_entry_t **directory_entry,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_directory_get_entry_by_inode_number";
-	int entry_index       = 0;
-	int number_of_entries = 0;
+	libfsext_directory_entry_t *safe_directory_entry = NULL;
+	static char *function                            = "libfsext_directory_get_entry_by_inode_number";
+	int entry_index                                  = 0;
+	int number_of_entries                            = 0;
 
 	if( directory == NULL )
 	{
@@ -588,7 +590,7 @@ int libfsext_directory_get_entry_by_inode_number(
 		if( libcdata_array_get_entry_by_index(
 		     directory->entries_array,
 		     entry_index,
-		     (intptr_t **) directory_entry,
+		     (intptr_t **) &safe_directory_entry,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -601,7 +603,7 @@ int libfsext_directory_get_entry_by_inode_number(
 
 			return( -1 );
 		}
-		if( *directory_entry == NULL )
+		if( safe_directory_entry == NULL )
 		{
 			libcerror_error_set(
 			 error,
@@ -613,8 +615,220 @@ int libfsext_directory_get_entry_by_inode_number(
 
 			return( -1 );
 		}
-		if( ( *directory_entry )->inode_number == inode_number )
+		if( safe_directory_entry->inode_number == inode_number )
 		{
+			*directory_entry = safe_directory_entry;
+
+			return( 1 );
+		}
+	}
+	*directory_entry = NULL;
+
+	return( 0 );
+}
+
+/* Retrieves a specific entry with the name
+ * Returns 1 if successful, 0 if not found or -1 on error
+ */
+int libfsext_directory_get_entry_by_utf8_name(
+     libfsext_directory_t *directory,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_directory_entry_t **directory_entry,
+     libcerror_error_t **error )
+{
+	libfsext_directory_entry_t *safe_directory_entry = NULL;
+	static char *function                            = "libfsext_directory_get_entry_by_utf8_name";
+	int entry_index                                  = 0;
+	int number_of_entries                            = 0;
+	int result                                       = 0;
+
+	if( directory == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_number_of_entries(
+	     directory->entries_array,
+	     &number_of_entries,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of entries.",
+		 function );
+
+		return( -1 );
+	}
+	for( entry_index = 0;
+	     entry_index < number_of_entries;
+	     entry_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     directory->entries_array,
+		     entry_index,
+		     (intptr_t **) &safe_directory_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve entry: %d.",
+			 function,
+			 entry_index );
+
+			return( -1 );
+		}
+		if( safe_directory_entry == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid directory entry: %d.",
+			 function,
+			 entry_index );
+
+			return( -1 );
+		}
+/* TODO create directory entry compare function */
+		result = libuna_utf8_string_compare_with_utf8_stream(
+		          utf8_string,
+		          utf8_string_length,
+		          safe_directory_entry->name,
+		          safe_directory_entry->name_size,
+		          error );
+
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to compare UTF-8 string with directory entry: %d.",
+			 function,
+			 entry_index );
+
+			return( -1 );
+		}
+		else if( result == LIBUNA_COMPARE_EQUAL )
+		{
+			*directory_entry = safe_directory_entry;
+
+			return( 1 );
+		}
+	}
+	*directory_entry = NULL;
+
+	return( 0 );
+}
+
+/* Retrieves a specific entry with the name
+ * Returns 1 if successful, 0 if not found or -1 on error
+ */
+int libfsext_directory_get_entry_by_utf16_name(
+     libfsext_directory_t *directory,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libfsext_directory_entry_t **directory_entry,
+     libcerror_error_t **error )
+{
+	libfsext_directory_entry_t *safe_directory_entry = NULL;
+	static char *function                            = "libfsext_directory_get_entry_by_utf16_name";
+	int entry_index                                  = 0;
+	int number_of_entries                            = 0;
+	int result                                       = 0;
+
+	if( directory == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_number_of_entries(
+	     directory->entries_array,
+	     &number_of_entries,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of entries.",
+		 function );
+
+		return( -1 );
+	}
+	for( entry_index = 0;
+	     entry_index < number_of_entries;
+	     entry_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     directory->entries_array,
+		     entry_index,
+		     (intptr_t **) &safe_directory_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve entry: %d.",
+			 function,
+			 entry_index );
+
+			return( -1 );
+		}
+		if( safe_directory_entry == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid directory entry: %d.",
+			 function,
+			 entry_index );
+
+			return( -1 );
+		}
+/* TODO create directory entry compare function */
+		result = libuna_utf16_string_compare_with_utf8_stream(
+		          utf16_string,
+		          utf16_string_length,
+		          safe_directory_entry->name,
+		          safe_directory_entry->name_size,
+		          error );
+
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to compare UTF-16 string with directory entry: %d.",
+			 function,
+			 entry_index );
+
+			return( -1 );
+		}
+		else if( result == LIBUNA_COMPARE_EQUAL )
+		{
+			*directory_entry = safe_directory_entry;
+
 			return( 1 );
 		}
 	}

@@ -20,13 +20,16 @@
  */
 
 #include <common.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( HAVE_WINAPI )
 #include <stdlib.h>
 #endif
 
+#include "pyfsext_datetime.h"
 #include "pyfsext_error.h"
+#include "pyfsext_file_entry.h"
 #include "pyfsext_file_object_io_handle.h"
 #include "pyfsext_libbfio.h"
 #include "pyfsext_libcerror.h"
@@ -79,9 +82,58 @@ PyMethodDef pyfsext_volume_object_methods[] = {
 	{ "get_label",
 	  (PyCFunction) pyfsext_volume_get_label,
 	  METH_NOARGS,
-	  "get_label() -> Unicode string or None\n"
+	  "get_label() -> Unicode string\n"
 	  "\n"
 	  "Retrieves the label." },
+
+	{ "get_last_mount_time",
+	  (PyCFunction) pyfsext_volume_get_last_mount_time,
+	  METH_NOARGS,
+	  "get_last_mount_time() -> Datetime or None\n"
+	  "\n"
+	  "Retrieves the last mount time." },
+
+	{ "get_last_mount_time_as_integer",
+	  (PyCFunction) pyfsext_volume_get_last_mount_time_as_integer,
+	  METH_NOARGS,
+	  "get_last_mount_time_as_integer() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the last mount time as a 32-bit integer containing a POSIX timestamp value." },
+
+	{ "get_last_written_time",
+	  (PyCFunction) pyfsext_volume_get_last_written_time,
+	  METH_NOARGS,
+	  "get_last_written_time() -> Datetime or None\n"
+	  "\n"
+	  "Retrieves the last written time." },
+
+	{ "get_last_written_time_as_integer",
+	  (PyCFunction) pyfsext_volume_get_last_written_time_as_integer,
+	  METH_NOARGS,
+	  "get_last_written_time_as_integer() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the last written time as a 32-bit integer containing a POSIX timestamp value." },
+
+	{ "get_number_of_file_entries",
+	  (PyCFunction) pyfsext_volume_get_number_of_file_entries,
+	  METH_NOARGS,
+	  "get_number_of_file_entries() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of file entries (MFT entries)." },
+
+	{ "get_root_directory",
+	  (PyCFunction) pyfsext_volume_get_root_directory,
+	  METH_NOARGS,
+	  "get_root_directory() -> Object\n"
+	  "\n"
+	  "Retrieves the root directory file entry." },
+
+	{ "get_file_entry_by_path",
+	  (PyCFunction) pyfsext_volume_get_file_entry_by_path,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_file_entry_by_path(path) -> Object or None\n"
+	  "\n"
+	  "Retrieves the file entry for an UTF-8 encoded path specified by the path." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -93,6 +145,30 @@ PyGetSetDef pyfsext_volume_object_get_set_definitions[] = {
 	  (getter) pyfsext_volume_get_label,
 	  (setter) 0,
 	  "The label.",
+	  NULL },
+
+	{ "last_mount_time",
+	  (getter) pyfsext_volume_get_last_mount_time,
+	  (setter) 0,
+	  "The last mount time.",
+	  NULL },
+
+	{ "last_written_time",
+	  (getter) pyfsext_volume_get_last_written_time,
+	  (setter) 0,
+	  "The last written time.",
+	  NULL },
+
+	{ "number_of_file_entries",
+	  (getter) pyfsext_volume_get_number_of_file_entries,
+	  (setter) 0,
+	  "The number of file entries (MFT entries).",
+	  NULL },
+
+	{ "root_directory",
+	  (getter) pyfsext_volume_get_root_directory,
+	  (setter) 0,
+	  "The root directory file entry.",
 	  NULL },
 
 	/* Sentinel */
@@ -194,93 +270,6 @@ PyTypeObject pyfsext_volume_type_object = {
 	0
 };
 
-/* Creates a new volume object
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyfsext_volume_new(
-           void )
-{
-	pyfsext_volume_t *pyfsext_volume = NULL;
-	static char *function            = "pyfsext_volume_new";
-
-	pyfsext_volume = PyObject_New(
-	                  struct pyfsext_volume,
-	                  &pyfsext_volume_type_object );
-
-	if( pyfsext_volume == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize volume.",
-		 function );
-
-		goto on_error;
-	}
-	if( pyfsext_volume_init(
-	     pyfsext_volume ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize volume.",
-		 function );
-
-		goto on_error;
-	}
-	return( (PyObject *) pyfsext_volume );
-
-on_error:
-	if( pyfsext_volume != NULL )
-	{
-		Py_DecRef(
-		 (PyObject *) pyfsext_volume );
-	}
-	return( NULL );
-}
-
-/* Creates a new volume object and opens it
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyfsext_volume_new_open(
-           PyObject *self PYFSEXT_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *pyfsext_volume = NULL;
-
-	PYFSEXT_UNREFERENCED_PARAMETER( self )
-
-	pyfsext_volume = pyfsext_volume_new();
-
-	pyfsext_volume_open(
-	 (pyfsext_volume_t *) pyfsext_volume,
-	 arguments,
-	 keywords );
-
-	return( pyfsext_volume );
-}
-
-/* Creates a new volume object and opens it using a file-like object
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyfsext_volume_new_open_file_object(
-           PyObject *self PYFSEXT_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *pyfsext_volume = NULL;
-
-	PYFSEXT_UNREFERENCED_PARAMETER( self )
-
-	pyfsext_volume = pyfsext_volume_new();
-
-	pyfsext_volume_open_file_object(
-	 (pyfsext_volume_t *) pyfsext_volume,
-	 arguments,
-	 keywords );
-
-	return( pyfsext_volume );
-}
-
 /* Intializes a volume object
  * Returns 0 if successful or -1 on error
  */
@@ -299,6 +288,8 @@ int pyfsext_volume_init(
 
 		return( -1 );
 	}
+	/* Make sure libfsext volume is set to NULL
+	 */
 	pyfsext_volume->volume         = NULL;
 	pyfsext_volume->file_io_handle = NULL;
 
@@ -339,15 +330,6 @@ void pyfsext_volume_free(
 
 		return;
 	}
-	if( pyfsext_volume->volume == NULL )
-	{
-		PyErr_Format(
-		 PyExc_ValueError,
-		 "%s: invalid volume - missing libfsext volume.",
-		 function );
-
-		return;
-	}
 	ob_type = Py_TYPE(
 	           pyfsext_volume );
 
@@ -369,24 +351,27 @@ void pyfsext_volume_free(
 
 		return;
 	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libfsext_volume_free(
-	          &( pyfsext_volume->volume ),
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
+	if( pyfsext_volume->volume != NULL )
 	{
-		pyfsext_error_raise(
-		 error,
-		 PyExc_MemoryError,
-		 "%s: unable to free libfsext volume.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libfsext_volume_free(
+		          &( pyfsext_volume->volume ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyfsext_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libfsext volume.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyfsext_volume );
@@ -449,13 +434,13 @@ PyObject *pyfsext_volume_open(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *string_object      = NULL;
-	libcerror_error_t *error     = NULL;
-	const char *filename_narrow  = NULL;
-	static char *function        = "pyfsext_volume_open";
-	static char *keyword_list[]  = { "filename", "mode", NULL };
-	char *mode                   = NULL;
-	int result                   = 0;
+	PyObject *string_object     = NULL;
+	libcerror_error_t *error    = NULL;
+	const char *filename_narrow = NULL;
+	static char *function       = "pyfsext_volume_open";
+	static char *keyword_list[] = { "filename", "mode", NULL };
+	char *mode                  = NULL;
+	int result                  = 0;
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	const wchar_t *filename_wide = NULL;
@@ -508,7 +493,7 @@ PyObject *pyfsext_volume_open(
 	{
 		pyfsext_error_fetch_and_raise(
 		 PyExc_RuntimeError,
-		 "%s: unable to determine if string object is of type unicode.",
+		 "%s: unable to determine if string object is of type Unicode.",
 		 function );
 
 		return( NULL );
@@ -537,7 +522,7 @@ PyObject *pyfsext_volume_open(
 		{
 			pyfsext_error_fetch_and_raise(
 			 PyExc_RuntimeError,
-			 "%s: unable to convert unicode string to UTF-8.",
+			 "%s: unable to convert Unicode string to UTF-8.",
 			 function );
 
 			return( NULL );
@@ -692,6 +677,36 @@ PyObject *pyfsext_volume_open_file_object(
 
 		return( NULL );
 	}
+	PyErr_Clear();
+
+	result = PyObject_HasAttrString(
+	          file_object,
+	          "read" );
+
+	if( result != 1 )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: unsupported file object - missing read attribute.",
+		 function );
+
+		return( NULL );
+	}
+	PyErr_Clear();
+
+	result = PyObject_HasAttrString(
+	          file_object,
+	          "seek" );
+
+	if( result != 1 )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: unsupported file object - missing seek attribute.",
+		 function );
+
+		return( NULL );
+	}
 	if( pyfsext_volume->file_io_handle != NULL )
 	{
 		pyfsext_error_raise(
@@ -700,7 +715,7 @@ PyObject *pyfsext_volume_open_file_object(
 		 "%s: invalid volume - file IO handle already set.",
 		 function );
 
-		goto on_error;
+		return( NULL );
 	}
 	if( pyfsext_file_object_initialize(
 	     &( pyfsext_volume->file_io_handle ),
@@ -813,7 +828,7 @@ PyObject *pyfsext_volume_close(
 		{
 			pyfsext_error_raise(
 			 error,
-			 PyExc_IOError,
+			 PyExc_MemoryError,
 			 "%s: unable to free libbfio file IO handle.",
 			 function );
 
@@ -921,7 +936,7 @@ PyObject *pyfsext_volume_get_label(
 		goto on_error;
 	}
 	/* Pass the string length to PyUnicode_DecodeUTF8 otherwise it makes
-	 * the end of string character is part of the string
+	 * the end of string character is part of the string.
 	 */
 	string_object = PyUnicode_DecodeUTF8(
 	                 utf8_string,
@@ -947,6 +962,466 @@ on_error:
 	{
 		PyMem_Free(
 		 utf8_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the last_mount date and time
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_last_mount_time(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *datetime_object = NULL;
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pyfsext_volume_get_last_mount_time";
+	uint32_t posix_time       = 0;
+	int result                = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_last_mount_time(
+	          pyfsext_volume->volume,
+	          &posix_time,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve last mount date and time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	datetime_object = pyfsext_datetime_new_from_posix_time(
+	                   posix_time );
+
+	return( datetime_object );
+}
+
+/* Retrieves the last_mount date and time as an integer
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_last_mount_time_as_integer(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyfsext_volume_get_last_mount_time_as_integer";
+	uint32_t posix_time      = 0;
+	int result               = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_last_mount_time(
+	          pyfsext_volume->volume,
+	          &posix_time,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve last mount date and time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	integer_object = PyLong_FromUnsignedLong(
+	                  (unsigned long) posix_time );
+
+	return( integer_object );
+}
+
+/* Retrieves the last_written date and time
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_last_written_time(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *datetime_object = NULL;
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pyfsext_volume_get_last_written_time";
+	uint32_t posix_time       = 0;
+	int result                = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_last_written_time(
+	          pyfsext_volume->volume,
+	          &posix_time,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve last written date and time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	datetime_object = pyfsext_datetime_new_from_posix_time(
+	                   posix_time );
+
+	return( datetime_object );
+}
+
+/* Retrieves the last_written date and time as an integer
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_last_written_time_as_integer(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyfsext_volume_get_last_written_time_as_integer";
+	uint32_t posix_time      = 0;
+	int result               = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_last_written_time(
+	          pyfsext_volume->volume,
+	          &posix_time,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve last written date and time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	integer_object = PyLong_FromUnsignedLong(
+	                  (unsigned long) posix_time );
+
+	return( integer_object );
+}
+
+/* Retrieves the number of file entries (MFT entries)
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_number_of_file_entries(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyfsext_volume_get_number_of_file_entries";
+	uint32_t value_32bit     = 0;
+	int result               = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_number_of_file_entries(
+	          pyfsext_volume->volume,
+	          &value_32bit,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of file entries.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = PyLong_FromUnsignedLong(
+	                  (unsigned long) value_32bit );
+
+	return( integer_object );
+}
+
+/* Retrieves the root root directory file entry
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_root_directory(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *directory_object            = NULL;
+	libcerror_error_t *error              = NULL;
+	libfsext_file_entry_t *root_directory = NULL;
+	static char *function                 = "pyfsext_volume_get_root_directory";
+	int result                            = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_root_directory(
+	          pyfsext_volume->volume,
+	          &root_directory,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve root root directory file entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	directory_object = pyfsext_file_entry_new(
+	                    root_directory,
+	                    (PyObject *) pyfsext_volume );
+
+	if( directory_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create root directory file entry object.",
+		 function );
+
+		goto on_error;
+	}
+	return( directory_object );
+
+on_error:
+	if( root_directory != NULL )
+	{
+		libfsext_file_entry_free(
+		 &root_directory,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves the file entry for an UTF-8 encoded path specified by the path
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_file_entry_by_path(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *file_entry_object       = NULL;
+	libcerror_error_t *error          = NULL;
+	libfsext_file_entry_t *file_entry = NULL;
+	static char *function             = "pyfsext_volume_get_file_entry_by_path";
+	static char *keyword_list[]       = { "path", NULL };
+	char *utf8_path                   = NULL;
+	size_t utf8_path_length           = 0;
+	int result                        = 0;
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "s",
+	     keyword_list,
+	     &utf8_path ) == 0 )
+	{
+		goto on_error;
+	}
+	utf8_path_length = narrow_string_length(
+	                    utf8_path );
+
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_file_entry_by_utf8_path(
+	          pyfsext_volume->volume,
+	          (uint8_t *) utf8_path,
+	          utf8_path_length,
+	          &file_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve file entry for an UTF-8 encoded path.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	file_entry_object = pyfsext_file_entry_new(
+	                     file_entry,
+	                     (PyObject *) pyfsext_volume );
+
+	if( file_entry_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create file entry object.",
+		 function );
+
+		goto on_error;
+	}
+	return( file_entry_object );
+
+on_error:
+	if( file_entry != NULL )
+	{
+		libfsext_file_entry_free(
+		 &file_entry,
+		 NULL );
 	}
 	return( NULL );
 }

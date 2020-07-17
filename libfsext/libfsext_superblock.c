@@ -211,7 +211,7 @@ int libfsext_superblock_read_data(
 		libcnotify_print_data(
 		 data,
 		 sizeof( fsext_superblock_ext2_t ),
-		 0 );
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 

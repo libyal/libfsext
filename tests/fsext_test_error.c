@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #endif
 
-#include "fsext_test_libcerror.h"
 #include "fsext_test_libfsext.h"
 #include "fsext_test_macros.h"
 #include "fsext_test_unused.h"

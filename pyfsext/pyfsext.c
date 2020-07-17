@@ -29,7 +29,10 @@
 
 #include "pyfsext.h"
 #include "pyfsext_error.h"
+#include "pyfsext_file_entries.h"
+#include "pyfsext_file_entry.h"
 #include "pyfsext_file_object_io_handle.h"
+#include "pyfsext_libbfio.h"
 #include "pyfsext_libcerror.h"
 #include "pyfsext_libfsext.h"
 #include "pyfsext_python.h"
@@ -60,34 +63,31 @@ PyMethodDef pyfsext_module_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "check_volume_signature(filename) -> Boolean\n"
 	  "\n"
-	  "Checks if a volume has a NTFS volume signature." },
+	  "Checks if a volume has an Extended File System (ext) volume signature." },
 
 	{ "check_volume_signature_file_object",
 	  (PyCFunction) pyfsext_check_volume_signature_file_object,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "check_volume_signature(file_object) -> Boolean\n"
+	  "check_volume_signature_file_object(file_object) -> Boolean\n"
 	  "\n"
-	  "Checks if a volume has a NTFS volume signature using a file-like object." },
+	  "Checks if a volume has an Extended File System (ext) volume signature using a file-like object." },
 
 	{ "open",
-	  (PyCFunction) pyfsext_volume_new_open,
+	  (PyCFunction) pyfsext_open_new_volume,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "open(filename, mode='r') -> Object\n"
 	  "\n"
 	  "Opens a volume." },
 
 	{ "open_file_object",
-	  (PyCFunction) pyfsext_volume_new_open_file_object,
+	  (PyCFunction) pyfsext_open_new_volume_with_file_object,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "open_file_object(file_object, mode='r') -> Object\n"
 	  "\n"
 	  "Opens a volume using a file-like object." },
 
 	/* Sentinel */
-	{ NULL,
-	  NULL,
-	  0,
-	  NULL}
+	{ NULL, NULL, 0, NULL }
 };
 
 /* Retrieves the pyfsext/libfsext version
@@ -123,7 +123,7 @@ PyObject *pyfsext_get_version(
 	         errors ) );
 }
 
-/* Checks if the volume has a NTFS volume signature
+/* Checks if a volume has an Extended File System (ext) volume signature
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyfsext_check_volume_signature(
@@ -131,12 +131,12 @@ PyObject *pyfsext_check_volume_signature(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *string_object      = NULL;
-	libcerror_error_t *error     = NULL;
-	static char *function        = "pyfsext_check_volume_signature";
-	static char *keyword_list[]  = { "filename", NULL };
-	const char *filename_narrow  = NULL;
-	int result                   = 0;
+	PyObject *string_object     = NULL;
+	libcerror_error_t *error    = NULL;
+	const char *filename_narrow = NULL;
+	static char *function       = "pyfsext_check_volume_signature";
+	static char *keyword_list[] = { "filename", NULL };
+	int result                  = 0;
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	const wchar_t *filename_wide = NULL;
@@ -154,7 +154,7 @@ PyObject *pyfsext_check_volume_signature(
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     "|O",
+	     "O|",
 	     keyword_list,
 	     &string_object ) == 0 )
 	{
@@ -169,8 +169,8 @@ PyObject *pyfsext_check_volume_signature(
 	if( result == -1 )
 	{
 		pyfsext_error_fetch_and_raise(
-	         PyExc_RuntimeError,
-		 "%s: unable to determine if string object is of type unicode.",
+		 PyExc_RuntimeError,
+		 "%s: unable to determine if string object is of type Unicode.",
 		 function );
 
 		return( NULL );
@@ -195,19 +195,19 @@ PyObject *pyfsext_check_volume_signature(
 
 		if( utf8_string_object == NULL )
 		{
-			PyErr_Format(
+			pyfsext_error_fetch_and_raise(
 			 PyExc_RuntimeError,
-			 "%s: unable to convert unicode string to UTF-8.",
+			 "%s: unable to convert Unicode string to UTF-8.",
 			 function );
 
 			return( NULL );
 		}
 #if PY_MAJOR_VERSION >= 3
 		filename_narrow = PyBytes_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #else
 		filename_narrow = PyString_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #endif
 		Py_BEGIN_ALLOW_THREADS
 
@@ -219,7 +219,9 @@ PyObject *pyfsext_check_volume_signature(
 
 		Py_DecRef(
 		 utf8_string_object );
-#endif
+
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
+
 		if( result == -1 )
 		{
 			pyfsext_error_raise(
@@ -249,17 +251,17 @@ PyObject *pyfsext_check_volume_signature(
 
 #if PY_MAJOR_VERSION >= 3
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyBytes_Type );
+	          string_object,
+	          (PyObject *) &PyBytes_Type );
 #else
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyString_Type );
+	          string_object,
+	          (PyObject *) &PyString_Type );
 #endif
 	if( result == -1 )
 	{
 		pyfsext_error_fetch_and_raise(
-	         PyExc_RuntimeError,
+		 PyExc_RuntimeError,
 		 "%s: unable to determine if string object is of type string.",
 		 function );
 
@@ -271,10 +273,10 @@ PyObject *pyfsext_check_volume_signature(
 
 #if PY_MAJOR_VERSION >= 3
 		filename_narrow = PyBytes_AsString(
-				   string_object );
+		                   string_object );
 #else
 		filename_narrow = PyString_AsString(
-				   string_object );
+		                   string_object );
 #endif
 		Py_BEGIN_ALLOW_THREADS
 
@@ -317,7 +319,7 @@ PyObject *pyfsext_check_volume_signature(
 	return( NULL );
 }
 
-/* Checks if the volume has a NTFS volume signature using a file-like object
+/* Checks if a volume has an Extended File System (ext) volume signature using a file-like object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyfsext_check_volume_signature_file_object(
@@ -325,9 +327,9 @@ PyObject *pyfsext_check_volume_signature_file_object(
            PyObject *arguments,
            PyObject *keywords )
 {
-	libcerror_error_t *error         = NULL;
-	libbfio_handle_t *file_io_handle = NULL;
 	PyObject *file_object            = NULL;
+	libbfio_handle_t *file_io_handle = NULL;
+	libcerror_error_t *error         = NULL;
 	static char *function            = "pyfsext_check_volume_signature_file_object";
 	static char *keyword_list[]      = { "file_object", NULL };
 	int result                       = 0;
@@ -417,6 +419,108 @@ on_error:
 	return( NULL );
 }
 
+/* Creates a new volume object and opens it
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_open_new_volume(
+           PyObject *self PYFSEXT_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	pyfsext_volume_t *pyfsext_volume = NULL;
+	static char *function            = "pyfsext_open_new_volume";
+
+	PYFSEXT_UNREFERENCED_PARAMETER( self )
+
+	/* PyObject_New does not invoke tp_init
+	 */
+	pyfsext_volume = PyObject_New(
+	                  struct pyfsext_volume,
+	                  &pyfsext_volume_type_object );
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create volume.",
+		 function );
+
+		goto on_error;
+	}
+	if( pyfsext_volume_init(
+	     pyfsext_volume ) != 0 )
+	{
+		goto on_error;
+	}
+	if( pyfsext_volume_open(
+	     pyfsext_volume,
+	     arguments,
+	     keywords ) == NULL )
+	{
+		goto on_error;
+	}
+	return( (PyObject *) pyfsext_volume );
+
+on_error:
+	if( pyfsext_volume != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyfsext_volume );
+	}
+	return( NULL );
+}
+
+/* Creates a new volume object and opens it using a file-like object
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_open_new_volume_with_file_object(
+           PyObject *self PYFSEXT_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	pyfsext_volume_t *pyfsext_volume = NULL;
+	static char *function            = "pyfsext_open_new_volume_with_file_object";
+
+	PYFSEXT_UNREFERENCED_PARAMETER( self )
+
+	/* PyObject_New does not invoke tp_init
+	 */
+	pyfsext_volume = PyObject_New(
+	                  struct pyfsext_volume,
+	                  &pyfsext_volume_type_object );
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create volume.",
+		 function );
+
+		goto on_error;
+	}
+	if( pyfsext_volume_init(
+	     pyfsext_volume ) != 0 )
+	{
+		goto on_error;
+	}
+	if( pyfsext_volume_open_file_object(
+	     pyfsext_volume,
+	     arguments,
+	     keywords ) == NULL )
+	{
+		goto on_error;
+	}
+	return( (PyObject *) pyfsext_volume );
+
+on_error:
+	if( pyfsext_volume != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyfsext_volume );
+	}
+	return( NULL );
+}
+
 #if PY_MAJOR_VERSION >= 3
 
 /* The pyfsext module definition
@@ -454,9 +558,8 @@ PyMODINIT_FUNC initpyfsext(
                 void )
 #endif
 {
-	PyObject *module                 = NULL;
-	PyTypeObject *volume_type_object = NULL;
-	PyGILState_STATE gil_state       = 0;
+	PyObject *module           = NULL;
+	PyGILState_STATE gil_state = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libfsext_notify_set_stream(
@@ -491,6 +594,40 @@ PyMODINIT_FUNC initpyfsext(
 
 	gil_state = PyGILState_Ensure();
 
+	/* Setup the file_entries type object
+	 */
+	pyfsext_file_entries_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyfsext_file_entries_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyfsext_file_entries_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "file_entries",
+	 (PyObject *) &pyfsext_file_entries_type_object );
+
+	/* Setup the file_entry type object
+	 */
+	pyfsext_file_entry_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyfsext_file_entry_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyfsext_file_entry_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "file_entry",
+	 (PyObject *) &pyfsext_file_entry_type_object );
+
 	/* Setup the volume type object
 	 */
 	pyfsext_volume_type_object.tp_new = PyType_GenericNew;
@@ -503,12 +640,10 @@ PyMODINIT_FUNC initpyfsext(
 	Py_IncRef(
 	 (PyObject *) &pyfsext_volume_type_object );
 
-	volume_type_object = &pyfsext_volume_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "volume",
-	 (PyObject *) volume_type_object );
+	 (PyObject *) &pyfsext_volume_type_object );
 
 	PyGILState_Release(
 	 gil_state );

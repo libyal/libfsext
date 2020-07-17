@@ -1204,8 +1204,6 @@ on_error:
 	return( -1 );
 }
 
-#ifdef TODO
-
 /* Retrieves the sub file entry for an UTF-8 encoded name
  * Returns 1 if successful, 0 if no such file entry or -1 on error
  */
@@ -1259,8 +1257,8 @@ int libfsext_file_entry_get_sub_file_entry_by_utf8_name(
 
 		return( -1 );
 	}
-	result = libfsext_directory_entries_tree_get_directory_entry_by_utf8_name(
-	          internal_file_entry->directory_entries_tree,
+	result = libfsext_directory_get_entry_by_utf8_name(
+	          internal_file_entry->directory,
 	          utf8_string,
 	          utf8_string_length,
 	          &directory_entry,
@@ -1281,37 +1279,6 @@ int libfsext_file_entry_get_sub_file_entry_by_utf8_name(
 	{
 		return( 0 );
 	}
-	if( libfsext_directory_entry_get_mft_entry_index(
-	     directory_entry,
-	     &mft_entry_index,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve MFT entry index.",
-		 function );
-
-		goto on_error;
-	}
-	if( libfsext_mft_get_mft_entry_by_index(
-	     internal_file_entry->mft,
-	     internal_file_entry->file_io_handle,
-	     mft_entry_index,
-	     &mft_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve MFT entry: %" PRIu64 ".",
-		 function,
-		 mft_entry_index );
-
-		goto on_error;
-	}
 	if( libfsext_directory_entry_clone(
 	     &sub_directory_entry,
 	     directory_entry,
@@ -1326,14 +1293,16 @@ int libfsext_file_entry_get_sub_file_entry_by_utf8_name(
 
 		goto on_error;
 	}
+/* TODO set inode */
 	/* libfsext_file_entry_initialize takes over management of sub_directory_entry
 	 */
 	if( libfsext_file_entry_initialize(
 	     sub_file_entry,
 	     internal_file_entry->io_handle,
 	     internal_file_entry->file_io_handle,
-	     internal_file_entry->mft,
-	     mft_entry,
+	     internal_file_entry->inode_table,
+	     inode_number,
+	     inode,
 	     sub_directory_entry,
 	     internal_file_entry->flags,
 	     error ) != 1 )
@@ -1412,8 +1381,8 @@ int libfsext_file_entry_get_sub_file_entry_by_utf16_name(
 
 		return( -1 );
 	}
-	result = libfsext_directory_entries_tree_get_directory_entry_by_utf16_name(
-	          internal_file_entry->directory_entries_tree,
+	result = libfsext_directory_get_entry_by_utf16_name(
+	          internal_file_entry->directory,
 	          utf16_string,
 	          utf16_string_length,
 	          &directory_entry,
@@ -1434,37 +1403,6 @@ int libfsext_file_entry_get_sub_file_entry_by_utf16_name(
 	{
 		return( 0 );
 	}
-	if( libfsext_directory_entry_get_mft_entry_index(
-	     directory_entry,
-	     &mft_entry_index,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve MFT entry index.",
-		 function );
-
-		goto on_error;
-	}
-	if( libfsext_mft_get_mft_entry_by_index(
-	     internal_file_entry->mft,
-	     internal_file_entry->file_io_handle,
-	     mft_entry_index,
-	     &mft_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve MFT entry: %" PRIu64 ".",
-		 function,
-		 mft_entry_index );
-
-		goto on_error;
-	}
 	if( libfsext_directory_entry_clone(
 	     &sub_directory_entry,
 	     directory_entry,
@@ -1479,14 +1417,16 @@ int libfsext_file_entry_get_sub_file_entry_by_utf16_name(
 
 		goto on_error;
 	}
+/* TODO set inode */
 	/* libfsext_file_entry_initialize takes over management of sub_directory_entry
 	 */
 	if( libfsext_file_entry_initialize(
 	     sub_file_entry,
 	     internal_file_entry->io_handle,
 	     internal_file_entry->file_io_handle,
-	     internal_file_entry->mft,
-	     mft_entry,
+	     internal_file_entry->inode_table,
+	     inode_number,
+	     inode,
 	     sub_directory_entry,
 	     internal_file_entry->flags,
 	     error ) != 1 )
@@ -1522,8 +1462,8 @@ ssize_t libfsext_file_entry_read_buffer(
          libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_read_buffer";
-	ssize_t read_count                                   = 0;
+	static char *function                               = "libfsext_file_entry_read_buffer";
+	ssize_t read_count                                  = 0;
 
 	if( file_entry == NULL )
 	{
@@ -1538,28 +1478,8 @@ ssize_t libfsext_file_entry_read_buffer(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( internal_file_entry->data_attribute == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file entry - missing data attribute.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_file_entry->data_cluster_block_stream == NULL )
-	{
-		return( 0 );
-	}
-	read_count = libfdata_stream_read_buffer(
-		      internal_file_entry->data_cluster_block_stream,
-		      (intptr_t *) internal_file_entry->file_io_handle,
-		      buffer,
-		      buffer_size,
-		      0,
-		      error );
+/* TODO */
+	read_count = -1;
 
 	if( read_count < 0 )
 	{
@@ -1648,22 +1568,8 @@ off64_t libfsext_file_entry_seek_offset(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( internal_file_entry->data_attribute == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file entry - missing data attribute.",
-		 function );
-
-		return( -1 );
-	}
-	offset = libfdata_stream_seek_offset(
-	          internal_file_entry->data_cluster_block_stream,
-	          offset,
-	          whence,
-	          error );
+/* TODO */
+	offset = -1;
 
 	if( offset == -1 )
 	{
@@ -1703,35 +1609,22 @@ int libfsext_file_entry_get_offset(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( internal_file_entry->data_attribute == NULL )
+/* TODO */
+	if( offset == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file entry - missing data attribute.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offset.",
 		 function );
 
 		return( -1 );
 	}
-	if( libfdata_stream_get_offset(
-	     internal_file_entry->data_cluster_block_stream,
-	     offset,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve offset from data cluster block stream.",
-		 function );
+	offset = -1;
 
-		return( -1 );
-	}
 	return( 1 );
 }
-
-#endif /* TODO */
 
 /* Retrieves the size of the data
  * Returns 1 if successful or -1 on error

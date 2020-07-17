@@ -16,7 +16,10 @@ pyexec_LTLIBRARIES = pyfsext.la
 
 pyfsext_la_SOURCES = \
 	pyfsext.c pyfsext.h \
+	pyfsext_datetime.c pyfsext_datetime.h \
 	pyfsext_error.c pyfsext_error.h \
+	pyfsext_file_entries.c pyfsext_file_entries.h \
+	pyfsext_file_entry.c pyfsext_file_entry.h \
 	pyfsext_file_object_io_handle.c pyfsext_file_object_io_handle.h \
 	pyfsext_integer.c pyfsext_integer.h \
 	pyfsext_libbfio.h \

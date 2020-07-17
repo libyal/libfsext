@@ -156,7 +156,7 @@ int libfsext_inode_table_initialize(
 	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libfsext_inode_read_element_data,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libfsext_inode_read_element_data,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -373,7 +373,7 @@ int libfsext_inode_table_get_inode_by_number(
 	if( libfdata_vector_get_element_value_by_index(
 	     inode_table->inodes_vector,
 	     (intptr_t *) file_io_handle,
-	     inode_table->inodes_cache,
+	     (libfdata_cache_t *) inode_table->inodes_cache,
 	     inode_number - 1,
 	     (intptr_t **) inode,
 	     0,

@@ -28,7 +28,6 @@
 #include "libfsext_inode.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libcerror.h"
-#include "libfsext_libfcache.h"
 #include "libfsext_libfdata.h"
 
 #if defined( __cplusplus )
@@ -45,7 +44,7 @@ int libfsext_block_vector_read_element_data(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_index,
      int element_data_file_index,
      off64_t block_offset,

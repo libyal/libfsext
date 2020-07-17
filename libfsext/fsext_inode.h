@@ -443,6 +443,11 @@ struct fsext_inode_ext4
 	 * Consists of 4 bytes
 	 */
 	uint8_t version_upper[ 4 ];
+
+	/* Extended attributes data
+	 * Consists of 100 bytes
+	 */
+	uint8_t extended_attributes_data[ 100 ];
 };
 
 #if defined( __cplusplus )
