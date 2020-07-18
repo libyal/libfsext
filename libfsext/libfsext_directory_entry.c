@@ -299,24 +299,14 @@ int libfsext_directory_entry_read_data(
 
 		return( -1 );
 	}
-	if( data_size < sizeof( fsext_directory_entry_t ) )
+	if( ( data_size < sizeof( fsext_directory_entry_t ) )
+	 || ( data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: invalid data size value too small.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -408,6 +398,7 @@ int libfsext_directory_entry_read_data(
 		 0 );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	directory_entry->name = (uint8_t *) memory_allocate(
 	                                     sizeof( uint8_t ) * ( name_size + 1 ) );
 

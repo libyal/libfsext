@@ -133,6 +133,12 @@ int libfsext_internal_volume_read_block_groups(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_volume_get_format_version(
+     libfsext_volume_t *volume,
+     uint8_t *format_version,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_volume_get_utf8_label_size(
      libfsext_volume_t *volume,
      size_t *utf8_string_size,

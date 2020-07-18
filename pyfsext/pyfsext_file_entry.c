@@ -109,12 +109,12 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 	  "\n"
 	  "Retrieves the file mode." },
 
-	{ "get_user_identifier",
-	  (PyCFunction) pyfsext_file_entry_get_user_identifier,
+	{ "get_owner_identifier",
+	  (PyCFunction) pyfsext_file_entry_get_owner_identifier,
 	  METH_NOARGS,
-	  "get_user_identifier() -> Integer\n"
+	  "get_owner_identifier() -> Integer\n"
 	  "\n"
-	  "Retrieves the user identifier." },
+	  "Retrieves the owner identifier." },
 
 	{ "get_group_identifier",
 	  (PyCFunction) pyfsext_file_entry_get_group_identifier,
@@ -250,10 +250,10 @@ PyGetSetDef pyfsext_file_entry_object_get_set_definitions[] = {
 	  "The file mode.",
 	  NULL },
 
-	{ "user_identifier",
-	  (getter) pyfsext_file_entry_get_user_identifier,
+	{ "owner_identifier",
+	  (getter) pyfsext_file_entry_get_owner_identifier,
 	  (setter) 0,
-	  "The user identifier.",
+	  "The owner identifier.",
 	  NULL },
 
 	{ "group_identifier",
@@ -1128,16 +1128,16 @@ PyObject *pyfsext_file_entry_get_file_mode(
 	return( integer_object );
 }
 
-/* Retrieves the user identifier
+/* Retrieves the owner identifier
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pyfsext_file_entry_get_user_identifier(
+PyObject *pyfsext_file_entry_get_owner_identifier(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
 {
 	PyObject *integer_object = NULL;
 	libcerror_error_t *error = NULL;
-	static char *function    = "pyfsext_file_entry_get_user_identifier";
+	static char *function    = "pyfsext_file_entry_get_owner_identifier";
 	uint32_t value_32bit     = 0;
 	int result               = 0;
 
@@ -1154,7 +1154,7 @@ PyObject *pyfsext_file_entry_get_user_identifier(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libfsext_file_entry_get_user_identifier(
+	result = libfsext_file_entry_get_owner_identifier(
 	          pyfsext_file_entry->file_entry,
 	          &value_32bit,
 	          &error );
@@ -1166,7 +1166,7 @@ PyObject *pyfsext_file_entry_get_user_identifier(
 		pyfsext_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve user identifier.",
+		 "%s: unable to retrieve owner identifier.",
 		 function );
 
 		libcerror_error_free(

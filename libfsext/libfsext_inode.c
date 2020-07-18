@@ -299,13 +299,17 @@ int libfsext_inode_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_inode_read_data";
-	uint64_t value_64bit  = 0;
-	uint32_t value_32bit  = 0;
+	static char *function      = "libfsext_inode_read_data";
+	uint64_t value_64bit       = 0;
+	uint32_t access_time       = 0;
+	uint32_t creation_time     = 0;
+	uint32_t inode_change_time = 0;
+	uint32_t modification_time = 0;
+	uint32_t value_32bit       = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	size_t data_offset    = 0;
-	uint16_t value_16bit  = 0;
+	size_t data_offset         = 0;
+	uint16_t value_16bit       = 0;
 #endif
 
 	if( inode == NULL )
@@ -395,8 +399,8 @@ int libfsext_inode_read_data(
 	 inode->file_mode );
 
 	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->user_identifier,
-	 inode->user_identifier );
+	 ( (fsext_inode_ext2_t *) data )->owner_identifier,
+	 inode->owner_identifier );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->data_size,
@@ -404,15 +408,24 @@ int libfsext_inode_read_data(
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->access_time,
-	 inode->access_time );
+	 access_time );
+
+	inode->access_time  = (int32_t) access_time;
+	inode->access_time *= 1000000000;
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->inode_change_time,
-	 inode->inode_change_time );
+	 inode_change_time );
+
+	inode->inode_change_time  = (int32_t) inode_change_time;
+	inode->inode_change_time *= 1000000000;
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->modification_time,
-	 inode->modification_time );
+	 modification_time );
+
+	inode->modification_time  = (int32_t) modification_time;
+	inode->modification_time *= 1000000000;
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->deletion_time,
@@ -446,9 +459,9 @@ int libfsext_inode_read_data(
 		 inode->file_mode );
 
 		libcnotify_printf(
-		 "%s: user identifier (lower)\t\t\t: %" PRIu16 "\n",
+		 "%s: owner identifier (lower)\t\t\t: %" PRIu16 "\n",
 		 function,
-		 inode->user_identifier );
+		 inode->owner_identifier );
 
 		if( io_handle->format_version == 4 )
 		{
@@ -647,6 +660,17 @@ int libfsext_inode_read_data(
 			 60,
 			 0 );
 		}
+		else if( ( ( inode->file_mode & 0xf000 ) == 0xa000 )
+		      && ( inode->data_size < 60 ) )
+		{
+			libcnotify_printf(
+			 "%s: symbolic link data:\n",
+			 function );
+			libcnotify_print_data(
+			 inode->data_reference,
+			 60,
+			 0 );
+		}
 		else
 		{
 			libcnotify_printf(
@@ -770,10 +794,10 @@ int libfsext_inode_read_data(
 		 value_16bit );
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_inode_ext2_t *) data )->user_identifier_upper,
+		 ( (fsext_inode_ext2_t *) data )->owner_identifier_upper,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: user identifier (upper)\t\t\t: %" PRIu16 "\n",
+		 "%s: owner identifier (upper)\t\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
@@ -815,6 +839,7 @@ int libfsext_inode_read_data(
 		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	if( data_size > sizeof( fsext_inode_ext2_t ) )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -841,8 +866,64 @@ int libfsext_inode_read_data(
 	if( data_size > sizeof( fsext_inode_ext3_t ) )
 	{
 		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext4_t *) data )->inode_change_time_extra,
+		 value_32bit );
+
+		if( ( value_32bit & 0x00000003UL ) != 0 )
+		{
+			inode->inode_change_time  = 0x100000000UL;
+			inode->inode_change_time *= ( value_32bit & 0x00000003UL );
+			inode->inode_change_time += (int32_t) inode_change_time;
+			inode->inode_change_time *= 1000000000;
+		}
+		inode->inode_change_time += value_32bit >> 2;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext4_t *) data )->modification_time_extra,
+		 value_32bit );
+
+		if( ( value_32bit & 0x00000003UL ) != 0 )
+		{
+			inode->modification_time  = 0x100000000UL;
+			inode->modification_time *= ( value_32bit & 0x00000003UL );
+			inode->modification_time += (int32_t) modification_time;
+			inode->modification_time *= 1000000000;
+		}
+		inode->modification_time += value_32bit >> 2;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext4_t *) data )->access_time_extra,
+		 value_32bit );
+
+		if( ( value_32bit & 0x00000003UL ) != 0 )
+		{
+			inode->access_time  = 0x100000000UL;
+			inode->access_time *= ( value_32bit & 0x00000003UL );
+			inode->access_time += (int32_t) access_time;
+			inode->access_time *= 1000000000;
+		}
+		inode->access_time += value_32bit >> 2;
+
+		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->creation_time,
-		 inode->creation_time );
+		 creation_time );
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext4_t *) data )->creation_time_extra,
+		 value_32bit );
+
+		if( ( value_32bit & 0x00000003UL ) == 0 )
+		{
+			inode->creation_time = (int32_t) creation_time;
+		}
+		else
+		{
+			inode->creation_time  = 0x100000000UL;
+			inode->creation_time *= ( value_32bit & 0x00000003UL );
+			inode->creation_time += (int32_t) creation_time;
+		}
+		inode->creation_time *= 1000000000;
+		inode->creation_time += value_32bit >> 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
@@ -941,10 +1022,10 @@ int libfsext_inode_read_data(
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->user_identifier_upper,
+	 ( (fsext_inode_ext2_t *) data )->owner_identifier_upper,
 	 value_32bit );
 
-	inode->user_identifier |= value_32bit << 16;
+	inode->owner_identifier |= value_32bit << 16;
 
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->group_identifier_upper,
@@ -1183,6 +1264,10 @@ int libfsext_inode_read_data_reference(
 			goto on_error;
 		}
 	}
+	else if( ( ( inode->file_mode & 0xf000 ) == 0xa000 )
+	      && ( inode->data_size < 60 ) )
+	{
+	}
 	else
 	{
 		if( libfsext_inode_read_direct_block_number_data(
@@ -1361,24 +1446,15 @@ int libfsext_inode_read_direct_block_number_data(
 
 		return( -1 );
 	}
-	if( data_size > (size_t) SSIZE_MAX )
+	if( ( data_size == 0 )
+	 || ( data_size > (size_t) SSIZE_MAX )
+	 || ( ( data_size % 4 ) != 0 ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_size % 4 ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data size.",
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -1543,6 +1619,7 @@ int libfsext_inode_read_direct_block_number_data(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 
 on_error:
@@ -1579,11 +1656,12 @@ int libfsext_inode_is_empty(
 }
 
 /* Retrieves the access date and time
+ * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
  * Returns 1 if successful or -1 on error
  */
 int libfsext_inode_get_access_time(
      libfsext_inode_t *inode,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_inode_get_access_time";
@@ -1610,17 +1688,56 @@ int libfsext_inode_get_access_time(
 
 		return( -1 );
 	}
-	*posix_time = (int32_t) inode->access_time;
+	*posix_time = inode->access_time;
+
+	return( 1 );
+}
+
+/* Retrieves the creation date and time
+ * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_creation_time(
+     libfsext_inode_t *inode,
+     int64_t *posix_time,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_creation_time";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( posix_time == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid POSIX time.",
+		 function );
+
+		return( -1 );
+	}
+	*posix_time = inode->creation_time;
 
 	return( 1 );
 }
 
 /* Retrieves the inode change time date and time
+ * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
  * Returns 1 if successful or -1 on error
  */
 int libfsext_inode_get_inode_change_time(
      libfsext_inode_t *inode,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_inode_get_inode_change_time";
@@ -1647,17 +1764,18 @@ int libfsext_inode_get_inode_change_time(
 
 		return( -1 );
 	}
-	*posix_time = (int32_t) inode->inode_change_time;
+	*posix_time = inode->inode_change_time;
 
 	return( 1 );
 }
 
 /* Retrieves the modification date and time
+ * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
  * Returns 1 if successful or -1 on error
  */
 int libfsext_inode_get_modification_time(
      libfsext_inode_t *inode,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_inode_get_modification_time";
@@ -1684,12 +1802,13 @@ int libfsext_inode_get_modification_time(
 
 		return( -1 );
 	}
-	*posix_time = (int32_t) inode->modification_time;
+	*posix_time = inode->modification_time;
 
 	return( 1 );
 }
 
 /* Retrieves the deletion date and time
+ * The timestamp is a signed 32-bit POSIX date and time value in number of seconds
  * Returns 1 if successful or -1 on error
  */
 int libfsext_inode_get_deletion_time(
@@ -1800,15 +1919,15 @@ int libfsext_inode_get_data_size(
 	return( 1 );
 }
 
-/* Retrieves the user identifier
+/* Retrieves the owner identifier
  * Returns 1 if successful or -1 on error
  */
-int libfsext_inode_get_user_identifier(
+int libfsext_inode_get_owner_identifier(
      libfsext_inode_t *inode,
-     uint32_t *user_identifier,
+     uint32_t *owner_identifier,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_inode_get_user_identifier";
+	static char *function = "libfsext_inode_get_owner_identifier";
 
 	if( inode == NULL )
 	{
@@ -1821,18 +1940,18 @@ int libfsext_inode_get_user_identifier(
 
 		return( -1 );
 	}
-	if( user_identifier == NULL )
+	if( owner_identifier == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid user identifier.",
+		 "%s: invalid owner identifier.",
 		 function );
 
 		return( -1 );
 	}
-	*user_identifier = inode->user_identifier;
+	*owner_identifier = inode->owner_identifier;
 
 	return( 1 );
 }
@@ -1990,7 +2109,8 @@ int libfsext_inode_read_element_data(
 
 		return( -1 );
 	}
-	if( element_data_size > (size64_t) SSIZE_MAX )
+	if( ( element_data_size == 0 )
+	 || ( element_data_size > (size64_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,

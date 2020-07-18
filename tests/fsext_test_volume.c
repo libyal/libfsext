@@ -1643,10 +1643,10 @@ int fsext_test_volume_get_last_mount_time(
 	          &posix_time,
 	          &error );
 
-	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -1716,10 +1716,10 @@ int fsext_test_volume_get_last_written_time(
 	          &posix_time,
 	          &error );
 
-	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",

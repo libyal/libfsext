@@ -80,6 +80,14 @@ struct libfsext_internal_file_entry
 	 */
 	libfdata_stream_t *data_block_stream;
 
+	/* The symbolic link data
+	 */
+	uint8_t *symbolic_link_data;
+
+	/* The symbolic link data size
+	 */
+	size_t symbolic_link_data_size;
+
 	/* The flags
 	 */
 	uint8_t flags;
@@ -121,19 +129,25 @@ int libfsext_file_entry_get_identifier(
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_access_time(
      libfsext_file_entry_t *file_entry,
-     int32_t *posix_time,
+     int64_t *posix_time,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_creation_time(
+     libfsext_file_entry_t *file_entry,
+     int64_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_inode_change_time(
      libfsext_file_entry_t *file_entry,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_modification_time(
      libfsext_file_entry_t *file_entry,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
@@ -149,9 +163,9 @@ int libfsext_file_entry_get_file_mode(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
-int libfsext_file_entry_get_user_identifier(
+int libfsext_file_entry_get_owner_identifier(
      libfsext_file_entry_t *file_entry,
-     uint32_t *user_identifier,
+     uint32_t *owner_identifier,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
@@ -181,6 +195,36 @@ int libfsext_file_entry_get_utf16_name_size(
 
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_utf16_name(
+     libfsext_file_entry_t *file_entry,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error );
+
+int libfsext_internal_file_entry_get_symbolic_link_data(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_utf8_symbolic_link_target_size(
+     libfsext_file_entry_t *file_entry,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_utf8_symbolic_link_target(
+     libfsext_file_entry_t *file_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_utf16_symbolic_link_target_size(
+     libfsext_file_entry_t *file_entry,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_utf16_symbolic_link_target(
      libfsext_file_entry_t *file_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,

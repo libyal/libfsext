@@ -70,31 +70,31 @@ struct libfsext_inode
 
 	/* Access time
 	 */
-	uint64_t access_time;
+	int64_t access_time;
 
 	/* Creation time
 	 */
-	uint64_t creation_time;
+	int64_t creation_time;
 
 	/* Inode change time
 	 */
-	uint64_t inode_change_time;
+	int64_t inode_change_time;
 
 	/* Modification time
 	 */
-	uint64_t modification_time;
+	int64_t modification_time;
 
 	/* Deletion time
 	 */
-	uint64_t deletion_time;
+	uint32_t deletion_time;
 
 	/* Flags
 	 */
 	uint32_t flags;
 
-	/* User identifier
+	/* Owner identifier
 	 */
-	uint32_t user_identifier;
+	uint32_t owner_identifier;
 
 	/* Group identifier
 	 */
@@ -163,17 +163,22 @@ int libfsext_inode_is_empty(
 
 int libfsext_inode_get_access_time(
      libfsext_inode_t *inode,
-     int32_t *posix_time,
+     int64_t *posix_time,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_creation_time(
+     libfsext_inode_t *inode,
+     int64_t *posix_time,
      libcerror_error_t **error );
 
 int libfsext_inode_get_inode_change_time(
      libfsext_inode_t *inode,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libcerror_error_t **error );
 
 int libfsext_inode_get_modification_time(
      libfsext_inode_t *inode,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libcerror_error_t **error );
 
 int libfsext_inode_get_deletion_time(
@@ -191,9 +196,9 @@ int libfsext_inode_get_data_size(
      uint64_t *data_size,
      libcerror_error_t **error );
 
-int libfsext_inode_get_user_identifier(
+int libfsext_inode_get_owner_identifier(
      libfsext_inode_t *inode,
-     uint32_t *user_identifier,
+     uint32_t *owner_identifier,
      libcerror_error_t **error );
 
 int libfsext_inode_get_group_identifier(

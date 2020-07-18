@@ -102,7 +102,7 @@ PyObject *pyfsext_file_entry_get_file_mode(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 
-PyObject *pyfsext_file_entry_get_user_identifier(
+PyObject *pyfsext_file_entry_get_owner_identifier(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 

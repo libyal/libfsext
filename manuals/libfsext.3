@@ -1,4 +1,4 @@
-.Dd March  1, 2019
+.Dd July 18, 2020
 .Dt libfsext 3
 .Os libfsext
 .Sh NAME
@@ -69,9 +69,17 @@ Volume functions
 .Ft int
 .Fn libfsext_volume_get_utf16_label "libfsext_volume_t *volume" "uint16_t *utf16_string" "size_t utf16_string_size" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_get_last_mount_time "libfsext_volume_t *volume" "uint32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_volume_get_utf8_last_mount_path_size "libfsext_volume_t *volume" "size_t *utf8_string_size" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_get_last_written_time "libfsext_volume_t *volume" "uint32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_volume_get_utf8_last_mount_path "libfsext_volume_t *volume" "uint8_t *utf8_string" "size_t utf8_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_utf16_last_mount_path_size "libfsext_volume_t *volume" "size_t *utf16_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_utf16_last_mount_path "libfsext_volume_t *volume" "uint16_t *utf16_string" "size_t utf16_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_last_mount_time "libfsext_volume_t *volume" "int32_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_last_written_time "libfsext_volume_t *volume" "int32_t *posix_time" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_volume_get_number_of_file_entries "libfsext_volume_t *volume" "uint32_t *number_of_file_entries" "libfsext_error_t **error"
 .Ft int
@@ -97,17 +105,19 @@ File entry functions
 .Ft int
 .Fn libfsext_file_entry_is_empty "libfsext_file_entry_t *file_entry" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_access_time "libfsext_file_entry_t *file_entry" "uint32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_identifier "libfsext_file_entry_t *file_entry" "uint32_t *identifier" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_inode_change_time "libfsext_file_entry_t *file_entry" "uint32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_access_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_modification_time "libfsext_file_entry_t *file_entry" "uint32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_inode_change_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_deletion_time "libfsext_file_entry_t *file_entry" "uint32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_modification_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_deletion_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_file_mode "libfsext_file_entry_t *file_entry" "uint16_t *file_mode" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_user_identifier "libfsext_file_entry_t *file_entry" "uint32_t *user_identifier" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_owner_identifier "libfsext_file_entry_t *file_entry" "uint32_t *owner_identifier" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_group_identifier "libfsext_file_entry_t *file_entry" "uint32_t *group_identifier" "libfsext_error_t **error"
 .Ft int
@@ -119,9 +129,29 @@ File entry functions
 .Ft int
 .Fn libfsext_file_entry_get_utf16_name "libfsext_file_entry_t *file_entry" "uint16_t *utf16_string" "size_t utf16_string_size" "libfsext_error_t **error"
 .Ft int
+.Fn libfsext_file_entry_get_utf8_symbolic_link_target_size "libfsext_file_entry_t *file_entry" "size_t *utf8_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_utf8_symbolic_link_target "libfsext_file_entry_t *file_entry" "uint8_t *utf8_string" "size_t utf8_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_utf16_symbolic_link_target_size "libfsext_file_entry_t *file_entry" "size_t *utf16_string_size" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_utf16_symbolic_link_target "libfsext_file_entry_t *file_entry" "uint16_t *utf16_string" "size_t utf16_string_size" "libfsext_error_t **error"
+.Ft int
 .Fn libfsext_file_entry_get_number_of_sub_file_entries "libfsext_file_entry_t *file_entry" "int *number_of_sub_entries" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_sub_file_entry_by_index "libfsext_file_entry_t *file_entry" "int sub_file_entry_index" "libfsext_file_entry_t **sub_file_entry" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_sub_file_entry_by_utf8_name "libfsext_file_entry_t *file_entry" "const uint8_t *utf8_string" "size_t utf8_string_length" "libfsext_file_entry_t **sub_file_entry" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_sub_file_entry_by_utf16_name "libfsext_file_entry_t *file_entry" "const uint16_t *utf16_string" "size_t utf16_string_length" "libfsext_file_entry_t **sub_file_entry" "libfsext_error_t **error"
+.Ft ssize_t
+.Fn libfsext_file_entry_read_buffer "libfsext_file_entry_t *file_entry" "void *buffer" "size_t buffer_size" "libfsext_error_t **error"
+.Ft ssize_t
+.Fn libfsext_file_entry_read_buffer_at_offset "libfsext_file_entry_t *file_entry" "void *buffer" "size_t buffer_size" "off64_t offset" "libfsext_error_t **error"
+.Ft off64_t
+.Fn libfsext_file_entry_seek_offset "libfsext_file_entry_t *file_entry" "off64_t offset" "int whence" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_offset "libfsext_file_entry_t *file_entry" "off64_t *offset" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_size "libfsext_file_entry_t *file_entry" "size64_t *size" "libfsext_error_t **error"
 .Ft int

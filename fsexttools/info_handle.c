@@ -629,19 +629,19 @@ int info_handle_close_input(
 	return( 0 );
 }
 
-/* Prints a POSIX value
+/* Prints a seconds POSIX time value
  * Returns 1 if successful or -1 on error
  */
-int info_handle_posix_time_value_fprint(
+int info_handle_posix_time_seconds_value_fprint(
      info_handle_t *info_handle,
      const char *value_name,
-     uint32_t value_32bit,
+     int32_t value_32bit,
      libcerror_error_t **error )
 {
 	system_character_t date_time_string[ 32 ];
 
 	libfdatetime_posix_time_t *posix_time = NULL;
-	static char *function                 = "info_handle_posix_time_fprint";
+	static char *function                 = "info_handle_posix_time_seconds_value_fprint";
 	int result                            = 0;
 
 	if( info_handle == NULL )
@@ -679,7 +679,7 @@ int info_handle_posix_time_value_fprint(
 		}
 		if( libfdatetime_posix_time_copy_from_32bit(
 		     posix_time,
-		     value_32bit,
+		     (uint32_t) value_32bit,
 		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
 		     error ) != 1 )
 		{
@@ -750,6 +750,127 @@ on_error:
 	return( -1 );
 }
 
+/* Prints a nano seconds POSIX time value
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_posix_time_in_nano_seconds_value_fprint(
+     info_handle_t *info_handle,
+     const char *value_name,
+     int64_t value_64bit,
+     libcerror_error_t **error )
+{
+	system_character_t date_time_string[ 32 ];
+
+	libfdatetime_posix_time_t *posix_time = NULL;
+	static char *function                 = "info_handle_posix_time_in_nano_seconds_value_fprint";
+	int result                            = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_64bit == 0 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "%s: Not set (0)\n",
+		 value_name );
+	}
+	else
+	{
+		if( libfdatetime_posix_time_initialize(
+		     &posix_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create POSIX time.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfdatetime_posix_time_copy_from_64bit(
+		     posix_time,
+		     (uint64_t) value_64bit,
+		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_NANO_SECONDS_64BIT_SIGNED,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time from 64-bit.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libfdatetime_posix_time_copy_to_utf16_string(
+			  posix_time,
+			  (uint16_t *) date_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_ISO8601 | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+			  error );
+#else
+		result = libfdatetime_posix_time_copy_to_utf8_string(
+			  posix_time,
+			  (uint8_t *) date_time_string,
+			  32,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_ISO8601 | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+			  error );
+#endif
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to copy POSIX time to string.",
+			 function );
+
+			goto on_error;
+		}
+		fprintf(
+		 info_handle->notify_stream,
+		 "%s: %" PRIs_SYSTEM "Z\n",
+		 value_name,
+		 date_time_string );
+
+		if( libfdatetime_posix_time_free(
+		     &posix_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free POSIX time.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( 1 );
+
+on_error:
+	if( posix_time != NULL )
+	{
+		libfdatetime_posix_time_free(
+		 &posix_time,
+		 NULL );
+	}
+	return( -1 );
+}
+
 /* Prints a file entry value with name
  * Returns 1 if successful, 0 if not or -1 on error
  */
@@ -766,12 +887,14 @@ int info_handle_file_entry_value_with_name_fprint(
 	static char *function                    = "info_handle_file_entry_value_with_name_fprint";
 	size64_t size                            = 0;
 	size_t symbolic_link_target_size         = 0;
-	uint32_t identifier                      = 0;
-	int32_t access_time                      = 0;
-	int32_t inode_change_time                = 0;
-	int32_t modification_time                = 0;
+	int64_t access_time                      = 0;
+	int64_t creation_time                    = 0;
+	int64_t inode_change_time                = 0;
+	int64_t modification_time                = 0;
 	uint32_t group_identifier                = 0;
-	uint32_t user_identifier                 = 0;
+	uint32_t identifier                      = 0;
+	uint32_t owner_identifier                = 0;
+	int32_t deletion_time                    = 0;
 	uint16_t file_mode                       = 0;
 	int result                               = 0;
 
@@ -842,16 +965,30 @@ int info_handle_file_entry_value_with_name_fprint(
 
 		goto on_error;
 	}
-	if( libfsext_file_entry_get_user_identifier(
+	if( libfsext_file_entry_get_creation_time(
 	     file_entry,
-	     &user_identifier,
+	     &creation_time,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve user identifier.",
+		 "%s: unable to retrieve creation time.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_file_entry_get_owner_identifier(
+	     file_entry,
+	     &owner_identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve owner identifier.",
 		 function );
 
 		goto on_error;
@@ -950,7 +1087,6 @@ int info_handle_file_entry_value_with_name_fprint(
 		default:
 			break;
 	}
-#ifdef TODO
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libfsext_file_entry_get_utf16_symbolic_link_target_size(
 	          file_entry,
@@ -1014,7 +1150,6 @@ int info_handle_file_entry_value_with_name_fprint(
 			goto on_error;
 		}
 	}
-#endif /* TODO */
 	if( libfsext_file_entry_get_size(
 	     file_entry,
 	     &size,
@@ -1058,13 +1193,13 @@ int info_handle_file_entry_value_with_name_fprint(
 		 "|%" PRIu32 "|%s|%" PRIu32 "|%" PRIu32 "|%" PRIu64 "|%.9f|%.9f|%.9f|%.9f\n",
 		 identifier,
 		 file_mode_string,
-		 user_identifier,
+		 owner_identifier,
 		 group_identifier,
 		 size,
 		 (double) access_time / 1000000000,
 		 (double) modification_time / 1000000000,
 		 (double) inode_change_time / 1000000000,
-		 0.0 );
+		 (double) creation_time / 1000000000 );
 	}
 	else
 	{
@@ -1096,7 +1231,7 @@ int info_handle_file_entry_value_with_name_fprint(
 		 "\tSize\t\t\t: %" PRIu64 "\n",
 		 size );
 
-		if( info_handle_posix_time_value_fprint(
+		if( info_handle_posix_time_in_nano_seconds_value_fprint(
 		     info_handle,
 		     "\tModification time\t",
 		     modification_time,
@@ -1111,7 +1246,7 @@ int info_handle_file_entry_value_with_name_fprint(
 
 			goto on_error;
 		}
-		if( info_handle_posix_time_value_fprint(
+		if( info_handle_posix_time_in_nano_seconds_value_fprint(
 		     info_handle,
 		     "\tInode change time\t",
 		     inode_change_time,
@@ -1126,7 +1261,7 @@ int info_handle_file_entry_value_with_name_fprint(
 
 			goto on_error;
 		}
-		if( info_handle_posix_time_value_fprint(
+		if( info_handle_posix_time_in_nano_seconds_value_fprint(
 		     info_handle,
 		     "\tAccess time\t\t",
 		     access_time,
@@ -1141,10 +1276,54 @@ int info_handle_file_entry_value_with_name_fprint(
 
 			goto on_error;
 		}
+		if( info_handle_posix_time_in_nano_seconds_value_fprint(
+		     info_handle,
+		     "\tCreation time\t\t",
+		     creation_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print POSIX time value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_file_entry_get_deletion_time(
+		     file_entry,
+		     &deletion_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve deletion time.",
+			 function );
+
+			goto on_error;
+		}
+		if( info_handle_posix_time_seconds_value_fprint(
+		     info_handle,
+		     "\tDeletion time\t\t",
+		     deletion_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print POSIX time value.",
+			 function );
+
+			goto on_error;
+		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tUser identifier\t: %" PRIu32 "\n",
-		 user_identifier );
+		 "\tOwner identifier\t: %" PRIu32 "\n",
+		 owner_identifier );
 
 		fprintf(
 		 info_handle->notify_stream,
@@ -1506,8 +1685,6 @@ int info_handle_file_entry_fprint_by_inode(
 {
 	libfsext_file_entry_t *file_entry = NULL;
 	static char *function             = "info_handle_file_entry_fprint_by_inode";
-	uint32_t value_32bit              = 0;
-	uint16_t value_16bit              = 0;
 	int is_empty                      = 0;
 
 	if( info_handle == NULL )
@@ -1545,7 +1722,7 @@ int info_handle_file_entry_fprint_by_inode(
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "inode: %" PRIu32 " information:\n",
+	 "Inode: %" PRIu32 " information:\n",
 	 inode_number );
 
 	is_empty = libfsext_file_entry_is_empty(
@@ -1572,180 +1749,22 @@ int info_handle_file_entry_fprint_by_inode(
 	else
 	{
 /* TODO implement is allocated */
-		if( libfsext_file_entry_get_access_time(
-		     file_entry,
-		     (int32_t *) &value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve access time.",
-			 function );
-
-			goto on_error;
-		}
-		if( info_handle_posix_time_value_fprint(
+		if( info_handle_file_entry_value_with_name_fprint(
 		     info_handle,
-		     "\tAccess time\t\t",
-		     value_32bit,
+		     file_entry,
+		     NULL,
+		     NULL,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print POSIX time value.",
+			 "%s: unable to print file entry.",
 			 function );
 
 			goto on_error;
 		}
-		if( libfsext_file_entry_get_inode_change_time(
-		     file_entry,
-		     (int32_t *) &value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve inode change time.",
-			 function );
-
-			goto on_error;
-		}
-		if( info_handle_posix_time_value_fprint(
-		     info_handle,
-		     "\tInode change time\t",
-		     value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print POSIX time value.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfsext_file_entry_get_modification_time(
-		     file_entry,
-		     (int32_t *) &value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve modification time.",
-			 function );
-
-			goto on_error;
-		}
-		if( info_handle_posix_time_value_fprint(
-		     info_handle,
-		     "\tModification time\t",
-		     value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print POSIX time value.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfsext_file_entry_get_deletion_time(
-		     file_entry,
-		     (int32_t *) &value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve deletion time.",
-			 function );
-
-			goto on_error;
-		}
-		if( info_handle_posix_time_value_fprint(
-		     info_handle,
-		     "\tDeletion time\t\t",
-		     value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print POSIX time value.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfsext_file_entry_get_file_mode(
-		     file_entry,
-		     &value_16bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve file mode.",
-			 function );
-
-			goto on_error;
-		}
-		fprintf(
-		 info_handle->notify_stream,
-		 "\tFile mode\t\t: %" PRIo16 "\n",
-		 value_16bit );
-
-/* TODO print semantic representation of file mode */
-
-		if( libfsext_file_entry_get_user_identifier(
-		     file_entry,
-		     &value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve user identifier.",
-			 function );
-
-			goto on_error;
-		}
-		fprintf(
-		 info_handle->notify_stream,
-		 "\tUser identifier\t\t: %" PRIu32 "\n",
-		 value_32bit );
-
-		if( libfsext_file_entry_get_group_identifier(
-		     file_entry,
-		     &value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve group identifier.",
-			 function );
-
-			goto on_error;
-		}
-		fprintf(
-		 info_handle->notify_stream,
-		 "\tGroup identifier\t: %" PRIu32 "\n",
-		 value_32bit );
 	}
 	if( libfsext_file_entry_free(
 	     &file_entry,
@@ -1850,11 +1869,25 @@ int info_handle_file_entry_fprint_by_path(
 
 	fprintf(
 	 info_handle->notify_stream,
-	 "\tPath\t\t\t\t: %" PRIs_SYSTEM "\n",
+	 "\tPath\t\t\t: %" PRIs_SYSTEM "\n",
 	 path );
 
-/* TODO implement */
+	if( info_handle_file_entry_value_with_name_fprint(
+	     info_handle,
+	     file_entry,
+	     path,
+	     NULL,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+		 "%s: unable to print file entry.",
+		 function );
 
+		goto on_error;
+	}
 	if( libfsext_file_entry_free(
 	     &file_entry,
 	     error ) != 1 )
@@ -2037,6 +2070,7 @@ int info_handle_volume_fprint(
 	static char *function            = "info_handle_volume_fprint";
 	size_t value_string_size         = 0;
 	uint32_t value_32bit             = 0;
+	uint8_t format_version           = 0;
 	int result                       = 0;
 
 	if( info_handle == NULL )
@@ -2057,6 +2091,25 @@ int info_handle_volume_fprint(
 	fprintf(
 	 info_handle->notify_stream,
 	 "Volume information:\n" );
+
+	if( libfsext_volume_get_format_version(
+	     info_handle->input_volume,
+	     &format_version,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve format version.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "\tFile system\t\t\t: ext%" PRIu8 "\n",
+	 format_version );
 
 	fprintf(
 	 info_handle->notify_stream,
@@ -2251,7 +2304,7 @@ int info_handle_volume_fprint(
 
 		goto on_error;
 	}
-	if( info_handle_posix_time_value_fprint(
+	if( info_handle_posix_time_seconds_value_fprint(
 	     info_handle,
 	     "\tLast mount time\t\t\t",
 	     value_32bit,
@@ -2280,7 +2333,7 @@ int info_handle_volume_fprint(
 
 		goto on_error;
 	}
-	if( info_handle_posix_time_value_fprint(
+	if( info_handle_posix_time_seconds_value_fprint(
 	     info_handle,
 	     "\tLast written time\t\t",
 	     value_32bit,

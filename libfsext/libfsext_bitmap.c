@@ -317,30 +317,18 @@ int libfsext_bitmap_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( io_handle->block_size == 0 )
+	if( ( io_handle->block_size == 0 )
+	 || ( io_handle->block_size > (uint32_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: invalid IO handle - block size value too small.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid IO handle - block size value out of bounds.",
 		 function );
 
 		return( -1 );
 	}
-#if SIZEOF_SIZE_T <= 4
-	if( io_handle->block_size > (uint32_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid IO handle - block size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-#endif
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{

@@ -38,10 +38,10 @@ struct fsext_inode_ext2
 	 */
 	uint8_t file_mode[ 2 ];
 
-	/* User identifier (lower 16-bit)
+	/* Owner identifier (lower 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t user_identifier[ 2 ];
+	uint8_t owner_identifier[ 2 ];
 
 	/* Data size
 	 * Consists of 4 bytes
@@ -134,10 +134,10 @@ struct fsext_inode_ext2
 	 */
 	uint8_t padding1[ 2 ];
 
-	/* User identifier (upper 16-bit)
+	/* Owner identifier (upper 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t user_identifier_upper[ 2 ];
+	uint8_t owner_identifier_upper[ 2 ];
 
 	/* Group identifier (upper 16-bit)
 	 * Consists of 2 bytes
@@ -159,10 +159,10 @@ struct fsext_inode_ext3
 	 */
 	uint8_t file_mode[ 2 ];
 
-	/* User identifier (lower 16-bit)
+	/* Owner identifier (lower 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t user_identifier[ 2 ];
+	uint8_t owner_identifier[ 2 ];
 
 	/* Data size
 	 * Consists of 4 bytes
@@ -255,10 +255,10 @@ struct fsext_inode_ext3
 	 */
 	uint8_t padding1[ 2 ];
 
-	/* User identifier (upper 16-bit)
+	/* Owner identifier (upper 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t user_identifier_upper[ 2 ];
+	uint8_t owner_identifier_upper[ 2 ];
 
 	/* Group identifier (upper 16-bit)
 	 * Consists of 2 bytes
@@ -290,10 +290,10 @@ struct fsext_inode_ext4
 	 */
 	uint8_t file_mode[ 2 ];
 
-	/* User identifier (lower 16-bit)
+	/* Owner identifier (lower 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t user_identifier[ 2 ];
+	uint8_t owner_identifier[ 2 ];
 
 	/* Data size (lower 32-bit)
 	 * Consists of 4 bytes
@@ -384,10 +384,10 @@ struct fsext_inode_ext4
 	 */
 	uint8_t file_acl_upper[ 2 ];
 
-	/* User identifier (upper 16-bit)
+	/* Owner identifier (upper 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t user_identifier_upper[ 2 ];
+	uint8_t owner_identifier_upper[ 2 ];
 
 	/* Group identifier (upper 16-bit)
 	 * Consists of 2 bytes

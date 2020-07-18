@@ -100,10 +100,16 @@ int info_handle_close_input(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
-int info_handle_posix_time_value_fprint(
+int info_handle_posix_time_seconds_value_fprint(
      info_handle_t *info_handle,
      const char *value_name,
-     uint32_t value_32bit,
+     int32_t value_32bit,
+     libcerror_error_t **error );
+
+int info_handle_posix_time_nano_seconds_value_fprint(
+     info_handle_t *info_handle,
+     const char *value_name,
+     uint64_t value_64bit,
      libcerror_error_t **error );
 
 int info_handle_file_entry_value_with_name_fprint(

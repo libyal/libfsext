@@ -260,6 +260,15 @@ int libfsext_volume_close(
      libfsext_volume_t *volume,
      libfsext_error_t **error );
 
+/* Retrieves the format version
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_format_version(
+     libfsext_volume_t *volume,
+     uint8_t *format_version,
+     libfsext_error_t **error );
+
 /* Retrieves the size of the UTF-8 encoded label
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
@@ -345,6 +354,7 @@ int libfsext_volume_get_utf16_last_mount_path(
      libfsext_error_t **error );
 
 /* Retrieves the last mount time
+ * The timestamp is a signed 32-bit POSIX date and time value in number of seconds
  * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
@@ -354,6 +364,7 @@ int libfsext_volume_get_last_mount_time(
      libfsext_error_t **error );
 
 /* Retrieves the last written time
+ * The timestamp is a signed 32-bit POSIX date and time value in number of seconds
  * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
@@ -442,36 +453,51 @@ int libfsext_file_entry_get_identifier(
      libfsext_error_t **error );
 
 /* Retrieves the access date and time
+ * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_access_time(
      libfsext_file_entry_t *file_entry,
-     int32_t *posix_time,
+     int64_t *posix_time,
+     libfsext_error_t **error );
+
+/* Retrieves the creation date and time
+ * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
+ * This value is retrieved from the inode and only supported by ext4
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_creation_time(
+     libfsext_file_entry_t *file_entry,
+     int64_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the inode change date and time
+ * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_inode_change_time(
      libfsext_file_entry_t *file_entry,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the modification date and time
+ * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_modification_time(
      libfsext_file_entry_t *file_entry,
-     int32_t *posix_time,
+     int64_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the deletion date and time
+ * The timestamp is a signed 32-bit POSIX date and time value in number of seconds
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error
  */
@@ -491,14 +517,14 @@ int libfsext_file_entry_get_file_mode(
      uint16_t *file_mode,
      libfsext_error_t **error );
 
-/* Retrieves the user identifier
+/* Retrieves the owner identifier
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
-int libfsext_file_entry_get_user_identifier(
+int libfsext_file_entry_get_owner_identifier(
      libfsext_file_entry_t *file_entry,
-     uint32_t *user_identifier,
+     uint32_t *owner_identifier,
      libfsext_error_t **error );
 
 /* Retrieves the group identifier
@@ -552,6 +578,48 @@ int libfsext_file_entry_get_utf16_name_size(
  */
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_utf16_name(
+     libfsext_file_entry_t *file_entry,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the size of the UTF-8 encoded symbolic link target
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_utf8_symbolic_link_target_size(
+     libfsext_file_entry_t *file_entry,
+     size_t *utf8_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the UTF-8 encoded symbolic link target
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_utf8_symbolic_link_target(
+     libfsext_file_entry_t *file_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the size of the UTF-16 encoded symbolic link target
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_utf16_symbolic_link_target_size(
+     libfsext_file_entry_t *file_entry,
+     size_t *utf16_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the UTF-16 encoded symbolic link target
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_utf16_symbolic_link_target(
      libfsext_file_entry_t *file_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,

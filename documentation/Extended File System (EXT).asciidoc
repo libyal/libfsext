@@ -7,6 +7,7 @@ Analysis the Linux ext file system
 :numbered!:
 [abstract]
 == Summary
+
 The Extended File System (ext) is one of the more common file system used in
 Linux.
 
@@ -16,6 +17,7 @@ this type of file system.
 
 [preface]
 == Document information
+
 [cols="1,5"]
 |===
 | Author(s): | Joachim Metz <joachim.metz@gmail.com>
@@ -26,6 +28,7 @@ this type of file system.
 
 [preface]
 == License
+
 ....
 Copyright (C) 2010-2020, Joachim Metz <joachim.metz@gmail.com>.
 Permission is granted to copy, distribute and/or modify this document under the
@@ -37,6 +40,7 @@ in the section entitled "GNU Free Documentation License".
 
 [preface]
 == Revision history
+
 [cols="1,1,1,5",options="header"]
 |===
 | Version | Author | Date | Comments
@@ -52,6 +56,7 @@ in the section entitled "GNU Free Documentation License".
 
 :numbered:
 == Overview
+
 The Extended File System (ext) is one of the more common file system used in
 Linux.
 
@@ -64,6 +69,7 @@ Linux.
 |===
 
 === Versions
+
 There are multiple version of ext.
 
 [cols="1,5",options="header"]
@@ -78,12 +84,14 @@ Introduced extents, improved timestamps
 |===
 
 === Test version
+
 The following version of programs were used to test the information within this
 document:
 
 * Linux mke2fs 1.42.9
 
 == Terminology
+
 [yellow-background]*TODO: add text*
 
 == The volume
@@ -103,14 +111,14 @@ A block group consists of:
 * inode bitmap
 * allocated and unallocated blocks
 
-The primary superblock is stored at offset 1024 relative from the start of the 
+The primary superblock is stored at offset 1024 relative from the start of the
 volume. Backup superblocks are stored at offset 1024 relative from the start of
 the block group if block size <= 1024 or otherwise at offset 0 from the start
 of the block group.
 
 The group descriptor table is stored in the block after the superblock.
 
-The ext2 revision 0 stores a copy at the start of every block group, along with 
+The ext2 revision 0 stores a copy at the start of every block group, along with
 backups of the group descriptor table. Later revisions can reduce the number of
 backup copies by only putting backups in specific groups (sparse superblock
 feature EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER).
@@ -173,7 +181,7 @@ Contains POSIX timestamp
 See section: <<creator_operating_system,Creator operating system>>
 | 76 | 4 | | Format revision +
 See section: <<format_revisision,Format revision>>
-| 80 | 2 | | Reserved block user identifier (UID)
+| 80 | 2 | | Reserved block owner (or user) identifier (UID)
 | 82 | 2 | | Reserved block group identifier (GID)
 4+| _Dynamic inode information_ +
 _If major version is EXT2_DYNAMIC_REV_
@@ -265,7 +273,7 @@ Contains POSIX timestamp
 See section: <<creator_operating_system,Creator operating system>>
 | 76 | 4 | | Format revision +
 See section: <<format_revisision,Format revision>>
-| 80 | 2 | | Reserved block user identifier (UID)
+| 80 | 2 | | Reserved block owner (or user) identifier (UID)
 | 82 | 2 | | Reserved block group identifier (GID)
 4+| _Dynamic inode information_ +
 _If major version is EXT2_DYNAMIC_REV_
@@ -680,7 +688,7 @@ The ext2 inode is 128 bytes of size and consists of:
 | 0 | 2 | | File mode +
 Contains file type and permissions +
 See section: <<file_mode,File mode>>
-| 2 | 2 | | Lower part of user identifier (UID)
+| 2 | 2 | | Lower part of owner (or user) identifier (UID)
 | 4 | 4 | | Data size
 | 8 | 4 | | (last) access time +
 Contains a POSIX timestamp
@@ -712,7 +720,7 @@ Value contains the block number relative from the start of the volume
 | 116 | 1 | | Fragment block index
 | 117 | 1 | | Fragment size
 | 118 | 2 | | Unknown (padding)
-| 120 | 2 | | Upper part of user identifier (UID)
+| 120 | 2 | | Upper part of owner (or user) identifier (UID)
 | 122 | 2 | | Upper part of group identifier (GID)
 | 124 | 4 | | Unknown (reserved)
 |===
@@ -727,7 +735,7 @@ The ext3 inode is 132 bytes of size and consists of:
 | 0 | 2 | | File mode +
 Contains file type and permissions +
 See section: <<file_mode,File mode>>
-| 2 | 2 | | Lower part of user identifier (UID)
+| 2 | 2 | | Lower part of owner (or user) identifier (UID)
 | 4 | 4 | | Data size
 | 8 | 4 | | (last) access time +
 Contains a POSIX timestamp
@@ -758,7 +766,7 @@ Value contains the block number relative from the start of the volume
 | 116 | 1 | | Fragment block index
 | 117 | 1 | | Fragment size
 | 118 | 2 | | Unknown (padding)
-| 120 | 2 | | Upper part of user identifier (UID)
+| 120 | 2 | | Upper part of owner (or user) identifier (UID)
 | 122 | 2 | | Upper part of group identifier (GID)
 | 124 | 4 | | Unknown (reserved)
 | 128 | 2 | | Unknown (inode extra size?)
@@ -775,7 +783,7 @@ The ext4 inode is 256 bytes of size and consists of:
 | 0 | 2 | | File mode +
 Contains file type and permissions +
 See section: <<file_mode,File mode>>
-| 2 | 2 | | Lower part of user identifier (UID)
+| 2 | 2 | | Lower part of owner (or user) identifier (UID)
 | 4 | 4 | | Lower part of data size
 | 8 | 4 | | (last) access time +
 Contains a POSIX timestamp
@@ -815,7 +823,7 @@ Also see: <<ext4_extent,The ext4 extent>> or <<ext4_extent_index,The ext4 extent
 | 112 | 4 | | Fragment block address
 | 116 | 2 | | Upper part of blocks count
 | 118 | 2 | | Upper part of file ACL
-| 120 | 2 | | Upper part of user identifier (UID)
+| 120 | 2 | | Upper part of owner (or user) identifier (UID)
 | 122 | 2 | | Upper part of group identifier (GID)
 | 124 | 2 | | Lower part of checksum
 | 126 | 2 | | [yellow-background]*Unknown (reserved)*
@@ -850,15 +858,15 @@ _Bitmask: 0x0038 (S_IRWXG)_
 | 0x0008 | S_IXGRP | X-access for group
 | 0x0010 | S_IWGRP | W-access for group
 | 0x0020 | S_IRGRP | R-access for group
-3+| _Access user_ +
+3+| _Access owner (or user)_ +
 _Bitmask: 0x01c0 (S_IRWXU)_
-| 0x0040 | S_IXUSR | X-access for user
-| 0x0080 | S_IWUSR | W-access for user
-| 0x0100 | S_IRUSR | R-access for user
+| 0x0040 | S_IXUSR | X-access for owner (or user)
+| 0x0080 | S_IWUSR | W-access for owner (or user)
+| 0x0100 | S_IRUSR | R-access for owner (or user)
 3+| _Other_
 | 0x0200 | S_ISTXT | Sticky bit
 | 0x0400 | S_ISGID | Set group identifer (GID) on execution
-| 0x0800 | S_ISUID | Set user identifer (UID) on execution
+| 0x0800 | S_ISUID | Set owner (or user) identifer (UID) on execution
 3+| _Type of file_ +
 _Bitmask: 0xf000 (S_IFMT)_
 | 0x1000 | S_IFIFO | Named pipe (FIFO)
@@ -961,8 +969,8 @@ EXT4_BAD_INO | Bad blocks inode
 | 2 | EXT2_ROOT_INO +
 EXT3_ROOT_INO +
 EXT4_ROOT_INO | Root inode
-| 3 | EXT4_USR_QUOTA_INO | User quota inode
-| 4 | EXT4_USR_QUOTA_INO | Group quota inode
+| 3 | EXT4_USR_QUOTA_INO | Owner (or user) quota inode
+| 4 | EXT4_GRP_QUOTA_INO | Group quota inode
 | 5 | EXT2_BOOT_LOADER_INO +
 EXT3_BOOT_LOADER_INO +
 EXT4_BOOT_LOADER_INO | Boot loader inode
@@ -1036,7 +1044,16 @@ on older platforms?*
 | 7 | EXT2_FT_SYMLINK | Symbolic link
 |===
 
+== Symbolic links
+
+If the target path of a symbolic link is less than 60 characters long, it is
+stored in the 60 bytes in the inode that are normally used for the 12 direct
+and 3 indirect block numbers. If the target path is longer than 60 characters,
+a block is allocated, and the block contains the target path. The inode data
+size contains the lenght of the target path.
+
 == Journal
+
 The journal was introduced in ext3.
 
 [yellow-background]*TODO: add text*
@@ -1106,6 +1123,7 @@ http://en.wikipedia.org/wiki/Ext4
 
 [appendix]
 == GNU Free Documentation License
+
 Version 1.3, 3 November 2008
 Copyright © 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
 <http://fsf.org/>
@@ -1114,6 +1132,7 @@ Everyone is permitted to copy and distribute verbatim copies of this license
 document, but changing it is not allowed.
 
 === 0. PREAMBLE
+
 The purpose of this License is to make a manual, textbook, or other functional
 and useful document "free" in the sense of freedom: to assure everyone the
 effective freedom to copy and redistribute it, with or without modifying it,
@@ -1134,6 +1153,7 @@ recommend this License principally for works whose purpose is instruction or
 reference.
 
 === 1. APPLICABILITY AND DEFINITIONS
+
 This License applies to any manual or other work, in any medium, that contains
 a notice placed by the copyright holder saying it can be distributed under the
 terms of this License. Such a notice grants a world-wide, royalty-free license,
@@ -1212,6 +1232,7 @@ disclaiming warranties: any other implication that these Warranty Disclaimers
 may have is void and has no effect on the meaning of this License.
 
 === 2. VERBATIM COPYING
+
 You may copy and distribute the Document in any medium, either commercially or
 noncommercially, provided that this License, the copyright notices, and the
 license notice saying this License applies to the Document are reproduced in
@@ -1225,6 +1246,7 @@ You may also lend copies, under the same conditions stated above, and you may
 publicly display copies.
 
 === 3. COPYING IN QUANTITY
+
 If you publish printed copies (or copies in media that commonly have printed
 covers) of the Document, numbering more than 100, and the Document's license
 notice requires Cover Texts, you must enclose the copies in covers that carry,
@@ -1258,6 +1280,7 @@ well before redistributing any large number of copies, to give them a chance to
 provide you with an updated version of the Document.
 
 === 4. MODIFICATIONS
+
 You may copy and distribute a Modified Version of the Document under the
 conditions of sections 2 and 3 above, provided that you release the Modified
 Version under precisely this License, with the Modified Version filling the
@@ -1350,6 +1373,7 @@ permission to use their names for publicity for or to assert or imply
 endorsement of any Modified Version.
 
 === 5. COMBINING DOCUMENTS
+
 You may combine the Document with other documents released under this License,
 under the terms defined in section 4 above for modified versions, provided that
 you include in the combination all of the Invariant Sections of all of the
@@ -1371,6 +1395,7 @@ combine any sections Entitled "Acknowledgements", and any sections Entitled
 "Dedications". You must delete all sections Entitled "Endorsements".
 
 === 6. COLLECTIONS OF DOCUMENTS
+
 You may make a collection consisting of the Document and other documents
 released under this License, and replace the individual copies of this License
 in the various documents with a single copy that is included in the collection,
@@ -1383,6 +1408,7 @@ into the extracted document, and follow this License in all other respects
 regarding verbatim copying of that document.
 
 === 7. AGGREGATION WITH INDEPENDENT WORKS
+
 A compilation of the Document or its derivatives with other separate and
 independent documents or works, in or on a volume of a storage or distribution
 medium, is called an "aggregate" if the copyright resulting from the
@@ -1399,6 +1425,7 @@ in electronic form. Otherwise they must appear on printed covers that bracket
 the whole aggregate.
 
 === 8. TRANSLATION
+
 Translation is considered a kind of modification, so you may distribute
 translations of the Document under the terms of section 4. Replacing Invariant
 Sections with translations requires special permission from their copyright
@@ -1416,6 +1443,7 @@ If a section in the Document is Entitled "Acknowledgements", "Dedications", or
 typically require changing the actual title.
 
 === 9. TERMINATION
+
 You may not copy, modify, sublicense, or distribute the Document except as
 expressly provided under this License. Any attempt otherwise to copy, modify,
 sublicense, or distribute it is void, and will automatically terminate your
@@ -1439,6 +1467,7 @@ your rights have been terminated and not permanently reinstated, receipt of a
 copy of some or all of the same material does not give you any rights to use it.
 
 === 10. FUTURE REVISIONS OF THIS LICENSE
+
 The Free Software Foundation may publish new, revised versions of the GNU Free
 Documentation License from time to time. Such new versions will be similar in
 spirit to the present version, but may differ in detail to address new problems
@@ -1456,6 +1485,7 @@ License can be used, that proxy's public statement of acceptance of a version
 permanently authorizes you to choose that version for the Document.
 
 === 11. RELICENSING
+
 "Massive Multiauthor Collaboration Site" (or "MMC Site") means any World Wide
 Web server that publishes copyrightable works and also provides prominent
 facilities for anybody to edit those works. A public wiki that anybody can edit
