@@ -190,7 +190,7 @@ See section: <<read_only_compatible_features_flags,Read-only compatible features
 Contains GUID/UUID
 | 120 | 16 | | Volume (label) name +
 Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
-| 136 | 64 | | Last mounted path +
+| 136 | 64 | | Last mount path +
 Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
 | 200 | 4 | | Algorithm usage bitmap
 4+| _Performance hints_ +
@@ -282,7 +282,7 @@ See section: <<read_only_compatible_features_flags,Read-only compatible features
 Contains GUID/UUID
 | 120 | 16 | | Volume (label) name +
 Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
-| 136 | 64 | | Last mounted path +
+| 136 | 64 | | Last mount path +
 Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
 | 200 | 4 | | Algorithm usage bitmap
 4+| _Performance hints_ +
@@ -411,9 +411,6 @@ compatibility and equivalent flags?*
 | 3 | | FreeBSD
 | 4 | | Lites
 |===
-
-[NOTE]
-
 
 === [[format_revisision]]Format revision
 

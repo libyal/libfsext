@@ -1583,7 +1583,7 @@ int libfsext_inode_is_empty(
  */
 int libfsext_inode_get_access_time(
      libfsext_inode_t *inode,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_inode_get_access_time";
@@ -1610,7 +1610,7 @@ int libfsext_inode_get_access_time(
 
 		return( -1 );
 	}
-	*posix_time = inode->access_time;
+	*posix_time = (int32_t) inode->access_time;
 
 	return( 1 );
 }
@@ -1620,7 +1620,7 @@ int libfsext_inode_get_access_time(
  */
 int libfsext_inode_get_inode_change_time(
      libfsext_inode_t *inode,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_inode_get_inode_change_time";
@@ -1647,7 +1647,7 @@ int libfsext_inode_get_inode_change_time(
 
 		return( -1 );
 	}
-	*posix_time = inode->inode_change_time;
+	*posix_time = (int32_t) inode->inode_change_time;
 
 	return( 1 );
 }
@@ -1657,7 +1657,7 @@ int libfsext_inode_get_inode_change_time(
  */
 int libfsext_inode_get_modification_time(
      libfsext_inode_t *inode,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_inode_get_modification_time";
@@ -1684,7 +1684,7 @@ int libfsext_inode_get_modification_time(
 
 		return( -1 );
 	}
-	*posix_time = inode->modification_time;
+	*posix_time = (int32_t) inode->modification_time;
 
 	return( 1 );
 }
@@ -1694,7 +1694,7 @@ int libfsext_inode_get_modification_time(
  */
 int libfsext_inode_get_deletion_time(
      libfsext_inode_t *inode,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_inode_get_deletion_time";
@@ -1721,7 +1721,7 @@ int libfsext_inode_get_deletion_time(
 
 		return( -1 );
 	}
-	*posix_time = inode->deletion_time;
+	*posix_time = (int32_t) inode->deletion_time;
 
 	return( 1 );
 }

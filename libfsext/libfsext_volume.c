@@ -35,6 +35,7 @@
 #include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
+#include "libfsext_libcthreads.h"
 #include "libfsext_libuna.h"
 #include "libfsext_superblock.h"
 #include "libfsext_volume.h"
@@ -98,7 +99,10 @@ int libfsext_volume_initialize(
 		 "%s: unable to clear volume.",
 		 function );
 
-		goto on_error;
+		memory_free(
+		 internal_volume );
+
+		return( -1 );
 	}
 	if( libfsext_io_handle_initialize(
 	     &( internal_volume->io_handle ),
@@ -127,6 +131,21 @@ int libfsext_volume_initialize(
 
 		goto on_error;
 	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_initialize(
+	     &( internal_volume->read_write_lock ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize read/write lock.",
+		 function );
+
+		goto on_error;
+	}
+#endif
 	*volume = (libfsext_volume_t *) internal_volume;
 
 	return( 1 );
@@ -190,6 +209,21 @@ int libfsext_volume_free(
 		}
 		*volume = NULL;
 
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+		if( libcthreads_read_write_lock_free(
+		     &( internal_volume->read_write_lock ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free read/write lock.",
+			 function );
+
+			result = -1;
+		}
+#endif
 		if( libcdata_array_free(
 		     &( internal_volume->group_descriptors_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_group_descriptor_free,
@@ -341,12 +375,12 @@ int libfsext_volume_open(
 	     1,
 	     error ) != 1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set track offsets read in file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set track offsets read in file IO handle.",
+		 function );
 
 		goto on_error;
 	}
@@ -358,12 +392,12 @@ int libfsext_volume_open(
 	      filename ) + 1,
 	     error ) != 1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set filename in file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set filename in file IO handle.",
+		 function );
 
 		goto on_error;
 	}
@@ -383,8 +417,40 @@ int libfsext_volume_open(
 
 		goto on_error;
 	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		goto on_error;
+	}
+#endif
 	internal_volume->file_io_handle_created_in_library = 1;
 
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		internal_volume->file_io_handle_created_in_library = 0;
+
+		goto on_error;
+	}
+#endif
 	return( 1 );
 
 on_error:
@@ -394,7 +460,7 @@ on_error:
 		 &file_io_handle,
 		 NULL );
 	}
-        return( -1 );
+	return( -1 );
 }
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
@@ -478,12 +544,12 @@ int libfsext_volume_open_wide(
 	     1,
 	     error ) != 1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set track offsets read in file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set track offsets read in file IO handle.",
+		 function );
 
 		goto on_error;
 	}
@@ -495,12 +561,12 @@ int libfsext_volume_open_wide(
 	      filename ) + 1,
 	     error ) != 1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set filename in file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set filename in file IO handle.",
+		 function );
 
 		goto on_error;
 	}
@@ -520,8 +586,40 @@ int libfsext_volume_open_wide(
 
 		goto on_error;
 	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		goto on_error;
+	}
+#endif
 	internal_volume->file_io_handle_created_in_library = 1;
 
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		internal_volume->file_io_handle_created_in_library = 0;
+
+		goto on_error;
+	}
+#endif
 	return( 1 );
 
 on_error:
@@ -531,7 +629,7 @@ on_error:
 		 &file_io_handle,
 		 NULL );
 	}
-        return( -1 );
+	return( -1 );
 }
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
@@ -646,7 +744,7 @@ int libfsext_volume_open_file_io_handle(
 		}
 		file_io_handle_opened_in_library = 1;
 	}
-	if( libfsext_volume_open_read(
+	if( libfsext_internal_volume_open_read(
 	     internal_volume,
 	     file_io_handle,
 	     error ) != 1 )
@@ -660,9 +758,42 @@ int libfsext_volume_open_file_io_handle(
 
 		goto on_error;
 	}
-	internal_volume->file_io_handle                   = file_io_handle;
-	internal_volume->file_io_handle_opened_in_library = file_io_handle_opened_in_library;
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
 
+		goto on_error;
+	}
+#endif
+	internal_volume->file_io_handle                   = file_io_handle;
+	internal_volume->file_io_handle_opened_in_library = (uint8_t) file_io_handle_opened_in_library;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		internal_volume->file_io_handle                   = NULL;
+		internal_volume->file_io_handle_opened_in_library = 0;
+
+		goto on_error;
+	}
+#endif
 	return( 1 );
 
 on_error:
@@ -710,6 +841,21 @@ int libfsext_volume_close(
 
 		return( -1 );
 	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -826,19 +972,33 @@ int libfsext_volume_close(
 			result = -1;
 		}
 	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( result );
 }
 
 /* Opens a volume for reading
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_open_read(
+int libfsext_internal_volume_open_read(
      libfsext_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_volume_open_read";
-	off64_t file_offset   = 1024;
+	static char *function = "libfsext_internal_volume_open_read";
 
 	if( internal_volume == NULL )
 	{
@@ -862,7 +1022,7 @@ int libfsext_volume_open_read(
 
 		return( -1 );
 	}
-	if( libfsext_volume_read_block_groups(
+	if( libfsext_internal_volume_read_block_groups(
 	     internal_volume,
 	     file_io_handle,
 	     error ) != 1 )
@@ -919,7 +1079,7 @@ on_error:
 /* Reads the block groups
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_read_block_groups(
+int libfsext_internal_volume_read_block_groups(
      libfsext_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
@@ -927,7 +1087,7 @@ int libfsext_volume_read_block_groups(
 	libfsext_bitmap_t *bitmap                     = NULL;
 	libfsext_group_descriptor_t *group_descriptor = NULL;
 	libfsext_superblock_t *superblock             = NULL;
-	static char *function                         = "libfsext_volume_read_block_groups";
+	static char *function                         = "libfsext_internal_volume_read_block_groups";
 	off64_t block_bitmap_offset                   = 0;
 	off64_t block_group_offset                    = 0;
 	off64_t group_descriptor_offset               = 0;
@@ -1362,6 +1522,8 @@ int libfsext_volume_get_utf8_label_size(
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libfsext_volume_get_utf8_label_size";
+	size_t safe_utf8_string_size                = 1;
+	int result                                  = 1;
 
 	if( volume == NULL )
 	{
@@ -1376,27 +1538,37 @@ int libfsext_volume_get_utf8_label_size(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
-	if( internal_volume->superblock == NULL )
+	if( utf8_string_size == NULL )
 	{
-		if( utf8_string_size == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid UTF-8 string size.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string size.",
+		 function );
 
-			return( -1 );
-		}
-		*utf8_string_size = 0;
+		return( -1 );
 	}
-	else
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
 	{
-		if( libuna_utf8_string_size_from_utf8_stream(
-		     internal_volume->superblock->volume_label,
-		     16,
-		     utf8_string_size,
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( internal_volume->superblock != NULL )
+	{
+		if( libfsext_superblock_get_utf8_volume_label_size(
+		     internal_volume->superblock,
+		     &safe_utf8_string_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1406,10 +1578,29 @@ int libfsext_volume_get_utf8_label_size(
 			 "%s: unable to retrieve UTF-8 volume label string size.",
 			 function );
 
-			return( -1 );
+			result = -1;
 		}
 	}
-	return( 1 );
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( result == 1 )
+	{
+		*utf8_string_size = safe_utf8_string_size;
+	}
+	return( result );
 }
 
 /* Retrieves the UTF-8 encoded label
@@ -1424,6 +1615,7 @@ int libfsext_volume_get_utf8_label(
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libfsext_volume_get_utf8_label";
+	int result                                  = 1;
 
 	if( volume == NULL )
 	{
@@ -1438,63 +1630,89 @@ int libfsext_volume_get_utf8_label(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
+	if( utf8_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid UTF-8 string size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-8 string size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( internal_volume->superblock == NULL )
 	{
-		if( utf8_string == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid UTF-8 string.",
-			 function );
-
-			return( -1 );
-		}
-		if( utf8_string_size == 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-			 "%s: invalid UTF-8 string size value too small.",
-			 function );
-
-			return( -1 );
-		}
-		if( utf8_string_size > (size_t) SSIZE_MAX )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-			 "%s: invalid UTF-8 string size value exceeds maximum.",
-			 function );
-
-			return( -1 );
-		}
 		utf8_string[ 0 ] = 0;
 	}
-	else
+	else if( libfsext_superblock_get_utf8_volume_label(
+	          internal_volume->superblock,
+	          utf8_string,
+	          utf8_string_size,
+	          error ) != 1 )
 	{
-		if( libuna_utf8_string_copy_from_utf8_stream(
-		     utf8_string,
-		     utf8_string_size,
-		     internal_volume->superblock->volume_label,
-		     16,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve UTF-8 volume label string.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 volume label string.",
+		 function );
 
-			return( -1 );
-		}
+		result = -1;
 	}
-	return( 1 );
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
 }
 
 /* Retrieves the size of the UTF-16 encoded label
@@ -1508,6 +1726,8 @@ int libfsext_volume_get_utf16_label_size(
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libfsext_volume_get_utf16_label_size";
+	size_t safe_utf16_string_size               = 1;
+	int result                                  = 1;
 
 	if( volume == NULL )
 	{
@@ -1522,27 +1742,37 @@ int libfsext_volume_get_utf16_label_size(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
-	if( internal_volume->superblock == NULL )
+	if( utf16_string_size == NULL )
 	{
-		if( utf16_string_size == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid UTF-16 string size.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-16 string size.",
+		 function );
 
-			return( -1 );
-		}
-		*utf16_string_size = 0;
+		return( -1 );
 	}
-	else
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
 	{
-		if( libuna_utf16_string_size_from_utf8_stream(
-		     internal_volume->superblock->volume_label,
-		     16,
-		     utf16_string_size,
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( internal_volume->superblock != NULL )
+	{
+		if( libfsext_superblock_get_utf16_volume_label_size(
+		     internal_volume->superblock,
+		     &safe_utf16_string_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1552,10 +1782,29 @@ int libfsext_volume_get_utf16_label_size(
 			 "%s: unable to retrieve UTF-16 volume label string size.",
 			 function );
 
-			return( -1 );
+			result = -1;
 		}
 	}
-	return( 1 );
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( result == 1 )
+	{
+		*utf16_string_size = safe_utf16_string_size;
+	}
+	return( result );
 }
 
 /* Retrieves the UTF-16 encoded label
@@ -1570,6 +1819,7 @@ int libfsext_volume_get_utf16_label(
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libfsext_volume_get_utf16_label";
+	int result                                  = 1;
 
 	if( volume == NULL )
 	{
@@ -1584,71 +1834,505 @@ int libfsext_volume_get_utf16_label(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
+	if( utf16_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid UTF-16 string size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-16 string size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( internal_volume->superblock == NULL )
 	{
-		if( utf16_string == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid UTF-16 string.",
-			 function );
-
-			return( -1 );
-		}
-		if( utf16_string_size == 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-			 "%s: invalid UTF-16 string size value too small.",
-			 function );
-
-			return( -1 );
-		}
-		if( utf16_string_size > (size_t) SSIZE_MAX )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-			 "%s: invalid UTF-16 string size value exceeds maximum.",
-			 function );
-
-			return( -1 );
-		}
 		utf16_string[ 0 ] = 0;
 	}
-	else
+	else if( libfsext_superblock_get_utf16_volume_label(
+	          internal_volume->superblock,
+	          utf16_string,
+	          utf16_string_size,
+	          error ) != 1 )
 	{
-		if( libuna_utf16_string_copy_from_utf8_stream(
-		     utf16_string,
-		     utf16_string_size,
-		     internal_volume->superblock->volume_label,
-		     16,
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 volume label string.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the size of the UTF-8 encoded last mount path
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_volume_get_utf8_last_mount_path_size(
+     libfsext_volume_t *volume,
+     size_t *utf8_string_size,
+     libcerror_error_t **error )
+{
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libfsext_volume_get_utf8_last_mount_path_size";
+	size_t safe_utf8_string_size                = 1;
+	int result                                  = 1;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( utf8_string_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string size.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( internal_volume->superblock != NULL )
+	{
+		if( libfsext_superblock_get_utf8_last_mount_path_size(
+		     internal_volume->superblock,
+		     &safe_utf8_string_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve UTF-16 volume label string.",
+			 "%s: unable to retrieve UTF-8 volume last mount path string size.",
 			 function );
 
-			return( -1 );
+			result = -1;
 		}
 	}
-	return( 1 );
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( result == 1 )
+	{
+		*utf8_string_size = safe_utf8_string_size;
+	}
+	return( result );
+}
+
+/* Retrieves the UTF-8 encoded last mount path
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_volume_get_utf8_last_mount_path(
+     libfsext_volume_t *volume,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error )
+{
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libfsext_volume_get_utf8_last_mount_path";
+	int result                                  = 1;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( utf8_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid UTF-8 string size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-8 string size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( internal_volume->superblock == NULL )
+	{
+		utf8_string[ 0 ] = 0;
+	}
+	else if( libfsext_superblock_get_utf8_last_mount_path(
+	          internal_volume->superblock,
+	          utf8_string,
+	          utf8_string_size,
+	          error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 volume last mount path string.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the size of the UTF-16 encoded last mount path
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_volume_get_utf16_last_mount_path_size(
+     libfsext_volume_t *volume,
+     size_t *utf16_string_size,
+     libcerror_error_t **error )
+{
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libfsext_volume_get_utf16_last_mount_path_size";
+	size_t safe_utf16_string_size               = 1;
+	int result                                  = 1;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( utf16_string_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-16 string size.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( internal_volume->superblock != NULL )
+	{
+		if( libfsext_superblock_get_utf16_last_mount_path_size(
+		     internal_volume->superblock,
+		     &safe_utf16_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-16 volume last mount path string size.",
+			 function );
+
+			result = -1;
+		}
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( result == 1 )
+	{
+		*utf16_string_size = safe_utf16_string_size;
+	}
+	return( result );
+}
+
+/* Retrieves the UTF-16 encoded last mount path
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_volume_get_utf16_last_mount_path(
+     libfsext_volume_t *volume,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error )
+{
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libfsext_volume_get_utf16_last_mount_path";
+	int result                                  = 1;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( utf16_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid UTF-16 string size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-16 string size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( internal_volume->superblock == NULL )
+	{
+		utf16_string[ 0 ] = 0;
+	}
+	else if( libfsext_superblock_get_utf16_last_mount_path(
+	          internal_volume->superblock,
+	          utf16_string,
+	          utf16_string_size,
+	          error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 volume last mount path string.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
 }
 
 /* Retrieves the last mount time
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libfsext_volume_get_last_mount_time(
      libfsext_volume_t *volume,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
@@ -1667,6 +2351,17 @@ int libfsext_volume_get_last_mount_time(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
+	if( internal_volume->superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid volume - missing superblock.",
+		 function );
+
+		return( -1 );
+	}
 	if( posix_time == NULL )
 	{
 		libcerror_error_set(
@@ -1678,21 +2373,47 @@ int libfsext_volume_get_last_mount_time(
 
 		return( -1 );
 	}
-	if( internal_volume->superblock == NULL )
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
 	{
-		return( 0 );
-	}
-	*posix_time = internal_volume->superblock->last_mount_time;
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
 
+		return( -1 );
+	}
+#endif
+	*posix_time = (int32_t) internal_volume->superblock->last_mount_time;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( 1 );
 }
 
 /* Retrieves the last written time
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libfsext_volume_get_last_written_time(
      libfsext_volume_t *volume,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
@@ -1711,6 +2432,17 @@ int libfsext_volume_get_last_written_time(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
+	if( internal_volume->superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid volume - missing superblock.",
+		 function );
+
+		return( -1 );
+	}
 	if( posix_time == NULL )
 	{
 		libcerror_error_set(
@@ -1722,12 +2454,38 @@ int libfsext_volume_get_last_written_time(
 
 		return( -1 );
 	}
-	if( internal_volume->superblock == NULL )
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
 	{
-		return( 0 );
-	}
-	*posix_time = internal_volume->superblock->last_written_time;
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
 
+		return( -1 );
+	}
+#endif
+	*posix_time = (int32_t) internal_volume->superblock->last_written_time;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( 1 );
 }
 
@@ -1777,26 +2535,55 @@ int libfsext_volume_get_number_of_file_entries(
 
 		return( -1 );
 	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	*number_of_file_entries = internal_volume->superblock->number_of_inodes;
 
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( 1 );
 }
 
 /* Retrieves the file entry of a specific inode
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_get_file_entry_by_index(
-     libfsext_volume_t *volume,
+int libfsext_internal_volume_get_file_entry_by_index(
+     libfsext_internal_volume_t *internal_volume,
      uint32_t inode_number,
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error )
 {
-	libfsext_inode_t *inode                     = NULL;
-	libfsext_inode_t *safe_inode                = NULL;
-	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libfsext_volume_get_file_entry_by_index";
+	libfsext_inode_t *inode      = NULL;
+	libfsext_inode_t *safe_inode = NULL;
+	static char *function        = "libfsext_internal_volume_get_file_entry_by_index";
 
-	if( volume == NULL )
+	if( internal_volume == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -1807,8 +2594,6 @@ int libfsext_volume_get_file_entry_by_index(
 
 		return( -1 );
 	}
-	internal_volume = (libfsext_internal_volume_t *) volume;
-
 	if( file_entry == NULL )
 	{
 		libcerror_error_set(
@@ -1842,7 +2627,7 @@ int libfsext_volume_get_file_entry_by_index(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve inode number: %" PRIu32 ".",
+		 "%s: unable to retrieve inode: %" PRIu32 ".",
 		 function,
 		 inode_number );
 
@@ -1908,18 +2693,18 @@ on_error:
 	return( -1 );
 }
 
-/* Retrieves the root directory file entry
- * Returns 1 if successful, 0 if not or -1 on error
+/* Retrieves the file entry of a specific inode
+ * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_get_root_directory(
+int libfsext_volume_get_file_entry_by_index(
      libfsext_volume_t *volume,
+     uint32_t inode_number,
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error )
 {
-	libfsext_inode_t *inode                     = NULL;
-	libfsext_inode_t *safe_inode                = NULL;
 	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libfsext_volume_get_root_directory";
+	static char *function                       = "libfsext_volume_get_file_entry_by_index";
+	int result                                  = 1;
 
 	if( volume == NULL )
 	{
@@ -1934,6 +2719,104 @@ int libfsext_volume_get_root_directory(
 	}
 	internal_volume = (libfsext_internal_volume_t *) volume;
 
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( libfsext_internal_volume_get_file_entry_by_index(
+	     internal_volume,
+	     inode_number,
+	     file_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve inode: %" PRIu32 ".",
+		 function,
+		 inode_number );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		libfsext_file_entry_free(
+		 file_entry,
+		 NULL );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the root directory file entry
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_internal_volume_get_root_directory(
+     libfsext_internal_volume_t *internal_volume,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_inode_t *inode      = NULL;
+	libfsext_inode_t *safe_inode = NULL;
+	static char *function        = "libfsext_internal_volume_get_root_directory";
+
+	if( internal_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_volume->superblock == NULL )
 	{
 		libcerror_error_set(
@@ -1982,8 +2865,9 @@ int libfsext_volume_get_root_directory(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve inode number: 2.",
-		 function );
+		 "%s: unable to retrieve inode: %d.",
+		 function,
+		 LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY );
 
 		goto on_error;
 	}
@@ -1993,8 +2877,9 @@ int libfsext_volume_get_root_directory(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing inode: 2.",
-		 function );
+		 "%s: missing inode: %d.",
+		 function,
+		 LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY );
 
 		goto on_error;
 	}
@@ -2012,7 +2897,7 @@ int libfsext_volume_get_root_directory(
 
 		goto on_error;
 	}
-	/* libfsext_file_entry_initialize takes over management of safe_inode
+	/* libfsext_file_entry_initialize takes over management of inode
 	 */
 	if( libfsext_file_entry_initialize(
 	     file_entry,
@@ -2046,6 +2931,446 @@ on_error:
 	return( -1 );
 }
 
+/* Retrieves the root directory file entry
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_volume_get_root_directory(
+     libfsext_volume_t *volume,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libfsext_volume_get_root_directory";
+	int result                                  = 0;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	result = libfsext_internal_volume_get_root_directory(
+	          internal_volume,
+	          file_entry,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve root directory.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		libfsext_file_entry_free(
+		 file_entry,
+		 NULL );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the file entry for an UTF-8 encoded path
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+int libfsext_internal_volume_get_file_entry_by_utf8_path(
+     libfsext_internal_volume_t *internal_volume,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_directory_t *directory                  = NULL;
+	libfsext_directory_entry_t *directory_entry      = NULL;
+	libfsext_directory_entry_t *safe_directory_entry = NULL;
+	libfsext_inode_t *inode                          = NULL;
+	libfsext_inode_t *safe_inode                     = NULL;
+	const uint8_t *utf8_string_segment               = NULL;
+	static char *function                            = "libfsext_internal_volume_get_file_entry_by_utf8_path";
+	libuna_unicode_character_t unicode_character     = 0;
+	size_t utf8_string_index                         = 0;
+	size_t utf8_string_segment_length                = 0;
+	uint32_t inode_number                            = 0;
+	int result                                       = 0;
+
+	if( internal_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_length > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-8 string length value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_length > 0 )
+	{
+		/* Ignore a leading separator
+		 */
+		if( utf8_string[ utf8_string_index ] == (uint8_t) LIBFSEXT_SEPARATOR )
+		{
+			utf8_string_index++;
+		}
+	}
+	inode_number = LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY;
+
+	if( libfsext_inode_table_get_inode_by_number(
+	     internal_volume->inode_table,
+	     internal_volume->file_io_handle,
+	     inode_number,
+	     &inode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve inode: %" PRIu32 ".",
+		 function,
+		 inode_number );
+
+		goto on_error;
+	}
+	if( ( utf8_string_length == 0 )
+	 || ( utf8_string_length == 1 ) )
+	{
+		result = 1;
+	}
+	else while( utf8_string_index < utf8_string_length )
+	{
+		if( directory != NULL )
+		{
+			if( libfsext_directory_free(
+			     &directory,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free directory.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		if( libfsext_directory_initialize(
+		     &directory,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create directory.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_directory_read_file_io_handle(
+		     directory,
+		     internal_volume->io_handle,
+		     internal_volume->file_io_handle,
+		     inode,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read directory from inode: %" PRIu32 ".",
+			 function,
+			 inode_number );
+
+			goto on_error;
+		}
+		utf8_string_segment        = &( utf8_string[ utf8_string_index ] );
+		utf8_string_segment_length = utf8_string_index;
+
+		while( utf8_string_index < utf8_string_length )
+		{
+			if( libuna_unicode_character_copy_from_utf8(
+			     &unicode_character,
+			     utf8_string,
+			     utf8_string_length,
+			     &utf8_string_index,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy UTF-8 string to Unicode character.",
+				 function );
+
+				goto on_error;
+			}
+			if( ( unicode_character == (libuna_unicode_character_t) LIBFSEXT_SEPARATOR )
+			 || ( unicode_character == 0 ) )
+			{
+				utf8_string_segment_length += 1;
+
+				break;
+			}
+		}
+		utf8_string_segment_length = utf8_string_index - utf8_string_segment_length;
+
+		if( utf8_string_segment_length == 0 )
+		{
+			result = 0;
+		}
+		else
+		{
+			result = libfsext_directory_get_entry_by_utf8_name(
+			          directory,
+			          utf8_string_segment,
+			          utf8_string_segment_length,
+			          &directory_entry,
+			          error );
+		}
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve directory entry by UTF-8 name.",
+			 function );
+
+			goto on_error;
+		}
+		else if( result == 0 )
+		{
+			break;
+		}
+		if( libfsext_directory_entry_get_inode_number(
+		     directory_entry,
+		     &inode_number,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve inode number from directory entry.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_inode_table_get_inode_by_number(
+		     internal_volume->inode_table,
+		     internal_volume->file_io_handle,
+		     inode_number,
+		     &inode,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve inode: %" PRIu32 ".",
+			 function,
+			 inode_number );
+
+			goto on_error;
+		}
+	}
+	if( directory != NULL )
+	{
+		if( libfsext_directory_free(
+		     &directory,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free directory.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libfsext_inode_clone(
+	     &safe_inode,
+	     inode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create inode.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_directory_entry_clone(
+	     &safe_directory_entry,
+	     directory_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create directory entry.",
+		 function );
+
+		goto on_error;
+	}
+	/* libfsext_file_entry_initialize takes over management of safe_inode and safe_directory_entry
+	 */
+	if( libfsext_file_entry_initialize(
+	     file_entry,
+	     internal_volume->io_handle,
+	     internal_volume->file_io_handle,
+	     internal_volume->inode_table,
+	     inode_number,
+	     safe_inode,
+	     safe_directory_entry,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file entry.",
+		 function );
+
+		goto on_error;
+	}
+	return( result );
+
+on_error:
+	if( safe_directory_entry != NULL )
+	{
+		libfsext_directory_entry_free(
+		 &safe_directory_entry,
+		 NULL );
+	}
+	if( safe_inode != NULL )
+	{
+		libfsext_inode_free(
+		 &safe_inode,
+		 NULL );
+	}
+	if( directory != NULL )
+	{
+		libfsext_directory_free(
+		 &directory,
+		 NULL );
+	}
+	return( -1 );
+}
+
 /* Retrieves the file entry for an UTF-8 encoded path
  * Returns 1 if successful, 0 if no such file entry or -1 on error
  */
@@ -2056,7 +3381,6 @@ int libfsext_volume_get_file_entry_by_utf8_path(
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error )
 {
-	libfsext_directory_entry_t *directory_entry = NULL;
 	libfsext_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libfsext_volume_get_file_entry_by_utf8_path";
 	int result                                  = 0;
@@ -2096,14 +3420,396 @@ int libfsext_volume_get_file_entry_by_utf8_path(
 
 		return( -1 );
 	}
-/* TODO */
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	result = libfsext_internal_volume_get_file_entry_by_utf8_path(
+	          internal_volume,
+	          utf8_string,
+	          utf8_string_length,
+	          file_entry,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file entry by UTF-8 encoded path.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		libfsext_file_entry_free(
+		 file_entry,
+		 NULL );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the file entry for an UTF-16 encoded path
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+int libfsext_internal_volume_get_file_entry_by_utf16_path(
+     libfsext_internal_volume_t *internal_volume,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_directory_t *directory                  = NULL;
+	libfsext_directory_entry_t *directory_entry      = NULL;
+	libfsext_directory_entry_t *safe_directory_entry = NULL;
+	libfsext_inode_t *inode                          = NULL;
+	libfsext_inode_t *safe_inode                     = NULL;
+	const uint16_t *utf16_string_segment             = NULL;
+	static char *function                            = "libfsext_internal_volume_get_file_entry_by_utf16_path";
+	libuna_unicode_character_t unicode_character     = 0;
+	size_t utf16_string_index                        = 0;
+	size_t utf16_string_segment_length               = 0;
+	uint32_t inode_number                            = 0;
+	int result                                       = 0;
+
+	if( internal_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string_length > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-16 string length value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string_length > 0 )
+	{
+		/* Ignore a leading separator
+		 */
+		if( utf16_string[ utf16_string_index ] == (uint16_t) LIBFSEXT_SEPARATOR )
+		{
+			utf16_string_index++;
+		}
+	}
+	inode_number = LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY;
+
+	if( libfsext_inode_table_get_inode_by_number(
+	     internal_volume->inode_table,
+	     internal_volume->file_io_handle,
+	     inode_number,
+	     &inode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve inode: %" PRIu32 ".",
+		 function,
+		 inode_number );
+
+		goto on_error;
+	}
+	if( ( utf16_string_length == 0 )
+	 || ( utf16_string_length == 1 ) )
+	{
+		result = 1;
+	}
+	else while( utf16_string_index < utf16_string_length )
+	{
+		if( directory != NULL )
+		{
+			if( libfsext_directory_free(
+			     &directory,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free directory.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		if( libfsext_directory_initialize(
+		     &directory,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create directory.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_directory_read_file_io_handle(
+		     directory,
+		     internal_volume->io_handle,
+		     internal_volume->file_io_handle,
+		     inode,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read directory from inode: %" PRIu32 ".",
+			 function,
+			 inode_number );
+
+			goto on_error;
+		}
+		utf16_string_segment        = &( utf16_string[ utf16_string_index ] );
+		utf16_string_segment_length = utf16_string_index;
+
+		while( utf16_string_index < utf16_string_length )
+		{
+			if( libuna_unicode_character_copy_from_utf16(
+			     &unicode_character,
+			     utf16_string,
+			     utf16_string_length,
+			     &utf16_string_index,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy UTF-16 string to Unicode character.",
+				 function );
+
+				goto on_error;
+			}
+			if( ( unicode_character == (libuna_unicode_character_t) LIBFSEXT_SEPARATOR )
+			 || ( unicode_character == 0 ) )
+			{
+				utf16_string_segment_length += 1;
+
+				break;
+			}
+		}
+		utf16_string_segment_length = utf16_string_index - utf16_string_segment_length;
+
+		if( utf16_string_segment_length == 0 )
+		{
+			result = 0;
+		}
+		else
+		{
+			result = libfsext_directory_get_entry_by_utf16_name(
+			          directory,
+			          utf16_string_segment,
+			          utf16_string_segment_length,
+			          &directory_entry,
+			          error );
+		}
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve directory entry by UTF-16 name.",
+			 function );
+
+			goto on_error;
+		}
+		else if( result == 0 )
+		{
+			break;
+		}
+		if( libfsext_directory_entry_get_inode_number(
+		     directory_entry,
+		     &inode_number,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve inode number from directory entry.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_inode_table_get_inode_by_number(
+		     internal_volume->inode_table,
+		     internal_volume->file_io_handle,
+		     inode_number,
+		     &inode,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve inode: %" PRIu32 ".",
+			 function,
+			 inode_number );
+
+			goto on_error;
+		}
+	}
+	if( directory != NULL )
+	{
+		if( libfsext_directory_free(
+		     &directory,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free directory.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libfsext_inode_clone(
+	     &safe_inode,
+	     inode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create inode.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_directory_entry_clone(
+	     &safe_directory_entry,
+	     directory_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create directory entry.",
+		 function );
+
+		goto on_error;
+	}
+	/* libfsext_file_entry_initialize takes over management of safe_inode and safe_directory_entry
+	 */
+	if( libfsext_file_entry_initialize(
+	     file_entry,
+	     internal_volume->io_handle,
+	     internal_volume->file_io_handle,
+	     internal_volume->inode_table,
+	     inode_number,
+	     safe_inode,
+	     safe_directory_entry,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file entry.",
+		 function );
+
+		goto on_error;
+	}
 	return( result );
 
 on_error:
-	if( directory_entry != NULL )
+	if( safe_directory_entry != NULL )
 	{
 		libfsext_directory_entry_free(
-		 &directory_entry,
+		 &safe_directory_entry,
+		 NULL );
+	}
+	if( safe_inode != NULL )
+	{
+		libfsext_inode_free(
+		 &safe_inode,
+		 NULL );
+	}
+	if( directory != NULL )
+	{
+		libfsext_directory_free(
+		 &directory,
 		 NULL );
 	}
 	return( -1 );
@@ -2119,7 +3825,6 @@ int libfsext_volume_get_file_entry_by_utf16_path(
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error )
 {
-	libfsext_directory_entry_t *directory_entry = NULL;
 	libfsext_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libfsext_volume_get_file_entry_by_utf16_path";
 	int result                                  = 0;
@@ -2159,16 +3864,58 @@ int libfsext_volume_get_file_entry_by_utf16_path(
 
 		return( -1 );
 	}
-/* TODO */
-	return( result );
-
-on_error:
-	if( directory_entry != NULL )
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
 	{
-		libfsext_directory_entry_free(
-		 &directory_entry,
-		 NULL );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
 	}
-	return( -1 );
+#endif
+	result = libfsext_internal_volume_get_file_entry_by_utf16_path(
+	          internal_volume,
+	          utf16_string,
+	          utf16_string_length,
+	          file_entry,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file entry by UTF-16 encoded path.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		libfsext_file_entry_free(
+		 file_entry,
+		 NULL );
+
+		return( -1 );
+	}
+#endif
+	return( result );
 }
 

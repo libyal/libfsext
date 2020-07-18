@@ -558,15 +558,15 @@ int libfsext_superblock_read_data(
 			return( -1 );
 		}
 		if( memory_copy(
-		     superblock->last_mounted_path,
-		     ( (fsext_superblock_ext2_t *) data )->last_mounted_path,
+		     superblock->last_mount_path,
+		     ( (fsext_superblock_ext2_t *) data )->last_mount_path,
 		     64 ) == NULL )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_MEMORY,
 			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-			 "%s: unable to copy last mounted path.",
+			 "%s: unable to copy last mount path.",
 			 function );
 
 			return( -1 );
@@ -652,10 +652,10 @@ int libfsext_superblock_read_data(
 
 /* TODO print as string */
 			libcnotify_printf(
-			 "%s: last mounted path:\n",
+			 "%s: last mount path:\n",
 			 function );
 			libcnotify_print_data(
-			 superblock->last_mounted_path,
+			 superblock->last_mount_path,
 			 64,
 			 0 );
 
@@ -979,6 +979,334 @@ int libfsext_superblock_read_file_io_handle(
 		 function,
 		 file_offset,
 		 file_offset );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the size of the UTF-8 encoded volume label
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_superblock_get_utf8_volume_label_size(
+     libfsext_superblock_t *superblock,
+     size_t *utf8_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_utf8_volume_label_size";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf8_string_size_from_utf8_stream(
+	     superblock->volume_label,
+	     16,
+	     utf8_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 encoded volume label
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_superblock_get_utf8_volume_label(
+     libfsext_superblock_t *superblock,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_utf8_volume_label";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf8_string_copy_from_utf8_stream(
+	     utf8_string,
+	     utf8_string_size,
+	     superblock->volume_label,
+	     16,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the size of the UTF-16 encoded volume label
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_superblock_get_utf16_volume_label_size(
+     libfsext_superblock_t *superblock,
+     size_t *utf16_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_utf16_volume_label_size";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf16_string_size_from_utf8_stream(
+	     superblock->volume_label,
+	     16,
+	     utf16_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 encoded volume label
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_superblock_get_utf16_volume_label(
+     libfsext_superblock_t *superblock,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_utf16_volume_label";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf16_string_copy_from_utf8_stream(
+	     utf16_string,
+	     utf16_string_size,
+	     superblock->volume_label,
+	     16,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the size of the UTF-8 encoded last mount path
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_superblock_get_utf8_last_mount_path_size(
+     libfsext_superblock_t *superblock,
+     size_t *utf8_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_utf8_last_mount_path_size";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf8_string_size_from_utf8_stream(
+	     superblock->last_mount_path,
+	     64,
+	     utf8_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 encoded last mount path
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_superblock_get_utf8_last_mount_path(
+     libfsext_superblock_t *superblock,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_utf8_last_mount_path";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf8_string_copy_from_utf8_stream(
+	     utf8_string,
+	     utf8_string_size,
+	     superblock->last_mount_path,
+	     64,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the size of the UTF-16 encoded last mount path
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_superblock_get_utf16_last_mount_path_size(
+     libfsext_superblock_t *superblock,
+     size_t *utf16_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_utf16_last_mount_path_size";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf16_string_size_from_utf8_stream(
+	     superblock->last_mount_path,
+	     64,
+	     utf16_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 encoded last mount path
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_superblock_get_utf16_last_mount_path(
+     libfsext_superblock_t *superblock,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_utf16_last_mount_path";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( libuna_utf16_string_copy_from_utf8_stream(
+	     utf16_string,
+	     utf16_string_size,
+	     superblock->last_mount_path,
+	     64,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string.",
+		 function );
 
 		return( -1 );
 	}

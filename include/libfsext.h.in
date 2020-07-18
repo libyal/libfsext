@@ -302,22 +302,64 @@ int libfsext_volume_get_utf16_label(
      size_t utf16_string_size,
      libfsext_error_t **error );
 
+/* Retrieves the size of the UTF-8 encoded last mount path
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_utf8_last_mount_path_size(
+     libfsext_volume_t *volume,
+     size_t *utf8_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the UTF-8 encoded last mount path
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_utf8_last_mount_path(
+     libfsext_volume_t *volume,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the size of the UTF-16 encoded last mount path
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_utf16_last_mount_path_size(
+     libfsext_volume_t *volume,
+     size_t *utf16_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the UTF-16 encoded last mount path
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_utf16_last_mount_path(
+     libfsext_volume_t *volume,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libfsext_error_t **error );
+
 /* Retrieves the last mount time
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_last_mount_time(
      libfsext_volume_t *volume,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the last written time
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_last_written_time(
      libfsext_volume_t *volume,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the number of file entries (inodes)
@@ -340,7 +382,7 @@ int libfsext_volume_get_file_entry_by_index(
      libfsext_error_t **error );
 
 /* Retrieves the root directory file entry
- * Returns 1 if successful, 0 if not or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_root_directory(
@@ -390,6 +432,15 @@ int libfsext_file_entry_is_empty(
      libfsext_file_entry_t *file_entry,
      libfsext_error_t **error );
 
+/* Retrieves the identifier (inode number)
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *identifier,
+     libfsext_error_t **error );
+
 /* Retrieves the access date and time
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error
@@ -397,7 +448,7 @@ int libfsext_file_entry_is_empty(
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_access_time(
      libfsext_file_entry_t *file_entry,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the inode change date and time
@@ -407,7 +458,7 @@ int libfsext_file_entry_get_access_time(
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_inode_change_time(
      libfsext_file_entry_t *file_entry,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the modification date and time
@@ -417,7 +468,7 @@ int libfsext_file_entry_get_inode_change_time(
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_modification_time(
      libfsext_file_entry_t *file_entry,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the deletion date and time
@@ -427,7 +478,7 @@ int libfsext_file_entry_get_modification_time(
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_deletion_time(
      libfsext_file_entry_t *file_entry,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libfsext_error_t **error );
 
 /* Retrieves the file mode

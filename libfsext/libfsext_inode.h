@@ -163,22 +163,22 @@ int libfsext_inode_is_empty(
 
 int libfsext_inode_get_access_time(
      libfsext_inode_t *inode,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 int libfsext_inode_get_inode_change_time(
      libfsext_inode_t *inode,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 int libfsext_inode_get_modification_time(
      libfsext_inode_t *inode,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 int libfsext_inode_get_deletion_time(
      libfsext_inode_t *inode,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 int libfsext_inode_get_file_mode(

@@ -166,9 +166,9 @@ struct libfsext_superblock
 	 */
 	uint8_t volume_label[ 16 ];
 
-	/* Last mounted path
+	/* Last mount path
 	 */
-	uint8_t last_mounted_path[ 64 ];
+	uint8_t last_mount_path[ 64 ];
 
 	/* Algorithm usage bitmap
 	 */
@@ -261,6 +261,50 @@ int libfsext_superblock_read_file_io_handle(
      libfsext_superblock_t *superblock,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
+     libcerror_error_t **error );
+
+int libfsext_superblock_get_utf8_volume_label_size(
+     libfsext_superblock_t *superblock,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+int libfsext_superblock_get_utf8_volume_label(
+     libfsext_superblock_t *superblock,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+int libfsext_superblock_get_utf16_volume_label_size(
+     libfsext_superblock_t *superblock,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+int libfsext_superblock_get_utf16_volume_label(
+     libfsext_superblock_t *superblock,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error );
+
+int libfsext_superblock_get_utf8_last_mount_path_size(
+     libfsext_superblock_t *superblock,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+int libfsext_superblock_get_utf8_last_mount_path(
+     libfsext_superblock_t *superblock,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+int libfsext_superblock_get_utf16_last_mount_path_size(
+     libfsext_superblock_t *superblock,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+int libfsext_superblock_get_utf16_last_mount_path(
+     libfsext_superblock_t *superblock,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

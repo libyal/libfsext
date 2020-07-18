@@ -72,11 +72,12 @@ void usage_fprint(
 	fprintf( stream, "Use fsextinfo to determine information about an Extended\n"
 	                 " File System (ext) volume.\n\n" );
 
-	fprintf( stream, "Usage: fsextinfo [ -E inode_number ] [ -F file_entry ]\n"
+	fprintf( stream, "Usage: fsextinfo [ -B bodyfile ] [ -E inode_number ] [ -F file_entry ]\n"
 	                 "                 [ -o offset ] [ -hHvV ] source\n\n" );
 
 	fprintf( stream, "\tsource: the source file or device\n\n" );
 
+	fprintf( stream, "\t-B:     output file system information as a bodyfile\n" );
 	fprintf( stream, "\t-E:     show information about a specific inode or \"all\".\n" );
 	fprintf( stream, "\t-F:     show information about a specific file entry path.\n" );
 	fprintf( stream, "\t-h:     shows this help\n" );
@@ -139,6 +140,7 @@ int main( int argc, char * const argv[] )
 #endif
 {
 	libfsext_error_t *error                  = NULL;
+	system_character_t *option_bodyfile      = NULL;
 	system_character_t *option_file_entry    = NULL;
 	system_character_t *option_inode_number  = NULL;
 	system_character_t *option_volume_offset = NULL;
@@ -183,7 +185,7 @@ int main( int argc, char * const argv[] )
 	while( ( option = fsexttools_getopt(
 	                   argc,
 	                   argv,
-	                   _SYSTEM_STRING( "E:F:hHo:vV" ) ) ) != (system_integer_t) -1 )
+	                   _SYSTEM_STRING( "B:E:F:hHo:vV" ) ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -198,6 +200,11 @@ int main( int argc, char * const argv[] )
 				 stdout );
 
 				return( EXIT_FAILURE );
+
+			case (system_integer_t) 'B':
+				option_bodyfile = optarg;
+
+				break;
 
 			case (system_integer_t) 'E':
 				option_mode         = FSEXTINFO_MODE_INODE;
@@ -270,6 +277,20 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
+	if( option_bodyfile != NULL )
+	{
+		if( info_handle_set_bodyfile(
+		     fsextinfo_info_handle,
+		     option_bodyfile,
+		     &error ) != 1 )
+		{
+			fprintf(
+			 stderr,
+			 "Unable to set bodyfile.\n" );
+
+			goto on_error;
+		}
+	}
 	if( option_volume_offset != NULL )
 	{
 		if( info_handle_set_volume_offset(
@@ -303,7 +324,7 @@ int main( int argc, char * const argv[] )
 	switch( option_mode )
 	{
 		case FSEXTINFO_MODE_FILE_ENTRY:
-			if( info_handle_file_entry_fprint(
+			if( info_handle_file_entry_fprint_by_path(
 			     fsextinfo_info_handle,
 			     option_file_entry,
 			     &error ) != 1 )
@@ -372,7 +393,7 @@ int main( int argc, char * const argv[] )
 
 					goto on_error;
 				}
-				if( info_handle_inode_fprint(
+				if( info_handle_file_entry_fprint_by_inode(
 				     fsextinfo_info_handle,
 				     (uint32_t) inode_number,
 				     &error ) != 1 )

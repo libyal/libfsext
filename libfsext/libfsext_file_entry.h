@@ -33,6 +33,7 @@
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
+#include "libfsext_libcthreads.h"
 #include "libfsext_types.h"
 
 #if defined( __cplusplus )
@@ -55,6 +56,10 @@ struct libfsext_internal_file_entry
 	 */
 	libfsext_inode_table_t *inode_table;
 
+	/* The inode number
+	 */
+	uint32_t inode_number;
+
 	/* The inode
 	 */
 	libfsext_inode_t *inode;
@@ -63,17 +68,27 @@ struct libfsext_internal_file_entry
 	 */
 	libfsext_directory_entry_t *directory_entry;
 
-	/* The data size
-	 */
-	size64_t data_size;
-
 	/* The directory
 	 */
 	libfsext_directory_t *directory;
 
+	/* The data size
+	 */
+	size64_t data_size;
+
+	/* The data block stream
+	 */
+	libfdata_stream_t *data_block_stream;
+
 	/* The flags
 	 */
 	uint8_t flags;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	/* The read/write lock
+	 */
+	libcthreads_read_write_lock_t *read_write_lock;
+#endif
 };
 
 int libfsext_file_entry_initialize(
@@ -98,27 +113,33 @@ int libfsext_file_entry_is_empty(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *identifier,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_access_time(
      libfsext_file_entry_t *file_entry,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_inode_change_time(
      libfsext_file_entry_t *file_entry,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_modification_time(
      libfsext_file_entry_t *file_entry,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_deletion_time(
      libfsext_file_entry_t *file_entry,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
@@ -171,10 +192,23 @@ int libfsext_file_entry_get_number_of_sub_file_entries(
      int *number_of_sub_entries,
      libcerror_error_t **error );
 
+int libfsext_internal_file_entry_get_sub_file_entry_by_index(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     int sub_file_entry_index,
+     libfsext_file_entry_t **sub_file_entry,
+     libcerror_error_t **error );
+
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_sub_file_entry_by_index(
      libfsext_file_entry_t *file_entry,
      int sub_file_entry_index,
+     libfsext_file_entry_t **sub_file_entry,
+     libcerror_error_t **error );
+
+int libfsext_internal_file_entry_get_sub_file_entry_by_utf8_name(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
      libfsext_file_entry_t **sub_file_entry,
      libcerror_error_t **error );
 
@@ -183,6 +217,13 @@ int libfsext_file_entry_get_sub_file_entry_by_utf8_name(
      libfsext_file_entry_t *file_entry,
      const uint8_t *utf8_string,
      size_t utf8_string_length,
+     libfsext_file_entry_t **sub_file_entry,
+     libcerror_error_t **error );
+
+int libfsext_internal_file_entry_get_sub_file_entry_by_utf16_name(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     const uint16_t *utf8_string,
+     size_t utf16_string_length,
      libfsext_file_entry_t **sub_file_entry,
      libcerror_error_t **error );
 

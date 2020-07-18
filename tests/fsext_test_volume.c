@@ -74,7 +74,6 @@ int fsext_test_volume_open_source(
      libcerror_error_t **error )
 {
 	static char *function = "fsext_test_volume_open_source";
-	size_t string_length  = 0;
 	int result            = 0;
 
 	if( volume == NULL )
@@ -434,7 +433,6 @@ int fsext_test_volume_open(
 
 	libcerror_error_t *error  = NULL;
 	libfsext_volume_t *volume = NULL;
-	size_t string_length      = 0;
 	int result                = 0;
 
 	/* Initialize test
@@ -612,7 +610,6 @@ int fsext_test_volume_open_wide(
 
 	libcerror_error_t *error  = NULL;
 	libfsext_volume_t *volume = NULL;
-	size_t string_length      = 0;
 	int result                = 0;
 
 	/* Initialize test
@@ -1051,7 +1048,6 @@ int fsext_test_volume_open_close(
 {
 	libcerror_error_t *error  = NULL;
 	libfsext_volume_t *volume = NULL;
-	size_t string_length      = 0;
 	int result                = 0;
 
 	/* Initialize test
@@ -1636,16 +1632,15 @@ on_error:
 int fsext_test_volume_get_last_mount_time(
      libfsext_volume_t *volume )
 {
-	libcerror_error_t *error   = NULL;
-	uint32_t last_mount_time   = 0;
-	int last_mount_time_is_set = 0;
-	int result                 = 0;
+	libcerror_error_t *error = NULL;
+	int32_t posix_time       = 0;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
 	result = libfsext_volume_get_last_mount_time(
 	          volume,
-	          &last_mount_time,
+	          &posix_time,
 	          &error );
 
 	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
@@ -1657,13 +1652,11 @@ int fsext_test_volume_get_last_mount_time(
 	 "error",
 	 error );
 
-	last_mount_time_is_set = result;
-
 	/* Test error cases
 	 */
 	result = libfsext_volume_get_last_mount_time(
 	          NULL,
-	          &last_mount_time,
+	          &posix_time,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -1678,25 +1671,23 @@ int fsext_test_volume_get_last_mount_time(
 	libcerror_error_free(
 	 &error );
 
-	if( last_mount_time_is_set != 0 )
-	{
-		result = libfsext_volume_get_last_mount_time(
-		          volume,
-		          NULL,
-		          &error );
+	result = libfsext_volume_get_last_mount_time(
+	          volume,
+	          NULL,
+	          &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:
@@ -1714,16 +1705,15 @@ on_error:
 int fsext_test_volume_get_last_written_time(
      libfsext_volume_t *volume )
 {
-	libcerror_error_t *error     = NULL;
-	uint32_t last_written_time   = 0;
-	int last_written_time_is_set = 0;
-	int result                   = 0;
+	libcerror_error_t *error = NULL;
+	int32_t posix_time       = 0;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
 	result = libfsext_volume_get_last_written_time(
 	          volume,
-	          &last_written_time,
+	          &posix_time,
 	          &error );
 
 	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
@@ -1735,13 +1725,11 @@ int fsext_test_volume_get_last_written_time(
 	 "error",
 	 error );
 
-	last_written_time_is_set = result;
-
 	/* Test error cases
 	 */
 	result = libfsext_volume_get_last_written_time(
 	          NULL,
-	          &last_written_time,
+	          &posix_time,
 	          &error );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
@@ -1756,25 +1744,23 @@ int fsext_test_volume_get_last_written_time(
 	libcerror_error_free(
 	 &error );
 
-	if( last_written_time_is_set != 0 )
-	{
-		result = libfsext_volume_get_last_written_time(
-		          volume,
-		          NULL,
-		          &error );
+	result = libfsext_volume_get_last_written_time(
+	          volume,
+	          NULL,
+	          &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:

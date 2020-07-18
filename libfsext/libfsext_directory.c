@@ -627,7 +627,7 @@ int libfsext_directory_get_entry_by_inode_number(
 	return( 0 );
 }
 
-/* Retrieves a specific entry with the name
+/* Retrieves the directory entry for an UTF-8 encoded name
  * Returns 1 if successful, 0 if not found or -1 on error
  */
 int libfsext_directory_get_entry_by_utf8_name(
@@ -688,24 +688,10 @@ int libfsext_directory_get_entry_by_utf8_name(
 
 			return( -1 );
 		}
-		if( safe_directory_entry == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid directory entry: %d.",
-			 function,
-			 entry_index );
-
-			return( -1 );
-		}
-/* TODO create directory entry compare function */
-		result = libuna_utf8_string_compare_with_utf8_stream(
+		result = libfsext_directory_entry_compare_with_utf8_string(
+		          safe_directory_entry,
 		          utf8_string,
 		          utf8_string_length,
-		          safe_directory_entry->name,
-		          safe_directory_entry->name_size,
 		          error );
 
 		if( result == -1 )
@@ -732,7 +718,7 @@ int libfsext_directory_get_entry_by_utf8_name(
 	return( 0 );
 }
 
-/* Retrieves a specific entry with the name
+/* Retrieves the directory entry for an UTF-16 encoded name
  * Returns 1 if successful, 0 if not found or -1 on error
  */
 int libfsext_directory_get_entry_by_utf16_name(
@@ -793,24 +779,10 @@ int libfsext_directory_get_entry_by_utf16_name(
 
 			return( -1 );
 		}
-		if( safe_directory_entry == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid directory entry: %d.",
-			 function,
-			 entry_index );
-
-			return( -1 );
-		}
-/* TODO create directory entry compare function */
-		result = libuna_utf16_string_compare_with_utf8_stream(
+		result = libfsext_directory_entry_compare_with_utf16_string(
+		          safe_directory_entry,
 		          utf16_string,
 		          utf16_string_length,
-		          safe_directory_entry->name,
-		          safe_directory_entry->name_size,
 		          error );
 
 		if( result == -1 )

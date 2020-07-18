@@ -32,6 +32,7 @@
 #include "libfsext_libbfio.h"
 #include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
+#include "libfsext_libcthreads.h"
 #include "libfsext_superblock.h"
 #include "libfsext_types.h"
 
@@ -70,6 +71,12 @@ struct libfsext_internal_volume
 	/* Value to indicate if the file IO handle was opened inside the library
 	 */
 	uint8_t file_io_handle_opened_in_library;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	/* The read/write lock
+	 */
+	libcthreads_read_write_lock_t *read_write_lock;
+#endif
 };
 
 LIBFSEXT_EXTERN \
@@ -115,12 +122,12 @@ int libfsext_volume_close(
      libfsext_volume_t *volume,
      libcerror_error_t **error );
 
-int libfsext_volume_open_read(
+int libfsext_internal_volume_open_read(
      libfsext_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
-int libfsext_volume_read_block_groups(
+int libfsext_internal_volume_read_block_groups(
      libfsext_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
@@ -152,21 +159,53 @@ int libfsext_volume_get_utf16_label(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_volume_get_utf8_last_mount_path_size(
+     libfsext_volume_t *volume,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_utf8_last_mount_path(
+     libfsext_volume_t *volume,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_utf16_last_mount_path_size(
+     libfsext_volume_t *volume,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_utf16_last_mount_path(
+     libfsext_volume_t *volume,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_volume_get_last_mount_time(
      libfsext_volume_t *volume,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_last_written_time(
      libfsext_volume_t *volume,
-     uint32_t *posix_time,
+     int32_t *posix_time,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_number_of_file_entries(
      libfsext_volume_t *volume,
      uint32_t *number_of_file_entries,
+     libcerror_error_t **error );
+
+int libfsext_internal_volume_get_file_entry_by_index(
+     libfsext_internal_volume_t *internal_volume,
+     uint32_t inode_number,
+     libfsext_file_entry_t **file_entry,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
@@ -176,10 +215,22 @@ int libfsext_volume_get_file_entry_by_index(
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error );
 
+int libfsext_internal_volume_get_root_directory(
+     libfsext_internal_volume_t *internal_volume,
+     libfsext_file_entry_t **root_directory_file_entry,
+     libcerror_error_t **error );
+
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_root_directory(
      libfsext_volume_t *volume,
      libfsext_file_entry_t **root_directory_file_entry,
+     libcerror_error_t **error );
+
+int libfsext_internal_volume_get_file_entry_by_utf8_path(
+     libfsext_internal_volume_t *internal_volume,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_file_entry_t **file_entry,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
@@ -187,6 +238,13 @@ int libfsext_volume_get_file_entry_by_utf8_path(
      libfsext_volume_t *volume,
      const uint8_t *utf8_string,
      size_t utf8_string_length,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error );
+
+int libfsext_internal_volume_get_file_entry_by_utf16_path(
+     libfsext_internal_volume_t *internal_volume,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error );
 

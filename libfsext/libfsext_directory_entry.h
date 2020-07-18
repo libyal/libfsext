@@ -75,6 +75,11 @@ int libfsext_directory_entry_read_data(
      size_t data_size,
      libcerror_error_t **error );
 
+int libfsext_directory_entry_get_inode_number(
+     libfsext_directory_entry_t *directory_entry,
+     uint32_t *inode_number,
+     libcerror_error_t **error );
+
 int libfsext_directory_entry_get_utf8_name_size(
      libfsext_directory_entry_t *directory_entry,
      size_t *utf8_string_size,
@@ -86,6 +91,12 @@ int libfsext_directory_entry_get_utf8_name(
      size_t utf8_string_size,
      libcerror_error_t **error );
 
+int libfsext_directory_entry_compare_with_utf8_string(
+     libfsext_directory_entry_t *directory_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libcerror_error_t **error );
+
 int libfsext_directory_entry_get_utf16_name_size(
      libfsext_directory_entry_t *directory_entry,
      size_t *utf16_string_size,
@@ -95,6 +106,12 @@ int libfsext_directory_entry_get_utf16_name(
      libfsext_directory_entry_t *directory_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
+     libcerror_error_t **error );
+
+int libfsext_directory_entry_compare_with_utf16_string(
+     libfsext_directory_entry_t *directory_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

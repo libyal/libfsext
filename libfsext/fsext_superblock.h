@@ -198,10 +198,10 @@ struct fsext_superblock_ext2
 	 */
 	uint8_t volume_label[ 16 ];
 
-	/* Last mounted path
+	/* Last mount path
 	 * Consists of 64 bytes
 	 */
-	uint8_t last_mounted_path[ 64 ];
+	uint8_t last_mount_path[ 64 ];
 
 	/* Algorithm usage bitmap
 	 * Consists of 4 bytes
@@ -443,10 +443,10 @@ struct fsext_superblock_ext4
 	 */
 	uint8_t volume_label[ 16 ];
 
-	/* Last mounted path
+	/* Last mount path
 	 * Consists of 64 bytes
 	 */
-	uint8_t last_mounted_path[ 64 ];
+	uint8_t last_mount_path[ 64 ];
 
 	/* Algorithm usage bitmap
 	 * Consists of 4 bytes

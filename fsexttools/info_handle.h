@@ -50,6 +50,10 @@ struct info_handle
 	 */
 	libfsext_volume_t *input_volume;
 
+	/* The bodyfile output stream
+	 */
+	FILE *bodyfile_stream;
+
 	/* The notification output stream
 	 */
 	FILE *notify_stream;
@@ -77,6 +81,11 @@ int info_handle_signal_abort(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
+int info_handle_set_bodyfile(
+     info_handle_t *info_handle,
+     const system_character_t *filename,
+     libcerror_error_t **error );
+
 int info_handle_set_volume_offset(
      info_handle_t *info_handle,
      const system_character_t *string,
@@ -97,26 +106,34 @@ int info_handle_posix_time_value_fprint(
      uint32_t value_32bit,
      libcerror_error_t **error );
 
+int info_handle_file_entry_value_with_name_fprint(
+     info_handle_t *info_handle,
+     libfsext_file_entry_t *file_entry,
+     const system_character_t *path,
+     const system_character_t *file_entry_name,
+     libcerror_error_t **error );
+
 int info_handle_file_system_hierarchy_fprint_file_entry(
      info_handle_t *info_handle,
      libfsext_file_entry_t *file_entry,
-     int indentation_level,
+     const system_character_t *path,
+     size_t path_length,
      libcerror_error_t **error );
 
 int info_handle_file_system_hierarchy_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
-int info_handle_inode_fprint(
-     info_handle_t *info_handle,
-     uint32_t inode_number,
-     libcerror_error_t **error );
-
 int info_handle_inodes_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
-int info_handle_file_entry_fprint(
+int info_handle_file_entry_fprint_by_inode(
+     info_handle_t *info_handle,
+     uint32_t inode_number,
+     libcerror_error_t **error );
+
+int info_handle_file_entry_fprint_by_path(
      info_handle_t *info_handle,
      const system_character_t *path,
      libcerror_error_t **error );

@@ -452,6 +452,43 @@ on_error:
 	return( -1 );
 }
 
+/* Retrieves the inode number
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_directory_entry_get_inode_number(
+     libfsext_directory_entry_t *directory_entry,
+     uint32_t *inode_number,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_directory_entry_get_inode_number";
+
+	if( directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( inode_number == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode number.",
+		 function );
+
+		return( -1 );
+	}
+	*inode_number = directory_entry->inode_number;
+
+	return( 1 );
+}
+
 /* Retrieves the size of the UTF-8 encoded name
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -534,6 +571,50 @@ int libfsext_directory_entry_get_utf8_name(
 	return( 1 );
 }
 
+/* Compares an UTF-8 string with the name of the directory entry
+ * Returns LIBUNA_COMPARE_LESS, LIBUNA_COMPARE_EQUAL, LIBUNA_COMPARE_GREATER if successful or -1 on error
+ */
+int libfsext_directory_entry_compare_with_utf8_string(
+     libfsext_directory_entry_t *directory_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_directory_entry_compare_with_utf8_string";
+	int result            = 0;
+
+	if( directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory entry.",
+		 function );
+
+		return( -1 );
+	}
+	result = libuna_utf8_string_compare_with_utf8_stream(
+	          utf8_string,
+	          utf8_string_length,
+	          directory_entry->name,
+	          directory_entry->name_size,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
+		 "%s: unable to compare UTF-8 string with directory entry name.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
 /* Retrieves the size of the UTF-16 encoded name
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -614,5 +695,49 @@ int libfsext_directory_entry_get_utf16_name(
 		return( -1 );
 	}
 	return( 1 );
+}
+
+/* Compares an UTF-16 string with the name of the directory entry
+ * Returns LIBUNA_COMPARE_LESS, LIBUNA_COMPARE_EQUAL, LIBUNA_COMPARE_GREATER if successful or -1 on error
+ */
+int libfsext_directory_entry_compare_with_utf16_string(
+     libfsext_directory_entry_t *directory_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_directory_entry_compare_with_utf16_string";
+	int result            = 0;
+
+	if( directory_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid directory entry.",
+		 function );
+
+		return( -1 );
+	}
+	result = libuna_utf16_string_compare_with_utf8_stream(
+	          utf16_string,
+	          utf16_string_length,
+	          directory_entry->name,
+	          directory_entry->name_size,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
+		 "%s: unable to compare UTF-16 string with directory entry name.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
 }
 

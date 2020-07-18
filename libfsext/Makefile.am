@@ -2,6 +2,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@ \
+	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
 	@LIBCNOTIFY_CPPFLAGS@ \
@@ -14,6 +15,7 @@ AM_CPPFLAGS = \
 	@LIBFDATA_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
+	@PTHREAD_CPPFLAGS@ \
 	@LIBFSEXT_DLL_EXPORT@
 
 lib_LTLIBRARIES = libfsext.la
@@ -46,6 +48,7 @@ libfsext_la_SOURCES = \
 	libfsext_libcerror.h \
 	libfsext_libclocale.h \
 	libfsext_libcnotify.h \
+	libfsext_libcthreads.h \
 	libfsext_libfcache.h \
 	libfsext_libfdata.h \
 	libfsext_libfdatetime.h \
@@ -60,6 +63,7 @@ libfsext_la_SOURCES = \
 
 libfsext_la_LIBADD = \
 	@LIBCERROR_LIBADD@ \
+	@LIBCTHREADS_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
@@ -71,7 +75,8 @@ libfsext_la_LIBADD = \
 	@LIBFCACHE_LIBADD@ \
 	@LIBFDATA_LIBADD@ \
 	@LIBFDATETIME_LIBADD@ \
-	@LIBFGUID_LIBADD@
+	@LIBFGUID_LIBADD@ \
+	@PTHREAD_LIBADD@
 
 libfsext_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
