@@ -1521,7 +1521,6 @@ int libfsext_volume_get_format_version(
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libfsext_volume_get_format_version";
-	int result                                  = 1;
 
 	if( volume == NULL )
 	{

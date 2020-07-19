@@ -63,13 +63,14 @@ int libfsext_block_initialize(
 
 		return( -1 );
 	}
-	if( data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
+	if( ( data_size == 0 )
+	 || ( data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum allocation size.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -107,24 +108,22 @@ int libfsext_block_initialize(
 
 		return( -1 );
 	}
-	if( data_size > 0 )
+	( *block )->data = (uint8_t *) memory_allocate(
+	                                sizeof( uint8_t ) * data_size );
+
+	if( ( *block )->data == NULL )
 	{
-		( *block )->data = (uint8_t *) memory_allocate(
-		                                sizeof( uint8_t ) * data_size );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create data.",
+		 function );
 
-		if( ( *block )->data == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create data.",
-			 function );
-
-			goto on_error;
-		}
-		( *block )->data_size = data_size;
+		goto on_error;
 	}
+	( *block )->data_size = data_size;
+
 	return( 1 );
 
 on_error:
@@ -146,6 +145,7 @@ int libfsext_block_free(
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_block_free";
+	int result            = 1;
 
 	if( block == NULL )
 	{
@@ -160,17 +160,29 @@ int libfsext_block_free(
 	}
 	if( *block != NULL )
 	{
-		if( ( *block )->data != NULL )
+		if( memory_set(
+		     ( *block )->data,
+		     0,
+		     ( *block )->data_size ) == NULL )
 		{
-			memory_free(
-			 ( *block )->data );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear block data.",
+			 function );
+
+			result = -1;
 		}
+		memory_free(
+		 ( *block )->data );
+
 		memory_free(
 		 *block );
 
 		*block = NULL;
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Reads a block

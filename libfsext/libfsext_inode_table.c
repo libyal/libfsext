@@ -81,10 +81,10 @@ int libfsext_inode_table_initialize(
 
 		return( -1 );
 	}
-	if( ( inode_size != 0 )
-	 && ( (size_t) inode_size != sizeof( fsext_inode_ext2_t ) )
-	 && ( (size_t) inode_size != sizeof( fsext_inode_ext3_t ) )
-	 && ( (size_t) inode_size != sizeof( fsext_inode_ext4_t ) ) )
+	if( ( inode_size != 128 )
+	 && ( inode_size != 256 )
+	 && ( inode_size != 512 )
+	 && ( inode_size != 1024 ) )
 	{
 		libcerror_error_set(
 		 error,

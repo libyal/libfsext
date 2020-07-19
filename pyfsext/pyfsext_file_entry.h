@@ -74,6 +74,14 @@ PyObject *pyfsext_file_entry_get_access_time_as_integer(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 
+PyObject *pyfsext_file_entry_get_creation_time(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments );
+
+PyObject *pyfsext_file_entry_get_creation_time_as_integer(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments );
+
 PyObject *pyfsext_file_entry_get_inode_change_time(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );

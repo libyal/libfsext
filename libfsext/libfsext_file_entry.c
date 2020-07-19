@@ -23,6 +23,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libfsext_block_stream.h"
 #include "libfsext_definitions.h"
 #include "libfsext_directory.h"
 #include "libfsext_directory_entry.h"
@@ -188,6 +189,22 @@ int libfsext_file_entry_initialize(
 
 			goto on_error;
 		}
+		if( libfsext_block_stream_initialize(
+		     &( internal_file_entry->data_block_stream ),
+		     io_handle,
+		     inode,
+		     internal_file_entry->data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create data block stream.",
+			 function );
+
+			goto on_error;
+		}
 	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_initialize(
@@ -219,6 +236,12 @@ int libfsext_file_entry_initialize(
 on_error:
 	if( internal_file_entry != NULL )
 	{
+		if( internal_file_entry->data_block_stream != NULL )
+		{
+			libfdata_stream_free(
+			 &( internal_file_entry->data_block_stream ),
+			 NULL );
+		}
 		if( internal_file_entry->directory != NULL )
 		{
 			libfsext_directory_free(
@@ -1409,7 +1432,6 @@ int libfsext_internal_file_entry_get_symbolic_link_data(
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_internal_file_entry_get_symbolic_link_data";
-	ssize_t read_count    = 0;
 	uint64_t data_size    = 0;
 	uint16_t file_mode    = 0;
 
@@ -1551,8 +1573,8 @@ int libfsext_file_entry_get_utf8_symbolic_link_target_size(
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_utf8_symbolic_link_target_size";
-	int result                                           = 0;
+	static char *function                               = "libfsext_file_entry_get_utf8_symbolic_link_target_size";
+	int result                                          = 0;
 
 	if( file_entry == NULL )
 	{
@@ -1654,8 +1676,8 @@ int libfsext_file_entry_get_utf8_symbolic_link_target(
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_utf8_symbolic_link_target";
-	int result                                           = 0;
+	static char *function                               = "libfsext_file_entry_get_utf8_symbolic_link_target";
+	int result                                          = 0;
 
 	if( file_entry == NULL )
 	{
@@ -1757,8 +1779,8 @@ int libfsext_file_entry_get_utf16_symbolic_link_target_size(
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_utf16_symbolic_link_target_size";
-	int result                                           = 0;
+	static char *function                               = "libfsext_file_entry_get_utf16_symbolic_link_target_size";
+	int result                                          = 0;
 
 	if( file_entry == NULL )
 	{
@@ -1860,8 +1882,8 @@ int libfsext_file_entry_get_utf16_symbolic_link_target(
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_utf16_symbolic_link_target";
-	int result                                           = 0;
+	static char *function                               = "libfsext_file_entry_get_utf16_symbolic_link_target";
+	int result                                          = 0;
 
 	if( file_entry == NULL )
 	{
@@ -3107,9 +3129,7 @@ int libfsext_file_entry_get_size(
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_size";
-	size64_t safe_size                                   = 0;
-	int result                                           = 1;
+	static char *function                               = "libfsext_file_entry_get_size";
 
 	if( file_entry == NULL )
 	{
@@ -3150,23 +3170,8 @@ int libfsext_file_entry_get_size(
 		return( -1 );
 	}
 #endif
-	if( internal_file_entry->data_block_stream != NULL )
-	{
-		if( libfdata_stream_get_size(
-		     internal_file_entry->data_block_stream,
-		     &safe_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve data attribute data size.",
-			 function );
+	*size = internal_file_entry->data_size;
 
-			result = -1;
-		}
-	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_read(
 	     internal_file_entry->read_write_lock,
@@ -3182,11 +3187,7 @@ int libfsext_file_entry_get_size(
 		return( -1 );
 	}
 #endif
-	if( result == 1 )
-	{
-		*size = safe_size;
-	}
-	return( result );
+	return( 1 );
 }
 
 /* Retrieves the number of extents of the data

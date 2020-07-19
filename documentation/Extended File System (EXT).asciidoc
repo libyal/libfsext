@@ -186,7 +186,8 @@ See section: <<format_revisision,Format revision>>
 4+| _Dynamic inode information_ +
 _If major version is EXT2_DYNAMIC_REV_
 | 84 | 4 | | First non-reserved inode
-| 88 | 2 | | Inode size
+| 88 | 2 | | Inode size +
+The inode size must be a power of 2 larger or equal to 128, the maximum supported by mke2fs is 1024
 | 90 | 2 | | Block group
 | 92 | 4 | | Compatible feature flags +
 See section: <<compatible_features_flags,Compatible features flags>>
@@ -278,7 +279,8 @@ See section: <<format_revisision,Format revision>>
 4+| _Dynamic inode information_ +
 _If major version is EXT2_DYNAMIC_REV_
 | 84 | 4 | | First non-reserved inode
-| 88 | 2 | | Inode size
+| 88 | 2 | | Inode size +
+The inode size must be a power of 2 larger or equal to 128, the maximum supported by mke2fs is 1024
 | 90 | 2 | | Block group
 | 92 | 4 | | Compatible feature flags +
 See section: <<compatible_features_flags,Compatible features flags>>
@@ -775,7 +777,7 @@ Value contains the block number relative from the start of the volume
 
 === The ext4 inode
 
-The ext4 inode is 256 bytes of size and consists of:
+The ext4 inode is 156 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
@@ -837,8 +839,6 @@ Also see: <<ext4_extent,The ext4 extent>> or <<ext4_extent_index,The ext4 extent
 | 144 | 4 | | Creation time
 | 148 | 4 | | Creation time extra precision
 | 152 | 4 | | [yellow-background]*Unknown (upper part of version)*
-4+| _Not part of the inode struct_
-| 156 | 100 | | Used to store extended attributes
 |===
 
 [yellow-background]*TODO describe extra precision*
@@ -1001,7 +1001,7 @@ Linear directory entries contain:
 * directory entry for ".." (parent)
 * directory entry for other file system entries
 
-==== The directory entry
+==== [[directory_entry]]The directory entry
 
 The directory entry is variable of size, at most 263 bytes, and consists of:
 
@@ -1026,6 +1026,22 @@ the upper byte was never used.
 The name can contain any UTF-8 character value except the path separator '/'
 and the NUL-character. [yellow-background]*Is the name in extended ASCII
 on older platforms?*
+
+=== Inline data directory entries
+
+ext4 supports storing the directory entries as inline data when the inode flag
+EXT4_INLINE_DATA_FL is set.
+
+The inline data directory entries is variable of size, at most 60 bytes, and
+consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | Parent inode number
+| 4 | ... | | Array of directory entries +
+Contains: <<directory_entry,The directory entry>>
+|===
 
 === Hash-tree directory entries
 

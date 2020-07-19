@@ -29,7 +29,10 @@ libfsext_la_SOURCES = \
 	libfsext.c \
 	libfsext_bitmap.c libfsext_bitmap.h \
 	libfsext_block.c libfsext_block.h \
+	libfsext_block_data_handle.c libfsext_block_data_handle.h \
+	libfsext_block_stream.c libfsext_block_stream.h \
 	libfsext_block_vector.c libfsext_block_vector.h \
+	libfsext_buffer_data_handle.c libfsext_buffer_data_handle.h \
 	libfsext_debug.c libfsext_debug.h \
 	libfsext_definitions.h \
 	libfsext_directory.c libfsext_directory.h \

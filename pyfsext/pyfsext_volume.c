@@ -976,7 +976,7 @@ PyObject *pyfsext_volume_get_last_mount_time(
 	PyObject *datetime_object = NULL;
 	libcerror_error_t *error  = NULL;
 	static char *function     = "pyfsext_volume_get_last_mount_time";
-	uint32_t posix_time       = 0;
+	int32_t posix_time        = 0;
 	int result                = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -1035,7 +1035,7 @@ PyObject *pyfsext_volume_get_last_mount_time_as_integer(
 	PyObject *integer_object = NULL;
 	libcerror_error_t *error = NULL;
 	static char *function    = "pyfsext_volume_get_last_mount_time_as_integer";
-	uint32_t posix_time      = 0;
+	int32_t posix_time       = 0;
 	int result               = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -1094,7 +1094,7 @@ PyObject *pyfsext_volume_get_last_written_time(
 	PyObject *datetime_object = NULL;
 	libcerror_error_t *error  = NULL;
 	static char *function     = "pyfsext_volume_get_last_written_time";
-	uint32_t posix_time       = 0;
+	int32_t posix_time        = 0;
 	int result                = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -1153,7 +1153,7 @@ PyObject *pyfsext_volume_get_last_written_time_as_integer(
 	PyObject *integer_object = NULL;
 	libcerror_error_t *error = NULL;
 	static char *function    = "pyfsext_volume_get_last_written_time_as_integer";
-	uint32_t posix_time      = 0;
+	int32_t posix_time       = 0;
 	int result               = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )

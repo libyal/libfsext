@@ -33,6 +33,7 @@
 #include "libfsext_libcnotify.h"
 #include "libfsext_libfdatetime.h"
 #include "libfsext_libfguid.h"
+#include "libfsext_libuna.h"
 #include "libfsext_superblock.h"
 
 #include "fsext_superblock.h"

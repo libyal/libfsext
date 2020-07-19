@@ -58,7 +58,21 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 	  METH_NOARGS,
 	  "get_access_time_as_integer() -> Integer or None\n"
 	  "\n"
-	  "Retrieves the access date and time as a 32-bit integer containing a POSIX timestamp value." },
+	  "Retrieves the access date and time as a 64-bit integer containing a POSIX timestamp value." },
+
+	{ "get_creation_time",
+	  (PyCFunction) pyfsext_file_entry_get_creation_time,
+	  METH_NOARGS,
+	  "get_creation_time() -> Datetime\n"
+	  "\n"
+	  "Retrieves the creation date and time." },
+
+	{ "get_creation_time_as_integer",
+	  (PyCFunction) pyfsext_file_entry_get_creation_time_as_integer,
+	  METH_NOARGS,
+	  "get_creation_time_as_integer() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the creation date and time as a 64-bit integer containing a POSIX timestamp value." },
 
 	{ "get_inode_change_time",
 	  (PyCFunction) pyfsext_file_entry_get_inode_change_time,
@@ -72,7 +86,7 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 	  METH_NOARGS,
 	  "get_inode_change_time_as_integer() -> Integer or None\n"
 	  "\n"
-	  "Retrieves the inode change time date and time as a 32-bit integer containing a POSIX timestamp value." },
+	  "Retrieves the inode change time date and time as a 64-bit integer containing a POSIX timestamp value." },
 
 	{ "get_modification_time",
 	  (PyCFunction) pyfsext_file_entry_get_modification_time,
@@ -86,7 +100,7 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 	  METH_NOARGS,
 	  "get_modification_time_as_integer() -> Integer or None\n"
 	  "\n"
-	  "Retrieves the modification date and time as a 32-bit integer containing a POSIX timestamp value." },
+	  "Retrieves the modification date and time as a 64-bit integer containing a POSIX timestamp value." },
 
 	{ "get_deletion_time",
 	  (PyCFunction) pyfsext_file_entry_get_deletion_time,
@@ -224,6 +238,12 @@ PyGetSetDef pyfsext_file_entry_object_get_set_definitions[] = {
 	  (getter) pyfsext_file_entry_get_access_time,
 	  (setter) 0,
 	  "The access date and time.",
+	  NULL },
+
+	{ "creation_time",
+	  (getter) pyfsext_file_entry_get_creation_time,
+	  (setter) 0,
+	  "The creation date and time.",
 	  NULL },
 
 	{ "inode_change_time",
@@ -610,7 +630,7 @@ PyObject *pyfsext_file_entry_get_access_time(
 	PyObject *datetime_object = NULL;
 	libcerror_error_t *error  = NULL;
 	static char *function     = "pyfsext_file_entry_get_access_time";
-	uint32_t posix_time       = 0;
+	int64_t posix_time        = 0;
 	int result                = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -653,8 +673,8 @@ PyObject *pyfsext_file_entry_get_access_time(
 
 		return( Py_None );
 	}
-	datetime_object = pyfsext_datetime_new_from_posix_time(
-	                   posix_time );
+	datetime_object = pyfsext_datetime_new_from_posix_time_in_micro_seconds(
+	                   posix_time / 1000 );
 
 	return( datetime_object );
 }
@@ -669,7 +689,7 @@ PyObject *pyfsext_file_entry_get_access_time_as_integer(
 	PyObject *integer_object = NULL;
 	libcerror_error_t *error = NULL;
 	static char *function    = "pyfsext_file_entry_get_access_time_as_integer";
-	uint32_t posix_time      = 0;
+	int64_t posix_time       = 0;
 	int result               = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -712,8 +732,126 @@ PyObject *pyfsext_file_entry_get_access_time_as_integer(
 
 		return( Py_None );
 	}
-	integer_object = PyLong_FromUnsignedLong(
-	                  (unsigned long) posix_time );
+	integer_object = pyfsext_integer_signed_new_from_64bit(
+	                  posix_time );
+
+	return( integer_object );
+}
+
+/* Retrieves the creation date and time
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_creation_time(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *datetime_object = NULL;
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pyfsext_file_entry_get_creation_time";
+	int64_t posix_time        = 0;
+	int result                = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_file_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_creation_time(
+	          pyfsext_file_entry->file_entry,
+	          &posix_time,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve creation date and time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	datetime_object = pyfsext_datetime_new_from_posix_time_in_micro_seconds(
+	                   posix_time / 1000 );
+
+	return( datetime_object );
+}
+
+/* Retrieves the creation date and time as an integer
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_creation_time_as_integer(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyfsext_file_entry_get_creation_time_as_integer";
+	int64_t posix_time       = 0;
+	int result               = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_file_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_creation_time(
+	          pyfsext_file_entry->file_entry,
+	          &posix_time,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve creation date and time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	integer_object = pyfsext_integer_signed_new_from_64bit(
+	                  posix_time );
 
 	return( integer_object );
 }
@@ -728,7 +866,7 @@ PyObject *pyfsext_file_entry_get_inode_change_time(
 	PyObject *datetime_object = NULL;
 	libcerror_error_t *error  = NULL;
 	static char *function     = "pyfsext_file_entry_get_inode_change_time";
-	uint32_t posix_time       = 0;
+	int64_t posix_time        = 0;
 	int result                = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -771,8 +909,8 @@ PyObject *pyfsext_file_entry_get_inode_change_time(
 
 		return( Py_None );
 	}
-	datetime_object = pyfsext_datetime_new_from_posix_time(
-	                   posix_time );
+	datetime_object = pyfsext_datetime_new_from_posix_time_in_micro_seconds(
+	                   posix_time / 1000 );
 
 	return( datetime_object );
 }
@@ -787,7 +925,7 @@ PyObject *pyfsext_file_entry_get_inode_change_time_as_integer(
 	PyObject *integer_object = NULL;
 	libcerror_error_t *error = NULL;
 	static char *function    = "pyfsext_file_entry_get_inode_change_time_as_integer";
-	uint32_t posix_time      = 0;
+	int64_t posix_time       = 0;
 	int result               = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -830,8 +968,8 @@ PyObject *pyfsext_file_entry_get_inode_change_time_as_integer(
 
 		return( Py_None );
 	}
-	integer_object = PyLong_FromUnsignedLong(
-	                  (unsigned long) posix_time );
+	integer_object = pyfsext_integer_signed_new_from_64bit(
+	                  posix_time );
 
 	return( integer_object );
 }
@@ -846,7 +984,7 @@ PyObject *pyfsext_file_entry_get_modification_time(
 	PyObject *datetime_object = NULL;
 	libcerror_error_t *error  = NULL;
 	static char *function     = "pyfsext_file_entry_get_modification_time";
-	uint32_t posix_time       = 0;
+	int64_t posix_time        = 0;
 	int result                = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -889,8 +1027,8 @@ PyObject *pyfsext_file_entry_get_modification_time(
 
 		return( Py_None );
 	}
-	datetime_object = pyfsext_datetime_new_from_posix_time(
-	                   posix_time );
+	datetime_object = pyfsext_datetime_new_from_posix_time_in_micro_seconds(
+	                   posix_time / 1000 );
 
 	return( datetime_object );
 }
@@ -905,7 +1043,7 @@ PyObject *pyfsext_file_entry_get_modification_time_as_integer(
 	PyObject *integer_object = NULL;
 	libcerror_error_t *error = NULL;
 	static char *function    = "pyfsext_file_entry_get_modification_time_as_integer";
-	uint32_t posix_time      = 0;
+	int64_t posix_time       = 0;
 	int result               = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -948,8 +1086,8 @@ PyObject *pyfsext_file_entry_get_modification_time_as_integer(
 
 		return( Py_None );
 	}
-	integer_object = PyLong_FromUnsignedLong(
-	                  (unsigned long) posix_time );
+	integer_object = pyfsext_integer_signed_new_from_64bit(
+	                  posix_time );
 
 	return( integer_object );
 }
@@ -964,7 +1102,7 @@ PyObject *pyfsext_file_entry_get_deletion_time(
 	PyObject *datetime_object = NULL;
 	libcerror_error_t *error  = NULL;
 	static char *function     = "pyfsext_file_entry_get_deletion_time";
-	uint32_t posix_time       = 0;
+	int32_t posix_time        = 0;
 	int result                = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
@@ -1023,7 +1161,7 @@ PyObject *pyfsext_file_entry_get_deletion_time_as_integer(
 	PyObject *integer_object = NULL;
 	libcerror_error_t *error = NULL;
 	static char *function    = "pyfsext_file_entry_get_deletion_time_as_integer";
-	uint32_t posix_time      = 0;
+	int32_t posix_time       = 0;
 	int result               = 0;
 
 	PYFSEXT_UNREFERENCED_PARAMETER( arguments )

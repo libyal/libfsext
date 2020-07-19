@@ -53,6 +53,19 @@ int libfsext_directory_free(
      libfsext_directory_t **directory,
      libcerror_error_t **error );
 
+int libfsext_directory_read_block_data(
+     libfsext_directory_t *directory,
+     const uint8_t *data,
+     size_t data_size,
+     uint32_t *directory_entry_index,
+     libcerror_error_t **error );
+
+int libfsext_directory_read_inline_data(
+     libfsext_directory_t *directory,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
 int libfsext_directory_read_file_io_handle(
      libfsext_directory_t *directory,
      libfsext_io_handle_t *io_handle,
