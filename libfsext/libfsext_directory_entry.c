@@ -264,6 +264,7 @@ int libfsext_directory_entry_read_data(
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_directory_entry_read_data";
+	size_t data_offset    = 0;
 	uint8_t name_size     = 0;
 
 	if( directory_entry == NULL )
@@ -374,7 +375,9 @@ int libfsext_directory_entry_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( name_size > ( directory_entry->size - 8 ) )
+	data_offset = 8;
+
+	if( name_size > ( directory_entry->size - data_offset ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -393,7 +396,7 @@ int libfsext_directory_entry_read_data(
 		 "%s: name data:\n",
 		 function );
 		libcnotify_print_data(
-		 &( data[ 8 ] ),
+		 &( data[ data_offset ] ),
 		 name_size,
 		 0 );
 	}
@@ -415,7 +418,7 @@ int libfsext_directory_entry_read_data(
 	}
 	if( memory_copy(
 	     directory_entry->name,
-	     &( data[ 8 ] ),
+	     &( data[ data_offset ] ),
 	     name_size ) == NULL )
 	{
 		libcerror_error_set(
@@ -429,6 +432,24 @@ int libfsext_directory_entry_read_data(
 	}
 	( directory_entry->name )[ name_size ] = 0;
 	directory_entry->name_size             = name_size + 1;
+
+	data_offset += name_size;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		if( data_offset < directory_entry->size )
+		{
+			libcnotify_printf(
+			 "%s: trailing data:\n",
+			 function );
+			libcnotify_print_data(
+			 &( data[ data_offset ] ),
+			 directory_entry->size - data_offset,
+			 0 );
+		}
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	return( 1 );
 

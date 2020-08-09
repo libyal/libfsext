@@ -206,7 +206,7 @@ Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on o
 _If EXT2_COMPAT_PREALLOC is set_
 | 204 | 1 | | Number of pre-allocated blocks per file
 | 205 | 1 | | Number of pre-allocated blocks per directory
-| 206 | 2 | | Unknown (padding)
+| 206 | 2 | | [yellow-background]*Unknown (padding)*
 4+| _Journalling support_ +
 _If EXT3_FEATURE_COMPAT_HAS_JOURNAL is set_
 | 208 | 16 | | Journal identifier +
@@ -219,10 +219,10 @@ The orphan inode list is a list of inodes to delete +
 [yellow-background]*What does this value contain?*
 | 236 | 4 x 4 | | hash-tree seed
 | 252 | 1 | | Default hash version
-| 253 | 3 | | Unknown (padding)
+| 253 | 3 | | [yellow-background]*Unknown (padding)*
 | 256 | 4 | | Default mount options
 | 260 | 4 | | First metadata block group (or metablock)
-| 264 | 190 | | Unknown (reserved)
+| 264 | 190 | | [yellow-background]*Unknown (reserved)*
 |===
 
 [yellow-background]*Does ext3 have file system creation time?*
@@ -299,7 +299,7 @@ Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on o
 _If EXT2_COMPAT_PREALLOC is set_
 | 204 | 1 | | Number of pre-allocated blocks per file
 | 205 | 1 | | Number of pre-allocated blocks per directory
-| 206 | 2 | | Unknown (padding)
+| 206 | 2 | | [yellow-background]*Unknown (padding)*
 4+| _Journalling support_ +
 _If EXT3_FEATURE_COMPAT_HAS_JOURNAL is set_
 | 208 | 16 | | Journal identifier +
@@ -312,7 +312,7 @@ The orphan inode list is a list of inodes to delete +
 [yellow-background]*What does this value contain?*
 | 236 | 4 x 4 | | hash-tree seed
 | 252 | 1 | | Default hash version
-| 253 | 3 | | Unknown (padding)
+| 253 | 3 | | [yellow-background]*Unknown (padding)*
 | 256 | 4 | | Default mount options
 | 260 | 4 | | First metadata block group (or metablock)
 4+| _Defined in ext3 reserved in earlier versions_
@@ -329,7 +329,7 @@ Contains the upper 32-bit of the value if 64-bit support is enabled
 Contains the upper 32-bit of the value if 64-bit support is enabled
 4+| _Defined in ext4 reserved in earlier versions_
 4+| _Common_ +
-| ... | ... | | Unknown (reserved)
+| ... | ... | | [yellow-background]*Unknown (reserved)*
 |===
 
 ....
@@ -528,8 +528,8 @@ Value contains the block number relative from the start of the volume
 | 12 | 2 | | Number of unallocated blocks
 | 14 | 2 | | Number of unallocated inodes
 | 16 | 2 | | Number of directories
-| 18 | 2 | | Unknown (padding)
-| 20 | 3 x 4 | | Unknown (reserved)
+| 18 | 2 | | [yellow-background]*Unknown (padding)*
+| 20 | 3 x 4 | | [yellow-background]*Unknown (reserved)*
 |===
 
 === The ext4 group descriptor
@@ -597,7 +597,7 @@ The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap
 | 60 | 2 | | Inode bitmap checksum +
 Contains the upper 16-bit of the value if 64-bit support is enabled +
 The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
-| 64 | 4 | | Unknown (reserved)
+| 64 | 4 | | [yellow-background]*Unknown (reserved)*
 |===
 
 === [[block_group_flags]]Block group flags
@@ -705,7 +705,7 @@ Contains a POSIX timestamp
 | 28 | 4 | | Blocks count
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
-| 36 | 4 | | Unknown (reserved)
+| 36 | 4 | | [yellow-background]*Unknown (reserved)*
 | 40 | 12 x 4 | | Array of direct block numbers +
 Value contains the block number relative from the start of the volume
 | 88 | 4 | | Indirect block number +
@@ -721,10 +721,10 @@ Value contains the block number relative from the start of the volume
 | 112 | 4 | | Fragment block address
 | 116 | 1 | | Fragment block index
 | 117 | 1 | | Fragment size
-| 118 | 2 | | Unknown (padding)
+| 118 | 2 | | [yellow-background]*Unknown (padding)*
 | 120 | 2 | | Upper part of owner (or user) identifier (UID)
 | 122 | 2 | | Upper part of group identifier (GID)
-| 124 | 4 | | Unknown (reserved)
+| 124 | 4 | | [yellow-background]*Unknown (reserved)*
 |===
 
 === The ext3 inode
@@ -752,7 +752,7 @@ Contains a POSIX timestamp
 | 28 | 4 | | Blocks count
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
-| 36 | 4 | | Unknown (reserved)
+| 36 | 4 | | [yellow-background]*Unknown (reserved)*
 | 40 | 12 x 4 | | Array of direct block numbers +
 Value contains the block number relative from the start of the volume
 | 88 | 4 | | Indirect block number +
@@ -767,12 +767,12 @@ Value contains the block number relative from the start of the volume
 | 112 | 4 | | Fragment block address
 | 116 | 1 | | Fragment block index
 | 117 | 1 | | Fragment size
-| 118 | 2 | | Unknown (padding)
+| 118 | 2 | | [yellow-background]*Unknown (padding)*
 | 120 | 2 | | Upper part of owner (or user) identifier (UID)
 | 122 | 2 | | Upper part of group identifier (GID)
-| 124 | 4 | | Unknown (reserved)
-| 128 | 2 | | Unknown (inode extra size?)
-| 130 | 2 | | Unknown (padding)
+| 124 | 4 | | [yellow-background]*Unknown (reserved)*
+| 128 | 2 | | [yellow-background]*Unknown (inode extra size?)*
+| 130 | 2 | | [yellow-background]*Unknown (padding)*
 |===
 
 === The ext4 inode
@@ -800,7 +800,7 @@ Contains a POSIX timestamp
 | 28 | 4 | | Lower part of blocks count
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
-| 36 | 4 | | Unknown (lower part of version)
+| 36 | 4 | | [yellow-background]*Unknown (lower part of version)*
 4+| _If EXT4_EXTENTS_FL and EXT4_INLINE_DATA_FL are not set_
 | 40 | 12 x 4 | | Array of direct block numbers +
 Value contains the block number relative from the start of the volume
@@ -925,12 +925,11 @@ EXT4_NOCOMPR_FL | Do not compress +
 EXT3_ECOMPR_FL | Encrypted Compression error
 3+| _ext4_
 | 0x00000800 | EXT4_ENCRYPT_FL | Encrypted file
-3+| _ext2_
-| 0x00001000 | EXT2_BTREE_FL | B-tree format directory
 3+| _Common_
-| 0x00001000 | EXT2_INDEX_FL +
+| 0x00001000 | EXT2_BTREE_FL +
+EXT2_INDEX_FL +
 EXT3_INDEX_FL +
-EXT4_INDEX_FL | Hash-indexed directory
+EXT4_INDEX_FL | Hash-indexed directory, previously referred to as B-tree format
 | 0x00002000 | EXT2_IMAGIC_FL +
 EXT3_IMAGIC_FL +
 EXT4_IMAGIC_FL | AFS directory
@@ -989,6 +988,7 @@ Directories entries are stored in the data blocks of directory inodes. The
 directory entries can be stored in multiple ways:
 
 * linear directory entries
+* inline data directory entries
 * hash-tree directory entries
 
 === Linear directory entries
@@ -1015,7 +1015,7 @@ Must be a multitude of 4.
 Contains the size of the name without the end-of-string character +
 Maximum of 255
 | 7 | 1 | | File type +
-See section: <<file_type,File type>>
+See section: <<file_types,File types>>
 | 8 | ... | | Name +
 [yellow-background]*Contains an UTF-8 string*
 |===
@@ -1026,6 +1026,21 @@ the upper byte was never used.
 The name can contain any UTF-8 character value except the path separator '/'
 and the NUL-character. [yellow-background]*Is the name in extended ASCII
 on older platforms?*
+
+==== [[file_types]]File types
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0 | EXT2_FT_UNKNOWN | Unknown
+| 1 | EXT2_FT_REG_FILE | Regular file
+| 2 | EXT2_FT_DIR | Directory
+| 3 | EXT2_FT_CHRDEV | Character device
+| 4 | EXT2_FT_BLKDEV | Block device
+| 5 | EXT2_FT_FIFO | FIFO queue
+| 6 | EXT2_FT_SOCK | Socket
+| 7 | EXT2_FT_SYMLINK | Symbolic link
+|===
 
 === Inline data directory entries
 
@@ -1040,25 +1055,48 @@ consists of:
 | Offset | Size | Value | Description
 | 0 | 4 | | Parent inode number
 | 4 | ... | | Array of directory entries +
-Contains: <<directory_entry,The directory entry>>
+Contains: <<directory_entry,a directory entry>>
 |===
 
-=== Hash-tree directory entries
+=== Hash tree directory entries
 
-=== [[file_type]]File type
+The data of the hash tree (HTree) is stored in the data blocs or extent defined
+by the directory inode. The hash-indexed directory entries are read-compatible
+with the "regular" <<directory_entry,directory entry>>.
 
-[cols="1,1,5",options="header"]
+==== Hash tree root
+
+The hash tree root consists of:
+
+* dx_root
+  * directory entry for "." (self)
+  * directory entry for ".." (parent)
+  * dx_root_info
+  * Array of dx_entry
+* directory entry for other file system entries
+
+==== dx_root_info
+
+[cols="1,1,1,5",options="header"]
 |===
-| Value | Identifier | Description
-| 0 | EXT2_FT_UNKNOWN | Unknown
-| 1 | EXT2_FT_REG_FILE | Regular file
-| 2 | EXT2_FT_DIR | Directory
-| 3 | EXT2_FT_CHRDEV | Character device
-| 4 | EXT2_FT_BLKDEV | Block device
-| 5 | EXT2_FT_FIFO | FIFO queue
-| 6 | EXT2_FT_SOCK | Socket
-| 7 | EXT2_FT_SYMLINK | Symbolic link
+| Offset | Size | Value | Description
+| 0 | 4 | 0 | [yellow-background]*Unknown (reserved)*
+| 4 | 1 | | Hash method (or version)
+| 5 | 1 | 8 | Root information size
+| 6 | 1 | | Number of indirect levels in the hash tree
+| 7 | 1 | | [yellow-background]*Unknown (unused flags)*
 |===
+
+==== dx_entry
+
+....
+
+struct dx_entry
+{
+	__le32 hash;
+	__le32 block;
+};
+....
 
 == Symbolic links
 

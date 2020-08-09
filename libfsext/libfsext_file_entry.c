@@ -2173,22 +2173,6 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_index(
 
 		goto on_error;
 	}
-	if( libfsext_directory_get_entry_by_inode_number(
-	     internal_file_entry->directory,
-	     directory_entry->inode_number,
-	     &directory_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve directory entry for inode: %" PRIu32 ".",
-		 function,
-		 directory_entry->inode_number );
-
-		goto on_error;
-	}
 	if( libfsext_inode_clone(
 	     &safe_inode,
 	     inode,

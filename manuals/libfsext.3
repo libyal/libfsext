@@ -1,4 +1,4 @@
-.Dd July 18, 2020
+.Dd August  9, 2020
 .Dt libfsext 3
 .Os libfsext
 .Sh NAME
@@ -61,6 +61,8 @@ Volume functions
 .Ft int
 .Fn libfsext_volume_close "libfsext_volume_t *volume" "libfsext_error_t **error"
 .Ft int
+.Fn libfsext_volume_get_format_version "libfsext_volume_t *volume" "uint8_t *format_version" "libfsext_error_t **error"
+.Ft int
 .Fn libfsext_volume_get_utf8_label_size "libfsext_volume_t *volume" "size_t *utf8_string_size" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_volume_get_utf8_label "libfsext_volume_t *volume" "uint8_t *utf8_string" "size_t utf8_string_size" "libfsext_error_t **error"
@@ -107,11 +109,13 @@ File entry functions
 .Ft int
 .Fn libfsext_file_entry_get_identifier "libfsext_file_entry_t *file_entry" "uint32_t *identifier" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_access_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_access_time "libfsext_file_entry_t *file_entry" "int64_t *posix_time" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_inode_change_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_creation_time "libfsext_file_entry_t *file_entry" "int64_t *posix_time" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_modification_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_inode_change_time "libfsext_file_entry_t *file_entry" "int64_t *posix_time" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_modification_time "libfsext_file_entry_t *file_entry" "int64_t *posix_time" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_deletion_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
 .Ft int

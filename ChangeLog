@@ -1,32 +1,25 @@
 TODO:
-* Change user identifier to owner identifier
-* Add comment about posix time
-* complete get file entry by path
 * add support for EXT4_EA_INODE_FL
 * libfsext_inode_read_data_reference
   * add support for double indirect block number in inode
   * add support for tripple indirect block number in inode
   * add support for extents header depth > 0 in inode
-  * add support for EXT4_INLINE_DATA_FL
 * add support for EXT2_COMPRBLK_FL
-* add support for hash-tree directories
+* add support for hash tree directories
+  * can be read, but none of the hash tree data structures are used
 * directory replace array by data structure that is more efficient for large
   number of comparisions, e.g. a b-tree.
 
 Create test images:
 * ext2 without dynamic inode information
 * ext2 with dynamic inode information
-* ext2 with b-tree directory
-* ext2 with directory with hashes
 * ext3 without dynamic inode information
 * ext3 with dynamic inode information
 * ext4 without dynamic inode information
 * ext4 with dynamic inode information
-* ext4 with inline data
 * without sparse superblock
 * with inode where double indirect blocks are used
 * with inode where tripple indirect blocks are used
-* with hash-tree directory
 
 20150429
 * see `git log' for more recent change log
