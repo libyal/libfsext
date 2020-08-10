@@ -46,6 +46,13 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 	  "\n"
 	  "Determines if the file entry is empty." },
 
+	{ "get_inode_number",
+	  (PyCFunction) pyfsext_file_entry_get_inode_number,
+	  METH_NOARGS,
+	  "get_inode_number() -> Integer\n"
+	  "\n"
+	  "Retrieves the inode number." },
+
 	{ "get_access_time",
 	  (PyCFunction) pyfsext_file_entry_get_access_time,
 	  METH_NOARGS,
@@ -144,6 +151,13 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 	  "\n"
 	  "Retrieves the name." },
 
+	{ "get_symbolic_link_target",
+	  (PyCFunction) pyfsext_file_entry_get_symbolic_link_target,
+	  METH_NOARGS,
+	  "get_symbolic_link_target() -> Unicode string or None\n"
+	  "\n"
+	  "Returns the symbolic link target." },
+
 	{ "get_number_of_sub_file_entries",
 	  (PyCFunction) pyfsext_file_entry_get_number_of_sub_file_entries,
 	  METH_NOARGS,
@@ -234,6 +248,12 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 
 PyGetSetDef pyfsext_file_entry_object_get_set_definitions[] = {
 
+	{ "inode_number",
+	  (getter) pyfsext_file_entry_get_inode_number,
+	  (setter) 0,
+	  "The inode number.",
+	  NULL },
+
 	{ "access_time",
 	  (getter) pyfsext_file_entry_get_access_time,
 	  (setter) 0,
@@ -286,6 +306,12 @@ PyGetSetDef pyfsext_file_entry_object_get_set_definitions[] = {
 	  (getter) pyfsext_file_entry_get_name,
 	  (setter) 0,
 	  "The name.",
+	  NULL },
+
+	{ "symbolic_link_target",
+	  (getter) pyfsext_file_entry_get_symbolic_link_target,
+	  (setter) 0,
+	  "The symbolic link target.",
 	  NULL },
 
 	{ "number_of_sub_file_entries",
@@ -618,6 +644,58 @@ PyObject *pyfsext_file_entry_is_empty(
 	 (PyObject *) Py_False );
 
 	return( Py_False );
+}
+
+/* Retrieves the inode number
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_inode_number(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyfsext_file_entry_get_inode_number";
+	uint32_t value_32bit     = 0;
+	int result               = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_file_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_inode_number(
+	          pyfsext_file_entry->file_entry,
+	          &value_32bit,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve inode number.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = PyLong_FromUnsignedLong(
+	                  (unsigned long) value_32bit );
+
+	return( integer_object );
 }
 
 /* Retrieves the access date and time
@@ -1480,6 +1558,120 @@ on_error:
 	{
 		PyMem_Free(
 		 name );
+	}
+	return( NULL );
+}
+
+/* Retrieves the symbolic link target
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_symbolic_link_target(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *target          = NULL;
+	static char *function    = "pyfsext_file_entry_get_symbolic_link_target";
+	size_t target_size       = 0;
+	int result               = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_file_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_utf8_symbolic_link_target_size(
+	          pyfsext_file_entry->file_entry,
+	          &target_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve symbolic link target size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( target_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	target = (uint8_t *) PyMem_Malloc(
+	                      sizeof( uint8_t ) * target_size );
+
+	if( target == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create target.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_utf8_symbolic_link_target(
+		  pyfsext_file_entry->file_entry,
+		  target,
+		  target_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve symbolic link target.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) target,
+			 (Py_ssize_t) target_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 target );
+
+	return( string_object );
+
+on_error:
+	if( target != NULL )
+	{
+		PyMem_Free(
+		 target );
 	}
 	return( NULL );
 }

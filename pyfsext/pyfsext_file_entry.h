@@ -66,6 +66,10 @@ PyObject *pyfsext_file_entry_is_empty(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 
+PyObject *pyfsext_file_entry_get_inode_number(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments );
+
 PyObject *pyfsext_file_entry_get_access_time(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
@@ -119,6 +123,10 @@ PyObject *pyfsext_file_entry_get_group_identifier(
            PyObject *arguments );
 
 PyObject *pyfsext_file_entry_get_name(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments );
+
+PyObject *pyfsext_file_entry_get_symbolic_link_target(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 

@@ -445,16 +445,16 @@ int libfsext_file_entry_is_empty(
 	return( result );
 }
 
-/* Retrieves the identifier (inode number)
+/* Retrieves the inode number
  * Returns 1 if successful or -1 on error
  */
-int libfsext_file_entry_get_identifier(
+int libfsext_file_entry_get_inode_number(
      libfsext_file_entry_t *file_entry,
-     uint32_t *identifier,
+     uint32_t *inode_number,
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
-	static char *function                                = "libfsext_file_entry_get_identifier";
+	static char *function                               = "libfsext_file_entry_get_inode_number";
 
 	if( file_entry == NULL )
 	{
@@ -469,13 +469,13 @@ int libfsext_file_entry_get_identifier(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( identifier == NULL )
+	if( inode_number == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid identifier.",
+		 "%s: invalid inode number.",
 		 function );
 
 		return( -1 );
@@ -495,7 +495,7 @@ int libfsext_file_entry_get_identifier(
 		return( -1 );
 	}
 #endif
-	*identifier = internal_file_entry->inode_number;
+	*inode_number = internal_file_entry->inode_number;
 
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_read(
@@ -2081,7 +2081,6 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_index(
 	libfsext_inode_t *inode                          = NULL;
 	libfsext_inode_t *safe_inode                     = NULL;
 	static char *function                            = "libfsext_file_entry_get_sub_file_entry_by_index";
-	uint32_t inode_number                            = 0;
 
 	if( internal_file_entry == NULL )
 	{
@@ -2208,7 +2207,7 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_index(
 	     internal_file_entry->io_handle,
 	     internal_file_entry->file_io_handle,
 	     internal_file_entry->inode_table,
-	     inode_number,
+	     directory_entry->inode_number,
 	     safe_inode,
 	     safe_directory_entry,
 	     0,
@@ -2358,7 +2357,6 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_utf8_name(
 	libfsext_directory_entry_t *sub_directory_entry = NULL;
 	libfsext_inode_t *inode                         = NULL;
 	static char *function                           = "libfsext_file_entry_get_sub_file_entry_by_utf8_name";
-	uint32_t inode_number                           = 0;
 	int result                                      = 0;
 
 	if( internal_file_entry == NULL )
@@ -2438,7 +2436,7 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_utf8_name(
 	     internal_file_entry->io_handle,
 	     internal_file_entry->file_io_handle,
 	     internal_file_entry->inode_table,
-	     inode_number,
+	     sub_directory_entry->inode_number,
 	     inode,
 	     sub_directory_entry,
 	     internal_file_entry->flags,
@@ -2577,7 +2575,6 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_utf16_name(
 	libfsext_directory_entry_t *sub_directory_entry = NULL;
 	libfsext_inode_t *inode                         = NULL;
 	static char *function                           = "libfsext_file_entry_get_sub_file_entry_by_utf16_name";
-	uint32_t inode_number                           = 0;
 	int result                                      = 0;
 
 	if( internal_file_entry == NULL )
@@ -2657,7 +2654,7 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_utf16_name(
 	     internal_file_entry->io_handle,
 	     internal_file_entry->file_io_handle,
 	     internal_file_entry->inode_table,
-	     inode_number,
+	     sub_directory_entry->inode_number,
 	     inode,
 	     sub_directory_entry,
 	     internal_file_entry->flags,

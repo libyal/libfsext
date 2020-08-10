@@ -446,7 +446,7 @@ int libfsext_directory_entry_read_data(
 			libcnotify_print_data(
 			 &( data[ data_offset ] ),
 			 directory_entry->size - data_offset,
-			 0 );
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */

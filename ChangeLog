@@ -1,4 +1,7 @@
 TODO:
+* add parent inode functions
+* have date time functions return 0 if not set
+
 * add support for EXT4_EA_INODE_FL
 * libfsext_inode_read_data_reference
   * add support for double indirect block number in inode

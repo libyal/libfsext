@@ -101,6 +101,11 @@ PyObject *pyfsext_volume_get_number_of_file_entries(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments );
 
+PyObject *pyfsext_volume_get_file_entry_by_inode(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments,
+           PyObject *keywords );
+
 PyObject *pyfsext_volume_get_root_directory(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments );

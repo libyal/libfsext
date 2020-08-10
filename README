@@ -1,15 +1,25 @@
 libfsext is a library to access the Extended File System (ext).
 
-Note that this project currently only focuses on the analysis of the format.
+Read-only supported ext formats:
+
+* ext2 (version 2)
+* ext3 (version 3)
+* ext4 (version 4)
+
+Supported ext format features:
+
+* ext4 inline data
+
+Unsupported ext format features:
+
+* ext (version 1)
+* compression
+* encryption
 
 Project information:
 
 * Status: experimental
 * Licence: LGPLv3+
-
-Planned:
-
-* Finish library
 
 For more information see:
 

@@ -121,6 +121,13 @@ PyMethodDef pyfsext_volume_object_methods[] = {
 	  "\n"
 	  "Retrieves the number of file entries (MFT entries)." },
 
+	{ "get_file_entry_by_inode",
+	  (PyCFunction) pyfsext_volume_get_file_entry_by_inode,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_file_entry_by_inode(inode_number) -> Object or None\n"
+	  "\n"
+	  "Retrieves the file entry specified by the inode." },
+
 	{ "get_root_directory",
 	  (PyCFunction) pyfsext_volume_get_root_directory,
 	  METH_NOARGS,
@@ -1252,6 +1259,96 @@ PyObject *pyfsext_volume_get_number_of_file_entries(
 	                  (unsigned long) value_32bit );
 
 	return( integer_object );
+}
+
+/* Retrieves a specific of file entry by inode
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_file_entry_by_inode(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *file_entry_object       = NULL;
+	libcerror_error_t *error          = NULL;
+	libfsext_file_entry_t *file_entry = NULL;
+	static char *function             = "pyfsext_volume_get_file_entry_by_inode";
+	static char *keyword_list[]       = { "file_entry_inode", NULL };
+	unsigned long long inode_number   = 0;
+	int result                        = 0;
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "K",
+	     keyword_list,
+	     &inode_number ) == 0 )
+	{
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_file_entry_by_inode(
+	          ( (pyfsext_volume_t *) pyfsext_volume )->volume,
+	          (uint64_t) inode_number,
+	          &file_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve of file entry: %d.",
+		 function,
+		 inode_number );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	file_entry_object = pyfsext_file_entry_new(
+	                     file_entry,
+	                     (PyObject *) pyfsext_volume );
+
+	if( file_entry_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create file entry object.",
+		 function );
+
+		goto on_error;
+	}
+	return( file_entry_object );
+
+on_error:
+	if( file_entry != NULL )
+	{
+		libfsext_file_entry_free(
+		 &file_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the root root directory file entry

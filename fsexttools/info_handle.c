@@ -892,7 +892,7 @@ int info_handle_file_entry_value_with_name_fprint(
 	int64_t inode_change_time                = 0;
 	int64_t modification_time                = 0;
 	uint32_t group_identifier                = 0;
-	uint32_t identifier                      = 0;
+	uint32_t inode_number                    = 0;
 	uint32_t owner_identifier                = 0;
 	int32_t deletion_time                    = 0;
 	uint16_t file_mode                       = 0;
@@ -909,16 +909,16 @@ int info_handle_file_entry_value_with_name_fprint(
 
 		return( -1 );
 	}
-	if( libfsext_file_entry_get_identifier(
+	if( libfsext_file_entry_get_inode_number(
 	     file_entry,
-	     &identifier,
+	     &inode_number,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve identifier.",
+		 "%s: unable to retrieve inode number.",
 		 function );
 
 		goto on_error;
@@ -1181,7 +1181,7 @@ int info_handle_file_entry_value_with_name_fprint(
 			 path );
 		}
 		if( ( file_entry_name != NULL )
-		 && ( identifier != 2 ) )
+		 && ( inode_number != 2 ) )
 		{
 			fprintf(
 			 info_handle->bodyfile_stream,
@@ -1191,7 +1191,7 @@ int info_handle_file_entry_value_with_name_fprint(
 		fprintf(
 		 info_handle->bodyfile_stream,
 		 "|%" PRIu32 "|%s|%" PRIu32 "|%" PRIu32 "|%" PRIu64 "|%.9f|%.9f|%.9f|%.9f\n",
-		 identifier,
+		 inode_number,
 		 file_mode_string,
 		 owner_identifier,
 		 group_identifier,
@@ -1205,8 +1205,8 @@ int info_handle_file_entry_value_with_name_fprint(
 	{
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tIdentifier\t\t: %" PRIu32 "\n",
-		 identifier );
+		 "\tInode number\t\t: %" PRIu32 "\n",
+		 inode_number );
 
 		if( file_entry_name != NULL )
 		{
@@ -1698,7 +1698,7 @@ int info_handle_file_entry_fprint_by_inode(
 
 		return( -1 );
 	}
-	if( libfsext_volume_get_file_entry_by_index(
+	if( libfsext_volume_get_file_entry_by_inode(
 	     info_handle->input_volume,
 	     inode_number,
 	     &file_entry,

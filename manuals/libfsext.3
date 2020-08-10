@@ -85,7 +85,7 @@ Volume functions
 .Ft int
 .Fn libfsext_volume_get_number_of_file_entries "libfsext_volume_t *volume" "uint32_t *number_of_file_entries" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_volume_get_file_entry_by_index "libfsext_volume_t *volume" "uint32_t inode_number" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
+.Fn libfsext_volume_get_file_entry_by_inode "libfsext_volume_t *volume" "uint32_t inode_number" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_volume_get_root_directory "libfsext_volume_t *volume" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
 .Ft int
@@ -107,7 +107,7 @@ File entry functions
 .Ft int
 .Fn libfsext_file_entry_is_empty "libfsext_file_entry_t *file_entry" "libfsext_error_t **error"
 .Ft int
-.Fn libfsext_file_entry_get_identifier "libfsext_file_entry_t *file_entry" "uint32_t *identifier" "libfsext_error_t **error"
+.Fn libfsext_file_entry_get_inode_number "libfsext_file_entry_t *file_entry" "uint32_t *inode_number" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_access_time "libfsext_file_entry_t *file_entry" "int64_t *posix_time" "libfsext_error_t **error"
 .Ft int

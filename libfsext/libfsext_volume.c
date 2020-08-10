@@ -1088,10 +1088,8 @@ int libfsext_internal_volume_read_block_groups(
 	libfsext_group_descriptor_t *group_descriptor = NULL;
 	libfsext_superblock_t *superblock             = NULL;
 	static char *function                         = "libfsext_internal_volume_read_block_groups";
-	off64_t block_bitmap_offset                   = 0;
 	off64_t block_group_offset                    = 0;
 	off64_t group_descriptor_offset               = 0;
-	off64_t inode_bitmap_offset                   = 0;
 	off64_t superblock_offset                     = 0;
 	uint32_t block_group_index                    = 0;
 	uint32_t exponent3                            = 3;
@@ -1101,6 +1099,11 @@ int libfsext_internal_volume_read_block_groups(
 	uint32_t number_of_block_groups               = 0;
 	uint8_t block_group_has_superblock            = 0;
 	int entry_index                               = 0;
+
+#ifdef TODO
+	off64_t block_bitmap_offset                   = 0;
+	off64_t inode_bitmap_offset                   = 0;
+#endif
 
 	if( internal_volume == NULL )
 	{
@@ -2656,7 +2659,7 @@ int libfsext_volume_get_number_of_file_entries(
 /* Retrieves the file entry of a specific inode
  * Returns 1 if successful or -1 on error
  */
-int libfsext_internal_volume_get_file_entry_by_index(
+int libfsext_internal_volume_get_file_entry_by_inode(
      libfsext_internal_volume_t *internal_volume,
      uint32_t inode_number,
      libfsext_file_entry_t **file_entry,
@@ -2664,7 +2667,7 @@ int libfsext_internal_volume_get_file_entry_by_index(
 {
 	libfsext_inode_t *inode      = NULL;
 	libfsext_inode_t *safe_inode = NULL;
-	static char *function        = "libfsext_internal_volume_get_file_entry_by_index";
+	static char *function        = "libfsext_internal_volume_get_file_entry_by_inode";
 
 	if( internal_volume == NULL )
 	{
@@ -2779,14 +2782,14 @@ on_error:
 /* Retrieves the file entry of a specific inode
  * Returns 1 if successful or -1 on error
  */
-int libfsext_volume_get_file_entry_by_index(
+int libfsext_volume_get_file_entry_by_inode(
      libfsext_volume_t *volume,
      uint32_t inode_number,
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error )
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libfsext_volume_get_file_entry_by_index";
+	static char *function                       = "libfsext_volume_get_file_entry_by_inode";
 	int result                                  = 1;
 
 	if( volume == NULL )
@@ -2839,7 +2842,7 @@ int libfsext_volume_get_file_entry_by_index(
 		return( -1 );
 	}
 #endif
-	if( libfsext_internal_volume_get_file_entry_by_index(
+	if( libfsext_internal_volume_get_file_entry_by_inode(
 	     internal_volume,
 	     inode_number,
 	     file_entry,
@@ -3364,22 +3367,6 @@ int libfsext_internal_volume_get_file_entry_by_utf8_path(
 			goto on_error;
 		}
 	}
-	if( directory != NULL )
-	{
-		if( libfsext_directory_free(
-		     &directory,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free directory.",
-			 function );
-
-			goto on_error;
-		}
-	}
 	if( libfsext_inode_clone(
 	     &safe_inode,
 	     inode,
@@ -3407,6 +3394,22 @@ int libfsext_internal_volume_get_file_entry_by_utf8_path(
 		 function );
 
 		goto on_error;
+	}
+	if( directory != NULL )
+	{
+		if( libfsext_directory_free(
+		     &directory,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free directory.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	/* libfsext_file_entry_initialize takes over management of safe_inode and safe_directory_entry
 	 */
@@ -3808,22 +3811,6 @@ int libfsext_internal_volume_get_file_entry_by_utf16_path(
 			goto on_error;
 		}
 	}
-	if( directory != NULL )
-	{
-		if( libfsext_directory_free(
-		     &directory,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free directory.",
-			 function );
-
-			goto on_error;
-		}
-	}
 	if( libfsext_inode_clone(
 	     &safe_inode,
 	     inode,
@@ -3851,6 +3838,22 @@ int libfsext_internal_volume_get_file_entry_by_utf16_path(
 		 function );
 
 		goto on_error;
+	}
+	if( directory != NULL )
+	{
+		if( libfsext_directory_free(
+		     &directory,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free directory.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	/* libfsext_file_entry_initialize takes over management of safe_inode and safe_directory_entry
 	 */

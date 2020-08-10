@@ -121,9 +121,9 @@ int libfsext_file_entry_is_empty(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
-int libfsext_file_entry_get_identifier(
+int libfsext_file_entry_get_inode_number(
      libfsext_file_entry_t *file_entry,
-     uint32_t *identifier,
+     uint32_t *inode_number,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
