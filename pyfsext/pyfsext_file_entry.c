@@ -1732,7 +1732,7 @@ PyObject *pyfsext_file_entry_get_number_of_sub_file_entries(
 	return( integer_object );
 }
 
-/* Retrieves a specific sub sub file entry for the specific index by index
+/* Retrieves a specific sub file entry for the specific index by index
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyfsext_file_entry_get_sub_file_entry_by_index(
@@ -1769,7 +1769,7 @@ PyObject *pyfsext_file_entry_get_sub_file_entry_by_index(
 		pyfsext_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve sub sub file entry for the specific index: %d.",
+		 "%s: unable to retrieve sub file entry for the specific index: %d.",
 		 function,
 		 sub_file_entry_index );
 
@@ -1803,7 +1803,7 @@ on_error:
 	return( NULL );
 }
 
-/* Retrieves a specific sub sub file entry for the specific index
+/* Retrieves a specific sub file entry for the specific index
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyfsext_file_entry_get_sub_file_entry(
@@ -1895,7 +1895,7 @@ PyObject *pyfsext_file_entry_get_sub_file_entries(
 	return( sequence_object );
 }
 
-/* Retrieves the sub sub file entry for an UTF-8 encoded name specified by the name
+/* Retrieves the sub file entry for an UTF-8 encoded name specified by the name
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyfsext_file_entry_get_sub_file_entry_by_name(
@@ -1949,7 +1949,7 @@ PyObject *pyfsext_file_entry_get_sub_file_entry_by_name(
 		pyfsext_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve sub sub file entry for an UTF-8 encoded name.",
+		 "%s: unable to retrieve sub file entry for an UTF-8 encoded name.",
 		 function );
 
 		libcerror_error_free(

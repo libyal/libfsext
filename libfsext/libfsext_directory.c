@@ -282,6 +282,24 @@ int libfsext_directory_read_block_data(
 
 			goto on_error;
 		}
+		if( directory_entry->size == 0 )
+		{
+			if( libfsext_directory_entry_free(
+			     &directory_entry,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free directory entry: %" PRIu32 ".",
+				 function,
+				 safe_directory_entry_index );
+
+				goto on_error;
+			}
+			break;
+		}
 		data_offset += directory_entry->size;
 
 /* TODO lost+found has directory entries with size but no values */
@@ -455,6 +473,24 @@ int libfsext_directory_read_inline_data(
 			 data_offset );
 
 			goto on_error;
+		}
+		if( directory_entry->size == 0 )
+		{
+			if( libfsext_directory_entry_free(
+			     &directory_entry,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free directory entry: %" PRIu32 ".",
+				 function,
+				 directory_entry_index );
+
+				goto on_error;
+			}
+			break;
 		}
 		data_offset += directory_entry->size;
 

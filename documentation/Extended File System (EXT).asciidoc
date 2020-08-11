@@ -1,4 +1,4 @@
-= Extended File System
++
 Analysis the Linux ext file system
 
 :toc:
@@ -236,14 +236,14 @@ The superblock is 1024 bytes of size and consists of:
 | Offset | Size | Value | Description
 | 0 | 4 | | Number of inodes
 | 4 | 4 | | Number of blocks +
-Contains the lower 32-bit of the value if 64-bit support is enabled
+Contains the lower 32-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled
 | 8 | 4 | | Number of reserved blocks +
-Contains the lower 32-bit of the value if 64-bit support is enabled +
+Contains the lower 32-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 These are used to prevent the file system from filling up
 | 12 | 4 | | Number of unallocated blocks +
-Contains the lower 32-bit of the value if 64-bit support is enabled
+Contains the lower 32-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled
 | 16 | 4 | | Number of unallocated inodes +
-Contains the lower 32-bit of the value if 64-bit support is enabled
+Contains the lower 32-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled
 | 20 | 4 | | Root group block number +
 Value contains the block number relative from the start of the volume
 | 24 | 4 | | Block size +
@@ -312,38 +312,37 @@ The orphan inode list is a list of inodes to delete +
 [yellow-background]*What does this value contain?*
 | 236 | 4 x 4 | | hash-tree seed
 | 252 | 1 | | Default hash version
-| 253 | 3 | | [yellow-background]*Unknown (padding)*
+| 253 | 1 | | Journal backup type
+| 254 | 2 | | Group descriptor size
 | 256 | 4 | | Default mount options
 | 260 | 4 | | First metadata block group (or metablock)
 4+| _Defined in ext3 reserved in earlier versions_
 | 264 | 4 | | File system creation time +
 Contains POSIX timestamp
 | 268 | 17 x 4 | | Backup journal inodes
-4+| _64-bit support_ +
-_If EXT4_FEATURE_INCOMPAT_64BIT is set_
+4+| _If 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled_
 | 336 | 4 | | Number of blocks +
-Contains the upper 32-bit of the value if 64-bit support is enabled
+Contains the upper 32-bit of the value
 | 340 | 4 | | Number of reserved blocks +
-Contains the upper 32-bit of the value if 64-bit support is enabled
+Contains the upper 32-bit of the value
 | 344 | 4 | | Number of unallocated blocks
-Contains the upper 32-bit of the value if 64-bit support is enabled
+Contains the upper 32-bit of the value
+| 348 | 2 | | Minimum inode size
+| 350 | 2 | | Reserved inode size
+| 352 | 4 | | Miscellaneous flags
+| 356 | 2 | | RAID stride
+| 358 | 2 | | Multiple mount protection (MMP) update interval in seconds
+| 360 | 8 | | Block for multi-mount protection
+| 368 | 4 | | [yellow-background]*Unknown (blocks on all data disks (N*stride))*
+| 372 | 1 | | [yellow-background]*Unknown (FLEX_BG group size)*
+| 373 | 1 | | [yellow-background]*Unknown (metadata checksum method)*
+| 374 | 2 | | [yellow-background]*Unknown (padding)*
 4+| _Defined in ext4 reserved in earlier versions_
 4+| _Common_ +
 | ... | ... | | [yellow-background]*Unknown (reserved)*
 |===
 
 ....
-1136         __le16  s_min_extra_isize;      /* All inodes have at least # bytes */
-1137         __le16  s_want_extra_isize;     /* New inodes should reserve # bytes */
-1138         __le32  s_flags;                /* Miscellaneous flags */
-1139         __le16  s_raid_stride;          /* RAID stride */
-1140         __le16  s_mmp_update_interval;  /* # seconds to wait in MMP checking */
-1141         __le64  s_mmp_block;            /* Block for multi-mount protection */
-1142         __le32  s_raid_stripe_width;    /* blocks on all data disks (N*stride)*/
-1143         __u8    s_log_groups_per_flex;  /* FLEX_BG group size */
-1144         __u8    s_checksum_type;        /* metadata checksum algorithm used */
-1145         __le16  s_reserved_pad;
-
 4+| _Defined in ext4 reserved in earlier versions_
 1146         __le64  s_kbytes_written;       /* nr of lifetime kilobytes written */
 1147         __le32  s_snapshot_inum;        /* Inode number of active snapshot */
@@ -438,19 +437,24 @@ compatibility and equivalent flags?*
 | Value | Identifier | Description
 | 0x00000001 | EXT2_COMPAT_PREALLOC | Pre-allocate directory blocks +
 Reduces fragmentation
-| 0x00000002 | EXT2_FEATURE_COMPAT_IMAGIC_INODES | Has AFS server inodes
-| 0x00000004 | EXT3_FEATURE_COMPAT_HAS_JOURNAL | Has journal
-| 0x00000008 | EXT2_FEATURE_COMPAT_EXT_ATTR | Have extended inode attributes
-| 0x00000010 | EXT2_FEATURE_COMPAT_RESIZE_INO | Resizable volume +
-[yellow-background]*Only upwards?*
-| 0x00000020 | EXT2_FEATURE_COMPAT_DIR_INDEX | Use directory hash index
-| | |
-| 0x00000200 | EXT4_FEATURE_COMPAT_SPARSE_SUPER2 | [yellow-background]*Unknown*
+| 0x00000002 | EXT2_FEATURE_COMPAT_IMAGIC_INODES | Has AFS server inodes.
+| 0x00000004 | EXT3_FEATURE_COMPAT_HAS_JOURNAL | Has a journal.
+| 0x00000008 | EXT2_FEATURE_COMPAT_EXT_ATTR | Has extended inode attributes.
+| 0x00000010 | EXT2_FEATURE_COMPAT_RESIZE_INO +
+EXT2_FEATURE_COMPAT_RESIZE_INODE | Has reserved GDT blocks for file system expansion. +
+[yellow-background]*Requires RO_COMPAT_SPARSE_SUPER*
+| 0x00000020 | EXT2_FEATURE_COMPAT_DIR_INDEX | Has hash-indexed directories.
+| 0x00000040 | COMPAT_LAZY_BG | [yellow-background]*Unknown (Lazy block group)*
+| 0x00000080 | COMPAT_EXCLUDE_INODE | [yellow-background]*Unknown (Exclude inode)* +
+[yellow-background]*Not implemented, intended for file system snapshot feature?*
+| 0x00000100 | COMPAT_EXCLUDE_BITMAP | [yellow-background]*Unknown (Exclude inode)* +
+[yellow-background]*Not implemented, intended for file system snapshot feature?*
+| 0x00000200 | EXT4_FEATURE_COMPAT_SPARSE_SUPER2 | Has a version 2 sparse super block.
 |===
 
 [NOTE]
-That the EXT2_FEATURE_COMPAT_, EXT3_FEATURE_COMPAT_ and EXT4_FEATURE_COMPAT_
-can be used interchangeably.
+That the EXT2_FEATURE_COMPAT_, EXT3_FEATURE_COMPAT_, EXT4_FEATURE_COMPAT_
+and COMPAT_ can be used interchangeably.
 
 === [[incompatible_features_flags]]Incompatible features flags
 
@@ -465,20 +469,22 @@ can be used interchangeably.
 | 0x00000010 | EXT2_FEATURE_INCOMPAT_META_BG | Has metadata block group
 | 0x00000040 | EXT4_FEATURE_INCOMPAT_EXTENTS | Has extents
 | 0x00000080 | EXT4_FEATURE_INCOMPAT_64BIT | Has 64-bit support
-| 0x00000100 | EXT4_FEATURE_INCOMPAT_MMP | [yellow-background]*Unknown*
-| 0x00000200 | EXT4_FEATURE_INCOMPAT_FLEX_BG | [yellow-background]*Unknown*
-| 0x00000400 | EXT4_FEATURE_INCOMPAT_EA_INODE | [yellow-background]*EA in inode*
+| 0x00000100 | EXT4_FEATURE_INCOMPAT_MMP | Multiple mount protection
+| 0x00000200 | EXT4_FEATURE_INCOMPAT_FLEX_BG | Flexible block groups
+| 0x00000400 | EXT4_FEATURE_INCOMPAT_EA_INODE | Inodes can be used to store large extended attribute values
 | | |
-| 0x00001000 | EXT4_FEATURE_INCOMPAT_DIRDATA | [yellow-background]*data in dirent*
-| 0x00002000 | EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM | [yellow-background]*use crc32c for bg*
-| 0x00004000 | EXT4_FEATURE_INCOMPAT_LARGEDIR | [yellow-background]*>2GB or 3-lvl htree*
-| 0x00008000 | EXT4_FEATURE_INCOMPAT_INLINE_DATA | [yellow-background]*data in inode*
-| 0x00010000 | EXT4_FEATURE_INCOMPAT_ENCRYPT | [yellow-background]*Unknown*
+| 0x00001000 | EXT4_FEATURE_INCOMPAT_DIRDATA | Data in directory entry +
+[yellow-background]*Not yet supported, in development*
+| 0x00002000 | EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM +
+EXT4_FEATURE_INCOMPAT_CSUM_SEED | Metadata checksum seed is stored in the superblock
+| 0x00004000 | EXT4_FEATURE_INCOMPAT_LARGEDIR | Large directory >2GB or 3-level hash tree (HTree).
+| 0x00008000 | EXT4_FEATURE_INCOMPAT_INLINE_DATA | Has data stored in inode.
+| 0x00010000 | EXT4_FEATURE_INCOMPAT_ENCRYPT | Has encrypted inodes.
 |===
 
 [NOTE]
-That the EXT2_FEATURE_INCOMPAT_, EXT3_FEATURE_INCOMPAT_ and
-EXT4_FEATURE_INCOMPAT_ can be used interchangeably.
+That the EXT2_FEATURE_INCOMPAT_, EXT3_FEATURE_INCOMPAT_, EXT4_FEATURE_INCOMPAT_
+and INCOMPAT_ can be used interchangeably.
 
 === [[read_only_compatible_features_flags]]Read-only compatible features flags
 
@@ -488,21 +494,29 @@ EXT4_FEATURE_INCOMPAT_ can be used interchangeably.
 | 0x00000001 | EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER | Has sparse superblocks and group descriptor tables. +
 Superblocks are stored in block groups 0, 1 and those that are powers of 3, 5 and 7. +
 Otherwise superblocks are stored in every block group.
-| 0x00000002 | EXT2_FEATURE_RO_COMPAT_LARGE_FILE | Contains large files
-| 0x00000004 | EXT2_FEATURE_RO_COMPAT_BTREE_DIR | Use directory B-tree +
+| 0x00000002 | EXT2_FEATURE_RO_COMPAT_LARGE_FILE | Contains large files.
+| 0x00000004 | EXT2_FEATURE_RO_COMPAT_BTREE_DIR | Intended for hash-tree directory (or directory B-tree) +
 [yellow-background]*Not implemented*
-| 0x00000008 | EXT4_FEATURE_RO_COMPAT_HUGE_FILE | [yellow-background]*Unknown*
-| 0x00000010 | EXT4_FEATURE_RO_COMPAT_GDT_CSUM | [yellow-background]*Unknown*
-| 0x00000020 | EXT4_FEATURE_RO_COMPAT_DIR_NLINK | [yellow-background]*Unknown*
-| 0x00000040 | EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE | [yellow-background]*Unknown*
-| | |
-| 0x00000100 | EXT4_FEATURE_RO_COMPAT_QUOTA | [yellow-background]*Unknown*
-| 0x00000200 | EXT4_FEATURE_RO_COMPAT_BIGALLOC | [yellow-background]*Unknown*
+| 0x00000008 | EXT4_FEATURE_RO_COMPAT_HUGE_FILE | Has huge file support.
+| 0x00000010 | EXT4_FEATURE_RO_COMPAT_GDT_CSUM | Has group descriptors with checksums.
+| 0x00000020 | EXT4_FEATURE_RO_COMPAT_DIR_NLINK | The ext3 32000 subdirectory limit does not apply. +
+A directory's number of links will be set to 1 if it is incremented past 64999
+| 0x00000040 | EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE | Has large inodes. +
+The size of an inode can be larger than ext2 inode size.
+| 0x00000080 | RO_COMPAT_HAS_SNAPSHOT | Has snapshots. +
+[yellow-background]*Not implemented, intended for file system snapshot feature?*
+| 0x00000100 | EXT4_FEATURE_RO_COMPAT_QUOTA | Quota is handled transactionally with the journal.
+| 0x00000200 | EXT4_FEATURE_RO_COMPAT_BIGALLOC | Has big block allocation bitmaps. +
+Block allocation bitmaps are tracked in units of clusters (of blocks) instead of blocks.
+| 0x00000400 | RO_COMPAT_METADATA_CSUM | Supports metadata checksum.
+| 0x00000800 | RO_COMPAT_REPLICA | Supports replicas.
+| 0x00001000 | RO_COMPAT_READONLY | Read-only file system image.
+| 0x00002000 | RO_COMPAT_PROJECT | Filesystem tracks project quotas.
 |===
 
 [NOTE]
-That the EXT2_FEATURE_RO_COMPAT_, EXT3_FEATURE_RO_COMPAT_ and
-EXT4_FEATURE_RO_COMPAT_ can be used interchangeably.
+That the EXT2_FEATURE_RO_COMPAT_, EXT3_FEATURE_RO_COMPAT_,
+EXT4_FEATURE_RO_COMPAT_ and RO_COMPAT_ can be used interchangeably.
 
 == The group descriptor table
 
@@ -540,62 +554,63 @@ The ext4 group descriptor is 68 bytes of size and consists of:
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | | Block bitmap block number +
-Contains the lower 32-bit of the value if 64-bit support is enabled +
+Contains the lower 32-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 Value contains the block number relative from the start of the volume
 | 4 | 4 | | Inode bitmap block number +
-Contains the lower 32-bit of the value if 64-bit support is enabled +
+Contains the lower 32-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 Value contains the block number relative from the start of the volume
 | 8 | 4 | | Inode table block number +
-Contains the lower 32-bit of the value if 64-bit support is enabled +
+Contains the lower 32-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 Value contains the block number relative from the start of the volume
 | 12 | 2 | | Number of unallocated blocks +
-Contains the lower 16-bit of the value if 64-bit support is enabled
+Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled
 | 14 | 2 | | Number of unallocated inodes +
-Contains the lower 16-bit of the value if 64-bit support is enabled
+Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled
 | 16 | 2 | | Number of directories +
-Contains the lower 16-bit of the value if 64-bit support is enabled
+Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled
 | 18 | 2 | | Block group flags +
 See section: <<block_group_flags,Block group flags>>
 | 20 | 4 | | Exclude bitmap block number +
-Contains the lower 32-bit of the value if 64-bit support is enabled +
+Contains the lower 32-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 Value contains the block number relative from the start of the volume +
 [yellow-background]*The excluded bitmap is used for snapshots*
 | 24 | 2 | | Block bitmap checksum +
-Contains the lower 16-bit of the value if 64-bit support is enabled +
+Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
 | 26 | 2 | | Inode bitmap checksum +
-Contains the lower 16-bit of the value if 64-bit support is enabled +
+Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
 | 28 | 2 | | Number of unused inodes +
-Contains the lower 16-bit of the value if 64-bit support is enabled +
+Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 | 30 | 2 | | Checksum +
 The checksum is a CRC-16 [yellow-background]*TODO: crc16(sb_uuid+group+desc)*
+4+| _If 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled and group descriptor size > 32_
 | 32 | 4 | | Block bitmap block number +
-Contains the upper 32-bit of the value if 64-bit support is enabled +
+Contains the upper 32-bit of the value +
 Value contains the block number relative from the start of the volume
 | 36 | 4 | | Inode bitmap block number +
-Contains the upper 32-bit of the value if 64-bit support is enabled +
+Contains the upper 32-bit of the value +
 Value contains the block number relative from the start of the volume
 | 40 | 4 | | Inode table block number +
-Contains the upper 32-bit of the value if 64-bit support is enabled +
+Contains the upper 32-bit of the value +
 Value contains the block number relative from the start of the volume
 | 44 | 2 | | Number of unallocated blocks +
-Contains the upper 16-bit of the value if 64-bit support is enabled
+Contains the upper 16-bit of the value +
 | 46 | 2 | | Number of unallocated inodes +
-Contains the upper 16-bit of the value if 64-bit support is enabled
+Contains the upper 16-bit of the value +
 | 48 | 2 | | Number of directories +
-Contains the upper 16-bit of the value if 64-bit support is enabled
+Contains the upper 16-bit of the value +
 | 50 | 2 | | Number of unused inodes +
-Contains the upper 16-bit of the value if 64-bit support is enabled +
+Contains the upper 16-bit of the value +
 | 52 | 4 | | Exclude bitmap block number +
-Contains the upper 32-bit of the value if 64-bit support is enabled +
+Contains the upper 32-bit of the value +
 Value contains the block number relative from the start of the volume +
 [yellow-background]*The excluded bitmap is used for snapshots*
 | 56 | 2 | | Block bitmap checksum +
-Contains the upper 16-bit of the value if 64-bit support is enabled +
+Contains the upper 16-bit of the value +
 The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
 | 60 | 2 | | Inode bitmap checksum +
-Contains the upper 16-bit of the value if 64-bit support is enabled +
+Contains the upper 16-bit of the value +
 The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
 | 64 | 4 | | [yellow-background]*Unknown (reserved)*
 |===
@@ -885,76 +900,104 @@ _Bitmask: 0xf000 (S_IFMT)_
 | Value | Identifier | Description
 | 0x00000001 | EXT2_SECRM_FL +
 EXT3_SECRM_FL +
-EXT4_SECRM_FL | Secure deletion
+EXT4_SECRM_FL +
+EXT4_INODE_SECRM | Secure deletion
 | 0x00000002 | EXT2_UNRM_FL +
 EXT3_UNRM_FL +
-EXT4_UNRM_FL | Undelete
+EXT4_UNRM_FL +
+EXT4_INODE_UNRM | Undelete
 | 0x00000004 | EXT2_COMPR_FL +
 EXT3_COMPR_FL +
-EXT4_COMPR_FL | Compressed file +
+EXT4_COMPR_FL +
+EXT4_INODE_COMPR | Compressed file +
 [yellow-background]*Not yet supported*
 | 0x00000008 | EXT2_SYNC_FL +
 EXT3_SYNC_FL +
-EXT4_SYNC_FL | Synchronous updates
+EXT4_SYNC_FL + 
+EXT4_INODE_SYNC | Synchronous updates
 | 0x00000010 | EXT2_IMMUTABLE_FL +
 EXT3_IMMUTABLE_FL +
-EXT4_IMMUTABLE_FL | Immutable file
+EXT4_IMMUTABLE_FL + 
+EXT4_INODE_IMMUTABLE | Immutable file
 | 0x00000020 | EXT2_APPEND_FL +
 EXT3_APPEND_FL +
-EXT4_APPEND_FL | Writes to file may only append
+EXT4_APPEND_FL +
+EXT4_INODE_APPEND | Writes to file may only append
 | 0x00000040 | EXT2_NODUMP_FL +
 EXT3_NODUMP_FL +
-EXT4_NODUMP_FL | Do not dump file
+EXT4_NODUMP_FL +
+EXT4_INODE_NODUMP | Do not dump file
 | 0x00000080 | EXT2_NOATIME_FL +
 EXT3_NOATIME_FL +
-EXT4_NOATIME_FL | Do not update atime
+EXT4_NOATIME_FL +
+EXT4_INODE_NOATIME | Do not update atime
 | 0x00000100 | EXT2_DIRTY_FL +
 EXT3_DIRTY_FL +
-EXT4_DIRTY_FL | Dirty compressed file +
+EXT4_DIRTY_FL +
+EXT4_INODE_DIRTY | Dirty compressed file +
 [yellow-background]*Not used*
 | 0x00000200 | EXT2_COMPRBLK_FL +
 EXT3_COMPRBLK_FL +
-EXT4_COMPRBLK_FL | One or more compressed clusters +
+EXT4_COMPRBLK_FL +
+EXT4_INODE_COMPRBLK | One or more compressed clusters +
 [yellow-background]*Not used*
 | 0x00000400 | EXT2_NOCOMP_FL +
 EXT3_NOCOMP_FL +
-EXT4_NOCOMPR_FL | Do not compress +
+EXT4_NOCOMPR_FL +
+EXT4_INODE_NOCOMPR | Do not compress +
 [yellow-background]*Not used*
 3+| _ext2 and ext3_
 | 0x00000800 | EXT2_ECOMPR_FL +
 EXT3_ECOMPR_FL | Encrypted Compression error
 3+| _ext4_
-| 0x00000800 | EXT4_ENCRYPT_FL | Encrypted file
+| 0x00000800 | EXT4_ENCRYPT_FL +
+EXT4_INODE_ENCRYPT | Encrypted file
 3+| _Common_
 | 0x00001000 | EXT2_BTREE_FL +
 EXT2_INDEX_FL +
 EXT3_INDEX_FL +
-EXT4_INDEX_FL | Hash-indexed directory, previously referred to as B-tree format
+EXT4_INDEX_FL +
+EXT4_INODE_INDEX | Hash-indexed directory (previously referred to as B-tree format).
 | 0x00002000 | EXT2_IMAGIC_FL +
 EXT3_IMAGIC_FL +
-EXT4_IMAGIC_FL | AFS directory
+EXT4_IMAGIC_FL +
+EXT4_INODE_IMAGIC | AFS directory
 | 0x00004000 | EXT2_JOURNAL_DATA_FL +
 EXT3_JOURNAL_DATA_FL +
-EXT4_JOURNAL_DATA_FL | File data should be journaled
+EXT4_JOURNAL_DATA_FL +
+EXT4_INODE_JOURNAL_DATA | File data should be journaled
 | 0x00008000 | EXT2_NOTAIL_FL +
 EXT3_NOTAIL_FL +
-EXT4_NOTAIL_FL | File tail should not be merged +
+EXT4_NOTAIL_FL +
+EXT4_INODE_NOTAIL | File tail should not be merged +
 [yellow-background]*Not used by ext4*
 | 0x00010000 | EXT2_DIRSYNC_FL +
 EXT3_DIRSYNC_FL +
-EXT4_DIRSYNC_FL | Dirsync behaviour (directories only)
+EXT4_DIRSYNC_FL +
+EXT4_INODE_DIRSYNC | Dirsync behaviour (directories only)
 | 0x00020000 | EXT2_TOPDIR_FL +
 EXT3_TOPDIR_FL +
-EXT4_TOPDIR_FL | Top of directory hierarchies
+EXT4_TOPDIR_FL +
+EXT4_INODE_TOPDIR | Top of directory hierarchies
 3+| _ext4_
-| 0x00040000 | EXT4_HUGE_FILE_FL | Set to each huge file
-| 0x00080000 | EXT4_EXTENTS_FL | Inode uses extents
+| 0x00040000 | EXT4_HUGE_FILE_FL +
+EXT4_INODE_HUGE_FILE | Set to each huge file
+| 0x00080000 | EXT4_EXTENTS_FL +
+EXT4_INODE_EXTENTS | Inode uses extents
+| 0x00100000 | EXT4_INODE_VERITY | Verity protected inode
+| 0x00200000 | EXT4_EA_INODE_FL +
+EXT4_INODE_EA_INODE | Inode used for large extended attribute
+| 0x00400000 | EXT4_EOFBLOCKS_FL +
+EXT4_INODE_EOFBLOCKS | Blocks allocated beyond EOF
 | | |
-| 0x00200000 | EXT4_EA_INODE_FL | Inode used for large extended attribute
-| 0x00400000 | EXT4_EOFBLOCKS_FL | Blocks allocated beyond EOF
+| 0x02000000 | EXT4_INODE_DAX | Inode is DAX
 | | |
-| 0x10000000 | EXT4_INLINE_DATA_FL | Inode has inline data
-| 0x20000000 | EXT4_PROJINHERIT_FL | Create with parents projid
+| 0x10000000 | EXT4_INLINE_DATA_FL +
+EXT4_INODE_INLINE_DATA | Inode has inline data
+| 0x20000000 | EXT4_PROJINHERIT_FL +
+EXT4_INODE_PROJINHERIT | Create with parents projid
+| 0x40000000 | EXT4_INODE_CASEFOLD | Casefolded directory
+| 0x80000000 | EXT4_INODE_RESERVED | [yellow-background]*Unknown (reserved)*
 |===
 
 === Reserved inode numbers

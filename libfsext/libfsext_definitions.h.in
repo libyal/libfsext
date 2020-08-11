@@ -82,6 +82,13 @@ enum LIBFSEXT_FILE_TYPES
 
 #endif /* !defined( HAVE_LOCAL_LIBFSEXT ) */
 
+/* The incompatible features flags
+ */
+enum LIBFSEXT_INCOMPATIBLE_FEATURES_FLAGS
+{
+	LIBFSEXT_INCOMPATIBLE_FEATURES_FLAG_64BIT_SUPPORT		= 0x00000080UL,
+};
+
 /* The inode flags types
  */
 enum LIBFSEXT_INODE_FLAGS

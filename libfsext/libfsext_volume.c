@@ -1229,6 +1229,7 @@ int libfsext_internal_volume_read_block_groups(
 			{
 				internal_volume->io_handle->block_size                          = superblock->block_size;
 				internal_volume->io_handle->inode_size                          = superblock->inode_size;
+				internal_volume->io_handle->group_descriptor_size               = superblock->group_descriptor_size;
 				internal_volume->io_handle->format_revision                     = superblock->format_revision;
 				internal_volume->io_handle->compatible_features_flags           = superblock->compatible_features_flags;
 				internal_volume->io_handle->incompatible_features_flags         = superblock->incompatible_features_flags;

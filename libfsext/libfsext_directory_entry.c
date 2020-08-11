@@ -316,6 +316,10 @@ int libfsext_directory_entry_read_data(
 	 ( (fsext_directory_entry_t *) data )->size,
 	 directory_entry->size );
 
+	if( directory_entry->size == 0 )
+	{
+		return( 1 );
+	}
 	if( ( directory_entry->size < 8 )
 	 || ( directory_entry->size > data_size ) )
 	{

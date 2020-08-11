@@ -152,11 +152,12 @@ int libfsext_superblock_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_superblock_read_data";
+	static char *function            = "libfsext_superblock_read_data";
+	uint32_t supported_feature_flags = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit  = 0;
-	uint16_t value_16bit  = 0;
+	uint32_t value_32bit             = 0;
+	uint16_t value_16bit             = 0;
 #endif
 
 	if( superblock == NULL )
@@ -673,14 +674,71 @@ int libfsext_superblock_read_data(
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 	}
-	if( ( ( superblock->compatible_features_flags & 0x00000200 ) != 0 )
-	 || ( ( superblock->incompatible_features_flags & 0x0001f7c0 ) != 0 )
-	 || ( ( superblock->read_only_compatible_features_flags & 0x00000378 ) != 0 ) )
+	supported_feature_flags = 0x00000001UL
+	                        | 0x00000004UL
+	                        | 0x00000008UL
+	                        | 0x00000010UL
+	                        | 0x00000020UL;
+
+	if( ( superblock->compatible_features_flags & ~( supported_feature_flags ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported compatible features flags: 0x%08" PRIx32 ".",
+		 function,
+		 superblock->compatible_features_flags );
+
+		return( -1 );
+	}
+	supported_feature_flags = 0x00000002UL
+	                        | 0x00000008UL
+	                        | 0x00000040UL
+	                        | 0x00000200UL
+	                        | 0x00008000UL;
+
+	if( ( superblock->incompatible_features_flags & ~( supported_feature_flags ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported incompatible features flags: 0x%08" PRIx32 ".",
+		 function,
+		 superblock->incompatible_features_flags );
+
+		return( -1 );
+	}
+	supported_feature_flags = 0x00000001UL
+	                        | 0x00000002UL
+	                        | 0x00000008UL
+	                        | 0x00000010UL
+	                        | 0x00000020UL
+	                        | 0x00000040UL
+	                        | 0x00000100UL
+	                        | 0x00001000UL;
+
+	if( ( superblock->read_only_compatible_features_flags & ~( supported_feature_flags ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported read-only compatible features flags: 0x%08" PRIx32 ".",
+		 function,
+		 superblock->read_only_compatible_features_flags );
+
+		return( -1 );
+	}
+	if( ( ( superblock->compatible_features_flags & 0x00000200UL ) != 0 )
+	 || ( ( superblock->incompatible_features_flags & 0x0001f7c0UL ) != 0 )
+	 || ( ( superblock->read_only_compatible_features_flags & 0x00000378UL ) != 0 ) )
 	{
 		superblock->format_version = 4;
 	}
-	else if( ( ( superblock->compatible_features_flags & 0x00000004 ) != 0 )
-	      || ( ( superblock->incompatible_features_flags & 0x0000000c ) != 0 ) )
+	else if( ( ( superblock->compatible_features_flags & 0x00000004UL ) != 0 )
+	      || ( ( superblock->incompatible_features_flags & 0x0000000cUL ) != 0 ) )
 	{
 		superblock->format_version = 3;
 	}
@@ -712,6 +770,12 @@ int libfsext_superblock_read_data(
 			 0 );
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+	}
+	if( superblock->format_version == 4 )
+	{
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_superblock_ext4_t *) data )->group_descriptor_size,
+		 superblock->group_descriptor_size );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -771,14 +835,28 @@ int libfsext_superblock_read_data(
 		 function,
 		 ( (fsext_superblock_ext2_t *) data )->default_hash_version );
 
-		libcnotify_printf(
-		 "%s: padding2:\n",
-		 function );
-		libcnotify_print_data(
-		 ( (fsext_superblock_ext2_t *) data )->padding2,
-		 3,
-		 0 );
+		if( superblock->format_version < 4 )
+		{
+			libcnotify_printf(
+			 "%s: padding2:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (fsext_superblock_ext2_t *) data )->padding2,
+			 3,
+			 0 );
+		}
+		else
+		{
+			libcnotify_printf(
+			 "%s: journal backup type\t\t\t: %" PRIu8 "\n",
+			 function,
+			 ( (fsext_superblock_ext4_t *) data )->journal_backup_type );
 
+			libcnotify_printf(
+			 "%s: group descriptor size\t\t\t: %" PRIu16 "\n",
+			 function,
+			 superblock->group_descriptor_size );
+		}
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_superblock_ext2_t *) data )->default_mount_options,
 		 value_32bit );

@@ -306,6 +306,7 @@ int libfsext_inode_read_data(
 	uint32_t data_size_upper        = 0;
 	uint32_t inode_change_time      = 0;
 	uint32_t modification_time      = 0;
+	uint32_t supported_inode_flags  = 0;
 	uint32_t value_32bit            = 0;
 	uint16_t blocks_count_upper     = 0;
 	uint16_t file_acl_upper         = 0;
@@ -604,6 +605,23 @@ int libfsext_inode_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+/* TODO check if corresponding flag in superblock is set? */
+
+	supported_inode_flags = 0x00001000UL
+	                      | 0x00080000UL;
+
+	if( ( inode->flags & ~( supported_inode_flags ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported inode flags: 0x%08" PRIx32 ".",
+		 function,
+		 inode->flags );
+
+		return( -1 );
+	}
 	if( memory_copy(
 	     inode->data_reference,
 	     ( (fsext_inode_ext2_t *) data )->data_reference,
