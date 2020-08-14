@@ -84,6 +84,41 @@ struct fsext_extent_ext4
 	uint8_t physical_block_number_lower[ 4 ];
 };
 
+typedef struct fsext_extent_index_ext4 fsext_extent_index_ext4_t;
+
+struct fsext_extent_index_ext4
+{
+	/* Logical block number
+	 * Consists of 4 bytes
+	 */
+	uint8_t logical_block_number[ 4 ];
+
+	/* Physical block number (lower 32-bit)
+	 * Consists of 4 bytes
+	 */
+	uint8_t physical_block_number_lower[ 4 ];
+
+	/* Physical block number (upper 16-bit)
+	 * Consists of 2 bytes
+	 */
+	uint8_t physical_block_number_upper[ 2 ];
+
+	/* Unknown
+	 * Consists of 2 bytes
+	 */
+	uint8_t unknown1[ 2 ];
+};
+
+typedef struct fsext_extents_footer_ext4 fsext_extents_footer_ext4_t;
+
+struct fsext_extents_footer_ext4
+{
+	/* Checksum
+	 * Consists of 4 bytes
+	 */
+	uint8_t checksum[ 4 ];
+};
+
 #if defined( __cplusplus )
 }
 #endif

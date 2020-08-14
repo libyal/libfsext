@@ -30,8 +30,7 @@
 #include "libfsext_block.h"
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
-#include "libfsext_extent.h"
-#include "libfsext_extents_header.h"
+#include "libfsext_extents.h"
 #include "libfsext_inode.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
@@ -1097,14 +1096,9 @@ int libfsext_inode_read_data_reference(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	libfsext_block_t *block                   = NULL;
-	libfsext_extent_t *extent                 = NULL;
-	libfsext_extents_header_t *extents_header = NULL;
-	static char *function                     = "libfsext_inode_read_data_reference";
-	size_t data_offset                        = 0;
-	uint32_t block_number                     = 0;
-	uint8_t block_number_index                = 0;
-	int entry_index                           = 0;
+	libfsext_block_t *block = NULL;
+	static char *function   = "libfsext_inode_read_data_reference";
+	uint32_t block_number   = 0;
 
 	if( inode == NULL )
 	{
@@ -1145,152 +1139,31 @@ int libfsext_inode_read_data_reference(
 	{
 		/* The data is stored inline in inode->data_reference */
 	}
+	else if( ( ( inode->file_mode & 0xf000 ) == 0xa000 )
+	      && ( inode->data_size < 60 ) )
+	{
+		/* The symbolic link target path is stored in inode->data_reference */
+	}
 	else if( ( io_handle->format_version == 4 )
 	      && ( ( inode->flags & LIBFSEXT_INODE_FLAG_HAS_EXTENTS ) != 0 ) )
 	{
-		data_offset = 0;
-
-		if( libfsext_extents_header_initialize(
-		     &extents_header,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create extents header.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfsext_extents_header_read_data(
-		     extents_header,
-		     &( ( inode->data_reference )[ data_offset ] ),
-		     12,
+		if( libfsext_extents_read_data(
+		     inode->data_extents_array,
+		     io_handle,
+		     file_io_handle,
+		     inode->data_reference,
+		     60,
 		     error ) == -1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read extents header.",
+			 "%s: unable to read extents from data reference.",
 			 function );
 
 			goto on_error;
 		}
-		data_offset += 12;
-
-		if( extents_header->number_of_extents > 4 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported number of extents.",
-			 function );
-
-			goto on_error;
-		}
-		if( extents_header->depth != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported depth.",
-			 function );
-
-			goto on_error;
-		}
-		for( block_number_index = 0;
-		     block_number_index < extents_header->number_of_extents;
-		     block_number_index++ )
-		{
-			if( libfsext_extent_initialize(
-			     &extent,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create extent.",
-				 function );
-
-				goto on_error;
-			}
-			if( libfsext_extent_read_data(
-			     extent,
-			     &( ( inode->data_reference )[ data_offset ] ),
-			     12,
-			     error ) == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read extent.",
-				 function );
-
-				goto on_error;
-			}
-			data_offset += 12;
-
-			if( extent->number_of_blocks == 0 )
-			{
-				if( libfsext_extent_free(
-				     &extent,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-					 "%s: unable to free extent.",
-					 function );
-
-					goto on_error;
-				}
-			}
-			else
-			{
-				if( libcdata_array_append_entry(
-				     inode->data_extents_array,
-				     &entry_index,
-				     (intptr_t *) extent,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-					 "%s: unable to append data extent to array.",
-					 function );
-
-					goto on_error;
-				}
-				extent = NULL;
-			}
-		}
-/* TODO debug print remaining extents */
-		if( libfsext_extents_header_free(
-		     &extents_header,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free extents header.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	else if( ( ( inode->file_mode & 0xf000 ) == 0xa000 )
-	      && ( inode->data_size < 60 ) )
-	{
-		/* The symbolic link target path is stored in inode->data_reference */
 	}
 	else
 	{
@@ -1304,7 +1177,7 @@ int libfsext_inode_read_data_reference(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read direct block numbers.",
+			 "%s: unable to read direct block numbers from data reference.",
 			 function );
 
 			goto on_error;
@@ -1413,18 +1286,6 @@ on_error:
 	{
 		libfsext_block_free(
 		 &block,
-		 NULL );
-	}
-	if( extent != NULL )
-	{
-		libfsext_extent_free(
-		 &extent,
-		 NULL );
-	}
-	if( extents_header != NULL )
-	{
-		libfsext_extents_header_free(
-		 &extents_header,
 		 NULL );
 	}
 	return( -1 );

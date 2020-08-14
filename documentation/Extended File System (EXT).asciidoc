@@ -628,6 +628,7 @@ The extents form an extent B-Tree of which the nodes are stored as:
 
 * extents header
 * extents or extent indexes
+* extents footer
 
 === [[ext4_extents_header]]The ext4 extents header
 
@@ -675,7 +676,7 @@ Contains the first logical block number of next depth extents block
 Contains the block number of the next depth extents block
 | 8 | 2 | | Upper part of physical block number +
 Contains the block number of the next depth extents block
-| 10 | 2 | | [yellow-background]*Unused*
+| 10 | 2 | | [yellow-background]*Unknown (unused)*
 |===
 
 === The ext4 extents footer

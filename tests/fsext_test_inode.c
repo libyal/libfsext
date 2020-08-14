@@ -615,6 +615,10 @@ int fsext_test_inode_read_data(
 	 "error",
 	 error );
 
+	io_handle->format_version = 4;
+	io_handle->block_size     = 1024;
+	io_handle->inode_size     = 128;
+
 	result = libfsext_inode_initialize(
 	          &inode,
 	          &error );
@@ -1464,6 +1468,7 @@ int main(
 	 error );
 
 	io_handle->format_version = 4;
+	io_handle->block_size     = 1024;
 	io_handle->inode_size     = 128;
 
 	result = libfsext_inode_initialize(

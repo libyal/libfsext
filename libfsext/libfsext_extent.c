@@ -247,24 +247,14 @@ int libfsext_extent_read_data(
 
 		return( -1 );
 	}
-	if( data_size < sizeof( fsext_extent_ext4_t ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data size.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_size > (size_t) SSIZE_MAX )
+	if( ( data_size < sizeof( fsext_extent_ext4_t ) )
+	 || ( data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -319,13 +309,23 @@ int libfsext_extent_read_data(
 		 "%s: physical block number (lower)\t\t: %" PRIu32 "\n",
 		 function,
 		 physical_block_number_lower );
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	extent->physical_block_number = ( (uint64_t) physical_block_number_upper << 32 ) | physical_block_number_lower;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: physical block number\t\t: %" PRIu32 "\n",
+		 function,
+		 extent->physical_block_number );
 
 		libcnotify_printf(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
-	extent->physical_block_number = ( (uint64_t) physical_block_number_upper << 32 ) | physical_block_number_lower;
 
 	return( 1 );
 }

@@ -39,7 +39,10 @@ libfsext_la_SOURCES = \
 	libfsext_directory_entry.c libfsext_directory_entry.h \
 	libfsext_error.c libfsext_error.h \
 	libfsext_extent.c libfsext_extent.h \
+	libfsext_extent_index.c libfsext_extent_index.h \
+	libfsext_extents.c libfsext_extents.h \
 	libfsext_extents_header.c libfsext_extents_header.h \
+	libfsext_extents_footer.c libfsext_extents_footer.h \
 	libfsext_extern.h \
 	libfsext_file_entry.c libfsext_file_entry.h \
 	libfsext_group_descriptor.c libfsext_group_descriptor.h \

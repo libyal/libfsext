@@ -1,5 +1,5 @@
 /*
- * Extents header functions
+ * Extent index functions
  *
  * Copyright (C) 2010-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -24,70 +24,68 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libfsext_extents_header.h"
+#include "libfsext_extent_index.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
 
 #include "fsext_extents.h"
 
-const char *fsext_extents_header_signature = "\x0a\xf3";
-
-/* Creates an extents header
- * Make sure the value extents_header is referencing, is set to NULL
+/* Creates an extent index
+ * Make sure the value extent_index is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
-int libfsext_extents_header_initialize(
-     libfsext_extents_header_t **extents_header,
+int libfsext_extent_index_initialize(
+     libfsext_extent_index_t **extent_index,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_extents_header_initialize";
+	static char *function = "libfsext_extent_index_initialize";
 
-	if( extents_header == NULL )
+	if( extent_index == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid extents header.",
+		 "%s: invalid extent index.",
 		 function );
 
 		return( -1 );
 	}
-	if( *extents_header != NULL )
+	if( *extent_index != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid extents header value already set.",
+		 "%s: invalid extent index value already set.",
 		 function );
 
 		return( -1 );
 	}
-	*extents_header = memory_allocate_structure(
-	                   libfsext_extents_header_t );
+	*extent_index = memory_allocate_structure(
+	                 libfsext_extent_index_t );
 
-	if( *extents_header == NULL )
+	if( *extent_index == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create extents header.",
+		 "%s: unable to create extent index.",
 		 function );
 
 		goto on_error;
 	}
 	if( memory_set(
-	     *extents_header,
+	     *extent_index,
 	     0,
-	     sizeof( libfsext_extents_header_t ) ) == NULL )
+	     sizeof( libfsext_extent_index_t ) ) == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear extents header.",
+		 "%s: unable to clear extent index.",
 		 function );
 
 		goto on_error;
@@ -95,68 +93,70 @@ int libfsext_extents_header_initialize(
 	return( 1 );
 
 on_error:
-	if( *extents_header != NULL )
+	if( *extent_index != NULL )
 	{
 		memory_free(
-		 *extents_header );
+		 *extent_index );
 
-		*extents_header = NULL;
+		*extent_index = NULL;
 	}
 	return( -1 );
 }
 
-/* Frees an extents header
+/* Frees an extent index
  * Returns 1 if successful or -1 on error
  */
-int libfsext_extents_header_free(
-     libfsext_extents_header_t **extents_header,
+int libfsext_extent_index_free(
+     libfsext_extent_index_t **extent_index,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_extents_header_free";
+	static char *function = "libfsext_extent_index_free";
 
-	if( extents_header == NULL )
+	if( extent_index == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid extents header.",
+		 "%s: invalid extent index.",
 		 function );
 
 		return( -1 );
 	}
-	if( *extents_header != NULL )
+	if( *extent_index != NULL )
 	{
 		memory_free(
-		 *extents_header );
+		 *extent_index );
 
-		*extents_header = NULL;
+		*extent_index = NULL;
 	}
 	return( 1 );
 }
 
-/* Reads the extents header data
+/* Reads the extent index data
  * Returns 1 if successful or -1 on error
  */
-int libfsext_extents_header_read_data(
-     libfsext_extents_header_t *extents_header,
+int libfsext_extent_index_read_data(
+     libfsext_extent_index_t *extent_index,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_extents_header_read_data";
+	static char *function                = "libfsext_extent_index_read_data";
+	uint32_t physical_block_number_upper = 0;
+	uint16_t physical_block_number_lower = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint16_t value_16bit  = 0;
+	uint16_t value_16bit                 = 0;
 #endif
 
-	if( extents_header == NULL )
+	if( extent_index == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid extents header.",
+		 "%s: invalid extent index.",
 		 function );
 
 		return( -1 );
@@ -172,7 +172,7 @@ int libfsext_extents_header_read_data(
 
 		return( -1 );
 	}
-	if( ( data_size < sizeof( fsext_extents_header_ext4_t ) )
+	if( ( data_size < sizeof( fsext_extent_index_ext4_t ) )
 	 || ( data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
@@ -188,7 +188,7 @@ int libfsext_extents_header_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: extents header data:\n",
+		 "%s: extent index data:\n",
 		 function );
 		libcnotify_print_data(
 		 data,
@@ -196,65 +196,55 @@ int libfsext_extents_header_read_data(
 		 0 );
 	}
 #endif
-	if( memory_compare(
-	     ( (fsext_extents_header_ext4_t *) data )->signature,
-	     fsext_extents_header_signature,
-	     2 ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: invalid signature.",
-		 function );
-
-		return( -1 );
-	}
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_extents_header_ext4_t *) data )->number_of_extents,
-	 extents_header->number_of_extents );
-
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_extents_header_ext4_t *) data )->depth,
-	 extents_header->depth );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_extent_index_ext4_t *) data )->logical_block_number,
+	 extent_index->logical_block_number );
 
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_extents_header_ext4_t *) data )->generation,
-	 extents_header->generation );
+	 ( (fsext_extent_index_ext4_t *) data )->physical_block_number_lower,
+	 physical_block_number_lower );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_extent_index_ext4_t *) data )->physical_block_number_upper,
+	 physical_block_number_upper );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		libcnotify_printf(
+		 "%s: logical block number\t\t\t: %" PRIu32 "\n",
+		 function,
+		 extent_index->logical_block_number );
+
+		libcnotify_printf(
+		 "%s: physical block number (lower)\t: %" PRIu32 "\n",
+		 function,
+		 physical_block_number_lower );
+
+		libcnotify_printf(
+		 "%s: physical block number (upper)\t: %" PRIu16 "\n",
+		 function,
+		 physical_block_number_upper );
+
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_extents_header_ext4_t *) data )->signature,
+		 ( (fsext_extent_index_ext4_t *) data )->unknown1,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: signature\t\t\t\t: 0x%04" PRIx16 "\n",
+		 "%s: unknown1\t\t\t: 0x%04" PRIx16 "\n",
 		 function,
 		 value_16bit );
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-		libcnotify_printf(
-		 "%s: number of extents\t\t\t: %" PRIu16 "\n",
-		 function,
-		 value_16bit );
+	extent_index->physical_block_number = ( (uint64_t) physical_block_number_upper << 32 ) | physical_block_number_lower;
 
-		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_extents_header_ext4_t *) data )->maximum_number_of_extents,
-		 value_16bit );
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
 		libcnotify_printf(
-		 "%s: maximum number of extents\t\t: %" PRIu16 "\n",
+		 "%s: physical block number\t\t: %" PRIu32 "\n",
 		 function,
-		 value_16bit );
-
-		libcnotify_printf(
-		 "%s: depth\t\t\t\t: %" PRIu16 "\n",
-		 function,
-		 extents_header->depth );
-
-		libcnotify_printf(
-		 "%s: generation\t\t\t\t: %" PRIu32 "\n",
-		 function,
-		 extents_header->generation );
+		 extent_index->physical_block_number );
 
 		libcnotify_printf(
 		 "\n" );

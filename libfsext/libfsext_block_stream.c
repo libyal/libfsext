@@ -380,6 +380,8 @@ int libfsext_block_stream_initialize(
 
 		goto on_error;
 	}
+	*block_stream = safe_block_stream;
+
 	return( 1 );
 
 on_error:
