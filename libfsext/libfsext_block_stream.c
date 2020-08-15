@@ -278,6 +278,20 @@ int libfsext_block_stream_initialize_from_extents(
 			goto on_error;
 		}
 	}
+	if( libfdata_stream_set_mapped_size(
+	     safe_data_stream,
+	     inode->data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set mapped size of data stream.",
+		 function );
+
+		goto on_error;
+	}
 	*block_stream = safe_data_stream;
 
 	return( 1 );

@@ -143,8 +143,8 @@ int libfsext_extent_index_read_data(
      libcerror_error_t **error )
 {
 	static char *function                = "libfsext_extent_index_read_data";
-	uint32_t physical_block_number_upper = 0;
-	uint16_t physical_block_number_lower = 0;
+	uint32_t physical_block_number_lower = 0;
+	uint16_t physical_block_number_upper = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint16_t value_16bit                 = 0;
@@ -217,12 +217,12 @@ int libfsext_extent_index_read_data(
 		 extent_index->logical_block_number );
 
 		libcnotify_printf(
-		 "%s: physical block number (lower)\t: %" PRIu32 "\n",
+		 "%s: physical block number (lower)\t\t: %" PRIu32 "\n",
 		 function,
 		 physical_block_number_lower );
 
 		libcnotify_printf(
-		 "%s: physical block number (upper)\t: %" PRIu16 "\n",
+		 "%s: physical block number (upper)\t\t: %" PRIu16 "\n",
 		 function,
 		 physical_block_number_upper );
 
@@ -230,7 +230,7 @@ int libfsext_extent_index_read_data(
 		 ( (fsext_extent_index_ext4_t *) data )->unknown1,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: unknown1\t\t\t: 0x%04" PRIx16 "\n",
+		 "%s: unknown1\t\t\t\t: 0x%04" PRIx16 "\n",
 		 function,
 		 value_16bit );
 	}
@@ -242,7 +242,7 @@ int libfsext_extent_index_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: physical block number\t\t: %" PRIu32 "\n",
+		 "%s: physical block number\t\t\t: %" PRIu32 "\n",
 		 function,
 		 extent_index->physical_block_number );
 

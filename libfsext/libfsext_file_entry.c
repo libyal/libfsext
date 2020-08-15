@@ -173,7 +173,8 @@ int libfsext_file_entry_initialize(
 			goto on_error;
 		}
 	}
-	else if( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_REGULAR_FILE )
+	else if( ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_REGULAR_FILE )
+	      || ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_SYMBOLIC_LINK ) )
 	{
 		if( libfsext_inode_get_data_size(
 		     inode,
@@ -189,21 +190,25 @@ int libfsext_file_entry_initialize(
 
 			goto on_error;
 		}
-		if( libfsext_block_stream_initialize(
-		     &( internal_file_entry->data_block_stream ),
-		     io_handle,
-		     inode,
-		     internal_file_entry->data_size,
-		     error ) != 1 )
+		if( ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_REGULAR_FILE )
+		 || ( internal_file_entry->data_size > 60 ) )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create data block stream.",
-			 function );
+			if( libfsext_block_stream_initialize(
+			     &( internal_file_entry->data_block_stream ),
+			     io_handle,
+			     inode,
+			     internal_file_entry->data_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create data block stream.",
+				 function );
 
-			goto on_error;
+				goto on_error;
+			}
 		}
 	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
@@ -1432,6 +1437,7 @@ int libfsext_internal_file_entry_get_symbolic_link_data(
      libcerror_error_t **error )
 {
 	static char *function = "libfsext_internal_file_entry_get_symbolic_link_data";
+	ssize_t read_count    = 0;
 	uint64_t data_size    = 0;
 	uint16_t file_mode    = 0;
 
@@ -1482,7 +1488,7 @@ int libfsext_internal_file_entry_get_symbolic_link_data(
 
 		goto on_error;
 	}
-	if( ( file_mode & 0xf000 ) == 0xa000 )
+	if( ( file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_SYMBOLIC_LINK )
 	{
 		if( libfsext_inode_get_data_size(
 		     internal_file_entry->inode,
@@ -1545,7 +1551,26 @@ int libfsext_internal_file_entry_get_symbolic_link_data(
 		}
 		else
 		{
-/* TODO read from data stream */
+			read_count = libfdata_stream_read_buffer_at_offset(
+			              internal_file_entry->data_block_stream,
+			              (intptr_t *) internal_file_entry->file_io_handle,
+			              internal_file_entry->symbolic_link_data,
+			              (size_t) data_size,
+			              0,
+			              0,
+			              error );
+
+			if( read_count != (size_t) data_size )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read from data block stream.",
+				 function );
+
+				goto on_error;
+			}
 		}
 	}
 	return( 1 );
@@ -2805,6 +2830,28 @@ ssize_t libfsext_file_entry_read_buffer(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_file_entry->inode->file_mode & 0xf000 ) != LIBFSEXT_FILE_TYPE_REGULAR_FILE )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: invalid file entry - invalid inode - unsupported file mode not a regular file.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_grab_for_write(
 	     internal_file_entry->read_write_lock,
@@ -2884,6 +2931,28 @@ ssize_t libfsext_file_entry_read_buffer_at_offset(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_file_entry->inode->file_mode & 0xf000 ) != LIBFSEXT_FILE_TYPE_REGULAR_FILE )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: invalid file entry - invalid inode - unsupported file mode not a regular file.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_grab_for_write(
 	     internal_file_entry->read_write_lock,
@@ -2979,6 +3048,28 @@ off64_t libfsext_file_entry_seek_offset(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_file_entry->inode->file_mode & 0xf000 ) != LIBFSEXT_FILE_TYPE_REGULAR_FILE )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: invalid file entry - invalid inode - unsupported file mode not a regular file.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_grab_for_write(
 	     internal_file_entry->read_write_lock,
@@ -3054,6 +3145,28 @@ int libfsext_file_entry_get_offset(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_file_entry->inode->file_mode & 0xf000 ) != LIBFSEXT_FILE_TYPE_REGULAR_FILE )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: invalid file entry - invalid inode - unsupported file mode not a regular file.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_grab_for_read(
 	     internal_file_entry->read_write_lock,

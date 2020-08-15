@@ -222,8 +222,8 @@ int libfsext_extent_read_data(
      libcerror_error_t **error )
 {
 	static char *function                = "libfsext_extent_read_data";
-	uint32_t physical_block_number_upper = 0;
-	uint16_t physical_block_number_lower = 0;
+	uint32_t physical_block_number_lower = 0;
+	uint16_t physical_block_number_upper = 0;
 
 	if( extent == NULL )
 	{
@@ -318,7 +318,7 @@ int libfsext_extent_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: physical block number\t\t: %" PRIu32 "\n",
+		 "%s: physical block number\t\t\t: %" PRIu32 "\n",
 		 function,
 		 extent->physical_block_number );
 

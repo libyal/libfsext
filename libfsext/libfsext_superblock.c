@@ -312,9 +312,9 @@ int libfsext_superblock_read_data(
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: block size\t\t\t\t: %" PRIu32 " (%" PRIu32 ")\n",
+		 "%s: block size\t\t\t\t: %" PRIu64 " (%" PRIu32 ")\n",
 		 function,
-		 1024 << superblock->block_size,
+		 (uint64_t) 1024UL << superblock->block_size,
 		 superblock->block_size );
 
 		byte_stream_copy_to_uint32_little_endian(
@@ -499,6 +499,17 @@ int libfsext_superblock_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	if( superblock->block_size > ( 31 - 10 ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid block size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	superblock->block_size = 1024 << superblock->block_size;
 
 	if( superblock->format_revision > 1 )

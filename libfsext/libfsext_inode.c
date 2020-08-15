@@ -1153,6 +1153,7 @@ int libfsext_inode_read_data_reference(
 		     file_io_handle,
 		     inode->data_reference,
 		     60,
+		     0,
 		     error ) == -1 )
 		{
 			libcerror_error_set(

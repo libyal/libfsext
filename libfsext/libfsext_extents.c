@@ -23,6 +23,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libfsext_definitions.h"
 #include "libfsext_extent.h"
 #include "libfsext_extent_index.h"
 #include "libfsext_extents.h"
@@ -43,6 +44,7 @@ int libfsext_extents_read_data(
      libbfio_handle_t *file_io_handle,
      const uint8_t *data,
      size_t data_size,
+     int recursion_depth,
      libcerror_error_t **error )
 {
 	libfsext_extent_t *extent                 = NULL;
@@ -50,7 +52,6 @@ int libfsext_extents_read_data(
 	libfsext_extents_footer_t *extents_footer = NULL;
 	libfsext_extents_header_t *extents_header = NULL;
 	static char *function                     = "libfsext_extents_read_data";
-	size_t extents_block_size                 = 0;
 	size_t data_offset                        = 0;
 	off64_t extents_block_offset              = 0;
 	uint8_t block_number_index                = 0;
@@ -97,6 +98,18 @@ int libfsext_extents_read_data(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBFSEXT_MAXIMUM_RECURSION_DEPTH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -270,25 +283,12 @@ int libfsext_extents_read_data(
 			}
 			extents_block_offset = (off64_t) extent_index->physical_block_number * io_handle->block_size;
 
-			if( (size_t) extent_index->number_of_blocks > ( (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE / io_handle->block_size ) )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid extent index - number of blocks value out of bounds.",
-				 function );
-
-				goto on_error;
-			}
-			extents_block_size = (size_t) extent_index->number_of_blocks * io_handle->block_size;
-
 			if( libfsext_extents_read_file_io_handle(
 			     extents_array,
 			     io_handle,
 			     file_io_handle,
 			     extents_block_offset,
-			     extents_block_size,
+			     recursion_depth + 1,
 			     error ) == -1 )
 			{
 				libcerror_error_set(
@@ -329,57 +329,51 @@ int libfsext_extents_read_data(
 
 		goto on_error;
 	}
-	if( data_offset > ( data_size - 4 ) )
+	if( data_offset <= ( data_size - 4 ) )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid data size value out of bounds.",
-		 function );
+		/* Note that the extents in the inode->data_reference do not have an extents footer
+		 */
+		if( libfsext_extents_footer_initialize(
+		     &extents_footer,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create extents footer.",
+			 function );
 
-		goto on_error;
-	}
-	if( libfsext_extents_footer_initialize(
-	     &extents_footer,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create extents footer.",
-		 function );
+			goto on_error;
+		}
+		if( libfsext_extents_footer_read_data(
+		     extents_footer,
+		     &( data[ data_offset ] ),
+		     4,
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read extents footer.",
+			 function );
 
-		goto on_error;
-	}
-	if( libfsext_extents_footer_read_data(
-	     extents_footer,
-	     &( data[ data_offset ] ),
-	     4,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read extents footer.",
-		 function );
+			goto on_error;
+		}
+		if( libfsext_extents_footer_free(
+		     &extents_footer,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free extents footer.",
+			 function );
 
-		goto on_error;
-	}
-	if( libfsext_extents_footer_free(
-	     &extents_footer,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free extents footer.",
-		 function );
-
-		goto on_error;
+			goto on_error;
+		}
 	}
 	return( 1 );
 
@@ -419,7 +413,7 @@ int libfsext_extents_read_file_io_handle(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
-     size_t data_size,
+     int recursion_depth,
      libcerror_error_t **error )
 {
 	uint8_t *data         = NULL;
@@ -437,14 +431,14 @@ int libfsext_extents_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( ( data_size == 0 )
-	 || ( data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+	if( ( io_handle->block_size == 0 )
+	 || ( io_handle->block_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid data size value out of bounds.",
+		 "%s: invalid IO handle - block size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -455,7 +449,7 @@ int libfsext_extents_read_file_io_handle(
 		libcnotify_printf(
 		 "%s: reading extents data of size: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
 		 function,
-		 data_size,
+		 io_handle->block_size,
 		 file_offset,
 		 file_offset );
 	}
@@ -478,7 +472,7 @@ int libfsext_extents_read_file_io_handle(
 		goto on_error;
 	}
 	data = (uint8_t *) memory_allocate(
-	                    sizeof( uint8_t ) * data_size );
+	                    sizeof( uint8_t ) * (size_t) io_handle->block_size );
 
 	if( data == NULL )
 	{
@@ -494,10 +488,10 @@ int libfsext_extents_read_file_io_handle(
 	read_count = libbfio_handle_read_buffer(
 	              file_io_handle,
 	              data,
-	              data_size,
+	              (size_t) io_handle->block_size,
 	              error );
 
-	if( read_count != (ssize_t) data_size )
+	if( read_count != (ssize_t) io_handle->block_size )
 	{
 		libcerror_error_set(
 		 error,
@@ -515,7 +509,8 @@ int libfsext_extents_read_file_io_handle(
 	     io_handle,
 	     file_io_handle,
 	     data,
-	     data_size,
+	     (size_t) io_handle->block_size,
+	     recursion_depth,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

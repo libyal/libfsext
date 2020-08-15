@@ -42,10 +42,6 @@ struct libfsext_extent_index
 	/* Physical block number
 	 */
 	uint64_t physical_block_number;
-
-	/* Number of blocks
-	 */
-	uint16_t number_of_blocks;
 };
 
 int libfsext_extent_index_initialize(

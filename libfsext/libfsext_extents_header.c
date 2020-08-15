@@ -236,7 +236,7 @@ int libfsext_extents_header_read_data(
 		libcnotify_printf(
 		 "%s: number of extents\t\t\t: %" PRIu16 "\n",
 		 function,
-		 value_16bit );
+		 extents_header->number_of_extents );
 
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_extents_header_ext4_t *) data )->maximum_number_of_extents,

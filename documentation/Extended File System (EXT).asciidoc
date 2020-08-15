@@ -1,4 +1,4 @@
-+
+= Extended File System
 Analysis the Linux ext file system
 
 :toc:
@@ -627,7 +627,7 @@ EXT4_FEATURE_INCOMPAT_EXTENTS.
 The extents form an extent B-Tree of which the nodes are stored as:
 
 * extents header
-* extents or extent indexes
+* extents or extent index
 * extents footer
 
 === [[ext4_extents_header]]The ext4 extents header
