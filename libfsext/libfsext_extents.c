@@ -44,16 +44,19 @@ int libfsext_extents_read_data(
      libbfio_handle_t *file_io_handle,
      const uint8_t *data,
      size_t data_size,
+     uint32_t *last_logical_block_number,
      int recursion_depth,
      libcerror_error_t **error )
 {
 	libfsext_extent_t *extent                 = NULL;
+	libfsext_extent_t *sparse_extent          = NULL;
 	libfsext_extent_index_t *extent_index     = NULL;
 	libfsext_extents_footer_t *extents_footer = NULL;
 	libfsext_extents_header_t *extents_header = NULL;
 	static char *function                     = "libfsext_extents_read_data";
 	size_t data_offset                        = 0;
 	off64_t extents_block_offset              = 0;
+	uint32_t safe_last_logical_block_number   = 0;
 	uint8_t block_number_index                = 0;
 	int entry_index                           = 0;
 
@@ -102,6 +105,17 @@ int libfsext_extents_read_data(
 
 		return( -1 );
 	}
+	if( last_logical_block_number == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid last logical block number.",
+		 function );
+
+		return( -1 );
+	}
 	if( ( recursion_depth < 0 )
 	 || ( recursion_depth > LIBFSEXT_MAXIMUM_RECURSION_DEPTH ) )
 	{
@@ -114,6 +128,8 @@ int libfsext_extents_read_data(
 
 		return( -1 );
 	}
+	safe_last_logical_block_number = *last_logical_block_number;
+
 	if( libfsext_extents_header_initialize(
 	     &extents_header,
 	     error ) != 1 )
@@ -217,26 +233,62 @@ int libfsext_extents_read_data(
 
 					goto on_error;
 				}
+				continue;
 			}
-			else
+			if( extent->logical_block_number > safe_last_logical_block_number )
 			{
+				if( libfsext_extent_initialize(
+				     &sparse_extent,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to create sparse extent.",
+					 function );
+
+					goto on_error;
+				}
+				sparse_extent->logical_block_number = safe_last_logical_block_number;
+				sparse_extent->number_of_blocks     = extent->logical_block_number - safe_last_logical_block_number;
+				sparse_extent->range_flags          = LIBFSEXT_EXTENT_FLAG_IS_SPARSE;
+
 				if( libcdata_array_append_entry(
 				     extents_array,
 				     &entry_index,
-				     (intptr_t *) extent,
+				     (intptr_t *) sparse_extent,
 				     error ) != 1 )
 				{
 					libcerror_error_set(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-					 "%s: unable to append data extent to array.",
+					 "%s: unable to append sparse extent to array.",
 					 function );
 
 					goto on_error;
 				}
-				extent = NULL;
+				sparse_extent = NULL;
 			}
+			if( libcdata_array_append_entry(
+			     extents_array,
+			     &entry_index,
+			     (intptr_t *) extent,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append data extent to array.",
+				 function );
+
+				goto on_error;
+			}
+			safe_last_logical_block_number = extent->logical_block_number + extent->number_of_blocks;
+
+			extent = NULL;
 		}
 		else
 		{
@@ -288,6 +340,7 @@ int libfsext_extents_read_data(
 			     io_handle,
 			     file_io_handle,
 			     extents_block_offset,
+			     &safe_last_logical_block_number,
 			     recursion_depth + 1,
 			     error ) == -1 )
 			{
@@ -375,6 +428,8 @@ int libfsext_extents_read_data(
 			goto on_error;
 		}
 	}
+	*last_logical_block_number = safe_last_logical_block_number;
+
 	return( 1 );
 
 on_error:
@@ -388,6 +443,12 @@ on_error:
 	{
 		libfsext_extent_index_free(
 		 &extent_index,
+		 NULL );
+	}
+	if( sparse_extent != NULL )
+	{
+		libfsext_extent_free(
+		 &sparse_extent,
 		 NULL );
 	}
 	if( extent != NULL )
@@ -413,6 +474,7 @@ int libfsext_extents_read_file_io_handle(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
+     uint32_t *last_logical_block_number,
      int recursion_depth,
      libcerror_error_t **error )
 {
@@ -510,6 +572,7 @@ int libfsext_extents_read_file_io_handle(
 	     file_io_handle,
 	     data,
 	     (size_t) io_handle->block_size,
+	     last_logical_block_number,
 	     recursion_depth,
 	     error ) != 1 )
 	{

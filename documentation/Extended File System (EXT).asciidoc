@@ -627,7 +627,7 @@ EXT4_FEATURE_INCOMPAT_EXTENTS.
 The extents form an extent B-Tree of which the nodes are stored as:
 
 * extents header
-* extents or extent index
+* extents or extent index descriptors
 * extents footer
 
 === [[ext4_extents_header]]The ext4 extents header
@@ -638,19 +638,19 @@ The ext4 extents header (ext4_extent_header) is 12 bytes of size and consists of
 |===
 | Offset | Size | Value | Description
 | 0 | 2 | 0xf30a | Signature
-| 2 | 2 | | Number of extents or extent indexes
-| 4 | 2 | | Maximum number of extents or extent indexes
+| 2 | 2 | | Number of extents or extent indexes descriptors
+| 4 | 2 | | Maximum number of extents or extent indexes descriptors
 | 6 | 2 | | Depth +
 Where 0 reprensents a leaf node and 1 to 5 different levels of branch nodes.
 | 8 | 4 | | Generation +
 Used by Lustre, but not standard ext4.
 |===
 
-=== [[ext4_extent]]The ext4 extent
+=== [[ext4_extent]]The ext4 extent descriptor
 
 The ext4 extents store the leaf nodes of the extent B-Tree.
 
-The ext4 extent (ext4_extent) is 12 bytes of size and consists of:
+The ext4 extent descriptor (ext4_extent) is 12 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
@@ -661,11 +661,17 @@ The ext4 extent (ext4_extent) is 12 bytes of size and consists of:
 | 8 | 4 | | Lower part of physical block number
 |===
 
-=== [[ext4_extent_index]]The ext4 extent index
+[NOTE]
+Sparse extents can exist between the extent descriptors. In such a case the
+logical block number will not align with the information from the previous
+extent descriptors.
+
+=== [[ext4_extent_index]]The ext4 extent index descriptor
 
 The ext4 extent indexes store the branch nodes of the extent B-Tree.
 
-The ext4 extent index (ext4_extent_idx) is 12 bytes of size and consists of:
+The ext4 extent index descriptor (ext4_extent_idx) is 12 bytes of size and
+consists of:
 
 [cols="1,1,1,5",options="header"]
 |===

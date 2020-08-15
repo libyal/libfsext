@@ -3490,7 +3490,7 @@ int libfsext_file_entry_get_extent_by_index(
 	{
 		*extent_offset = (off64_t) extent->physical_block_number * (off64_t) internal_file_entry->io_handle->block_size;
 		*extent_size   = (size64_t) extent->number_of_blocks * (size64_t) internal_file_entry->io_handle->block_size;
-		*extent_flags  = 0;
+		*extent_flags  = extent->range_flags;
 	}
 	return( result );
 }

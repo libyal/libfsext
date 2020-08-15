@@ -264,7 +264,7 @@ int libfsext_block_stream_initialize_from_extents(
 		     0,
 		     data_segment_offset,
 		     data_segment_size,
-		     0,
+		     extent->range_flags,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

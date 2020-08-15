@@ -46,6 +46,10 @@ struct libfsext_extent
 	/* Number of blocks
 	 */
 	uint16_t number_of_blocks;
+
+	/* The range flags
+	 */
+	uint32_t range_flags;
 };
 
 int libfsext_extent_initialize(

@@ -40,6 +40,7 @@ int libfsext_extents_read_data(
      libbfio_handle_t *file_io_handle,
      const uint8_t *data,
      size_t data_size,
+     uint32_t *last_logical_block_number,
      int recursion_depth,
      libcerror_error_t **error );
 
@@ -48,6 +49,7 @@ int libfsext_extents_read_file_io_handle(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
+     uint32_t *last_logical_block_number,
      int recursion_depth,
      libcerror_error_t **error );
 

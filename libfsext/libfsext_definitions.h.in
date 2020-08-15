@@ -80,6 +80,15 @@ enum LIBFSEXT_FILE_TYPES
 	LIBFSEXT_FILE_TYPE_SOCKET					= 0xc000,
 };
 
+/* The extent flag definitions
+ */
+enum LIBFSEXT_EXTENT_FLAGS
+{
+	/* The extent is sparse
+	 */
+	LIBFSEXT_EXTENT_FLAG_IS_SPARSE					= 0x00000001UL
+};
+
 #endif /* !defined( HAVE_LOCAL_LIBFSEXT ) */
 
 /* The incompatible features flags

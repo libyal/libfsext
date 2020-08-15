@@ -1096,9 +1096,10 @@ int libfsext_inode_read_data_reference(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	libfsext_block_t *block = NULL;
-	static char *function   = "libfsext_inode_read_data_reference";
-	uint32_t block_number   = 0;
+	libfsext_block_t *block            = NULL;
+	static char *function              = "libfsext_inode_read_data_reference";
+	uint32_t block_number              = 0;
+	uint32_t last_logical_block_number = 0;
 
 	if( inode == NULL )
 	{
@@ -1153,6 +1154,7 @@ int libfsext_inode_read_data_reference(
 		     file_io_handle,
 		     inode->data_reference,
 		     60,
+		     &last_logical_block_number,
 		     0,
 		     error ) == -1 )
 		{
