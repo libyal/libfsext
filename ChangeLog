@@ -1,4 +1,5 @@
 TODO:
+* merge continous extents
 * add support for checksums
   * add support for ext4 extents checksum
 * add support for ext4 directory entry tail
@@ -6,8 +7,6 @@ TODO:
 
 * add support for EXT4_EA_INODE_FL
 * libfsext_inode_read_data_reference
-  * add support for double indirect block number in inode
-  * add support for tripple indirect block number in inode
   * add support for extents header depth > 0 in inode
 * add support for EXT2_COMPRBLK_FL
 * add support for hash tree directories
@@ -18,13 +17,14 @@ TODO:
 Create test images:
 * ext2 without dynamic inode information
 * ext2 with dynamic inode information
+* ext2 with +8G sparse file
 * ext3 without dynamic inode information
 * ext3 with dynamic inode information
 * ext4 without dynamic inode information
 * ext4 with dynamic inode information
 * without sparse superblock
 * with inode where double indirect blocks are used
-* with inode where tripple indirect blocks are used
+* with inode where triple indirect blocks are used
 * with INCOMPAT_FILETYPE
 * with INCOMPAT_RECOVER
 * with INCOMPAT_JOURNAL_DEV

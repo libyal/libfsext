@@ -1560,7 +1560,7 @@ int libfsext_internal_file_entry_get_symbolic_link_data(
 			              0,
 			              error );
 
-			if( read_count != (size_t) data_size )
+			if( read_count != (ssize_t) data_size )
 			{
 				libcerror_error_set(
 				 error,

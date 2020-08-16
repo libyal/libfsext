@@ -704,6 +704,7 @@ int libfsext_superblock_read_data(
 		return( -1 );
 	}
 	supported_feature_flags = 0x00000002UL
+	                        | 0x00000004UL
 	                        | 0x00000008UL
 	                        | 0x00000040UL
 	                        | 0x00000200UL

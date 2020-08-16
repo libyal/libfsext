@@ -52,9 +52,9 @@ struct libfsext_inode
 	 */
 	uint16_t links_count;
 
-	/* Blocks count
+	/* Number of (data) blocks
 	 */
-	uint32_t blocks_count;
+	uint32_t number_of_blocks;
 
 	/* Fragment block address
 	 */
@@ -149,12 +149,6 @@ int libfsext_inode_read_data_reference(
      libfsext_inode_t *inode,
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     libcerror_error_t **error );
-
-int libfsext_inode_read_direct_block_number_data(
-     libfsext_inode_t *inode,
-     const uint8_t *data,
-     size_t data_size,
      libcerror_error_t **error );
 
 int libfsext_inode_is_empty(

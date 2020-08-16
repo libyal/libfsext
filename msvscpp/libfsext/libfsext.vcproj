@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_data_blocks.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_debug.c"
 				>
 			</File>
@@ -317,6 +321,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_buffer_data_handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_data_blocks.h"
 				>
 			</File>
 			<File

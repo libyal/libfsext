@@ -78,10 +78,10 @@ struct fsext_inode_ext2
 	 */
 	uint8_t links_count[ 2 ];
 
-	/* Blocks count
+	/* Number of (data) blocks
 	 * Consists of 4 bytes
 	 */
-	uint8_t blocks_count[ 4 ];
+	uint8_t number_of_blocks[ 4 ];
 
 	/* Flags
 	 * Consists of 4 bytes
@@ -95,7 +95,7 @@ struct fsext_inode_ext2
 
 	/* Data reference
 	 * Consists of 60 bytes
-	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
+	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 triple indirect block number
 	 */
 	uint8_t data_reference[ 60 ];
 
@@ -199,10 +199,10 @@ struct fsext_inode_ext3
 	 */
 	uint8_t links_count[ 2 ];
 
-	/* Blocks count
+	/* Number of (data) blocks
 	 * Consists of 4 bytes
 	 */
-	uint8_t blocks_count[ 4 ];
+	uint8_t number_of_blocks[ 4 ];
 
 	/* Flags
 	 * Consists of 4 bytes
@@ -216,7 +216,7 @@ struct fsext_inode_ext3
 
 	/* Data reference
 	 * Consists of 60 bytes
-	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
+	 * Contains 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 triple indirect block number
 	 */
 	uint8_t data_reference[ 60 ];
 
@@ -330,10 +330,10 @@ struct fsext_inode_ext4
 	 */
 	uint8_t links_count[ 2 ];
 
-	/* Blocks count (lower 32-bit)
+	/* Number of (data) blocks (lower 32-bit)
 	 * Consists of 4 bytes
 	 */
-	uint8_t blocks_count_lower[ 4 ];
+	uint8_t number_of_blocks_lower[ 4 ];
 
 	/* Flags
 	 * Consists of 4 bytes
@@ -348,7 +348,7 @@ struct fsext_inode_ext4
 	/* Data reference
 	 * Consists of 60 bytes
 	 * Contains either
-	 * 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 tripple indirect block number
+	 * 12 direct block numbers, 1 indirect block number, 1 double indirect block number and 1 triple indirect block number
 	 * or data extents
 	 * or data
 	 */
@@ -374,10 +374,10 @@ struct fsext_inode_ext4
 	 */
 	uint8_t fragment_block_address[ 4 ];
 
-	/* Blocks count (upper 16-bit)
+	/* Number of (data) blocks (upper 16-bit)
 	 * Consists of 2 bytes
 	 */
-	uint8_t blocks_count_upper[ 2 ];
+	uint8_t number_of_blocks_upper[ 2 ];
 
 	/* File acl (upper 16-bit)
 	 * Consists of 2 bytes

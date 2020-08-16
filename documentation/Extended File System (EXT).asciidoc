@@ -619,6 +619,23 @@ The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap
 
 *TODO: add description*
 
+== The direct and indirect blocks
+
+Direct blocks are blocks that part of the data stream of a file entry.
+
+A direct block number is 0 that is part of the data stream represents a sparse
+data block.
+
+Indirect blocks are blocks that refer to blocks containing direct or indirect
+block numbers. There are multiple levels of indirect block:
+
+* indirect blocks (level 1), that refer to direct blocks
+* double indirect blocks (level 2), that refer to indirect blocks
+* triple indirect blocks (level 3), that refer to double indirect blocks
+
+An indirect block number is 0 that is part of the data stream represents sparse
+data blocks.
+
 == The extents
 
 The extents were introduced in ext4 and are controlled by

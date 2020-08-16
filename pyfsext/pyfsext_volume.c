@@ -277,7 +277,7 @@ PyTypeObject pyfsext_volume_type_object = {
 	0
 };
 
-/* Intializes a volume object
+/* Initializes a volume object
  * Returns 0 if successful or -1 on error
  */
 int pyfsext_volume_init(

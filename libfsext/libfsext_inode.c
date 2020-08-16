@@ -27,7 +27,7 @@
 #include <types.h>
 #include <wide_string.h>
 
-#include "libfsext_block.h"
+#include "libfsext_data_blocks.h"
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
 #include "libfsext_extents.h"
@@ -307,9 +307,9 @@ int libfsext_inode_read_data(
 	uint32_t modification_time      = 0;
 	uint32_t supported_inode_flags  = 0;
 	uint32_t value_32bit            = 0;
-	uint16_t blocks_count_upper     = 0;
 	uint16_t file_acl_upper         = 0;
 	uint16_t group_identifier_upper = 0;
+	uint16_t number_of_blocks_upper = 0;
 	uint16_t owner_identifier_upper = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -435,8 +435,8 @@ int libfsext_inode_read_data(
 	 inode->links_count );
 
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->blocks_count,
-	 inode->blocks_count );
+	 ( (fsext_inode_ext2_t *) data )->number_of_blocks,
+	 inode->number_of_blocks );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->flags,
@@ -561,16 +561,16 @@ int libfsext_inode_read_data(
 		if( io_handle->format_version == 4 )
 		{
 			libcnotify_printf(
-			 "%s: blocks count (lower)\t\t\t\t: %" PRIu32 "\n",
+			 "%s: number of blocks (lower)\t\t\t: %" PRIu32 "\n",
 			 function,
-			 inode->blocks_count );
+			 inode->number_of_blocks );
 		}
 		else
 		{
 			libcnotify_printf(
-			 "%s: blocks count\t\t\t\t\t: %" PRIu32 "\n",
+			 "%s: number of blocks\t\t\t\t: %" PRIu32 "\n",
 			 function,
-			 inode->blocks_count );
+			 inode->number_of_blocks );
 		}
 		libcnotify_printf(
 		 "%s: flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
@@ -672,10 +672,10 @@ int libfsext_inode_read_data(
 	else if( io_handle->format_version == 4 )
 	{
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_inode_ext4_t *) data )->blocks_count_upper,
-		 blocks_count_upper );
+		 ( (fsext_inode_ext4_t *) data )->number_of_blocks_upper,
+		 number_of_blocks_upper );
 
-		inode->blocks_count |= (uint64_t) blocks_count_upper << 32;
+		inode->number_of_blocks |= (uint64_t) number_of_blocks_upper << 32;
 
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->file_acl_upper,
@@ -810,7 +810,7 @@ int libfsext_inode_read_data(
 		else
 		{
 			libcnotify_printf(
-			 "%s: directory acl\t\t\t\t\t: %" PRIu32 "\n",
+			 "%s: directory ACL\t\t\t\t\t: %" PRIu32 "\n",
 			 function,
 			 inode->directory_acl );
 		}
@@ -843,9 +843,9 @@ int libfsext_inode_read_data(
 		else if( io_handle->format_version == 4 )
 		{
 			libcnotify_printf(
-			 "%s: block count (upper)\t\t\t\t: %" PRIu16 "\n",
+			 "%s: number of blocks (upper)\t\t\t: %" PRIu16 "\n",
 			 function,
-			 blocks_count_upper );
+			 number_of_blocks_upper );
 
 			libcnotify_printf(
 			 "%s: file ACL (upper)\t\t\t\t: %" PRIu16 "\n",
@@ -1096,10 +1096,9 @@ int libfsext_inode_read_data_reference(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	libfsext_block_t *block            = NULL;
 	static char *function              = "libfsext_inode_read_data_reference";
-	uint32_t block_number              = 0;
 	uint32_t last_logical_block_number = 0;
+	uint32_t number_of_blocks          = 0;
 
 	if( inode == NULL )
 	{
@@ -1123,6 +1122,17 @@ int libfsext_inode_read_data_reference(
 
 		return( -1 );
 	}
+	if( io_handle->block_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid IO handle - block size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	if( ( io_handle->format_version == 4 )
 	 && ( ( inode->flags & LIBFSEXT_INODE_FLAG_COMPRESSED_DATA ) != 0 ) )
 	{
@@ -1133,391 +1143,83 @@ int libfsext_inode_read_data_reference(
 		 "%s: compressed data currently not supported.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	if( ( io_handle->format_version == 4 )
-	 && ( ( inode->flags & LIBFSEXT_INODE_FLAG_INLINE_DATA ) != 0 ) )
+	if( inode->data_size > 0 )
 	{
-		/* The data is stored inline in inode->data_reference */
-	}
-	else if( ( ( inode->file_mode & 0xf000 ) == 0xa000 )
-	      && ( inode->data_size < 60 ) )
-	{
-		/* The symbolic link target path is stored in inode->data_reference */
-	}
-	else if( ( io_handle->format_version == 4 )
-	      && ( ( inode->flags & LIBFSEXT_INODE_FLAG_HAS_EXTENTS ) != 0 ) )
-	{
-		if( libfsext_extents_read_data(
-		     inode->data_extents_array,
-		     io_handle,
-		     file_io_handle,
-		     inode->data_reference,
-		     60,
-		     &last_logical_block_number,
-		     0,
-		     error ) == -1 )
+		if( ( io_handle->format_version == 4 )
+		 && ( ( inode->flags & LIBFSEXT_INODE_FLAG_INLINE_DATA ) != 0 ) )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read extents from data reference.",
-			 function );
-
-			goto on_error;
+			/* The data is stored inline in inode->data_reference */
 		}
-	}
-	else
-	{
-		if( libfsext_inode_read_direct_block_number_data(
-		     inode,
-		     inode->data_reference,
-		     48,
-		     error ) != 1 )
+		else if( ( ( inode->file_mode & 0xf000 ) == 0xa000 )
+		      && ( inode->data_size < 60 ) )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read direct block numbers from data reference.",
-			 function );
-
-			goto on_error;
+			/* The symbolic link target path is stored in inode->data_reference */
 		}
-		byte_stream_copy_to_uint32_little_endian(
-		 &( ( inode->data_reference )[ 48 ] ),
-		 block_number );
-
-		if( block_number != 0 )
+		else if( ( io_handle->format_version == 4 )
+		      && ( ( inode->flags & LIBFSEXT_INODE_FLAG_HAS_EXTENTS ) != 0 ) )
 		{
-			if( libfsext_block_initialize(
-			     &block,
-			     (size_t) io_handle->block_size,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create block.",
-				 function );
-
-				goto on_error;
-			}
-			if( libfsext_block_read_file_io_handle(
-			     block,
+			if( libfsext_extents_read_data(
+			     inode->data_extents_array,
+			     io_handle,
 			     file_io_handle,
-			     (off64_t) block_number * io_handle->block_size,
-			     error ) != 1 )
+			     inode->data_reference,
+			     60,
+			     &last_logical_block_number,
+			     0,
+			     error ) == -1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read indirect block: %" PRIu32 ".",
-				 function,
-				 block_number );
+				 "%s: unable to read extents from data reference.",
+				 function );
 
-				goto on_error;
+				return( -1 );
 			}
-			if( libfsext_inode_read_direct_block_number_data(
-			     inode,
-			     block->data,
-			     (size_t) io_handle->block_size,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read direct block numbers of indirect block: %" PRIu32 ".",
-				 function,
-				 block_number );
-
-				goto on_error;
-			}
-			if( libfsext_block_free(
-			     &block,
-			     error ) != 1 )
+		}
+		else
+		{
+			if( ( inode->data_size / io_handle->block_size ) > (uint64_t) ( UINT32_MAX - 1 ) )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free block.",
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid inode - data size value out of bounds.",
 				 function );
 
-				goto on_error;
+				return( -1 );
+			}
+			number_of_blocks = (uint32_t) ( inode->data_size / io_handle->block_size );
+
+			if( ( inode->data_size % io_handle->block_size ) != 0 )
+			{
+				number_of_blocks++;
+			}
+			if( libfsext_data_blocks_read_inode_data_reference(
+			     inode->data_extents_array,
+			     io_handle,
+			     file_io_handle,
+			     number_of_blocks,
+			     inode->data_reference,
+			     60,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read data blocks from data reference.",
+				 function );
+
+				return( -1 );
 			}
 		}
-		byte_stream_copy_to_uint32_little_endian(
-		 &( ( inode->data_reference )[ 52 ] ),
-		 block_number );
-
-		if( block_number != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported double indirect block number.",
-			 function );
-
-			goto on_error;
-		}
-		byte_stream_copy_to_uint32_little_endian(
-		 &( ( inode->data_reference )[ 56 ] ),
-		 block_number );
-
-		if( block_number != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported tripple indirect block number.",
-			 function );
-
-			goto on_error;
-		}
 	}
 	return( 1 );
-
-on_error:
-	if( block != NULL )
-	{
-		libfsext_block_free(
-		 &block,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Reads direct block number data
- * Returns 1 if successful or -1 on error
- */
-int libfsext_inode_read_direct_block_number_data(
-     libfsext_inode_t *inode,
-     const uint8_t *data,
-     size_t data_size,
-     libcerror_error_t **error )
-{
-	libfsext_extent_t *extent          = NULL;
-	libfsext_extent_t *previous_extent = NULL;
-	static char *function              = "libfsext_inode_read_direct_block_number_data";
-	size_t data_offset                 = 0;
-	uint32_t block_number              = 0;
-	uint32_t logical_block_number      = 0;
-	int entry_index                    = 0;
-	int number_of_extents              = 0;
-
-	if( inode == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid inode.",
-		 function );
-
-		return( -1 );
-	}
-	if( data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid data.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_size == 0 )
-	 || ( data_size > (size_t) SSIZE_MAX )
-	 || ( ( data_size % 4 ) != 0 ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid data size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: direct block number data:\n",
-		 function );
-		libcnotify_print_data(
-		 data,
-		 data_size,
-		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
-	}
-#endif
-	if( libcdata_array_get_number_of_entries(
-	     inode->data_extents_array,
-	     &number_of_extents,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of entries.",
-		 function );
-
-		goto on_error;
-	}
-	if( number_of_extents > 0 )
-	{
-		if( libcdata_array_get_entry_by_index(
-		     inode->data_extents_array,
-		     number_of_extents - 1,
-		     (intptr_t **) &previous_extent,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve extent: %d.",
-			 function,
-			 number_of_extents - 1 );
-
-			goto on_error;
-		}
-		if( previous_extent == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing extent: %d.",
-			 function,
-			 number_of_extents - 1 );
-
-			goto on_error;
-		}
-		logical_block_number = previous_extent->logical_block_number + previous_extent->number_of_blocks;
-	}
-	while( data_offset < data_size )
-	{
-		byte_stream_copy_to_uint32_little_endian(
-		 &( data[ data_offset ] ),
-		 block_number );
-
-		data_offset += 4;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( libcnotify_verbose != 0 )
-		 && ( previous_extent != NULL ) )
-		{
-			libcnotify_printf(
-			 "%s: block number\t\t: %" PRIu32 "\n",
-			 function,
-			 block_number );
-		}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
-		if( block_number == 0 )
-		{
-			break;
-		}
-		if( ( previous_extent != NULL )
-		 && ( previous_extent->physical_block_number == ( block_number - previous_extent->number_of_blocks ) ) )
-		{
-			logical_block_number              += 1;
-			previous_extent->number_of_blocks += 1;
-
-			continue;
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( libcnotify_verbose != 0 )
-		 && ( previous_extent != NULL ) )
-		{
-			libcnotify_printf(
-			 "%s: physical block number\t: %" PRIu64 "\n",
-			 function,
-			 previous_extent->physical_block_number );
-
-			libcnotify_printf(
-			 "%s: number of blocks\t\t: %" PRIu64 "\n",
-			 function,
-			 previous_extent->number_of_blocks );
-
-			libcnotify_printf(
-			 "\n" );
-		}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-		if( libfsext_extent_initialize(
-		     &extent,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create extent.",
-			 function );
-
-			goto on_error;
-		}
-		extent->logical_block_number  = logical_block_number;
-		extent->physical_block_number = block_number;
-		extent->number_of_blocks      = 1;
-
-		if( libcdata_array_append_entry(
-		     inode->data_extents_array,
-		     &entry_index,
-		     (intptr_t *) extent,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-			 "%s: unable to append data extent to array.",
-			 function );
-
-			goto on_error;
-		}
-		previous_extent = extent;
-		extent          = NULL;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( ( libcnotify_verbose != 0 )
-	 && ( previous_extent != NULL ) )
-	{
-		libcnotify_printf(
-		 "%s: physical block number\t: %" PRIu64 "\n",
-		 function,
-		 previous_extent->physical_block_number );
-
-		libcnotify_printf(
-		 "%s: number of blocks\t\t: %" PRIu64 "\n",
-		 function,
-		 previous_extent->number_of_blocks );
-
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
-	return( 1 );
-
-on_error:
-	if( extent != NULL )
-	{
-		libfsext_extent_free(
-		 &extent,
-		 NULL );
-	}
-	return( -1 );
 }
 
 /* Determines if the inode is empty

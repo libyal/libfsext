@@ -296,7 +296,7 @@ int libfsext_extent_read_data(
 		 extent->logical_block_number );
 
 		libcnotify_printf(
-		 "%s: number of blocks\t\t\t\t: %" PRIu16 "\n",
+		 "%s: number of blocks\t\t\t\t: %" PRIu64 "\n",
 		 function,
 		 extent->number_of_blocks );
 
