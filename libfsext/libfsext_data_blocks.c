@@ -299,12 +299,14 @@ int libfsext_data_blocks_read_inode_data_reference(
 
 		if( logical_block_number < number_of_blocks )
 		{
-			extent_number_of_blocks = number_of_blocks_per_block * extent_number_of_blocks;
+			extent_number_of_blocks = number_of_blocks_per_block * number_of_blocks_per_block;
 
 			if( extent_number_of_blocks > ( number_of_blocks - logical_block_number ) )
 			{
 				extent_number_of_blocks = number_of_blocks - logical_block_number;
 			}
+			last_extent->number_of_blocks += extent_number_of_blocks;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
@@ -355,7 +357,70 @@ int libfsext_data_blocks_read_inode_data_reference(
 	 &( data[ 56 ] ),
 	 block_number );
 
-	if( block_number != 0 )
+	if( block_number == 0 )
+	{
+		if( libfsext_data_blocks_get_last_extent(
+		     extents_array,
+		     &last_extent,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve last extent.",
+			 function );
+
+			return( -1 );
+		}
+		if( last_extent == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing last extent.",
+			 function );
+
+			return( -1 );
+		}
+		logical_block_number = last_extent->logical_block_number + last_extent->number_of_blocks;
+
+		if( logical_block_number < number_of_blocks )
+		{
+			extent_number_of_blocks = number_of_blocks_per_block * number_of_blocks_per_block * number_of_blocks_per_block;
+
+			if( extent_number_of_blocks > ( number_of_blocks - logical_block_number ) )
+			{
+				extent_number_of_blocks = number_of_blocks - logical_block_number;
+			}
+			last_extent->number_of_blocks += extent_number_of_blocks;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: logical block number\t: %" PRIu64 "\n",
+				 function,
+				 last_extent->logical_block_number );
+
+				libcnotify_printf(
+				 "%s: physical block number\t: %" PRIu64 "\n",
+				 function,
+				 last_extent->physical_block_number );
+
+				libcnotify_printf(
+				 "%s: number of blocks\t: %" PRIu64 "\n",
+				 function,
+				 last_extent->number_of_blocks );
+
+				libcnotify_printf(
+				 "\n" );
+			}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+		}
+	}
+	else
 	{
 		if( libfsext_data_blocks_read_file_io_handle(
 		     extents_array,

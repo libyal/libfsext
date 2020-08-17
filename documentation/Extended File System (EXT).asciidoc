@@ -647,6 +647,10 @@ The extents form an extent B-Tree of which the nodes are stored as:
 * extents or extent index descriptors
 * extents footer
 
+[NOTE]
+Inodes can have an implicit last sparse extent if the the inode data size is
+greater than the total data size defined by the extent descriptors.
+
 === [[ext4_extents_header]]The ext4 extents header
 
 The ext4 extents header (ext4_extent_header) is 12 bytes of size and consists of:

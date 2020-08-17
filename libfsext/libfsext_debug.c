@@ -223,6 +223,11 @@ void libfsext_debug_print_read_only_compatible_features_flags(
 		libcnotify_printf(
 		 "\t(EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE)\n" );
 	}
+	if( ( read_only_compatible_features_flags & 0x00000080UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(RO_COMPAT_HAS_SNAPSHOT)\n" );
+	}
 
 	if( ( read_only_compatible_features_flags & 0x00000100UL ) != 0 )
 	{
@@ -233,6 +238,27 @@ void libfsext_debug_print_read_only_compatible_features_flags(
 	{
 		libcnotify_printf(
 		 "\t(EXT4_FEATURE_RO_COMPAT_BIGALLOC)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000400UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(RO_COMPAT_METADATA_CSUM)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000800UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(RO_COMPAT_REPLICA)\n" );
+	}
+
+	if( ( read_only_compatible_features_flags & 0x00001000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(RO_COMPAT_READONLY)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00002000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(RO_COMPAT_PROJECT)\n" );
 	}
 }
 

@@ -1096,9 +1096,8 @@ int libfsext_inode_read_data_reference(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function              = "libfsext_inode_read_data_reference";
-	uint32_t last_logical_block_number = 0;
-	uint32_t number_of_blocks          = 0;
+	static char *function     = "libfsext_inode_read_data_reference";
+	uint32_t number_of_blocks = 0;
 
 	if( inode == NULL )
 	{
@@ -1147,6 +1146,23 @@ int libfsext_inode_read_data_reference(
 	}
 	if( inode->data_size > 0 )
 	{
+		if( ( inode->data_size / io_handle->block_size ) > (uint64_t) ( UINT32_MAX - 1 ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid inode - data size value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
+		number_of_blocks = (uint32_t) ( inode->data_size / io_handle->block_size );
+
+		if( ( inode->data_size % io_handle->block_size ) != 0 )
+		{
+			number_of_blocks++;
+		}
 		if( ( io_handle->format_version == 4 )
 		 && ( ( inode->flags & LIBFSEXT_INODE_FLAG_INLINE_DATA ) != 0 ) )
 		{
@@ -1160,14 +1176,13 @@ int libfsext_inode_read_data_reference(
 		else if( ( io_handle->format_version == 4 )
 		      && ( ( inode->flags & LIBFSEXT_INODE_FLAG_HAS_EXTENTS ) != 0 ) )
 		{
-			if( libfsext_extents_read_data(
+			if( libfsext_extents_read_inode_data_reference(
 			     inode->data_extents_array,
 			     io_handle,
 			     file_io_handle,
+			     number_of_blocks,
 			     inode->data_reference,
 			     60,
-			     &last_logical_block_number,
-			     0,
 			     error ) == -1 )
 			{
 				libcerror_error_set(
@@ -1182,23 +1197,6 @@ int libfsext_inode_read_data_reference(
 		}
 		else
 		{
-			if( ( inode->data_size / io_handle->block_size ) > (uint64_t) ( UINT32_MAX - 1 ) )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid inode - data size value out of bounds.",
-				 function );
-
-				return( -1 );
-			}
-			number_of_blocks = (uint32_t) ( inode->data_size / io_handle->block_size );
-
-			if( ( inode->data_size % io_handle->block_size ) != 0 )
-			{
-				number_of_blocks++;
-			}
 			if( libfsext_data_blocks_read_inode_data_reference(
 			     inode->data_extents_array,
 			     io_handle,
