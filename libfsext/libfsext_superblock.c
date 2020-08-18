@@ -510,7 +510,7 @@ int libfsext_superblock_read_data(
 
 		return( -1 );
 	}
-	superblock->block_size = 1024 << superblock->block_size;
+	superblock->block_size = (uint32_t) ( 1024UL << superblock->block_size );
 
 	if( superblock->format_revision > 1 )
 	{

@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libfsext_definitions.h"
 #include "libfsext_extent.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
@@ -295,11 +296,20 @@ int libfsext_extent_read_data(
 		 function,
 		 extent->logical_block_number );
 
-		libcnotify_printf(
-		 "%s: number of blocks\t\t\t\t: %" PRIu64 "\n",
-		 function,
-		 extent->number_of_blocks );
-
+		if( extent->number_of_blocks > 32768 )
+		{
+			libcnotify_printf(
+			 "%s: number of blocks\t\t\t\t: %" PRIu64 " (uninitialized)\n",
+			 function,
+			 extent->number_of_blocks - 32768 );
+		}
+		else
+		{
+			libcnotify_printf(
+			 "%s: number of blocks\t\t\t\t: %" PRIu64 "\n",
+			 function,
+			 extent->number_of_blocks );
+		}
 		libcnotify_printf(
 		 "%s: physical block number (upper)\t\t: %" PRIu16 "\n",
 		 function,
@@ -314,6 +324,11 @@ int libfsext_extent_read_data(
 
 	extent->physical_block_number = ( (uint64_t) physical_block_number_upper << 32 ) | physical_block_number_lower;
 
+	if( extent->number_of_blocks > 32768 )
+	{
+		extent->number_of_blocks -= 32768;
+		extent->range_flags       = LIBFSEXT_EXTENT_FLAG_IS_SPARSE;
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -326,7 +341,6 @@ int libfsext_extent_read_data(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
 	return( 1 );
 }
 
