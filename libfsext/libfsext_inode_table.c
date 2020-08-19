@@ -106,6 +106,17 @@ int libfsext_inode_table_initialize(
 
 		return( -1 );
 	}
+	if( superblock->block_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid superblock - block size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	*inode_table = memory_allocate_structure(
 	                libfsext_inode_table_t );
 
@@ -213,6 +224,17 @@ int libfsext_inode_table_initialize(
 			 "%s: missing group descriptor: %d.",
 			 function,
 			 group_descriptor_index );
+
+			goto on_error;
+		}
+		if( (uint64_t) group_descriptor->inode_table_block_number > ( (uint64_t) INT64_MAX / superblock->block_size ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid group descriptor - inode table block number value out of bounds.",
+			 function );
 
 			goto on_error;
 		}

@@ -167,7 +167,8 @@ int libfsext_extents_read_inode_data_reference(
 
 		goto on_error;
 	}
-	if( last_extent == NULL )
+	if( ( last_extent == NULL )
+	 || ( ( last_extent->range_flags & LIBFSEXT_EXTENT_FLAG_IS_SPARSE ) == 0 ) )
 	{
 		if( libfsext_extent_initialize(
 		     &sparse_extent,
@@ -225,7 +226,7 @@ int libfsext_extents_read_inode_data_reference(
 			 last_extent->physical_block_number );
 
 			libcnotify_printf(
-			 "%s: number of blocks\t: %" PRIu64 "\n",
+			 "%s: number of blocks\t\t: %" PRIu64 "\n",
 			 function,
 			 last_extent->number_of_blocks );
 

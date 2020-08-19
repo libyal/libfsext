@@ -52,6 +52,7 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.6 | J.B. Metz | January 2018 | Textual changes.
 | 0.0.7 | J.B. Metz | May 2018 | Additional information about format.
 | 0.0.8 | J.B. Metz | July 2020 | Additional information about format.
+| 0.0.9 | J.B. Metz | August 2020 | Additional information about format.
 |===
 
 :numbered:
@@ -681,6 +682,14 @@ The ext4 extent descriptor (ext4_extent) is 12 bytes of size and consists of:
 | 6 | 2 | | Upper part of physical block number
 | 8 | 4 | | Lower part of physical block number
 |===
+
+If number of blocks > 32768 the extent is considered "uninitialized" which is
+(as far as currently known) comparable to extent being sparse. The number of
+blocks of the sparse extent can be determined as following:
+
+....
+sparse number of blocks = number of block - 32768
+....
 
 [NOTE]
 Sparse extents can exist between the extent descriptors. In such a case the
