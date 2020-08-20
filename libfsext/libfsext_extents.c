@@ -167,49 +167,49 @@ int libfsext_extents_read_inode_data_reference(
 
 		goto on_error;
 	}
-	if( ( last_extent == NULL )
-	 || ( ( last_extent->range_flags & LIBFSEXT_EXTENT_FLAG_IS_SPARSE ) == 0 ) )
-	{
-		if( libfsext_extent_initialize(
-		     &sparse_extent,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create sparse extent.",
-			 function );
-
-			goto on_error;
-		}
-		sparse_extent->logical_block_number = logical_block_number;
-		sparse_extent->range_flags          = LIBFSEXT_EXTENT_FLAG_IS_SPARSE;
-
-		if( libcdata_array_append_entry(
-		     extents_array,
-		     &entry_index,
-		     (intptr_t *) sparse_extent,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-			 "%s: unable to append sparse extent to array.",
-			 function );
-
-			goto on_error;
-		}
-		last_extent   = sparse_extent;
-		sparse_extent = NULL;
-	}
-	else
+	if( last_extent != NULL )
 	{
 		logical_block_number = last_extent->logical_block_number + last_extent->number_of_blocks;
 	}
 	if( logical_block_number < number_of_blocks )
 	{
+		if( ( last_extent == NULL )
+		 || ( ( last_extent->range_flags & LIBFSEXT_EXTENT_FLAG_IS_SPARSE ) == 0 ) )
+		{
+			if( libfsext_extent_initialize(
+			     &sparse_extent,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create sparse extent.",
+				 function );
+
+				goto on_error;
+			}
+			sparse_extent->logical_block_number = logical_block_number;
+			sparse_extent->range_flags          = LIBFSEXT_EXTENT_FLAG_IS_SPARSE;
+
+			if( libcdata_array_append_entry(
+			     extents_array,
+			     &entry_index,
+			     (intptr_t *) sparse_extent,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append sparse extent to array.",
+				 function );
+
+				goto on_error;
+			}
+			last_extent   = sparse_extent;
+			sparse_extent = NULL;
+		}
 		last_extent->number_of_blocks += number_of_blocks - logical_block_number;
 
 #if defined( HAVE_DEBUG_OUTPUT )

@@ -691,7 +691,7 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_ext2_t *) data )->group_identifier_upper,
 	 group_identifier_upper );
 
-	inode->group_identifier |= value_32bit << 16;
+	inode->group_identifier |= group_identifier_upper << 16;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
