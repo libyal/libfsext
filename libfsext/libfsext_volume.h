@@ -139,6 +139,14 @@ int libfsext_volume_get_format_version(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_volume_get_features_flags(
+     libfsext_volume_t *volume,
+     uint32_t *compatible_features_flags,
+     uint32_t *incompatible_features_flags,
+     uint32_t *read_only_compatible_features_flags,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_volume_get_utf8_label_size(
      libfsext_volume_t *volume,
      size_t *utf8_string_size,

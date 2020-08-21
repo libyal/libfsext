@@ -54,16 +54,271 @@ int libfsext_volume_open_file_io_handle(
 
 #define INFO_HANDLE_NOTIFY_STREAM	stdout
 
+/* Prints the compatible features flags to the notify stream
+ */
+void info_handle_compatible_features_flags_fprint(
+      uint32_t compatible_features_flags,
+      FILE *notify_stream )
+{
+	if( ( compatible_features_flags & 0x00000001UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tPre-allocate directory blocks (EXT2_COMPAT_PREALLOC)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000002UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas AFS server inodes (EXT2_FEATURE_COMPAT_IMAGIC_INODES)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000004UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas journal (EXT3_FEATURE_COMPAT_HAS_JOURNAL)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000008UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHave extended inode attributes (EXT2_FEATURE_COMPAT_EXT_ATTR)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000010UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tResizable volume (EXT2_FEATURE_COMPAT_RESIZE_INO)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000010UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tUse directory hash index (EXT2_FEATURE_COMPAT_DIR_INDEX)\n" );
+	}
+
+	if( ( compatible_features_flags & 0x00000200UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_COMPAT_SPARSE_SUPER2)\n" );
+	}
+	fprintf(
+	 notify_stream,
+	 "\n" );
+}
+
+/* Prints the incompatible features flags to the notify stream
+ */
+void info_handle_incompatible_features_flags_fprint(
+      uint32_t incompatible_features_flags,
+      FILE *notify_stream )
+{
+	if( ( incompatible_features_flags & 0x00000001UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas compression (EXT2_FEATURE_INCOMPAT_COMPRESSION)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000002UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas directory type (EXT2_FEATURE_INCOMPAT_FILETYPE)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000004UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tNeeds recovery (EXT3_FEATURE_INCOMPAT_RECOVER)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000008UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas journal device (EXT3_FEATURE_INCOMPAT_JOURNAL_DEV)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000010UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas metadata block group (EXT2_FEATURE_INCOMPAT_META_BG)\n" );
+	}
+
+	if( ( incompatible_features_flags & 0x00000040UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas extents (EXT4_FEATURE_INCOMPAT_EXTENTS)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000080UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000100UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_MMP)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000200UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_FLEX_BG)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00000400UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_EA_INODE)\n" );
+	}
+
+	if( ( incompatible_features_flags & 0x00001000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_DIRDATA)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00002000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00004000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_LARGEDIR)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00008000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_INLINE_DATA)\n" );
+	}
+	if( ( incompatible_features_flags & 0x00010000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_ENCRYPT)\n" );
+	}
+	fprintf(
+	 notify_stream,
+	 "\n" );
+}
+
+/* Prints the read-only compatible features flags to the notify stream
+ */
+void info_handle_read_only_compatible_features_flags_fprint(
+      uint32_t read_only_compatible_features_flags,
+      FILE *notify_stream )
+{
+	if( ( read_only_compatible_features_flags & 0x00000001UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas sparse superblocks and group descriptor tables (EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000002UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tContains large files (EXT2_FEATURE_RO_COMPAT_LARGE_FILE)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000004UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tUse directory B-tree (EXT2_FEATURE_RO_COMPAT_BTREE_DIR)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000008UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_HUGE_FILE)\n" );
+	}
+
+	if( ( read_only_compatible_features_flags & 0x00000010UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_GDT_CSUM)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000020UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_DIR_NLINK)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000040UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000080UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(RO_COMPAT_HAS_SNAPSHOT)\n" );
+	}
+
+	if( ( read_only_compatible_features_flags & 0x00000100UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_QUOTA)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000200UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_BIGALLOC)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000400UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(RO_COMPAT_METADATA_CSUM)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00000800UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(RO_COMPAT_REPLICA)\n" );
+	}
+
+	if( ( read_only_compatible_features_flags & 0x00001000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(RO_COMPAT_READONLY)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00002000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(RO_COMPAT_PROJECT)\n" );
+	}
+	fprintf(
+	 notify_stream,
+	 "\n" );
+}
+
 /* Copies a string of a decimal value to a 64-bit value
  * Returns 1 if successful or -1 on error
  */
-int fsexttools_system_string_copy_from_64_bit_in_decimal(
+int info_handle_system_string_copy_from_64_bit_in_decimal(
      const system_character_t *string,
      size_t string_size,
      uint64_t *value_64bit,
      libcerror_error_t **error )
 {
-	static char *function              = "fsexttools_system_string_copy_from_64_bit_in_decimal";
+	static char *function              = "info_handle_system_string_copy_from_64_bit_in_decimal";
 	size_t string_index                = 0;
 	system_character_t character_value = 0;
 	uint8_t maximum_string_index       = 20;
@@ -467,7 +722,7 @@ int info_handle_set_volume_offset(
 	string_length = system_string_length(
 	                 string );
 
-	if( fsexttools_system_string_copy_from_64_bit_in_decimal(
+	if( info_handle_system_string_copy_from_64_bit_in_decimal(
 	     string,
 	     string_length + 1,
 	     &value_64bit,
@@ -2066,12 +2321,15 @@ int info_handle_volume_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error )
 {
-	system_character_t *value_string = NULL;
-	static char *function            = "info_handle_volume_fprint";
-	size_t value_string_size         = 0;
-	uint32_t value_32bit             = 0;
-	uint8_t format_version           = 0;
-	int result                       = 0;
+	system_character_t *value_string             = NULL;
+	static char *function                        = "info_handle_volume_fprint";
+	size_t value_string_size                     = 0;
+	uint32_t compatible_features_flags           = 0;
+	uint32_t incompatible_features_flags         = 0;
+	uint32_t read_only_compatible_features_flags = 0;
+	uint32_t value_32bit                         = 0;
+	uint8_t format_version                       = 0;
+	int result                                   = 0;
 
 	if( info_handle == NULL )
 	{
@@ -2095,6 +2353,22 @@ int info_handle_volume_fprint(
 	if( libfsext_volume_get_format_version(
 	     info_handle->input_volume,
 	     &format_version,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve format version.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_volume_get_features_flags(
+	     info_handle->input_volume,
+	     &compatible_features_flags,
+	     &incompatible_features_flags,
+	     &read_only_compatible_features_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -2205,6 +2479,33 @@ int info_handle_volume_fprint(
 
 		goto on_error;
 	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "\tCompatible features\t\t: 0x%08" PRIx32 "\n",
+	 compatible_features_flags );
+
+	info_handle_compatible_features_flags_fprint(
+	 compatible_features_flags,
+	 info_handle->notify_stream );
+
+	fprintf(
+	 info_handle->notify_stream,
+	 "\tIncompatible features\t\t: 0x%08" PRIx32 "\n",
+	 incompatible_features_flags );
+
+	info_handle_incompatible_features_flags_fprint(
+	 incompatible_features_flags,
+	 info_handle->notify_stream );
+
+	fprintf(
+	 info_handle->notify_stream,
+	 "\tRead-only compatible features\t: 0x%08" PRIx32 "\n",
+	 read_only_compatible_features_flags );
+
+	info_handle_read_only_compatible_features_flags_fprint(
+	 read_only_compatible_features_flags,
+	 info_handle->notify_stream );
+
 	fprintf(
 	 info_handle->notify_stream,
 	 "\tNumber of inodes\t\t: %" PRIu32 "\n",

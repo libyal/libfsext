@@ -379,7 +379,7 @@ int main( int argc, char * const argv[] )
 					goto on_error;
 				}
 			}
-			else if( fsexttools_system_string_copy_from_64_bit_in_decimal(
+			else if( info_handle_system_string_copy_from_64_bit_in_decimal(
 			          option_inode_number,
 			          string_length + 1,
 			          &inode_number,

@@ -269,6 +269,17 @@ int libfsext_volume_get_format_version(
      uint8_t *format_version,
      libfsext_error_t **error );
 
+/* Retrieves the feature flags
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_features_flags(
+     libfsext_volume_t *volume,
+     uint32_t *compatible_features_flags,
+     uint32_t *incompatible_features_flags,
+     uint32_t *read_only_compatible_features_flags,
+     libfsext_error_t **error );
+
 /* Retrieves the size of the UTF-8 encoded label
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
