@@ -41,13 +41,14 @@
 int libfsext_block_stream_initialize_from_data(
      libfdata_stream_t **block_stream,
      const uint8_t *data,
-     size_t data_size,
+     size64_t data_size,
      libcerror_error_t **error )
 {
 	libfdata_stream_t *safe_data_stream        = NULL;
 	libfsext_buffer_data_handle_t *data_handle = NULL;
 	static char *function                      = "libfsext_block_stream_initialize_from_data";
 	int segment_index                          = 0;
+	size_t inline_data_size                    = 60;
 
 	if( block_stream == NULL )
 	{
@@ -60,10 +61,14 @@ int libfsext_block_stream_initialize_from_data(
 
 		return( -1 );
 	}
+	if( data_size < inline_data_size )
+	{
+		inline_data_size = (size_t) data_size;
+	}
 	if( libfsext_buffer_data_handle_initialize(
 	     &data_handle,
 	     data,
-	     data_size,
+	     inline_data_size,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -103,7 +108,7 @@ int libfsext_block_stream_initialize_from_data(
 	     &segment_index,
 	     0,
 	     0,
-	     (size64_t) data_size,
+	     (size64_t) inline_data_size,
 	     0,
 	     error ) != 1 )
 	{
@@ -115,6 +120,27 @@ int libfsext_block_stream_initialize_from_data(
 		 function );
 
 		goto on_error;
+	}
+	if( data_size > 60 )
+	{
+		if( libfdata_stream_append_segment(
+		     safe_data_stream,
+		     &segment_index,
+		     0,
+		     0,
+		     data_size - inline_data_size,
+		     LIBFSEXT_EXTENT_FLAG_IS_SPARSE,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append sparse data stream segment.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	*block_stream = safe_data_stream;
 
@@ -358,17 +384,6 @@ int libfsext_block_stream_initialize(
 	 || ( ( io_handle->format_version == 4 )
 	  &&  ( ( inode->flags & LIBFSEXT_INODE_FLAG_INLINE_DATA ) != 0 ) ) )
 	{
-		if( data_size > 60 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-			 "%s: invalid data size value exceeds maximum.",
-			 function );
-
-			goto on_error;
-		}
 		result = libfsext_block_stream_initialize_from_data(
 		          &safe_block_stream,
 		          inode->data_reference,

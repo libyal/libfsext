@@ -25,20 +25,12 @@ Create test images:
 * without sparse superblock
 * with inode where double indirect blocks are used
 * with inode where triple indirect blocks are used
-* with INCOMPAT_FILETYPE
 * with INCOMPAT_RECOVER
 * with INCOMPAT_JOURNAL_DEV
 * with INCOMPAT_META_BG
-* with INCOMPAT_EXTENTS
-* with INCOMPAT_64BIT
-* with INCOMPAT_MMP
-* with INCOMPAT_FLEX_BG
-* with INCOMPAT_EA_INODE
 * with INCOMPAT_DIRDATA - still in development
 * with INCOMPAT_CSUM_SEED
 * with INCOMPAT_LARGEDIR
-* with INCOMPAT_INLINE_DATA
-* with INCOMPAT_ENCRYPT
 
 20150429
 * see `git log' for more recent change log

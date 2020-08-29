@@ -206,6 +206,12 @@ void info_handle_incompatible_features_flags_fprint(
 		 notify_stream,
 		 "\t\t(EXT4_FEATURE_INCOMPAT_ENCRYPT)\n" );
 	}
+	if( ( incompatible_features_flags & 0x00020000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_INCOMPAT_CASEFOLD)\n" );
+	}
 	fprintf(
 	 notify_stream,
 	 "\n" );

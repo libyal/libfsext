@@ -180,6 +180,11 @@ void libfsext_debug_print_incompatible_features_flags(
 		libcnotify_printf(
 		 "\t(EXT4_FEATURE_INCOMPAT_ENCRYPT)\n" );
 	}
+	if( ( incompatible_features_flags & 0x00020000UL ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(EXT4_FEATURE_INCOMPAT_CASEFOLD)\n" );
+	}
 }
 
 /* Prints the read-only compatible features flags

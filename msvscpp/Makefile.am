@@ -2,10 +2,13 @@ MSVSCPP_FILES = \
 	fsext_test_bitmap/fsext_test_bitmap.vcproj \
 	fsext_test_block/fsext_test_block.vcproj \
 	fsext_test_block_vector/fsext_test_block_vector.vcproj \
+	fsext_test_buffer_data_handle/fsext_test_buffer_data_handle.vcproj \
 	fsext_test_directory/fsext_test_directory.vcproj \
 	fsext_test_directory_entry/fsext_test_directory_entry.vcproj \
 	fsext_test_error/fsext_test_error.vcproj \
 	fsext_test_extent/fsext_test_extent.vcproj \
+	fsext_test_extent_index/fsext_test_extent_index.vcproj \
+	fsext_test_extents_footer/fsext_test_extents_footer.vcproj \
 	fsext_test_extents_header/fsext_test_extents_header.vcproj \
 	fsext_test_file_entry/fsext_test_file_entry.vcproj \
 	fsext_test_group_descriptor/fsext_test_group_descriptor.vcproj \

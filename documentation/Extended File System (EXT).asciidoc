@@ -481,6 +481,7 @@ EXT4_FEATURE_INCOMPAT_CSUM_SEED | Metadata checksum seed is stored in the superb
 | 0x00004000 | EXT4_FEATURE_INCOMPAT_LARGEDIR | Large directory >2GB or 3-level hash tree (HTree).
 | 0x00008000 | EXT4_FEATURE_INCOMPAT_INLINE_DATA | Has data stored in inode.
 | 0x00010000 | EXT4_FEATURE_INCOMPAT_ENCRYPT | Has encrypted inodes.
+| 0x00020000 | EXT4_FEATURE_INCOMPAT_CASEFOLD | Hash case folding
 |===
 
 [NOTE]
@@ -1061,6 +1062,15 @@ EXT4_RESIZE_INO | Reserved group descriptors inode
 | 8 | EXT3_JOURNAL_INO +
 EXT4_JOURNAL_INO | Journal inode
 |===
+
+== Inline data
+
+ext4 supports storing file entry data inline when the inode flag
+EXT4_INLINE_DATA_FL is set.
+
+[NOTE]
+Inodes can have an implicit last sparse extent if the the inode data size is
+greater than 60 bytes.
 
 == Directory entries
 

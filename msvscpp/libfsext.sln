@@ -57,6 +57,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_block_vector", "
 		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_buffer_data_handle", "fsext_test_buffer_data_handle\fsext_test_buffer_data_handle.vcproj", "{032277AA-090A-4F4F-9F30-83580404704C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
+		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_directory", "fsext_test_directory\fsext_test_directory.vcproj", "{48961EF8-B5F1-47E5-AAAB-10143CA07083}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DC7212B2-6781-4759-9A2D-741E80BAECB4} = {DC7212B2-6781-4759-9A2D-741E80BAECB4}
@@ -83,6 +89,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_error", "fsext_t
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_extent", "fsext_test_extent\fsext_test_extent.vcproj", "{7BA036C1-2AE9-4831-9D62-557EAB82553C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
+		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_extent_index", "fsext_test_extent_index\fsext_test_extent_index.vcproj", "{12E095BB-79DF-4360-BDFA-141E7ACA138E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
+		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fsext_test_extents_footer", "fsext_test_extents_footer\fsext_test_extents_footer.vcproj", "{DA36FCA2-6DC0-493C-991F-C428872A20A0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8ADDA09D-ED79-41D3-9D8A-B1B4107E0761} = {8ADDA09D-ED79-41D3-9D8A-B1B4107E0761}
 		{F3928D6D-85F0-47E9-99F8-B226B013B166} = {F3928D6D-85F0-47E9-99F8-B226B013B166}
@@ -322,6 +340,10 @@ Global
 		{B5712DB5-3651-490C-B26C-16A440D4687A}.Release|Win32.Build.0 = Release|Win32
 		{B5712DB5-3651-490C-B26C-16A440D4687A}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{B5712DB5-3651-490C-B26C-16A440D4687A}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{032277AA-090A-4F4F-9F30-83580404704C}.Release|Win32.ActiveCfg = Release|Win32
+		{032277AA-090A-4F4F-9F30-83580404704C}.Release|Win32.Build.0 = Release|Win32
+		{032277AA-090A-4F4F-9F30-83580404704C}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{032277AA-090A-4F4F-9F30-83580404704C}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{48961EF8-B5F1-47E5-AAAB-10143CA07083}.Release|Win32.ActiveCfg = Release|Win32
 		{48961EF8-B5F1-47E5-AAAB-10143CA07083}.Release|Win32.Build.0 = Release|Win32
 		{48961EF8-B5F1-47E5-AAAB-10143CA07083}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
@@ -338,6 +360,14 @@ Global
 		{7BA036C1-2AE9-4831-9D62-557EAB82553C}.Release|Win32.Build.0 = Release|Win32
 		{7BA036C1-2AE9-4831-9D62-557EAB82553C}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{7BA036C1-2AE9-4831-9D62-557EAB82553C}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{12E095BB-79DF-4360-BDFA-141E7ACA138E}.Release|Win32.ActiveCfg = Release|Win32
+		{12E095BB-79DF-4360-BDFA-141E7ACA138E}.Release|Win32.Build.0 = Release|Win32
+		{12E095BB-79DF-4360-BDFA-141E7ACA138E}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{12E095BB-79DF-4360-BDFA-141E7ACA138E}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{DA36FCA2-6DC0-493C-991F-C428872A20A0}.Release|Win32.ActiveCfg = Release|Win32
+		{DA36FCA2-6DC0-493C-991F-C428872A20A0}.Release|Win32.Build.0 = Release|Win32
+		{DA36FCA2-6DC0-493C-991F-C428872A20A0}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{DA36FCA2-6DC0-493C-991F-C428872A20A0}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{6DA172A3-6944-4648-A4AC-E0C2C7F357D8}.Release|Win32.ActiveCfg = Release|Win32
 		{6DA172A3-6944-4648-A4AC-E0C2C7F357D8}.Release|Win32.Build.0 = Release|Win32
 		{6DA172A3-6944-4648-A4AC-E0C2C7F357D8}.VSDebug|Win32.ActiveCfg = VSDebug|Win32

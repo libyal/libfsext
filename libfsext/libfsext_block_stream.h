@@ -39,7 +39,7 @@ extern "C" {
 int libfsext_block_stream_initialize_from_data(
      libfdata_stream_t **block_stream,
      const uint8_t *data,
-     size_t data_size,
+     size64_t data_size,
      libcerror_error_t **error );
 
 int libfsext_block_stream_initialize_from_extents(

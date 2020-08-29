@@ -607,7 +607,8 @@ int libfsext_inode_read_data(
 /* TODO check if corresponding flag in superblock is set? */
 
 	supported_inode_flags = 0x00001000UL
-	                      | 0x00080000UL;
+	                      | 0x00080000UL
+	                      | 0x10000000UL;
 
 	if( ( inode->flags & ~( supported_inode_flags ) ) != 0 )
 	{

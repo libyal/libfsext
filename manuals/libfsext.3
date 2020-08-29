@@ -1,4 +1,4 @@
-.Dd August  9, 2020
+.Dd August 29, 2020
 .Dt libfsext 3
 .Os libfsext
 .Sh NAME
@@ -62,6 +62,8 @@ Volume functions
 .Fn libfsext_volume_close "libfsext_volume_t *volume" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_volume_get_format_version "libfsext_volume_t *volume" "uint8_t *format_version" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_volume_get_features_flags "libfsext_volume_t *volume" "uint32_t *compatible_features_flags" "uint32_t *incompatible_features_flags" "uint32_t *read_only_compatible_features_flags" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_volume_get_utf8_label_size "libfsext_volume_t *volume" "size_t *utf8_string_size" "libfsext_error_t **error"
 .Ft int

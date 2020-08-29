@@ -43,10 +43,13 @@ check_PROGRAMS = \
 	fsext_test_bitmap \
 	fsext_test_block \
 	fsext_test_block_vector \
+	fsext_test_buffer_data_handle \
 	fsext_test_directory \
 	fsext_test_directory_entry \
 	fsext_test_error \
 	fsext_test_extent \
+	fsext_test_extent_index \
+	fsext_test_extents_footer \
 	fsext_test_extents_header \
 	fsext_test_file_entry \
 	fsext_test_group_descriptor \
@@ -128,6 +131,18 @@ fsext_test_block_vector_LDADD = \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 
+fsext_test_buffer_data_handle_SOURCES = \
+	fsext_test_buffer_data_handle.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_buffer_data_handle_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
 fsext_test_directory_SOURCES = \
 	fsext_test_directory.c \
 	fsext_test_functions.c fsext_test_functions.h \
@@ -180,6 +195,30 @@ fsext_test_extent_SOURCES = \
 	fsext_test_unused.h
 
 fsext_test_extent_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_extent_index_SOURCES = \
+	fsext_test_extent_index.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_extent_index_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_extents_footer_SOURCES = \
+	fsext_test_extents_footer.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_extents_footer_LDADD = \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 
