@@ -1,5 +1,5 @@
 = Extended File System
-Analysis the Linux ext file system
+Analysis of the Linux ext file systems
 
 :toc:
 :toclevels: 4
@@ -964,11 +964,11 @@ EXT4_INODE_APPEND | Writes to file may only append
 | 0x00000040 | EXT2_NODUMP_FL +
 EXT3_NODUMP_FL +
 EXT4_NODUMP_FL +
-EXT4_INODE_NODUMP | Do not dump file
+EXT4_INODE_NODUMP | Do not remove (or dump) file
 | 0x00000080 | EXT2_NOATIME_FL +
 EXT3_NOATIME_FL +
 EXT4_NOATIME_FL +
-EXT4_INODE_NOATIME | Do not update atime
+EXT4_INODE_NOATIME | Do not update access time (atime)
 | 0x00000100 | EXT2_DIRTY_FL +
 EXT3_DIRTY_FL +
 EXT4_DIRTY_FL +
@@ -1003,7 +1003,7 @@ EXT4_INODE_IMAGIC | AFS directory
 | 0x00004000 | EXT2_JOURNAL_DATA_FL +
 EXT3_JOURNAL_DATA_FL +
 EXT4_JOURNAL_DATA_FL +
-EXT4_INODE_JOURNAL_DATA | File data should be journaled
+EXT4_INODE_JOURNAL_DATA | File data must be written using the journal.
 | 0x00008000 | EXT2_NOTAIL_FL +
 EXT3_NOTAIL_FL +
 EXT4_NOTAIL_FL +
@@ -1012,14 +1012,15 @@ EXT4_INODE_NOTAIL | File tail should not be merged +
 | 0x00010000 | EXT2_DIRSYNC_FL +
 EXT3_DIRSYNC_FL +
 EXT4_DIRSYNC_FL +
-EXT4_INODE_DIRSYNC | Dirsync behaviour (directories only)
+EXT4_INODE_DIRSYNC | Directory entries should be written synchronously (dirsync)
 | 0x00020000 | EXT2_TOPDIR_FL +
 EXT3_TOPDIR_FL +
 EXT4_TOPDIR_FL +
-EXT4_INODE_TOPDIR | Top of directory hierarchies
+EXT4_INODE_TOPDIR | Top of directory hierarchy
 3+| _ext4_
 | 0x00040000 | EXT4_HUGE_FILE_FL +
-EXT4_INODE_HUGE_FILE | Set to each huge file
+EXT4_INODE_HUGE_FILE | Is a huge file +
+See section: <<huge_files,Huge files>>
 | 0x00080000 | EXT4_EXTENTS_FL +
 EXT4_INODE_EXTENTS | Inode uses extents
 | 0x00100000 | EXT4_INODE_VERITY | Verity protected inode
@@ -1028,12 +1029,14 @@ EXT4_INODE_EA_INODE | Inode used for large extended attribute
 | 0x00400000 | EXT4_EOFBLOCKS_FL +
 EXT4_INODE_EOFBLOCKS | Blocks allocated beyond EOF
 | | |
+| 0x01000000 | EXT4_SNAPFILE_FL | Inode is a snapshot
 | 0x02000000 | EXT4_INODE_DAX | Inode is DAX
-| | |
+| 0x04000000 | EXT4_SNAPFILE_DELETED_FL | Snapshot is being deleted
+| 0x08000000 | EXT4_SNAPFILE_SHRUNK_FL | Snapshot shrink has completed
 | 0x10000000 | EXT4_INLINE_DATA_FL +
 EXT4_INODE_INLINE_DATA | Inode has inline data
 | 0x20000000 | EXT4_PROJINHERIT_FL +
-EXT4_INODE_PROJINHERIT | Create with parents projid
+EXT4_INODE_PROJINHERIT | Create sub file entries with the same project identifier
 | 0x40000000 | EXT4_INODE_CASEFOLD | Casefolded directory
 | 0x80000000 | EXT4_INODE_RESERVED | [yellow-background]*Unknown (reserved)*
 |===
@@ -1071,6 +1074,10 @@ EXT4_INLINE_DATA_FL is set.
 [NOTE]
 Inodes can have an implicit last sparse extent if the the inode data size is
 greater than 60 bytes.
+
+== [[huge_files]]Huge files
+
+[yellow-background]*TODO: add description*
 
 == Directory entries
 

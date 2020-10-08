@@ -880,6 +880,8 @@ int main(
 	 "libfsext_superblock_read_file_io_handle",
 	 fsext_test_superblock_read_file_io_handle );
 
+/* TODO add additional tests */
+
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );

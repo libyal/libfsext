@@ -385,7 +385,7 @@ int libfsext_check_volume_signature_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek file header offset: 1080.",
+		 "%s: unable to seek signature offset: 1080 (0x00000438).",
 		 function );
 
 		if( file_io_handle_is_open == 0 )

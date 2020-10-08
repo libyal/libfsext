@@ -102,13 +102,15 @@ int libfsext_volume_open(
      libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
+
 LIBFSEXT_EXTERN \
 int libfsext_volume_open_wide(
      libfsext_volume_t *volume,
      const wchar_t *filename,
      int access_flags,
      libcerror_error_t **error );
-#endif
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 LIBFSEXT_EXTERN \
 int libfsext_volume_open_file_io_handle(

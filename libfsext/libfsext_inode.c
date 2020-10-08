@@ -461,14 +461,14 @@ int libfsext_inode_read_data(
 		if( io_handle->format_version == 4 )
 		{
 			libcnotify_printf(
-			 "%s: data size (lower)\t\t\t\t: %" PRIu32 "\n",
+			 "%s: data size (lower)\t\t\t\t: %" PRIu64 "\n",
 			 function,
 			 inode->data_size );
 		}
 		else
 		{
 			libcnotify_printf(
-			 "%s: data size\t\t\t\t\t: %" PRIu32 "\n",
+			 "%s: data size\t\t\t\t\t: %" PRIu64 "\n",
 			 function,
 			 inode->data_size );
 		}
@@ -606,8 +606,19 @@ int libfsext_inode_read_data(
 
 /* TODO check if corresponding flag in superblock is set? */
 
-	supported_inode_flags = 0x00001000UL
+	supported_inode_flags = 0x00000001UL
+	                      | 0x00000002UL
+	                      | 0x00000008UL
+	                      | 0x00000010UL
+	                      | 0x00000020UL
+	                      | 0x00000040UL
+	                      | 0x00000080UL
+	                      | 0x00001000UL
+	                      | 0x00004000UL
+	                      | 0x00008000UL
+	                      | 0x00010000UL
 	                      | 0x00080000UL
+	                      | 0x00200000UL
 	                      | 0x10000000UL;
 
 	if( ( inode->flags & ~( supported_inode_flags ) ) != 0 )
@@ -1042,14 +1053,6 @@ int libfsext_inode_read_data(
 			 function,
 			 value_32bit );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_inode_ext4_t *) data )->checksum_upper,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: checksum (upper)\t\t\t\t: 0x%04" PRIx16 "\n",
-			 function,
-			 value_16bit );
-
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->version_upper,
 			 value_16bit );
@@ -1060,6 +1063,30 @@ int libfsext_inode_read_data(
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		if( io_handle->format_version == 4 )
+		{
+			libcnotify_printf(
+			 "%s: data size\t\t\t\t\t: %" PRIu64 "\n",
+			 function,
+			 inode->data_size );
+
+/* TODO print inode change time */
+
+/* TODO print modification time */
+
+/* TODO print access time */
+
+/* TODO print creation time */
+
+/* TODO print checksum */
+
+/* TODO print version */
+		}
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{

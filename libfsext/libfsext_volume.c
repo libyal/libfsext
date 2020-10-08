@@ -1127,6 +1127,17 @@ int libfsext_internal_volume_read_block_groups(
 
 		return( -1 );
 	}
+	if( internal_volume->superblock != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid volume - superblock value already set.",
+		 function );
+
+		return( -1 );
+	}
 #if SIZEOF_SIZE_T <= 4
 	if( internal_volume->io_handle->block_size > (uint32_t) SSIZE_MAX )
 	{
