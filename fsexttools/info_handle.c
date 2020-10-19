@@ -542,22 +542,6 @@ int info_handle_free(
 	}
 	if( *info_handle != NULL )
 	{
-		if( ( *info_handle )->bodyfile_stream != NULL )
-		{
-			if( file_stream_close(
-			     ( *info_handle )->bodyfile_stream ) != 0 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-				 "%s: unable to close bodyfile stream.",
-				 function );
-
-				result = -1;
-			}
-			( *info_handle )->bodyfile_stream = NULL;
-		}
 		if( ( *info_handle )->input_volume != NULL )
 		{
 			if( libfsext_volume_free(
@@ -586,6 +570,22 @@ int info_handle_free(
 			 function );
 
 			result = -1;
+		}
+		if( ( *info_handle )->bodyfile_stream != NULL )
+		{
+			if( file_stream_close(
+			     ( *info_handle )->bodyfile_stream ) != 0 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_CLOSE_FAILED,
+				 "%s: unable to close bodyfile stream.",
+				 function );
+
+				result = -1;
+			}
+			( *info_handle )->bodyfile_stream = NULL;
 		}
 		memory_free(
 		 *info_handle );
@@ -1153,7 +1153,7 @@ int info_handle_file_entry_value_with_name_fprint(
 	int64_t inode_change_time                = 0;
 	int64_t modification_time                = 0;
 	uint32_t group_identifier                = 0;
-	uint32_t inode_number                    = 0;
+	uint32_t file_entry_identifier           = 0;
 	uint32_t owner_identifier                = 0;
 	int32_t deletion_time                    = 0;
 	uint16_t file_mode                       = 0;
@@ -1172,7 +1172,7 @@ int info_handle_file_entry_value_with_name_fprint(
 	}
 	if( libfsext_file_entry_get_inode_number(
 	     file_entry,
-	     &inode_number,
+	     &file_entry_identifier,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1442,7 +1442,7 @@ int info_handle_file_entry_value_with_name_fprint(
 			 path );
 		}
 		if( ( file_entry_name != NULL )
-		 && ( inode_number != 2 ) )
+		 && ( file_entry_identifier != 2 ) )
 		{
 			fprintf(
 			 info_handle->bodyfile_stream,
@@ -1452,7 +1452,7 @@ int info_handle_file_entry_value_with_name_fprint(
 		fprintf(
 		 info_handle->bodyfile_stream,
 		 "|%" PRIu32 "|%s|%" PRIu32 "|%" PRIu32 "|%" PRIu64 "|%.9f|%.9f|%.9f|%.9f\n",
-		 inode_number,
+		 file_entry_identifier,
 		 file_mode_string,
 		 owner_identifier,
 		 group_identifier,
@@ -1467,7 +1467,7 @@ int info_handle_file_entry_value_with_name_fprint(
 		fprintf(
 		 info_handle->notify_stream,
 		 "\tInode number\t\t: %" PRIu32 "\n",
-		 inode_number );
+		 file_entry_identifier );
 
 		if( file_entry_name != NULL )
 		{
@@ -1936,16 +1936,64 @@ on_error:
 	return( -1 );
 }
 
-/* Prints the file entry information for a specific inode
+/* Prints the file entries information
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_file_entries_fprint(
+     info_handle_t *info_handle,
+     libcerror_error_t **error )
+{
+	static char *function           = "info_handle_file_entries_fprint";
+	uint64_t file_entry_identifier  = 0;
+	uint32_t number_of_file_entries = 0;
+
+	if( libfsext_volume_get_number_of_file_entries(
+	     info_handle->input_volume,
+	     &number_of_file_entries,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of file entries.",
+		 function );
+
+		return( -1 );
+	}
+	for( file_entry_identifier = 0;
+	     file_entry_identifier < (uint64_t) number_of_file_entries;
+	     file_entry_identifier++ )
+	{
+		if( info_handle_file_entry_fprint_by_identifier(
+		     info_handle,
+		     (uint32_t) file_entry_identifier,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print file entry: %" PRIu64 " information.",
+			 function,
+			 file_entry_identifier );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
+}
+
+/* Prints the file entry information for a specific identifier
  * Returns 1 if successful, 0 if not or -1 on error
  */
-int info_handle_file_entry_fprint_by_inode(
+int info_handle_file_entry_fprint_by_identifier(
      info_handle_t *info_handle,
-     uint32_t inode_number,
+     uint32_t file_entry_identifier,
      libcerror_error_t **error )
 {
 	libfsext_file_entry_t *file_entry = NULL;
-	static char *function             = "info_handle_file_entry_fprint_by_inode";
+	static char *function             = "info_handle_file_entry_fprint_by_identifier";
 	int is_empty                      = 0;
 
 	if( info_handle == NULL )
@@ -1961,7 +2009,7 @@ int info_handle_file_entry_fprint_by_inode(
 	}
 	if( libfsext_volume_get_file_entry_by_inode(
 	     info_handle->input_volume,
-	     inode_number,
+	     file_entry_identifier,
 	     &file_entry,
 	     error ) != 1 )
 	{
@@ -1976,15 +2024,15 @@ int info_handle_file_entry_fprint_by_inode(
 
 		fprintf(
 		 info_handle->notify_stream,
-		 "Error reading inode: %" PRIu32 "\n\n",
-		 inode_number );
+		 "Error reading file entry: %" PRIu32 "\n\n",
+		 file_entry_identifier );
 
 		return( 0 );
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "Inode: %" PRIu32 " information:\n",
-	 inode_number );
+	 "File entry: %" PRIu32 " information:\n",
+	 file_entry_identifier );
 
 	is_empty = libfsext_file_entry_is_empty(
 	            file_entry,
@@ -2200,14 +2248,16 @@ int info_handle_file_system_hierarchy_fprint(
 
 		return( -1 );
 	}
-	fprintf(
-	 info_handle->notify_stream,
-	 "Extended File System information:\n\n" );
+	if( info_handle->bodyfile_stream == NULL )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "Extended File System information:\n\n" );
 
-	fprintf(
-	 info_handle->notify_stream,
-	 "File system hierarchy:\n" );
-
+		fprintf(
+		 info_handle->notify_stream,
+		 "File system hierarchy:\n" );
+	}
 	result = libfsext_volume_get_root_directory(
 	          info_handle->input_volume,
 	          &file_entry,
@@ -2256,10 +2306,12 @@ int info_handle_file_system_hierarchy_fprint(
 			goto on_error;
 		}
 	}
-	fprintf(
-	 info_handle->notify_stream,
-	 "\n" );
-
+	if( info_handle->bodyfile_stream == NULL )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\n" );
+	}
 	return( 1 );
 
 on_error:
@@ -2270,54 +2322,6 @@ on_error:
 		 NULL );
 	}
 	return( -1 );
-}
-
-/* Prints the inodes information
- * Returns 1 if successful or -1 on error
- */
-int info_handle_inodes_fprint(
-     info_handle_t *info_handle,
-     libcerror_error_t **error )
-{
-	static char *function           = "info_handle_inodes_fprint";
-	uint64_t file_entry_index       = 0;
-	uint32_t number_of_file_entries = 0;
-
-	if( libfsext_volume_get_number_of_file_entries(
-	     info_handle->input_volume,
-	     &number_of_file_entries,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of file entries.",
-		 function );
-
-		return( -1 );
-	}
-	for( file_entry_index = 0;
-	     file_entry_index < (uint64_t) number_of_file_entries;
-	     file_entry_index++ )
-	{
-		if( info_handle_file_entry_fprint_by_inode(
-		     info_handle,
-		     (uint32_t) file_entry_index,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print file entry of inode: %" PRIu64 ".",
-			 function,
-			 file_entry_index );
-
-			return( -1 );
-		}
-	}
-	return( 1 );
 }
 
 /* Prints the volume information

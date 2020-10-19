@@ -36,7 +36,7 @@
 #include "../libfsext/libfsext_extent.h"
 
 uint8_t fsext_test_extent_data1[ 12 ] = {
-	0x0a, 0xf3, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00 };
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
@@ -116,6 +116,8 @@ int fsext_test_extent_initialize(
 	          &extent,
 	          &error );
 
+	extent = NULL;
+
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -127,8 +129,6 @@ int fsext_test_extent_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	extent = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
@@ -393,6 +393,8 @@ int fsext_test_extent_clone(
 	          source_extent,
 	          &error );
 
+	destination_extent = NULL;
+
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -404,8 +406,6 @@ int fsext_test_extent_clone(
 
 	libcerror_error_free(
 	 &error );
-
-	destination_extent = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
@@ -460,7 +460,7 @@ int fsext_test_extent_clone(
 	{
 		/* Test libfsext_extent_clone with memcpy failing
 		 */
-		fsext_test_memcpy_attempts_before_fail = 0;
+		fsext_test_memcpy_attempts_before_fail = test_number;
 
 		result = libfsext_extent_clone(
 		          &destination_extent,

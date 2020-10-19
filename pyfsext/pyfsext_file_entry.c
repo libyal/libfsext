@@ -1282,8 +1282,8 @@ PyObject *pyfsext_file_entry_get_deletion_time_as_integer(
 
 		return( Py_None );
 	}
-	integer_object = PyLong_FromUnsignedLong(
-	                  (unsigned long) posix_time );
+	integer_object = PyLong_FromLong(
+	                  (long) posix_time );
 
 	return( integer_object );
 }

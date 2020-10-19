@@ -126,22 +126,22 @@ int info_handle_file_system_hierarchy_fprint_file_entry(
      size_t path_length,
      libcerror_error_t **error );
 
-int info_handle_file_system_hierarchy_fprint(
+int info_handle_file_entries_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
-int info_handle_inodes_fprint(
+int info_handle_file_entry_fprint_by_identifier(
      info_handle_t *info_handle,
-     libcerror_error_t **error );
-
-int info_handle_file_entry_fprint_by_inode(
-     info_handle_t *info_handle,
-     uint32_t inode_number,
+     uint32_t file_entry_identifier,
      libcerror_error_t **error );
 
 int info_handle_file_entry_fprint_by_path(
      info_handle_t *info_handle,
      const system_character_t *path,
+     libcerror_error_t **error );
+
+int info_handle_file_system_hierarchy_fprint(
+     info_handle_t *info_handle,
      libcerror_error_t **error );
 
 int info_handle_volume_fprint(

@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #endif
 
+#include "fsext_test_functions.h"
+#include "fsext_test_libbfio.h"
 #include "fsext_test_libcerror.h"
 #include "fsext_test_libfsext.h"
 #include "fsext_test_macros.h"
@@ -113,6 +115,8 @@ int fsext_test_group_descriptor_initialize(
 	          &group_descriptor,
 	          &error );
 
+	group_descriptor = NULL;
+
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +128,6 @@ int fsext_test_group_descriptor_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	group_descriptor = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 

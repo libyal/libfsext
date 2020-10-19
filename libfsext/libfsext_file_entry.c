@@ -32,6 +32,7 @@
 #include "libfsext_inode_table.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
+#include "libfsext_libcnotify.h"
 #include "libfsext_libcthreads.h"
 #include "libfsext_libuna.h"
 #include "libfsext_types.h"
@@ -1572,6 +1573,18 @@ int libfsext_internal_file_entry_get_symbolic_link_data(
 				goto on_error;
 			}
 		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: symbolic link data:\n",
+			 function );
+			libcnotify_print_data(
+			 internal_file_entry->symbolic_link_data,
+			 internal_file_entry->symbolic_link_data_size,
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+		}
+#endif
 	}
 	return( 1 );
 
@@ -1642,16 +1655,18 @@ int libfsext_file_entry_get_utf8_symbolic_link_target_size(
 			 "%s: unable to determine symbolic link data.",
 			 function );
 
-			goto on_error;
+			result = -1;
 		}
 	}
 	if( internal_file_entry->symbolic_link_data != NULL )
 	{
-		if( libuna_utf8_string_size_from_utf8_stream(
-		     internal_file_entry->symbolic_link_data,
-		     internal_file_entry->symbolic_link_data_size,
-		     utf8_string_size,
-		     error ) != 1 )
+		result = libuna_utf8_string_size_from_utf8_stream(
+		          internal_file_entry->symbolic_link_data,
+		          internal_file_entry->symbolic_link_data_size,
+		          utf8_string_size,
+		          error );
+
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1660,9 +1675,8 @@ int libfsext_file_entry_get_utf8_symbolic_link_target_size(
 			 "%s: unable to retrieve UTF-8 string size.",
 			 function );
 
-			goto on_error;
+			result = -1;
 		}
-		result = 1;
 	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_write(
@@ -1680,14 +1694,6 @@ int libfsext_file_entry_get_utf8_symbolic_link_target_size(
 	}
 #endif
 	return( result );
-
-on_error:
-#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
-	libcthreads_read_write_lock_release_for_write(
-	 internal_file_entry->read_write_lock,
-	 NULL );
-#endif
-	return( -1 );
 }
 
 /* Retrieves the UTF-8 encoded symbolic link target
@@ -1745,17 +1751,19 @@ int libfsext_file_entry_get_utf8_symbolic_link_target(
 			 "%s: unable to determine symbolic link data.",
 			 function );
 
-			goto on_error;
+			result = -1;
 		}
 	}
 	if( internal_file_entry->symbolic_link_data != NULL )
 	{
-		if( libuna_utf8_string_copy_from_utf8_stream(
-		     utf8_string,
-		     utf8_string_size,
-		     internal_file_entry->symbolic_link_data,
-		     internal_file_entry->symbolic_link_data_size,
-		     error ) != 1 )
+		result = libuna_utf8_string_copy_from_utf8_stream(
+		          utf8_string,
+		          utf8_string_size,
+		          internal_file_entry->symbolic_link_data,
+		          internal_file_entry->symbolic_link_data_size,
+		          error );
+
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1764,9 +1772,8 @@ int libfsext_file_entry_get_utf8_symbolic_link_target(
 			 "%s: unable to retrieve UTF-8 string.",
 			 function );
 
-			goto on_error;
+			result = -1;
 		}
-		result = 1;
 	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_write(
@@ -1784,14 +1791,6 @@ int libfsext_file_entry_get_utf8_symbolic_link_target(
 	}
 #endif
 	return( result );
-
-on_error:
-#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
-	libcthreads_read_write_lock_release_for_write(
-	 internal_file_entry->read_write_lock,
-	 NULL );
-#endif
-	return( -1 );
 }
 
 /* Retrieves the size of the UTF-16 encoded symbolic link target
@@ -1848,16 +1847,18 @@ int libfsext_file_entry_get_utf16_symbolic_link_target_size(
 			 "%s: unable to determine symbolic link data.",
 			 function );
 
-			goto on_error;
+			result = -1;
 		}
 	}
 	if( internal_file_entry->symbolic_link_data != NULL )
 	{
-		if( libuna_utf16_string_size_from_utf8_stream(
-		     internal_file_entry->symbolic_link_data,
-		     internal_file_entry->symbolic_link_data_size,
-		     utf16_string_size,
-		     error ) != 1 )
+		result = libuna_utf16_string_size_from_utf8_stream(
+		          internal_file_entry->symbolic_link_data,
+		          internal_file_entry->symbolic_link_data_size,
+		          utf16_string_size,
+		          error );
+
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1866,9 +1867,8 @@ int libfsext_file_entry_get_utf16_symbolic_link_target_size(
 			 "%s: unable to retrieve UTF-16 string size.",
 			 function );
 
-			goto on_error;
+			result = -1;
 		}
-		result = 1;
 	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_write(
@@ -1886,14 +1886,6 @@ int libfsext_file_entry_get_utf16_symbolic_link_target_size(
 	}
 #endif
 	return( result );
-
-on_error:
-#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
-	libcthreads_read_write_lock_release_for_write(
-	 internal_file_entry->read_write_lock,
-	 NULL );
-#endif
-	return( -1 );
 }
 
 /* Retrieves the UTF-16 encoded symbolic link target
@@ -1951,17 +1943,19 @@ int libfsext_file_entry_get_utf16_symbolic_link_target(
 			 "%s: unable to determine symbolic link data.",
 			 function );
 
-			goto on_error;
+			result = -1;
 		}
 	}
 	if( internal_file_entry->symbolic_link_data != NULL )
 	{
-		if( libuna_utf16_string_copy_from_utf8_stream(
-		     utf16_string,
-		     utf16_string_size,
-		     internal_file_entry->symbolic_link_data,
-		     internal_file_entry->symbolic_link_data_size,
-		     error ) != 1 )
+		result = libuna_utf16_string_copy_from_utf8_stream(
+		          utf16_string,
+		          utf16_string_size,
+		          internal_file_entry->symbolic_link_data,
+		          internal_file_entry->symbolic_link_data_size,
+		          error );
+
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1970,7 +1964,7 @@ int libfsext_file_entry_get_utf16_symbolic_link_target(
 			 "%s: unable to retrieve UTF-16 string.",
 			 function );
 
-			goto on_error;
+			result = -1;
 		}
 		result = 1;
 	}
@@ -1990,14 +1984,6 @@ int libfsext_file_entry_get_utf16_symbolic_link_target(
 	}
 #endif
 	return( result );
-
-on_error:
-#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
-	libcthreads_read_write_lock_release_for_write(
-	 internal_file_entry->read_write_lock,
-	 NULL );
-#endif
-	return( -1 );
 }
 
 /* Retrieves the number of sub file entries

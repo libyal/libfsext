@@ -247,6 +247,8 @@ fsext_test_file_entry_LDADD = \
 	@LIBCERROR_LIBADD@
 
 fsext_test_group_descriptor_SOURCES = \
+	fsext_test_functions.c fsext_test_functions.h \
+	fsext_test_libbfio.h \
 	fsext_test_group_descriptor.c \
 	fsext_test_libcerror.h \
 	fsext_test_libfsext.h \
@@ -255,6 +257,14 @@ fsext_test_group_descriptor_SOURCES = \
 	fsext_test_unused.h
 
 fsext_test_group_descriptor_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 

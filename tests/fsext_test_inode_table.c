@@ -100,8 +100,6 @@ int main(
 	 "libfsext_inode_table_free",
 	 fsext_test_inode_table_free );
 
-	/* TODO: add tests for libfsext_inode_table_read_data */
-
 	/* TODO: add tests for libfsext_inode_table_get_inode_by_number */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */

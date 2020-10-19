@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <file_stream.h>
 #include <types.h>
 
@@ -37,9 +38,6 @@
 
 uint8_t fsext_test_extents_header_data1[ 12 ] = {
 	0x0a, 0xf3, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-uint8_t fsext_test_extents_header_error_data1[ 12 ] = {
-	0xff, 0xff, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
@@ -119,6 +117,8 @@ int fsext_test_extents_header_initialize(
 	          &extents_header,
 	          &error );
 
+	extents_header = NULL;
+
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -130,8 +130,6 @@ int fsext_test_extents_header_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	extents_header = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
@@ -396,13 +394,21 @@ int fsext_test_extents_header_read_data(
 	libcerror_error_free(
 	 &error );
 
-	/* Test data invalid
+	/* Test error case where signature is invalid
 	 */
+	byte_stream_copy_from_uint16_little_endian(
+	 fsext_test_extents_header_data1,
+	 0xffff );
+
 	result = libfsext_extents_header_read_data(
 	          extents_header,
-	          fsext_test_extents_header_error_data1,
+	          fsext_test_extents_header_data1,
 	          12,
 	          &error );
+
+	byte_stream_copy_from_uint16_little_endian(
+	 fsext_test_extents_header_data1,
+	 0xf30a );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",

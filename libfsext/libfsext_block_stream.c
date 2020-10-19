@@ -20,7 +20,6 @@
  */
 
 #include <common.h>
-#include <memory.h>
 #include <types.h>
 
 #include "libfsext_block_data_handle.h"
@@ -28,11 +27,8 @@
 #include "libfsext_definitions.h"
 #include "libfsext_inode.h"
 #include "libfsext_io_handle.h"
-#include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
-#include "libfsext_libfcache.h"
 #include "libfsext_libfdata.h"
-#include "libfsext_unused.h"
 
 /* Creates data block stream from a buffer of data
  * Make sure the value block_stream is referencing, is set to NULL

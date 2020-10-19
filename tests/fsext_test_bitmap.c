@@ -182,6 +182,8 @@ int fsext_test_bitmap_initialize(
 	          &bitmap,
 	          &error );
 
+	bitmap = NULL;
+
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -193,8 +195,6 @@ int fsext_test_bitmap_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	bitmap = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 

@@ -116,6 +116,8 @@ int fsext_test_directory_entry_initialize(
 	          &directory_entry,
 	          &error );
 
+	directory_entry = NULL;
+
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -127,8 +129,6 @@ int fsext_test_directory_entry_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	directory_entry = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
@@ -393,6 +393,8 @@ int fsext_test_directory_entry_clone(
 	          source_directory_entry,
 	          &error );
 
+	destination_directory_entry = NULL;
+
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -404,8 +406,6 @@ int fsext_test_directory_entry_clone(
 
 	libcerror_error_free(
 	 &error );
-
-	destination_directory_entry = NULL;
 
 #if defined( HAVE_FSEXT_TEST_MEMORY )
 
@@ -694,6 +694,84 @@ on_error:
 		libfsext_directory_entry_free(
 		 &directory_entry,
 		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_directory_entry_get_inode_number function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_directory_entry_get_inode_number(
+     libfsext_directory_entry_t *directory_entry )
+{
+	libcerror_error_t *error = NULL;
+	uint32_t inode_number    = 0;
+	int inode_number_is_set  = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_directory_entry_get_inode_number(
+	          directory_entry,
+	          &inode_number,
+	          &error );
+
+	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	inode_number_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libfsext_directory_entry_get_inode_number(
+	          NULL,
+	          &inode_number,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( inode_number_is_set != 0 )
+	{
+		result = libfsext_directory_entry_get_inode_number(
+		          directory_entry,
+		          NULL,
+		          &error );
+
+		FSEXT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		FSEXT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
 	}
 	return( 0 );
 }
@@ -1111,6 +1189,10 @@ int main(
 	 "libfsext_directory_entry_read_data",
 	 fsext_test_directory_entry_read_data );
 
+	/* TODO: add tests for libfsext_directory_entry_compare_with_utf8_string */
+
+	/* TODO: add tests for libfsext_directory_entry_compare_with_utf16_string */
+
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 
 	/* Initialize directory_entry for tests
@@ -1146,6 +1228,13 @@ int main(
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
+
+	/* Run tests
+	 */
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_directory_entry_get_inode_number",
+	 fsext_test_directory_entry_get_inode_number,
+	 directory_entry );
 
 	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_directory_entry_get_utf8_name_size",
@@ -1195,6 +1284,8 @@ int main(
 #if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
 on_error:
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
 	if( error != NULL )
 	{
 		libcerror_error_free(
@@ -1206,6 +1297,8 @@ on_error:
 		 &directory_entry,
 		 NULL );
 	}
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
 	return( EXIT_FAILURE );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
