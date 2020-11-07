@@ -1201,7 +1201,7 @@ If the target path of a symbolic link is less than 60 characters long, it is
 stored in the 60 bytes in the inode that are normally used for the 12 direct
 and 3 indirect block numbers. If the target path is longer than 60 characters,
 a block is allocated, and the block contains the target path. The inode data
-size contains the lenght of the target path.
+size contains the length of the target path.
 
 == Journal
 
@@ -1210,6 +1210,19 @@ The journal was introduced in ext3.
 [yellow-background]*TODO: add text*
 
 == Notes
+
+....
+EXT2_BAD_INO	1	Allocated over bad blocks by mke2fs/e2fsck -c
+EXT2_ROOT_INO	2	The root directory of the file system
+EXT4_USR_QUOTA_INO	3	The now integrated and hidden user quota file. Previously used for ACL index?
+EXT4_GRP_QUOTA_INO	4	The now integrated and hidden group quota file. Previously used for ACL data?
+EXT2_BOOT_LOADER_INO	5	Apprently unused. Was probably intended to hide stage2 loaders, just like the fs starts padded with zeroes to allow stage1 loaders.
+EXT2_UNDEL_DIR_INO	6	Apparently unused. Was supposedly meant for undeletion functionality that was never implemented.
+EXT2_RESIZE_INO	7	Used to speed up resizing, by reserving room to let the block group descriptor table grow (mke2fs resize=) option.
+EXT2_JOURNAL_INO	8	The ext3 journal (mke2fs -j)
+EXT2_EXCLUDE_INO	9	Unused in vanilla, but used by the Next3 fs for snapshots.
+EXT4_REPLICA_INO	10	Unused in vanilla, but used for ext4 metadata replication out of tree in a Google patch.
+....
 
 ....
 #define EXT4_STATE_JDATA	0x00000001 /* journaled data exists */

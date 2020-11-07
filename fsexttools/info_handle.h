@@ -50,6 +50,10 @@ struct info_handle
 	 */
 	libfsext_volume_t *input_volume;
 
+	/* Value to indicate if the MD5 hash should be calculated
+	 */
+	uint8_t calculate_md5;
+
 	/* The bodyfile output stream
 	 */
 	FILE *bodyfile_stream;
@@ -71,6 +75,7 @@ int info_handle_system_string_copy_from_64_bit_in_decimal(
 
 int info_handle_initialize(
      info_handle_t **info_handle,
+     uint8_t calculate_md5,
      libcerror_error_t **error );
 
 int info_handle_free(
@@ -100,6 +105,19 @@ int info_handle_close_input(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
+int info_handle_file_entry_calculate_md5(
+     info_handle_t *info_handle,
+     libfsext_file_entry_t *file_entry,
+     char *md5_string,
+     size_t md5_string_size,
+     libcerror_error_t **error );
+
+int info_handle_name_value_fprint(
+     info_handle_t *info_handle,
+     const system_character_t *value_string,
+     size_t value_string_length,
+     libcerror_error_t **error );
+
 int info_handle_posix_time_seconds_value_fprint(
      info_handle_t *info_handle,
      const char *value_name,
@@ -112,11 +130,25 @@ int info_handle_posix_time_nano_seconds_value_fprint(
      uint64_t value_64bit,
      libcerror_error_t **error );
 
+void info_handle_compatible_features_flags_fprint(
+      uint32_t compatible_features_flags,
+      FILE *notify_stream );
+
+void info_handle_incompatible_features_flags_fprint(
+      uint32_t incompatible_features_flags,
+      FILE *notify_stream );
+
+void info_handle_read_only_compatible_features_flags_fprint(
+      uint32_t read_only_compatible_features_flags,
+      FILE *notify_stream );
+
 int info_handle_file_entry_value_with_name_fprint(
      info_handle_t *info_handle,
      libfsext_file_entry_t *file_entry,
      const system_character_t *path,
+     size_t path_length,
      const system_character_t *file_entry_name,
+     size_t file_entry_name_length,
      libcerror_error_t **error );
 
 int info_handle_file_system_hierarchy_fprint_file_entry(

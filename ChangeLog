@@ -1,5 +1,9 @@
 TODO:
-* get_file_entry_by_path determine unicode form
+* bodyfile add support for symbolic link target
+* bodyfile do not print high precision timestamps for ext2 and ext3
+* determine if file_entry_get_size should return non-zero size for a directory?
+
+* get_file_entry_by_path determine Unicode form
 * merge continous extents
 * add support for checksums
   * add support for ext4 extents checksum

@@ -192,7 +192,7 @@ int libfsext_file_entry_initialize(
 			goto on_error;
 		}
 		if( ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_REGULAR_FILE )
-		 || ( internal_file_entry->data_size > 60 ) )
+		 || ( internal_file_entry->data_size >= 60 ) )
 		{
 			if( libfsext_block_stream_initialize(
 			     &( internal_file_entry->data_block_stream ),
@@ -1966,7 +1966,6 @@ int libfsext_file_entry_get_utf16_symbolic_link_target(
 
 			result = -1;
 		}
-		result = 1;
 	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_write(

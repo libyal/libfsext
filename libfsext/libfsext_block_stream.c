@@ -117,7 +117,7 @@ int libfsext_block_stream_initialize_from_data(
 
 		goto on_error;
 	}
-	if( data_size > 60 )
+	if( data_size >= 60 )
 	{
 		if( libfdata_stream_append_segment(
 		     safe_data_stream,

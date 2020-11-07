@@ -52,7 +52,8 @@ Python 3 bindings for libfsext
 %package -n libfsext-tools
 Summary: Several tools for reading Extended File System (ext) volumes
 Group: Applications/System
-Requires: libfsext = %{version}-%{release}
+Requires: libfsext = %{version}-%{release} @ax_libcrypto_spec_requires@ @ax_libhmac_spec_requires@
+@libfsext_spec_tools_build_requires@ @ax_libcrypto_spec_build_requires@ @ax_libhmac_spec_build_requires@
 
 %description -n libfsext-tools
 Several tools for reading Extended File System (ext) volumes

@@ -14,6 +14,9 @@ AM_CPPFLAGS = \
 	@LIBFDATA_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
+	@LIBHMAC_CPPFLAGS@ \
+	@LIBCRYPTO_CPPFLAGS@ \
+	@PTHREAD_CPPFLAGS@ \
 	@LIBFSEXT_DLL_IMPORT@
 
 AM_LDFLAGS = @STATIC_LDFLAGS@
@@ -22,6 +25,7 @@ bin_PROGRAMS = \
 	fsextinfo
 
 fsextinfo_SOURCES = \
+	digest_hash.c digest_hash.h \
 	fsextinfo.c \
 	fsexttools_getopt.c fsexttools_getopt.h \
 	fsexttools_i18n.h \
@@ -34,6 +38,7 @@ fsextinfo_SOURCES = \
 	fsexttools_libfdatetime.h \
 	fsexttools_libfguid.h \
 	fsexttools_libfsext.h \
+	fsexttools_libhmac.h \
 	fsexttools_libuna.h \
 	fsexttools_output.c fsexttools_output.h \
 	fsexttools_signal.c fsexttools_signal.h \
@@ -41,6 +46,9 @@ fsextinfo_SOURCES = \
 	info_handle.c info_handle.h
 
 fsextinfo_LDADD = \
+	@LIBHMAC_LIBADD@ \
+	@LIBCRYPTO_LIBADD@ \
+	@LIBDL_LIBADD@ \
 	@LIBFGUID_LIBADD@ \
 	@LIBFDATETIME_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
@@ -53,7 +61,8 @@ fsextinfo_LDADD = \
 	@LIBCLOCALE_LIBADD@ \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@ \
-	@LIBINTL@
+	@LIBINTL@ \
+	@PTHREAD_LIBADD@
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

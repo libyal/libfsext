@@ -34,6 +34,7 @@ MSVSCPP_FILES = \
 	libfdatetime/libfdatetime.vcproj \
 	libfguid/libfguid.vcproj \
 	libfsext/libfsext.vcproj \
+	libhmac/libhmac.vcproj \
 	libuna/libuna.vcproj \
 	pyfsext/pyfsext.vcproj \
 	libfsext.sln

@@ -18,6 +18,7 @@ SUBDIRS = \
 	libfdatetime \
 	libfguid \
 	libfsext \
+	libhmac \
 	fsexttools \
 	pyfsext \
 	pyfsext-python2 \
@@ -123,6 +124,7 @@ splint:
 	(cd $(srcdir)/libfdatetime && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfguid && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfsext && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libhmac && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/fsexttools && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/pyfsext && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) splint $(AM_MAKEFLAGS))

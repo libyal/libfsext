@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20201019],
+ [20201107],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -128,6 +128,9 @@ AS_IF(
     ])
   ])
 
+dnl Check if libhmac or required headers and functions are available
+AX_LIBHMAC_CHECK_ENABLE
+
 dnl Check if fsexttools required headers and functions are available
 AX_FSEXTTOOLS_CHECK_LOCAL
 
@@ -147,6 +150,13 @@ AS_IF(
  [AC_SUBST(
   [libfsext_spec_requires],
   [Requires:])
+ ])
+
+AS_IF(
+ [test "x$ac_cv_libhmac" = xyes || test "x$ac_cv_libcrypto" != xno],
+ [AC_SUBST(
+  [libfsext_spec_tools_build_requires],
+  [BuildRequires:])
  ])
 
 dnl Set the date for the dpkg files
@@ -181,6 +191,7 @@ AC_CONFIG_FILES([libfsext/Makefile])
 AC_CONFIG_FILES([pyfsext/Makefile])
 AC_CONFIG_FILES([pyfsext-python2/Makefile])
 AC_CONFIG_FILES([pyfsext-python3/Makefile])
+AC_CONFIG_FILES([libhmac/Makefile])
 AC_CONFIG_FILES([fsexttools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
@@ -222,6 +233,8 @@ Building:
    libfdata support:                           $ac_cv_libfdata
    libfdatetime support:                       $ac_cv_libfdatetime
    libfguid support:                           $ac_cv_libfguid
+   libhmac support:                            $ac_cv_libhmac
+   MD5 support:                                $ac_cv_libhmac_md5
 
 Features:
    Multi-threading support:                    $ac_cv_libcthreads_multi_threading
