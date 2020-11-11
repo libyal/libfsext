@@ -1,5 +1,7 @@
 TODO:
-* bodyfile add support for symbolic link target
+* rename libfsext_block_stream to libfsext_data_stream
+** refactor libfsext_block_stream_initialize_from_extents to have extents and size arguments
+
 * bodyfile do not print high precision timestamps for ext2 and ext3
 * determine if file_entry_get_size should return non-zero size for a directory?
 

@@ -1081,12 +1081,12 @@ greater than 60 bytes.
 
 == Directory entries
 
-Directories entries are stored in the data blocks of directory inodes. The
+Directories entries are stored in the data blocks of a directory inode. The
 directory entries can be stored in multiple ways:
 
-* linear directory entries
-* inline data directory entries
-* hash-tree directory entries
+* as linear directory entries
+* as inline data directory entries
+* as hash-tree directory entries
 
 === Linear directory entries
 

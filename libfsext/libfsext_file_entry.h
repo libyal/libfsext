@@ -115,6 +115,14 @@ int libfsext_file_entry_free(
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error );
 
+int libfsext_internal_file_entry_get_directory(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     libcerror_error_t **error );
+
+int libfsext_internal_file_entry_get_symbolic_link_data(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     libcerror_error_t **error );
+
 LIBFSEXT_EXTERN \
 int libfsext_file_entry_is_empty(
      libfsext_file_entry_t *file_entry,
@@ -198,10 +206,6 @@ int libfsext_file_entry_get_utf16_name(
      libfsext_file_entry_t *file_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     libcerror_error_t **error );
-
-int libfsext_internal_file_entry_get_symbolic_link_data(
-     libfsext_internal_file_entry_t *internal_file_entry,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \

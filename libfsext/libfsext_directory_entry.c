@@ -469,7 +469,7 @@ on_error:
 }
 
 /* Retrieves the inode number
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libfsext_directory_entry_get_inode_number(
      libfsext_directory_entry_t *directory_entry,

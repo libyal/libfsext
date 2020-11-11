@@ -118,16 +118,16 @@ int info_handle_name_value_fprint(
      size_t value_string_length,
      libcerror_error_t **error );
 
-int info_handle_posix_time_seconds_value_fprint(
+int info_handle_posix_time_in_seconds_value_fprint(
      info_handle_t *info_handle,
      const char *value_name,
      int32_t value_32bit,
      libcerror_error_t **error );
 
-int info_handle_posix_time_nano_seconds_value_fprint(
+int info_handle_posix_time_in_nano_seconds_value_fprint(
      info_handle_t *info_handle,
      const char *value_name,
-     uint64_t value_64bit,
+     int64_t value_64bit,
      libcerror_error_t **error );
 
 void info_handle_compatible_features_flags_fprint(

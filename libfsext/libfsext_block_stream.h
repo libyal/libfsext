@@ -29,7 +29,6 @@
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
-#include "libfsext_libfcache.h"
 #include "libfsext_libfdata.h"
 
 #if defined( __cplusplus )

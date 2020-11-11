@@ -341,6 +341,7 @@ int libfsext_extent_read_data(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 }
 
