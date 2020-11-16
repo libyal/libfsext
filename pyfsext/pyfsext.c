@@ -590,8 +590,9 @@ PyMODINIT_FUNC initpyfsext(
 		return;
 #endif
 	}
+#if PY_VERSION_HEX < 0x03070000
 	PyEval_InitThreads();
-
+#endif
 	gil_state = PyGILState_Ensure();
 
 	/* Setup the file_entries type object

@@ -126,7 +126,7 @@ PyMethodDef pyfsext_volume_object_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "get_file_entry_by_inode(inode_number) -> Object or None\n"
 	  "\n"
-	  "Retrieves the file entry specified by the inode." },
+	  "Retrieves the file entry specified by the inode number." },
 
 	{ "get_root_directory",
 	  (PyCFunction) pyfsext_volume_get_root_directory,

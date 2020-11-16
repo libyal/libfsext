@@ -112,28 +112,6 @@ int libfsext_extents_read_inode_data_reference(
 	uint32_t logical_block_number    = 0;
 	int entry_index                  = 0;
 
-	if( io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( io_handle->block_size == 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid IO handle - block size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
 	if( libfsext_extents_read_data(
 	     extents_array,
 	     io_handle,
@@ -244,6 +222,11 @@ on_error:
 		 &sparse_extent,
 		 NULL );
 	}
+	libcdata_array_empty(
+	 extents_array,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_extent_free,
+	 NULL );
+
 	return( -1 );
 }
 
@@ -512,6 +495,8 @@ int libfsext_extents_read_data(
 				}
 				sparse_extent = NULL;
 			}
+			logical_block_number = extent->logical_block_number + extent->number_of_blocks;
+
 			if( libcdata_array_append_entry(
 			     extents_array,
 			     &entry_index,
@@ -527,8 +512,6 @@ int libfsext_extents_read_data(
 
 				goto on_error;
 			}
-			logical_block_number = extent->logical_block_number + extent->number_of_blocks;
-
 			extent = NULL;
 		}
 		else
