@@ -339,7 +339,7 @@ PyObject *pyfsext_check_volume_signature_file_object(
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     "|O",
+	     "O|",
 	     keyword_list,
 	     &file_object ) == 0 )
 	{
