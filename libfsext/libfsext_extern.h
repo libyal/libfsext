@@ -30,7 +30,7 @@
 
 #include <libfsext/extern.h>
 
-#if defined( __CYGWIN__ )
+#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
 #define LIBFSEXT_EXTERN_VARIABLE	extern
 #else
 #define LIBFSEXT_EXTERN_VARIABLE	LIBFSEXT_EXTERN

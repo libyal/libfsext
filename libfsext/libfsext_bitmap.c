@@ -329,33 +329,6 @@ int libfsext_bitmap_read_file_io_handle(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading bitmap at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 file_offset,
-		 file_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek bitmap offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		goto on_error;
-	}
 	data = (uint8_t *) memory_allocate(
 	                    sizeof( uint8_t ) * io_handle->block_size );
 
@@ -370,10 +343,21 @@ int libfsext_bitmap_read_file_io_handle(
 
 		goto on_error;
 	}
-	read_count = libbfio_handle_read_buffer(
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading bitmap at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 file_offset,
+		 file_offset );
+	}
+#endif
+	read_count = libbfio_handle_read_buffer_at_offset(
 	              file_io_handle,
 	              data,
 	              (size_t) io_handle->block_size,
+	              file_offset,
 	              error );
 
 	if( read_count != (ssize_t) io_handle->block_size )
