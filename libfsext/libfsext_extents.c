@@ -252,8 +252,8 @@ int libfsext_extents_read_data(
 	static char *function                     = "libfsext_extents_read_data";
 	size_t data_offset                        = 0;
 	off64_t extents_block_offset              = 0;
+	uint32_t extent_descriptor_index          = 0;
 	uint32_t logical_block_number             = 0;
-	uint8_t extent_descriptor_index           = 0;
 	int entry_index                           = 0;
 
 	if( io_handle == NULL )
@@ -410,6 +410,17 @@ int libfsext_extents_read_data(
 	     extent_descriptor_index < extents_header->number_of_extents;
 	     extent_descriptor_index++ )
 	{
+		if( data_offset > ( data_size - 12 ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid data size value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
 		if( extents_header->depth == 0 )
 		{
 			if( libfsext_extent_initialize(
