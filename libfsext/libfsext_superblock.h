@@ -263,6 +263,12 @@ int libfsext_superblock_read_file_io_handle(
      off64_t file_offset,
      libcerror_error_t **error );
 
+int libfsext_superblock_get_file_system_identifier(
+     libfsext_superblock_t *superblock,
+     uint8_t *uuid_data,
+     size_t uuid_data_size,
+     libcerror_error_t **error );
+
 int libfsext_superblock_get_utf8_volume_label_size(
      libfsext_superblock_t *superblock,
      size_t *utf8_string_size,

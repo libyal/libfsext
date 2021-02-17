@@ -280,6 +280,17 @@ int libfsext_volume_get_features_flags(
      uint32_t *read_only_compatible_features_flags,
      libfsext_error_t **error );
 
+/* Retrieves the identifier
+ * The identifier is an UUID stored in big-endian and is 16 bytes of size
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_identifier(
+     libfsext_volume_t *volume,
+     uint8_t *uuid_data,
+     size_t uuid_data_size,
+     libfsext_error_t **error );
+
 /* Retrieves the size of the UTF-8 encoded label
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error

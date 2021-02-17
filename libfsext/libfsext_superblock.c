@@ -640,7 +640,7 @@ int libfsext_superblock_read_data(
 			     "file system identifier\t\t\t",
 			     ( (fsext_superblock_ext2_t *) data )->file_system_identifier,
 			     16,
-			     LIBFGUID_ENDIAN_LITTLE,
+			     LIBFGUID_ENDIAN_BIG,
 			     LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
 			     error ) != 1 )
 			{
@@ -802,7 +802,7 @@ int libfsext_superblock_read_data(
 		     "journal identifier\t\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->journal_identifier,
 		     16,
-		     LIBFGUID_ENDIAN_LITTLE,
+		     LIBFGUID_ENDIAN_BIG,
 		     LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
 		     error ) != 1 )
 		{
@@ -1059,6 +1059,69 @@ int libfsext_superblock_read_file_io_handle(
 		 function,
 		 file_offset,
 		 file_offset );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the file system identifier
+ * The identifier is an UUID stored in big-endian and is 16 bytes of size
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_superblock_get_file_system_identifier(
+     libfsext_superblock_t *superblock,
+     uint8_t *uuid_data,
+     size_t uuid_data_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_superblock_get_file_system_identifier";
+
+	if( superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( uuid_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UUID data.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( uuid_data_size < 16 )
+	 || ( uuid_data_size > (size_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid UUID data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     uuid_data,
+	     superblock->file_system_identifier,
+	     16 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy file system identifier.",
+		 function );
 
 		return( -1 );
 	}

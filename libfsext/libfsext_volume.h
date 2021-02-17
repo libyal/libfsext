@@ -149,6 +149,13 @@ int libfsext_volume_get_features_flags(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_volume_get_identifier(
+     libfsext_volume_t *volume,
+     uint8_t *uuid_data,
+     size_t uuid_data_size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_volume_get_utf8_label_size(
      libfsext_volume_t *volume,
      size_t *utf8_string_size,
