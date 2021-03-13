@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="fsext_test_extents_footer"
-	ProjectGUID="{DA36FCA2-6DC0-493C-991F-C428872A20A0}"
-	RootNamespace="fsext_test_extents_footer"
+	Name="fsext_test_tools_output"
+	ProjectGUID="{B8A1A52C-8BBE-4C85-8A9C-75F5B92F9C51}"
+	RootNamespace="fsext_test_tools_output"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,11 +176,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\fsext_test_extents_footer.c"
+				RelativePath="..\..\fsexttools\fsexttools_output.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\fsext_test_memory.c"
+				RelativePath="..\..\tests\fsext_test_tools_output.c"
 				>
 			</File>
 		</Filter>
@@ -190,19 +190,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\fsexttools\fsexttools_output.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\fsext_test_libcerror.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\fsext_test_libfsext.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\tests\fsext_test_macros.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\fsext_test_memory.h"
 				>
 			</File>
 			<File

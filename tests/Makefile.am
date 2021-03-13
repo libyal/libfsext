@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
@@ -15,6 +17,8 @@ AM_CPPFLAGS = \
 	@LIBFDATA_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
+	@LIBCRYPTO_CPPFLAGS@ \
+	@LIBHMAC_CPPFLAGS@ \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBFSEXT_DLL_IMPORT@
 
@@ -25,6 +29,7 @@ endif
 
 TESTS = \
 	test_library.sh \
+	test_tools.sh \
 	test_fsextinfo.sh \
 	$(TESTS_PYFSEXT)
 
@@ -34,7 +39,8 @@ check_SCRIPTS = \
 	test_library.sh \
 	test_manpage.sh \
 	test_python_module.sh \
-	test_runner.sh
+	test_runner.sh \
+	test_tools.sh
 
 EXTRA_DIST = \
 	$(check_SCRIPTS)
@@ -59,6 +65,9 @@ check_PROGRAMS = \
 	fsext_test_notify \
 	fsext_test_superblock \
 	fsext_test_support \
+	fsext_test_tools_info_handle \
+	fsext_test_tools_output \
+	fsext_test_tools_signal \
 	fsext_test_volume
 
 fsext_test_bitmap_SOURCES = \
@@ -360,6 +369,54 @@ fsext_test_support_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_tools_info_handle_SOURCES = \
+	../fsexttools/digest_hash.c ../fsexttools/digest_hash.h \
+	../fsexttools/info_handle.c ../fsexttools/info_handle.h \
+	fsext_test_libcerror.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_tools_info_handle.c \
+	fsext_test_unused.h
+
+fsext_test_tools_info_handle_LDADD = \
+	@LIBHMAC_LIBADD@ \
+	@LIBFGUID_LIBADD@ \
+	@LIBFDATETIME_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@ \
+	@LIBCRYPTO_LIBADD@ \
+	@LIBDL_LIBADD@
+
+fsext_test_tools_output_SOURCES = \
+	../fsexttools/fsexttools_output.c ../fsexttools/fsexttools_output.h \
+	fsext_test_libcerror.h \
+	fsext_test_macros.h \
+	fsext_test_tools_output.c \
+	fsext_test_unused.h
+
+fsext_test_tools_output_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_tools_signal_SOURCES = \
+	../fsexttools/fsexttools_signal.c ../fsexttools/fsexttools_signal.h \
+	fsext_test_libcerror.h \
+	fsext_test_macros.h \
+	fsext_test_tools_signal.c \
+	fsext_test_unused.h
+
+fsext_test_tools_signal_LDADD = \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 
