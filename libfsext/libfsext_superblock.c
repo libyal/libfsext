@@ -734,7 +734,8 @@ int libfsext_superblock_read_data(
 	                        | 0x00000040UL
 	                        | 0x00000100UL
 	                        | 0x00000400UL
-	                        | 0x00001000UL;
+	                        | 0x00001000UL
+	                        | 0x00004000UL;
 
 	if( ( superblock->read_only_compatible_features_flags & ~( supported_feature_flags ) ) != 0 )
 	{

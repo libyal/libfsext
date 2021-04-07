@@ -1468,26 +1468,38 @@ void info_handle_read_only_compatible_features_flags_fprint(
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(RO_COMPAT_METADATA_CSUM)\n" );
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)\n" );
 	}
 	if( ( read_only_compatible_features_flags & 0x00000800UL ) != 0 )
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(RO_COMPAT_REPLICA)\n" );
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_REPLICA)\n" );
 	}
 
 	if( ( read_only_compatible_features_flags & 0x00001000UL ) != 0 )
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(RO_COMPAT_READONLY)\n" );
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_READONLY)\n" );
 	}
 	if( ( read_only_compatible_features_flags & 0x00002000UL ) != 0 )
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(RO_COMPAT_PROJECT)\n" );
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_PROJECT)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00004000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_SHARED_BLOCKS)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00008000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_VERITY)\n" );
 	}
 	fprintf(
 	 notify_stream,

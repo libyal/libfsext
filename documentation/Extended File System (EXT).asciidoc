@@ -54,6 +54,7 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.8 | J.B. Metz | July 2020 | Additional information about format.
 | 0.0.9 | J.B. Metz | August 2020 | Additional information about format.
 | 0.0.10 | J.B. Metz | February 2021 | Additional information about format.
+| 0.0.11 | J.B. Metz | April 2021 | Additional information about read-only compatibility flags.
 |===
 
 :numbered:
@@ -511,10 +512,12 @@ The size of an inode can be larger than ext2 inode size.
 | 0x00000100 | EXT4_FEATURE_RO_COMPAT_QUOTA | Quota is handled transactionally with the journal.
 | 0x00000200 | EXT4_FEATURE_RO_COMPAT_BIGALLOC | Has big block allocation bitmaps. +
 Block allocation bitmaps are tracked in units of clusters (of blocks) instead of blocks.
-| 0x00000400 | RO_COMPAT_METADATA_CSUM | Supports metadata checksum.
-| 0x00000800 | RO_COMPAT_REPLICA | Supports replicas.
-| 0x00001000 | RO_COMPAT_READONLY | Read-only file system image.
-| 0x00002000 | RO_COMPAT_PROJECT | Filesystem tracks project quotas.
+| 0x00000400 | EXT4_FEATURE_RO_COMPAT_METADATA_CSUM | Supports metadata checksum.
+| 0x00000800 | EXT4_FEATURE_RO_COMPAT_REPLICA | Supports replicas.
+| 0x00001000 | EXT4_FEATURE_RO_COMPAT_READONLY | Read-only file system image.
+| 0x00002000 | EXT4_FEATURE_RO_COMPAT_PROJECT | Filesystem tracks project quotas.
+| 0x00004000 | EXT4_FEATURE_RO_COMPAT_SHARED_BLOCKS | Filesystem has (read-only) shared blocks.
+| 0x00008000 | EXT4_FEATURE_RO_COMPAT_VERITY | [yellow-background]*Unknown (Verity inodes may be present on the filesystem.)*
 |===
 
 [NOTE]
