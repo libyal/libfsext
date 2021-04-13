@@ -1,4 +1,5 @@
 TODO:
+* track and expose date time precision
 * fsextinfo output file system identifier
 
 * rename libfsext_block_stream to libfsext_data_stream

@@ -817,7 +817,7 @@ int libfsext_file_entry_get_access_time(
 /* Retrieves the creation date and time
  * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
  * This value is retrieved from the inode
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libfsext_file_entry_get_creation_time(
      libfsext_file_entry_t *file_entry,
@@ -856,10 +856,12 @@ int libfsext_file_entry_get_creation_time(
 		return( -1 );
 	}
 #endif
-	if( libfsext_inode_get_creation_time(
-	     internal_file_entry->inode,
-	     posix_time,
-	     error ) != 1 )
+	result = libfsext_inode_get_creation_time(
+	          internal_file_entry->inode,
+	          posix_time,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,

@@ -991,6 +991,8 @@ int libfsext_inode_read_data(
 		inode->creation_time *= 1000000000;
 		inode->creation_time += value_32bit >> 2;
 
+		inode->has_creation_time = 1;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
@@ -1311,7 +1313,7 @@ int libfsext_inode_get_access_time(
 
 /* Retrieves the creation date and time
  * The timestamp is a signed 64-bit POSIX date and time value in number of nano seconds
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libfsext_inode_get_creation_time(
      libfsext_inode_t *inode,
@@ -1342,9 +1344,13 @@ int libfsext_inode_get_creation_time(
 
 		return( -1 );
 	}
-	*posix_time = inode->creation_time;
+	if( inode->has_creation_time != 0 )
+	{
+		*posix_time = inode->creation_time;
 
-	return( 1 );
+		return( 1 );
+	}
+	return( 0 );
 }
 
 /* Retrieves the inode change time date and time

@@ -120,6 +120,10 @@ struct libfsext_inode
 	 */
 	libcdata_array_t *data_extents_array;
 
+	/* Value to indicate the inode has a creation time
+	 */
+	uint8_t has_creation_time;
+
 	/* Value to indicate the inode is empty
 	 */
 	uint8_t is_empty;
