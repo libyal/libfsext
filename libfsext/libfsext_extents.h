@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libfsext_extent.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcdata.h"
