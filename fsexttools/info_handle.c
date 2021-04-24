@@ -1538,6 +1538,7 @@ int info_handle_file_entry_value_with_name_fprint(
 	uint32_t owner_identifier                      = 0;
 	int32_t deletion_time                          = 0;
 	uint16_t file_mode                             = 0;
+	uint8_t has_creation_time                      = 0;
 	int result                                     = 0;
 
 	if( info_handle == NULL )
@@ -1607,10 +1608,12 @@ int info_handle_file_entry_value_with_name_fprint(
 
 		goto on_error;
 	}
-	if( libfsext_file_entry_get_creation_time(
-	     file_entry,
-	     &creation_time,
-	     error ) != 1 )
+	result = libfsext_file_entry_get_creation_time(
+	          file_entry,
+	          &creation_time,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1621,6 +1624,8 @@ int info_handle_file_entry_value_with_name_fprint(
 
 		goto on_error;
 	}
+	has_creation_time = (uint8_t) result;
+
 	if( libfsext_file_entry_get_owner_identifier(
 	     file_entry,
 	     &owner_identifier,
@@ -1883,18 +1888,35 @@ int info_handle_file_entry_value_with_name_fprint(
 			 " -> %" PRIs_SYSTEM "",
 			 symbolic_link_target );
 		}
-		fprintf(
-		 info_handle->bodyfile_stream,
-		 "|%" PRIu32 "|%s|%" PRIu32 "|%" PRIu32 "|%" PRIu64 "|%.9f|%.9f|%.9f|%.9f\n",
-		 file_entry_identifier,
-		 file_mode_string,
-		 owner_identifier,
-		 group_identifier,
-		 size,
-		 (double) access_time / 1000000000,
-		 (double) modification_time / 1000000000,
-		 (double) inode_change_time / 1000000000,
-		 (double) creation_time / 1000000000 );
+		if( has_creation_time != 0 )
+		{
+			fprintf(
+			 info_handle->bodyfile_stream,
+			 "|%" PRIu32 "|%s|%" PRIu32 "|%" PRIu32 "|%" PRIu64 "|%.9f|%.9f|%.9f|%.9f\n",
+			 file_entry_identifier,
+			 file_mode_string,
+			 owner_identifier,
+			 group_identifier,
+			 size,
+			 (double) access_time / 1000000000,
+			 (double) modification_time / 1000000000,
+			 (double) inode_change_time / 1000000000,
+			 (double) creation_time / 1000000000 );
+		}
+		else
+		{
+			fprintf(
+			 info_handle->bodyfile_stream,
+			 "|%" PRIu32 "|%s|%" PRIu32 "|%" PRIu32 "|%" PRIu64 "|%" PRIi64 "|%" PRIi64 "|%" PRIi64 "|0\n",
+			 file_entry_identifier,
+			 file_mode_string,
+			 owner_identifier,
+			 group_identifier,
+			 size,
+			 access_time / 1000000000,
+			 modification_time / 1000000000,
+			 inode_change_time / 1000000000 );
+		}
 	}
 	else
 	{
@@ -1955,11 +1977,23 @@ int info_handle_file_entry_value_with_name_fprint(
 		 "\tSize\t\t\t: %" PRIu64 "\n",
 		 size );
 
-		if( info_handle_posix_time_in_nano_seconds_value_fprint(
-		     info_handle,
-		     "\tModification time\t",
-		     modification_time,
-		     error ) != 1 )
+		if( has_creation_time != 0 )
+		{
+			result = info_handle_posix_time_in_nano_seconds_value_fprint(
+			          info_handle,
+			          "\tModification time\t",
+			          modification_time,
+			          error );
+		}
+		else
+		{
+			result = info_handle_posix_time_in_seconds_value_fprint(
+			          info_handle,
+			          "\tModification time\t",
+			          (int32_t) ( modification_time / 1000000000 ),
+			          error );
+		}
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1970,11 +2004,23 @@ int info_handle_file_entry_value_with_name_fprint(
 
 			goto on_error;
 		}
-		if( info_handle_posix_time_in_nano_seconds_value_fprint(
-		     info_handle,
-		     "\tInode change time\t",
-		     inode_change_time,
-		     error ) != 1 )
+		if( has_creation_time != 0 )
+		{
+			result = info_handle_posix_time_in_nano_seconds_value_fprint(
+			          info_handle,
+			          "\tInode change time\t",
+			          inode_change_time,
+			          error );
+		}
+		else
+		{
+			result = info_handle_posix_time_in_seconds_value_fprint(
+			          info_handle,
+			          "\tInode change time\t",
+			          (int32_t) ( inode_change_time / 1000000000 ),
+			          error );
+		}
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1985,11 +2031,23 @@ int info_handle_file_entry_value_with_name_fprint(
 
 			goto on_error;
 		}
-		if( info_handle_posix_time_in_nano_seconds_value_fprint(
-		     info_handle,
-		     "\tAccess time\t\t",
-		     access_time,
-		     error ) != 1 )
+		if( has_creation_time != 0 )
+		{
+			result = info_handle_posix_time_in_nano_seconds_value_fprint(
+			          info_handle,
+			          "\tAccess time\t\t",
+			          access_time,
+			          error );
+		}
+		else
+		{
+			result = info_handle_posix_time_in_seconds_value_fprint(
+			          info_handle,
+			          "\tAccess time\t\t",
+			          (int32_t) ( access_time / 1000000000 ),
+			          error );
+		}
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -2000,20 +2058,23 @@ int info_handle_file_entry_value_with_name_fprint(
 
 			goto on_error;
 		}
-		if( info_handle_posix_time_in_nano_seconds_value_fprint(
-		     info_handle,
-		     "\tCreation time\t\t",
-		     creation_time,
-		     error ) != 1 )
+		if( has_creation_time != 0 )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print POSIX time value.",
-			 function );
+			if( info_handle_posix_time_in_nano_seconds_value_fprint(
+			     info_handle,
+			     "\tCreation time\t\t",
+			     creation_time,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print POSIX time value.",
+				 function );
 
-			goto on_error;
+				goto on_error;
+			}
 		}
 		if( libfsext_file_entry_get_deletion_time(
 		     file_entry,
