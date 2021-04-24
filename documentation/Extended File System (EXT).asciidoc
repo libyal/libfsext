@@ -67,9 +67,12 @@ Linux.
 |===
 | Characteristics | Description
 | Byte order | little-endian
-| Date and time values | POSIX timestamp [yellow-background]*in UTC?*
-| Character strings |
+| Date and time values | number of seconds (ext2, ext3, ext4) or nanoseconds (ext4 with extra precision) since January 1, 1970 00:00:00 UTC (POSIX epoch), disregarding leap seconds
+| Character strings | UTF-8
 |===
+
+[yellow-background]*TODO: determine if older versions contained date and time values in local time*
+[yellow-background]*TODO: determine if older versions contained character strings in ASCII with codepage*
 
 === Versions
 
@@ -228,8 +231,6 @@ The orphan inode list is a list of inodes to delete +
 | 264 | 190 | | [yellow-background]*Unknown (reserved)*
 |===
 
-[yellow-background]*Does ext3 have file system creation time?*
-
 === The ext4 superblock
 
 The superblock is 1024 bytes of size and consists of:
@@ -321,7 +322,7 @@ The orphan inode list is a list of inodes to delete +
 | 260 | 4 | | First metadata block group (or metablock)
 4+| _Defined in ext3 reserved in earlier versions_
 | 264 | 4 | | File system creation time +
-Contains POSIX timestamp
+Contains number of seconds since January 1, 1970 00:00:00 UTC (POSIX epoch), disregarding leap second
 | 268 | 17 x 4 | | Backup journal inodes
 4+| _If 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled_
 | 336 | 4 | | Number of blocks +
