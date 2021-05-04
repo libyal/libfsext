@@ -565,6 +565,7 @@ int libfsext_directory_read_file_io_handle(
 	libfdata_vector_t *block_vector = NULL;
 	libfsext_block_t *block         = NULL;
 	static char *function           = "libfsext_directory_read_file_io_handle";
+	size_t inline_data_size         = 0;
 	uint32_t directory_entry_index  = 0;
 	int block_index                 = 0;
 	int number_of_blocks            = 0;
@@ -616,10 +617,21 @@ int libfsext_directory_read_file_io_handle(
 	if( ( io_handle->format_version == 4 )
 	 && ( ( inode->flags & LIBFSEXT_INODE_FLAG_INLINE_DATA ) != 0 ) )
 	{
+		/* Note that inode->data_size can be larger than 60
+		 * but inode->data_reference only holds 60 bytes
+		 */
+		if( inode->data_size < 60 )
+		{
+			inline_data_size = inode->data_size;
+		}
+		else
+		{
+			inline_data_size = 60;
+		}
 		if( libfsext_directory_read_inline_data(
 		     directory,
 		     inode->data_reference,
-		     inode->data_size,
+		     inline_data_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

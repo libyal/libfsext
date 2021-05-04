@@ -45,5 +45,10 @@ typedef intptr_t libfsext_volume_t;
 
 #endif /* defined( HAVE_LOCAL_LIBFSEXT ) */
 
+/* The largest primary (or scalar) available
+ * supported by a single load and store instruction
+ */
+typedef unsigned long int libfsext_aligned_t;
+
 #endif /* !defined( _LIBFSEXT_INTERNAL_TYPES_H ) */
 

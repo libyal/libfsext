@@ -40,20 +40,102 @@
 #include "libfsext_libfdata.h"
 #include "libfsext_libfdatetime.h"
 #include "libfsext_unused.h"
+#include "libfsext_types.h"
 
 #include "fsext_inode.h"
 
-uint8_t empty_inode_data[ sizeof( fsext_inode_ext4_t ) ] = {
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00 };
+/* Checks if a buffer containing the inode is filled with 0-byte values (empty-block)
+ * Returns 1 if empty, 0 if not or -1 on error
+ */
+int libfsext_inode_check_for_empty_block(
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error )
+{
+	libfsext_aligned_t *aligned_data_index = NULL;
+	libfsext_aligned_t *aligned_data_start = NULL;
+	uint8_t *data_index                    = NULL;
+	uint8_t *data_start                    = NULL;
+	static char *function                  = "libfsext_inode_check_for_empty_block";
+
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	data_start = (uint8_t *) data;
+	data_index = (uint8_t *) data + 1;
+	data_size -= 1;
+
+	/* Only optimize for data larger than the alignment
+	 */
+	if( data_size > ( 2 * sizeof( libfsext_aligned_t ) ) )
+	{
+		/* Align the data start
+		 */
+		while( ( (intptr_t) data_start % sizeof( libfsext_aligned_t ) ) != 0 )
+		{
+			if( *data_start != *data_index )
+			{
+				return( 0 );
+			}
+			data_start += 1;
+			data_index += 1;
+			data_size  -= 1;
+		}
+		/* Align the data index
+		 */
+		while( ( (intptr_t) data_index % sizeof( libfsext_aligned_t ) ) != 0 )
+		{
+			if( *data_start != *data_index )
+			{
+				return( 0 );
+			}
+			data_index += 1;
+			data_size  -= 1;
+		}
+		aligned_data_start = (libfsext_aligned_t *) data_start;
+		aligned_data_index = (libfsext_aligned_t *) data_index;
+
+		while( data_size > sizeof( libfsext_aligned_t ) )
+		{
+			if( *aligned_data_start != *aligned_data_index )
+			{
+				return( 0 );
+			}
+			aligned_data_index += 1;
+			data_size          -= sizeof( libfsext_aligned_t );
+		}
+		data_index = (uint8_t *) aligned_data_index;
+	}
+	while( data_size != 0 )
+	{
+		if( *data_start != *data_index )
+		{
+			return( 0 );
+		}
+		data_index += 1;
+		data_size  -= 1;
+	}
+	return( 1 );
+}
 
 /* Creates a inode
  * Make sure the value inode is referencing, is set to NULL
@@ -311,6 +393,7 @@ int libfsext_inode_read_data(
 	uint16_t group_identifier_upper = 0;
 	uint16_t number_of_blocks_upper = 0;
 	uint16_t owner_identifier_upper = 0;
+	int result                      = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	size_t data_offset              = 0;
@@ -376,19 +459,30 @@ int libfsext_inode_read_data(
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
-	if( memory_compare(
-	     empty_inode_data,
-	     data,
-	     data_size ) == 0 )
+	result = libfsext_inode_check_for_empty_block(
+	          data,
+	          data_size,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if inode is empty.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result != 0 )
 	{
 		inode->is_empty = 1;
 
 		return( 1 );
 	}
-	else
-	{
-		inode->is_empty = 0;
-	}
+	inode->is_empty = 0;
+
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->file_mode,
 	 inode->file_mode );
@@ -1196,7 +1290,9 @@ int libfsext_inode_read_data_reference(
 		if( ( io_handle->format_version == 4 )
 		 && ( ( inode->flags & LIBFSEXT_INODE_FLAG_INLINE_DATA ) != 0 ) )
 		{
-			/* The data is stored inline in inode->data_reference */
+			/* The data is stored inline in inode->data_reference
+			 * Note that inode->data_size can be larger than 60
+			 */
 		}
 		else if( ( ( inode->file_mode & 0xf000 ) == 0xa000 )
 		      && ( inode->data_size < 60 ) )

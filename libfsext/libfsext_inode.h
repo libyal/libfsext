@@ -129,6 +129,11 @@ struct libfsext_inode
 	uint8_t is_empty;
 };
 
+int libfsext_inode_check_for_empty_block(
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
 int libfsext_inode_initialize(
      libfsext_inode_t **inode,
      libcerror_error_t **error );
