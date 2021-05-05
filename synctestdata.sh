@@ -5,7 +5,7 @@
 
 TEST_SET="public";
 TEST_INPUT_DIRECTORY="tests/input";
-TEST_FILES="ext2.raw";
+TEST_FILES="ext2.raw ext4.raw";
 
 mkdir -p "${TEST_INPUT_DIRECTORY}/${TEST_SET}";
 

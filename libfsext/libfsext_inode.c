@@ -791,13 +791,13 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_ext2_t *) data )->owner_identifier_upper,
 	 owner_identifier_upper );
 
-	inode->owner_identifier |= owner_identifier_upper << 16;
+	inode->owner_identifier |= (uint32_t) owner_identifier_upper << 16;
 
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->group_identifier_upper,
 	 group_identifier_upper );
 
-	inode->group_identifier |= group_identifier_upper << 16;
+	inode->group_identifier |= (uint32_t) group_identifier_upper << 16;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
