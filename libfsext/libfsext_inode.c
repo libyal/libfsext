@@ -1082,6 +1082,18 @@ int libfsext_inode_read_data(
 			inode->creation_time *= ( value_32bit & 0x00000003UL );
 			inode->creation_time += (int32_t) creation_time;
 		}
+		if( ( inode->creation_time < ( (int64_t) INT64_MIN / 1000000000 ) )
+		 || ( inode->creation_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid creation time value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
 		inode->creation_time *= 1000000000;
 		inode->creation_time += value_32bit >> 2;
 

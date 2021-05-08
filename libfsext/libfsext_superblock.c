@@ -524,6 +524,8 @@ int libfsext_superblock_read_data(
 
 		return( -1 );
 	}
+/* TODO add sanity check of fragment size */
+
 	if( superblock->format_revision == 1 )
 	{
 		byte_stream_copy_to_uint16_little_endian(
