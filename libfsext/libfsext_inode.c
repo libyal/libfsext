@@ -1031,6 +1031,18 @@ int libfsext_inode_read_data(
 
 		if( ( value_32bit & 0x00000003UL ) != 0 )
 		{
+			if( ( inode->inode_change_time < ( (int64_t) INT64_MIN / 1000000000 ) )
+			 || ( inode->inode_change_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid inode change time value out of bounds.",
+				 function );
+
+				return( -1 );
+			}
 			inode->inode_change_time  = 0x100000000UL;
 			inode->inode_change_time *= ( value_32bit & 0x00000003UL );
 			inode->inode_change_time += (int32_t) inode_change_time;
@@ -1044,6 +1056,18 @@ int libfsext_inode_read_data(
 
 		if( ( value_32bit & 0x00000003UL ) != 0 )
 		{
+			if( ( inode->modification_time < ( (int64_t) INT64_MIN / 1000000000 ) )
+			 || ( inode->modification_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid modification time value out of bounds.",
+				 function );
+
+				return( -1 );
+			}
 			inode->modification_time  = 0x100000000UL;
 			inode->modification_time *= ( value_32bit & 0x00000003UL );
 			inode->modification_time += (int32_t) modification_time;
@@ -1057,6 +1081,18 @@ int libfsext_inode_read_data(
 
 		if( ( value_32bit & 0x00000003UL ) != 0 )
 		{
+			if( ( inode->access_time < ( (int64_t) INT64_MIN / 1000000000 ) )
+			 || ( inode->access_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid access time value out of bounds.",
+				 function );
+
+				return( -1 );
+			}
 			inode->access_time  = 0x100000000UL;
 			inode->access_time *= ( value_32bit & 0x00000003UL );
 			inode->access_time += (int32_t) access_time;

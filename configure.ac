@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20210508],
+ [20210509],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -153,7 +153,7 @@ AS_IF(
  ])
 
 AS_IF(
- [test "x$ac_cv_libhmac" = xyes || test "x$ac_cv_libcrypto" != xno],
+ [test "x$ac_cv_libhmac" = xyes],
  [AC_SUBST(
   [libfsext_spec_tools_build_requires],
   [BuildRequires:])
@@ -234,7 +234,6 @@ Building:
    libfdatetime support:                       $ac_cv_libfdatetime
    libfguid support:                           $ac_cv_libfguid
    libhmac support:                            $ac_cv_libhmac
-   MD5 support:                                $ac_cv_libhmac_md5
 
 Features:
    Multi-threading support:                    $ac_cv_libcthreads_multi_threading
