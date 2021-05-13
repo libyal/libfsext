@@ -1031,6 +1031,10 @@ int libfsext_inode_read_data(
 
 		if( ( value_32bit & 0x00000003UL ) != 0 )
 		{
+			inode->inode_change_time  = 0x100000000UL;
+			inode->inode_change_time *= ( value_32bit & 0x00000003UL );
+			inode->inode_change_time += (int32_t) inode_change_time;
+
 			if( ( inode->inode_change_time < ( (int64_t) INT64_MIN / 1000000000 ) )
 			 || ( inode->inode_change_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
 			{
@@ -1043,9 +1047,6 @@ int libfsext_inode_read_data(
 
 				return( -1 );
 			}
-			inode->inode_change_time  = 0x100000000UL;
-			inode->inode_change_time *= ( value_32bit & 0x00000003UL );
-			inode->inode_change_time += (int32_t) inode_change_time;
 			inode->inode_change_time *= 1000000000;
 		}
 		inode->inode_change_time += value_32bit >> 2;
@@ -1056,6 +1057,10 @@ int libfsext_inode_read_data(
 
 		if( ( value_32bit & 0x00000003UL ) != 0 )
 		{
+			inode->modification_time  = 0x100000000UL;
+			inode->modification_time *= ( value_32bit & 0x00000003UL );
+			inode->modification_time += (int32_t) modification_time;
+
 			if( ( inode->modification_time < ( (int64_t) INT64_MIN / 1000000000 ) )
 			 || ( inode->modification_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
 			{
@@ -1068,9 +1073,6 @@ int libfsext_inode_read_data(
 
 				return( -1 );
 			}
-			inode->modification_time  = 0x100000000UL;
-			inode->modification_time *= ( value_32bit & 0x00000003UL );
-			inode->modification_time += (int32_t) modification_time;
 			inode->modification_time *= 1000000000;
 		}
 		inode->modification_time += value_32bit >> 2;
@@ -1081,6 +1083,10 @@ int libfsext_inode_read_data(
 
 		if( ( value_32bit & 0x00000003UL ) != 0 )
 		{
+			inode->access_time  = 0x100000000UL;
+			inode->access_time *= ( value_32bit & 0x00000003UL );
+			inode->access_time += (int32_t) access_time;
+
 			if( ( inode->access_time < ( (int64_t) INT64_MIN / 1000000000 ) )
 			 || ( inode->access_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
 			{
@@ -1093,9 +1099,6 @@ int libfsext_inode_read_data(
 
 				return( -1 );
 			}
-			inode->access_time  = 0x100000000UL;
-			inode->access_time *= ( value_32bit & 0x00000003UL );
-			inode->access_time += (int32_t) access_time;
 			inode->access_time *= 1000000000;
 		}
 		inode->access_time += value_32bit >> 2;
