@@ -165,6 +165,30 @@ int libfsext_block_vector_initialize(
 		{
 			break;
 		}
+		if( extent->physical_block_number > ( (uint64_t) INT64_MAX / io_handle->block_size ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid extent: %d - invalid physical block number value out of bounds.",
+			 function,
+			 extent_index );
+
+			goto on_error;
+		}
+		if( extent->number_of_blocks > ( (uint64_t) UINT64_MAX / io_handle->block_size ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid extent: %d - invalid number of blocks value out of bounds.",
+			 function,
+			 extent_index );
+
+			goto on_error;
+		}
 		file_offset = (off64_t) extent->physical_block_number * (off64_t) io_handle->block_size;
 		data_size   = (size64_t) extent->number_of_blocks * io_handle->block_size;
 

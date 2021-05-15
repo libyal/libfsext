@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libfsext_io_handle.h"
 #include "libfsext_libcerror.h"
 
 #if defined( __cplusplus )
@@ -69,6 +70,14 @@ int libfsext_extent_read_data(
      libfsext_extent_t *extent,
      const uint8_t *data,
      size_t data_size,
+     libcerror_error_t **error );
+
+int libfsext_extent_get_values(
+     libfsext_extent_t *extent,
+     libfsext_io_handle_t *io_handle,
+     off64_t *extent_offset,
+     size64_t *extent_size,
+     uint32_t *extent_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

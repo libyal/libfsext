@@ -3467,17 +3467,6 @@ int libfsext_file_entry_get_extent_by_index(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( internal_file_entry->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file entry - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_file_entry->inode == NULL )
 	{
 		libcerror_error_set(
@@ -3485,39 +3474,6 @@ int libfsext_file_entry_get_extent_by_index(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid file entry - missing inode.",
-		 function );
-
-		return( -1 );
-	}
-	if( extent_offset == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid extent offset.",
-		 function );
-
-		return( -1 );
-	}
-	if( extent_size == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid extent size.",
-		 function );
-
-		return( -1 );
-	}
-	if( extent_flags == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid extent flags.",
 		 function );
 
 		return( -1 );
@@ -3553,6 +3509,27 @@ int libfsext_file_entry_get_extent_by_index(
 
 		result = -1;
 	}
+	if( result == 1 )
+	{
+		if( libfsext_extent_get_values(
+		     extent,
+		     internal_file_entry->io_handle,
+		     extent_offset,
+		     extent_size,
+		     extent_flags,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve extent: %d values.",
+			 function,
+			 extent_index );
+
+			result = -1;
+		}
+	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_read(
 	     internal_file_entry->read_write_lock,
@@ -3568,12 +3545,6 @@ int libfsext_file_entry_get_extent_by_index(
 		return( -1 );
 	}
 #endif
-	if( result == 1 )
-	{
-		*extent_offset = (off64_t) extent->physical_block_number * (off64_t) internal_file_entry->io_handle->block_size;
-		*extent_size   = (size64_t) extent->number_of_blocks * (size64_t) internal_file_entry->io_handle->block_size;
-		*extent_flags  = extent->range_flags;
-	}
 	return( result );
 }
 
