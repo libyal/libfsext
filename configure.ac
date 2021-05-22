@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20210521],
+ [20210522],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -153,7 +153,7 @@ AS_IF(
  ])
 
 AS_IF(
- [test "x$ac_cv_libhmac" = xyes],
+ [test "x$ac_cv_libhmac" = xyes || test "x$ac_cv_libcrypto" != xno],
  [AC_SUBST(
   [libfsext_spec_tools_build_requires],
   [BuildRequires:])
