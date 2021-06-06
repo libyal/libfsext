@@ -54,6 +54,7 @@ int libfsext_data_blocks_read_data(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint64_t number_of_blocks,
+     uint64_t block_number,
      const uint8_t *data,
      size_t data_size,
      int depth,

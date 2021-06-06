@@ -156,11 +156,14 @@ int libfsext_data_blocks_read_inode_data_reference(
 	}
 	number_of_blocks_per_block = ( io_handle->block_size / 4 );
 
+	/* Passing the 1 + largest possible block number here 0xffffffff
+	 */
 	if( libfsext_data_blocks_read_data(
 	     extents_array,
 	     io_handle,
 	     file_io_handle,
 	     number_of_blocks,
+	     (uint64_t) 0x100000000UL,
 	     data,
 	     48,
 	     0,
@@ -453,6 +456,7 @@ int libfsext_data_blocks_read_data(
      libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint64_t number_of_blocks,
+     uint64_t block_number,
      const uint8_t *data,
      size_t data_size,
      int depth,
@@ -462,10 +466,10 @@ int libfsext_data_blocks_read_data(
 	libfsext_extent_t *last_extent      = NULL;
 	static char *function               = "libfsext_data_blocks_read_data";
 	size_t data_offset                  = 0;
-	uint32_t block_number               = 0;
 	uint32_t extent_number_of_blocks    = 0;
-	uint32_t logical_block_number       = 0;
 	uint32_t number_of_blocks_per_block = 0;
+	uint32_t sub_block_number           = 0;
+	uint32_t sub_logical_block_number   = 0;
 	uint8_t create_new_extent           = 0;
 	uint8_t extend_last_extent          = 0;
 	int depth_iterator                  = 0;
@@ -583,25 +587,36 @@ int libfsext_data_blocks_read_data(
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-		logical_block_number = last_extent->logical_block_number + last_extent->number_of_blocks;
+		sub_logical_block_number = last_extent->logical_block_number + last_extent->number_of_blocks;
 	}
 	while( data_offset < data_size )
 	{
-		if( logical_block_number >= number_of_blocks )
+		if( sub_logical_block_number >= number_of_blocks )
 		{
 			break;
 		}
 		byte_stream_copy_to_uint32_little_endian(
 		 &( data[ data_offset ] ),
-		 block_number );
+		 sub_block_number );
 
 		data_offset += 4;
 
+		if( (uint64_t) sub_block_number == block_number )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid sub block number value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
 		create_new_extent       = 1;
 		extend_last_extent      = 0;
 		extent_number_of_blocks = 1;
 
-		if( block_number == 0 )
+		if( sub_block_number == 0 )
 		{
 			for( depth_iterator = 0;
 			     depth_iterator < depth;
@@ -609,9 +624,9 @@ int libfsext_data_blocks_read_data(
 			{
 				extent_number_of_blocks *= number_of_blocks_per_block;
 			}
-			if( extent_number_of_blocks > ( number_of_blocks - logical_block_number ) )
+			if( extent_number_of_blocks > ( number_of_blocks - sub_logical_block_number ) )
 			{
-				extent_number_of_blocks = number_of_blocks - logical_block_number;
+				extent_number_of_blocks = number_of_blocks - sub_logical_block_number;
 			}
 			if( ( last_extent != NULL )
 			 && ( ( last_extent->range_flags & LIBFSEXT_EXTENT_FLAG_IS_SPARSE ) != 0 ) )
@@ -626,7 +641,7 @@ int libfsext_data_blocks_read_data(
 			     io_handle,
 			     file_io_handle,
 			     number_of_blocks,
-			     block_number,
+			     sub_block_number,
 			     depth,
 			     error ) != 1 )
 			{
@@ -636,7 +651,7 @@ int libfsext_data_blocks_read_data(
 				 LIBCERROR_IO_ERROR_READ_FAILED,
 				 "%s: unable to read indirect block: %" PRIu32 " at depth: %d.",
 				 function,
-				 block_number,
+				 sub_block_number,
 				 depth );
 
 				goto on_error;
@@ -655,12 +670,12 @@ int libfsext_data_blocks_read_data(
 
 				goto on_error;
 			}
-			logical_block_number = last_extent->logical_block_number + last_extent->number_of_blocks;
+			sub_logical_block_number = last_extent->logical_block_number + last_extent->number_of_blocks;
 
 			create_new_extent = 0;
 		}
 		else if( ( last_extent != NULL )
-		      && ( last_extent->physical_block_number == ( block_number - last_extent->number_of_blocks ) ) )
+		      && ( last_extent->physical_block_number == ( sub_block_number - last_extent->number_of_blocks ) ) )
 		{
 			extend_last_extent = 1;
 		}
@@ -722,11 +737,11 @@ int libfsext_data_blocks_read_data(
 
 				goto on_error;
 			}
-			extent->logical_block_number  = logical_block_number;
-			extent->physical_block_number = block_number;
+			extent->logical_block_number  = sub_logical_block_number;
+			extent->physical_block_number = sub_block_number;
 			extent->number_of_blocks      = extent_number_of_blocks;
 
-			if( block_number == 0 )
+			if( sub_block_number == 0 )
 			{
 				extent->range_flags = LIBFSEXT_EXTENT_FLAG_IS_SPARSE;
 			}
@@ -755,11 +770,11 @@ int libfsext_data_blocks_read_data(
 			 "%s: block number at depth: %d\t\t: %" PRIu32 "\n",
 			 function,
 			 depth,
-			 block_number );
+			 sub_block_number );
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-		logical_block_number++;
+		sub_logical_block_number++;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( ( libcnotify_verbose != 0 )
@@ -888,6 +903,7 @@ int libfsext_data_blocks_read_file_io_handle(
 	     io_handle,
 	     file_io_handle,
 	     number_of_blocks,
+	     (uint64_t) block_number,
 	     block->data,
 	     (size_t) io_handle->block_size,
 	     depth - 1,
