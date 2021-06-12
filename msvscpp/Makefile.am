@@ -1,6 +1,7 @@
 MSVSCPP_FILES = \
 	fsext_test_bitmap/fsext_test_bitmap.vcproj \
 	fsext_test_block/fsext_test_block.vcproj \
+	fsext_test_block_data_handle/fsext_test_block_data_handle.vcproj \
 	fsext_test_block_vector/fsext_test_block_vector.vcproj \
 	fsext_test_buffer_data_handle/fsext_test_buffer_data_handle.vcproj \
 	fsext_test_directory/fsext_test_directory.vcproj \

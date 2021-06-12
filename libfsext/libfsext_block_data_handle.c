@@ -36,7 +36,7 @@
 ssize_t libfsext_block_data_handle_read_segment_data(
          intptr_t *data_handle LIBFSEXT_ATTRIBUTE_UNUSED,
          libbfio_handle_t *file_io_handle,
-         int segment_index LIBFSEXT_ATTRIBUTE_UNUSED,
+         int segment_index,
          int segment_file_index LIBFSEXT_ATTRIBUTE_UNUSED,
          uint8_t *segment_data,
          size_t segment_data_size,
@@ -48,10 +48,20 @@ ssize_t libfsext_block_data_handle_read_segment_data(
 	ssize_t read_count    = 0;
 
 	LIBFSEXT_UNREFERENCED_PARAMETER( data_handle )
-	LIBFSEXT_UNREFERENCED_PARAMETER( segment_index )
 	LIBFSEXT_UNREFERENCED_PARAMETER( segment_file_index )
 	LIBFSEXT_UNREFERENCED_PARAMETER( read_flags )
 
+	if( segment_index < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid segment index value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	if( segment_data == NULL )
 	{
 		libcerror_error_set(
@@ -122,7 +132,7 @@ ssize_t libfsext_block_data_handle_read_segment_data(
 off64_t libfsext_block_data_handle_seek_segment_offset(
          intptr_t *data_handle LIBFSEXT_ATTRIBUTE_UNUSED,
          libbfio_handle_t *file_io_handle,
-         int segment_index LIBFSEXT_ATTRIBUTE_UNUSED,
+         int segment_index,
          int segment_file_index LIBFSEXT_ATTRIBUTE_UNUSED,
          off64_t segment_offset,
          libcerror_error_t **error )
@@ -130,9 +140,19 @@ off64_t libfsext_block_data_handle_seek_segment_offset(
 	static char *function = "libfsext_block_data_handle_seek_segment_offset";
 
 	LIBFSEXT_UNREFERENCED_PARAMETER( data_handle )
-	LIBFSEXT_UNREFERENCED_PARAMETER( segment_index )
 	LIBFSEXT_UNREFERENCED_PARAMETER( segment_file_index )
 
+	if( segment_index < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid segment index value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	if( segment_offset < 0 )
 	{
 		libcerror_error_set(

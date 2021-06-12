@@ -129,6 +129,7 @@ stamp-h[1-9]
 /tests/*.exe
 /tests/fsext_test_bitmap
 /tests/fsext_test_block
+/tests/fsext_test_block_data_handle
 /tests/fsext_test_block_vector
 /tests/fsext_test_buffer_data_handle
 /tests/fsext_test_directory
