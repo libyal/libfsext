@@ -119,7 +119,7 @@ int libfsext_extents_read_inode_data_reference(
 	     number_of_blocks,
 	     data,
 	     data_size,
-	     0,
+	     6,
 	     error ) == -1 )
 	{
 		libcerror_error_set(
@@ -240,7 +240,7 @@ int libfsext_extents_read_data(
      uint64_t number_of_blocks,
      const uint8_t *data,
      size_t data_size,
-     int recursion_depth,
+     uint16_t parent_depth,
      libcerror_error_t **error )
 {
 	libfsext_extent_t *extent                 = NULL;
@@ -301,18 +301,6 @@ int libfsext_extents_read_data(
 
 		return( -1 );
 	}
-	if( ( recursion_depth < 0 )
-	 || ( recursion_depth > LIBFSEXT_MAXIMUM_RECURSION_DEPTH ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid recursion depth value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
 	if( libfsext_extents_header_initialize(
 	     &extents_header,
 	     error ) != 1 )
@@ -343,7 +331,7 @@ int libfsext_extents_read_data(
 	}
 	data_offset = 12;
 
-	if( extents_header->depth > 5 )
+	if( extents_header->depth >= parent_depth )
 	{
 		libcerror_error_set(
 		 error,
@@ -576,7 +564,7 @@ int libfsext_extents_read_data(
 			     file_io_handle,
 			     number_of_blocks,
 			     extents_block_offset,
-			     recursion_depth + 1,
+			     extents_header->depth,
 			     error ) == -1 )
 			{
 				libcerror_error_set(
@@ -708,7 +696,7 @@ int libfsext_extents_read_file_io_handle(
      libbfio_handle_t *file_io_handle,
      uint64_t number_of_blocks,
      off64_t file_offset,
-     int recursion_depth,
+     uint16_t parent_depth,
      libcerror_error_t **error )
 {
 	uint8_t *data         = NULL;
@@ -790,7 +778,7 @@ int libfsext_extents_read_file_io_handle(
 	     number_of_blocks,
 	     data,
 	     (size_t) io_handle->block_size,
-	     recursion_depth,
+	     parent_depth,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

@@ -56,7 +56,7 @@ int libfsext_extents_read_data(
      uint64_t number_of_blocks,
      const uint8_t *data,
      size_t data_size,
-     int recursion_depth,
+     uint16_t parent_depth,
      libcerror_error_t **error );
 
 int libfsext_extents_read_file_io_handle(
@@ -65,7 +65,7 @@ int libfsext_extents_read_file_io_handle(
      libbfio_handle_t *file_io_handle,
      uint64_t number_of_blocks,
      off64_t file_offset,
-     int recursion_depth,
+     uint16_t parent_depth,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
