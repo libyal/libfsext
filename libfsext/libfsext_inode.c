@@ -27,6 +27,8 @@
 #include <types.h>
 #include <wide_string.h>
 
+#include "libfsext_attribute_values.h"
+#include "libfsext_attributes_block.h"
 #include "libfsext_data_blocks.h"
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
@@ -382,13 +384,17 @@ int libfsext_inode_read_data(
      libcerror_error_t **error )
 {
 	static char *function                = "libfsext_inode_read_data";
+	size_t data_offset                   = 0;
 	uint32_t access_time                 = 0;
+	uint32_t checksum                    = 0;
 	uint32_t creation_time               = 0;
 	uint32_t data_size_upper             = 0;
 	uint32_t inode_change_time           = 0;
 	uint32_t modification_time           = 0;
 	uint32_t supported_inode_flags       = 0;
+	uint32_t signature                   = 0;
 	uint32_t value_32bit                 = 0;
+	uint16_t extended_inode_size         = 0;
 	uint16_t file_acl_block_number_upper = 0;
 	uint16_t group_identifier_upper      = 0;
 	uint16_t number_of_blocks_upper      = 0;
@@ -396,7 +402,8 @@ int libfsext_inode_read_data(
 	int result                           = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	size_t data_offset                   = 0;
+	uint8_t value_data[ 8 ];
+
 	uint16_t value_16bit                 = 0;
 #endif
 
@@ -473,7 +480,7 @@ int libfsext_inode_read_data(
 		 "%s: unable to determine if inode is empty.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -536,6 +543,24 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_ext2_t *) data )->flags,
 	 inode->flags );
 
+	if( data_size >= sizeof( fsext_inode_ext3_t ) )
+	{
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_inode_ext3_t *) data )->extended_inode_size,
+		 extended_inode_size );
+
+		if( extended_inode_size > ( data_size - sizeof( fsext_inode_ext2_t ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid extended inode size value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -552,7 +577,8 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->owner_identifier );
 
-		if( io_handle->format_version == 4 )
+		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+		 && ( extended_inode_size >= 28 ) )
 		{
 			libcnotify_printf(
 			 "%s: data size (lower)\t\t\t\t: %" PRIu64 "\n",
@@ -568,7 +594,7 @@ int libfsext_inode_read_data(
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
-		     "access time\t\t\t\t\t",
+		     "access time (seconds)\t\t\t\t",
 		     ( (fsext_inode_ext2_t *) data )->access_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
@@ -583,11 +609,11 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
-		     "inode change time\t\t\t\t",
+		     "inode change time (seconds)\t\t\t",
 		     ( (fsext_inode_ext2_t *) data )->inode_change_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
@@ -602,11 +628,11 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
-		     "modification time\t\t\t\t",
+		     "modification time (seconds)\t\t\t",
 		     ( (fsext_inode_ext2_t *) data )->modification_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
@@ -621,7 +647,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
@@ -640,7 +666,7 @@ int libfsext_inode_read_data(
 			 "%s: unable to print POSIX time value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		libcnotify_printf(
 		 "%s: group identifier (lower)\t\t\t: %" PRIu16 "\n",
@@ -652,7 +678,8 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->links_count );
 
-		if( io_handle->format_version == 4 )
+		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+		 && ( extended_inode_size >= 28 ) )
 		{
 			libcnotify_printf(
 			 "%s: number of blocks (lower)\t\t\t: %" PRIu32 "\n",
@@ -675,11 +702,12 @@ int libfsext_inode_read_data(
 		libcnotify_printf(
 		 "\n" );
 
-		if( io_handle->format_version == 4 )
+		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+		 && ( extended_inode_size >= 28 ) )
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->version_lower,
-			 value_16bit );
+			 value_32bit );
 			libcnotify_printf(
 			 "%s: version (lower)\t\t\t\t: %" PRIu32 "\n",
 			 function,
@@ -725,7 +753,7 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->flags );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( memory_copy(
 	     inode->data_reference,
@@ -739,7 +767,7 @@ int libfsext_inode_read_data(
 		 "%s: unable to copy data reference.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->nfs_generation_number,
@@ -749,14 +777,8 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_ext2_t *) data )->file_acl_block_number,
 	 inode->file_acl_block_number );
 
-	if( ( io_handle->format_version == 2 )
-	 || ( io_handle->format_version == 3 ) )
-	{
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_inode_ext2_t *) data )->directory_acl,
-		 inode->directory_acl );
-	}
-	else if( io_handle->format_version == 4 )
+	if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+	 && ( extended_inode_size >= 28 ) )
 	{
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->data_size_upper,
@@ -764,18 +786,18 @@ int libfsext_inode_read_data(
 
 		inode->data_size |= (uint64_t) data_size_upper << 32;
 	}
+	else
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext2_t *) data )->directory_acl,
+		 inode->directory_acl );
+	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->fragment_block_address,
 	 inode->fragment_block_address );
 
-	if( ( io_handle->format_version == 2 )
-	 || ( io_handle->format_version == 3 ) )
-	{
-		/* TODO: fragment_block_index */
-
-		/* TODO: fragment_size */
-	}
-	else if( io_handle->format_version == 4 )
+	if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+	 && ( extended_inode_size >= 28 ) )
 	{
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->number_of_blocks_upper,
@@ -786,6 +808,12 @@ int libfsext_inode_read_data(
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->file_acl_block_number_upper,
 		 file_acl_block_number_upper );
+	}
+	else
+	{
+		/* TODO: fragment_block_index */
+
+		/* TODO: fragment_size */
 	}
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->owner_identifier_upper,
@@ -892,22 +920,14 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->nfs_generation_number );
 
-		if( io_handle->format_version == 4 )
+		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+		 && ( extended_inode_size >= 28 ) )
 		{
 			libcnotify_printf(
 			 "%s: file ACL block number (lower)\t\t\t: %" PRIu32 "\n",
 			 function,
 			 inode->file_acl_block_number );
-		}
-		else
-		{
-			libcnotify_printf(
-			 "%s: file ACL block number\t\t\t: %" PRIu32 "\n",
-			 function,
-			 inode->file_acl_block_number );
-		}
-		if( io_handle->format_version == 4 )
-		{
+
 			libcnotify_printf(
 			 "%s: data size (upper)\t\t\t\t: %" PRIu32 "\n",
 			 function,
@@ -915,6 +935,11 @@ int libfsext_inode_read_data(
 		}
 		else
 		{
+			libcnotify_printf(
+			 "%s: file ACL block number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 inode->file_acl_block_number );
+
 			libcnotify_printf(
 			 "%s: directory ACL\t\t\t\t\t: %" PRIu32 "\n",
 			 function,
@@ -925,8 +950,20 @@ int libfsext_inode_read_data(
 		 function,
 		 inode->fragment_block_address );
 
-		if( ( io_handle->format_version == 2 )
-		 || ( io_handle->format_version == 3 ) )
+		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+		 && ( extended_inode_size >= 28 ) )
+		{
+			libcnotify_printf(
+			 "%s: number of blocks (upper)\t\t\t: %" PRIu16 "\n",
+			 function,
+			 number_of_blocks_upper );
+
+			libcnotify_printf(
+			 "%s: file ACL block number (upper)\t\t\t: %" PRIu16 "\n",
+			 function,
+			 file_acl_block_number_upper );
+		}
+		else
 		{
 			libcnotify_printf(
 			 "%s: fragment block index\t\t\t\t: %" PRIu8 "\n",
@@ -946,18 +983,6 @@ int libfsext_inode_read_data(
 			 function,
 			 value_16bit );
 		}
-		else if( io_handle->format_version == 4 )
-		{
-			libcnotify_printf(
-			 "%s: number of blocks (upper)\t\t\t: %" PRIu16 "\n",
-			 function,
-			 number_of_blocks_upper );
-
-			libcnotify_printf(
-			 "%s: file ACL block number (upper)\t\t\t: %" PRIu16 "\n",
-			 function,
-			 file_acl_block_number_upper );
-		}
 		libcnotify_printf(
 		 "%s: owner identifier (upper)\t\t\t: %" PRIu16 "\n",
 		 function,
@@ -968,18 +993,8 @@ int libfsext_inode_read_data(
 		 function,
 		 group_identifier_upper );
 
-		if( ( io_handle->format_version == 2 )
-		 || ( io_handle->format_version == 3 ) )
-		{
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_inode_ext2_t *) data )->unknown2,
-			 value_32bit );
-			libcnotify_printf(
-			 "%s: unknown (reserved)\t\t\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
-		}
-		else if( io_handle->format_version == 4 )
+		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+		 && ( extended_inode_size >= 28 ) )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->checksum_lower,
@@ -997,21 +1012,22 @@ int libfsext_inode_read_data(
 			 function,
 			 value_16bit );
 		}
-	}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
-	if( data_size > sizeof( fsext_inode_ext2_t ) )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
+		else
 		{
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_inode_ext3_t *) data )->unknown3,
-			 value_16bit );
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_inode_ext2_t *) data )->unknown2,
+			 value_32bit );
 			libcnotify_printf(
-			 "%s: unknown\t\t\t\t\t: %" PRIu16 "\n",
+			 "%s: unknown (reserved)\t\t\t\t: %" PRIu32 "\n",
 			 function,
-			 value_16bit );
+			 value_32bit );
+		}
+		if( data_size >= sizeof( fsext_inode_ext3_t ) )
+		{
+			libcnotify_printf(
+			 "%s: extended inode size\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 extended_inode_size );
 
 			byte_stream_copy_to_uint16_little_endian(
 			 ( (fsext_inode_ext3_t *) data )->padding2,
@@ -1021,9 +1037,11 @@ int libfsext_inode_read_data(
 			 function,
 			 value_16bit );
 		}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 	}
-	if( data_size > sizeof( fsext_inode_ext3_t ) )
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+	 && ( extended_inode_size >= 28 ) )
 	{
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->inode_change_time_extra,
@@ -1045,7 +1063,7 @@ int libfsext_inode_read_data(
 				 "%s: invalid inode change time value out of bounds.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			inode->inode_change_time *= 1000000000;
 		}
@@ -1061,7 +1079,7 @@ int libfsext_inode_read_data(
 			 "%s: invalid inode change time value out of bounds.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		inode->inode_change_time += value_32bit;
 
@@ -1085,7 +1103,7 @@ int libfsext_inode_read_data(
 				 "%s: invalid modification time value out of bounds.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			inode->modification_time *= 1000000000;
 		}
@@ -1101,7 +1119,7 @@ int libfsext_inode_read_data(
 			 "%s: invalid modification time value out of bounds.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		inode->modification_time += value_32bit;
 
@@ -1125,7 +1143,7 @@ int libfsext_inode_read_data(
 				 "%s: invalid access time value out of bounds.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			inode->access_time *= 1000000000;
 		}
@@ -1141,7 +1159,7 @@ int libfsext_inode_read_data(
 			 "%s: invalid access time value out of bounds.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		inode->access_time += value_32bit;
 
@@ -1175,7 +1193,7 @@ int libfsext_inode_read_data(
 			 "%s: invalid creation time value out of bounds.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		inode->creation_time *= 1000000000;
 		inode->creation_time += value_32bit;
@@ -1219,7 +1237,7 @@ int libfsext_inode_read_data(
 
 			if( libfsext_debug_print_posix_time_value(
 			     function,
-			     "creation time\t\t\t\t\t",
+			     "creation time (seconds)\t\t\t",
 			     ( (fsext_inode_ext4_t *) data )->creation_time,
 			     4,
 			     LIBFDATETIME_ENDIAN_LITTLE,
@@ -1234,7 +1252,7 @@ int libfsext_inode_read_data(
 				 "%s: unable to print POSIX time value.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->creation_time_extra,
@@ -1257,53 +1275,223 @@ int libfsext_inode_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		if( io_handle->format_version == 4 )
+		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+		 && ( extended_inode_size >= 28 ) )
 		{
 			libcnotify_printf(
 			 "%s: data size\t\t\t\t\t: %" PRIu64 "\n",
 			 function,
 			 inode->data_size );
 
-/* TODO print inode change time */
+			byte_stream_copy_from_uint64_little_endian(
+			 value_data,
+			 inode->inode_change_time );
 
-/* TODO print modification time */
+			if( libfsext_debug_print_posix_time_value(
+			     function,
+			     "inode change time\t\t\t\t",
+			     value_data,
+			     8,
+			     LIBFDATETIME_ENDIAN_LITTLE,
+			     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_NANO_SECONDS_64BIT_SIGNED,
+			     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print POSIX time value.",
+				 function );
 
-/* TODO print access time */
+				goto on_error;
+			}
+			byte_stream_copy_from_uint64_little_endian(
+			 value_data,
+			 inode->modification_time );
 
-/* TODO print creation time */
+			if( libfsext_debug_print_posix_time_value(
+			     function,
+			     "modification time\t\t\t\t",
+			     value_data,
+			     8,
+			     LIBFDATETIME_ENDIAN_LITTLE,
+			     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_NANO_SECONDS_64BIT_SIGNED,
+			     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print POSIX time value.",
+				 function );
 
-/* TODO print checksum */
+				goto on_error;
+			}
+			byte_stream_copy_from_uint64_little_endian(
+			 value_data,
+			 inode->access_time );
+
+			if( libfsext_debug_print_posix_time_value(
+			     function,
+			     "access time\t\t\t\t\t",
+			     value_data,
+			     8,
+			     LIBFDATETIME_ENDIAN_LITTLE,
+			     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_NANO_SECONDS_64BIT_SIGNED,
+			     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print POSIX time value.",
+				 function );
+
+				goto on_error;
+			}
+			byte_stream_copy_from_uint64_little_endian(
+			 value_data,
+			 inode->creation_time );
+
+			if( libfsext_debug_print_posix_time_value(
+			     function,
+			     "creation time\t\t\t\t\t",
+			     value_data,
+			     8,
+			     LIBFDATETIME_ENDIAN_LITTLE,
+			     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_NANO_SECONDS_64BIT_SIGNED,
+			     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print POSIX time value.",
+				 function );
+
+				goto on_error;
+			}
+			libcnotify_printf(
+			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 checksum );
 
 /* TODO print version */
 		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
+
+	data_offset = 128 + extended_inode_size;
+
+	if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+	 && ( extended_inode_size >= 28 ) )
 	{
-		if( data_size > sizeof( fsext_inode_ext4_t ) )
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: unknown exended inode data:\n",
+			 function );
+			libcnotify_print_data(
+			 &( data[ sizeof( fsext_inode_ext4_t ) ] ),
+			 data_offset - sizeof( fsext_inode_ext4_t ),
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+		inode->file_acl_block_number |= (uint64_t) file_acl_block_number_upper << 32;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	else if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	if( data_offset < ( data_size - 4 ) )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 &( data[ data_offset ] ),
+		 signature );
+	}
+	if( signature == 0xea020000UL )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
 			 "%s: extended attributes data:\n",
 			 function );
 			libcnotify_print_data(
-			 &( data[ sizeof( fsext_inode_ext4_t ) ] ),
-			 data_size - sizeof( fsext_inode_ext4_t ),
+			 &( data[ data_offset ] ),
+			 data_size - data_offset,
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
-		else
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+		if( libcdata_array_initialize(
+		     &( inode->extended_attributes_array ),
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create extended attributes array.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfsext_attributes_block_read_entries_data(
+		     &( data[ data_offset + 4 ] ),
+		     data_size - data_offset - 4,
+		     0,
+		     inode->extended_attributes_array,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read extended attributes entries.",
+			 function );
+
+			goto on_error;
+		}
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	else if( libcnotify_verbose != 0 )
+	{
+		if( data_offset < data_size )
 		{
 			libcnotify_printf(
-			 "\n" );
+			 "%s: trailing data:\n",
+			 function );
+			libcnotify_print_data(
+			 &( data[ data_offset ] ),
+			 data_size - data_offset,
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( io_handle->format_version == 4 )
-	{
-		inode->file_acl_block_number |= (uint64_t) file_acl_block_number_upper << 32;
-	}
 	return( 1 );
+
+on_error:
+	if( inode->extended_attributes_array != NULL )
+	{
+		libcdata_array_free(
+		 &( inode->extended_attributes_array ),
+		 (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_attribute_values_free,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the inode data reference

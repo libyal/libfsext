@@ -739,6 +739,10 @@ Contains a CRC32
 The size of the inode is defined in the superblock when dynamic inode
 information is present.
 
+[NOTE]
+An ext4 inode can be used on ext2 formatted file system. Seen in combination
+with format revision 1 and inode size > 128 created by mkfs.ext2.
+
 === The ext2 inode
 
 The ext2 inode is 128 bytes of size and consists of:
@@ -829,7 +833,7 @@ Value contains the block number relative from the start of the volume
 | 120 | 2 | | Upper part of owner (or user) identifier (UID)
 | 122 | 2 | | Upper part of group identifier (GID)
 | 124 | 4 | | [yellow-background]*Unknown (reserved)*
-| 128 | 2 | | [yellow-background]*Unknown (inode extra size?)*
+| 128 | 2 | | Extended inode size
 | 130 | 2 | | [yellow-background]*Unknown (padding)*
 |===
 
@@ -886,9 +890,7 @@ Also see: <<ext4_extent,The ext4 extent>> or <<ext4_extent_index,The ext4 extent
 | 122 | 2 | | Upper part of group identifier (GID)
 | 124 | 2 | | Lower part of checksum
 | 126 | 2 | | [yellow-background]*Unknown (reserved)*
-| 128 | 2 | | [yellow-background]*Unknown (inode extra size?)* +
-[yellow-background]*Or h_i_author on GNU herd*
-| 130 | 2 | | [yellow-background]*Unknown (padding)*
+| 128 | 2 | | Extended inode size
 | 130 | 2 | | Upper part of checksum
 | 132 | 4 | | (last) inode change time extra precision
 | 136 | 4 | | (last) modification time extra precision
@@ -1210,8 +1212,11 @@ size contains the length of the target path.
 
 Extended attributes can be stored:
 
-* inline in the inode block
-* in a block referenced by the file ACL (or extended attributes) block number
+* in the inode block after the inode data
+* in the block referenced by the file ACL (or extended attributes) block number, if not 0
+
+[NOTE]
+Both should be read to get the all the extended attributes.
 
 Extended attributes consists of:
 
@@ -1275,13 +1280,14 @@ ext4_xattr_entry) is 32 bytes of size and consists of:
 Contains the size of the name without the end-of-string character
 | 1 | 1 | | Name index
 | 2 | 2 | | Value data offset +
-Value contains the offset of the value data relative from the start of the extended attributes block or ...
+Value contains the offset of the value data relative from the start of the extended attributes block or after the extended attributes signature in the inode block data
 | 4 | 4 | | Value data inode number +
 Contains the inode number that contains the value data or 0 to indicate the current block
 | 8 | 4 | | Value data size
 | 12 | 4 | | [yellow-background]*Unknown (Attribute hash)*
 | 16 | ... | | Name string +
 Contains an ASCII string without end-of-string character
+| ... | ... | | 32-bit alignment padding
 |===
 
 The last extended attributes entry has the first 4 values set to 0 (8 bytes)

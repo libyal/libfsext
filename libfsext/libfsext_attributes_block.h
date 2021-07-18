@@ -34,11 +34,17 @@
 extern "C" {
 #endif
 
-int libfsext_attributes_block_read_data(
-     libcdata_array_t *extended_attributes,
+int libfsext_attributes_block_read_header_data(
      libfsext_io_handle_t *io_handle,
      const uint8_t *data,
      size_t data_size,
+     libcerror_error_t **error );
+
+int libfsext_attributes_block_read_entries_data(
+     const uint8_t *data,
+     size_t data_size,
+     size_t data_offset,
+     libcdata_array_t *extended_attributes,
      libcerror_error_t **error );
 
 int libfsext_attributes_block_read_file_io_handle(

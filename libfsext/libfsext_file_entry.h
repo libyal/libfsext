@@ -70,7 +70,7 @@ struct libfsext_internal_file_entry
 
 	/* The extended attributes
 	 */
-	libcdata_array_t *extended_attributes;
+	libcdata_array_t *extended_attributes_array;
 
 	/* The directory
 	 */

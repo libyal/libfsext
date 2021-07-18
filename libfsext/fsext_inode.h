@@ -270,10 +270,10 @@ struct fsext_inode_ext3
 	 */
 	uint8_t unknown2[ 4 ];
 
-	/* Unknown
+	/* Extended inode size
 	 * Consists of 2 bytes
 	 */
-	uint8_t unknown3[ 2 ];
+	uint8_t extended_inode_size[ 2 ];
 
 	/* Padding2
 	 * Consists of 2 bytes
@@ -404,10 +404,10 @@ struct fsext_inode_ext4
 	 */
 	uint8_t unknown2[ 2 ];
 
-	/* Unknown
+	/* Extended inode size
 	 * Consists of 2 bytes
 	 */
-	uint8_t unknown3[ 2 ];
+	uint8_t extended_inode_size[ 2 ];
 
 	/* Checksum (upper 16-bit)
 	 * Consists of 2 bytes

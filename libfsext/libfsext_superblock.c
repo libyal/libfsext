@@ -673,7 +673,7 @@ int libfsext_superblock_read_data(
 			}
 			if( libfsext_debug_print_utf8_string_value(
 			     function,
-			     "last mount path\t\t\t",
+			     "last mount path\t\t\t\t",
 			     superblock->last_mount_path,
 			     64,
 			     error ) != 1 )

@@ -300,10 +300,10 @@ int libfsext_file_entry_free(
 				result = -1;
 			}
 		}
-		if( internal_file_entry->extended_attributes != NULL )
+		if( internal_file_entry->extended_attributes_array != NULL )
 		{
 			if( libcdata_array_free(
-			     &( internal_file_entry->extended_attributes ),
+			     &( internal_file_entry->extended_attributes_array ),
 			     (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_attribute_values_free,
 			     error ) != 1 )
 			{
@@ -2087,16 +2087,49 @@ int libfsext_internal_file_entry_get_extended_attributes(
 
 		return( -1 );
 	}
-	if( internal_file_entry->extended_attributes != NULL )
+	if( internal_file_entry->inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file entry - missing inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file_entry->extended_attributes_array != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid file entry - extended attributes value already set.",
+		 "%s: invalid file entry - extended attributes array value already set.",
 		 function );
 
 		return( -1 );
+	}
+	if( internal_file_entry->inode->extended_attributes_array != NULL )
+	{
+		internal_file_entry->extended_attributes_array        = internal_file_entry->inode->extended_attributes_array;
+		internal_file_entry->inode->extended_attributes_array = NULL;
+	}
+	else
+	{
+		if( libcdata_array_initialize(
+		     &( internal_file_entry->extended_attributes_array ),
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create extended attributes array.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	if( libfsext_inode_get_file_acl_block_number(
 	     internal_file_entry->inode,
@@ -2112,24 +2145,10 @@ int libfsext_internal_file_entry_get_extended_attributes(
 
 		goto on_error;
 	}
-	if( libcdata_array_initialize(
-	     &( internal_file_entry->extended_attributes ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create extended attributes array.",
-		 function );
-
-		goto on_error;
-	}
 	if( file_acl_block_number != 0 )
 	{
 		if( libfsext_attributes_block_read_file_io_handle(
-		     internal_file_entry->extended_attributes,
+		     internal_file_entry->extended_attributes_array,
 		     internal_file_entry->io_handle,
 		     internal_file_entry->file_io_handle,
 		     (off64_t) file_acl_block_number * internal_file_entry->io_handle->block_size,
@@ -2146,17 +2165,13 @@ int libfsext_internal_file_entry_get_extended_attributes(
 			goto on_error;
 		}
 	}
-	else
-	{
-/* TODO get extended attributes from inode */
-	}
 	return( 1 );
 
 on_error:
-	if( internal_file_entry->extended_attributes != NULL )
+	if( internal_file_entry->extended_attributes_array != NULL )
 	{
 		libcdata_array_free(
-		 &( internal_file_entry->extended_attributes ),
+		 &( internal_file_entry->extended_attributes_array ),
 		 (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_attribute_values_free,
 		 NULL );
 	}
@@ -2203,7 +2218,7 @@ int libfsext_file_entry_get_number_of_extended_attributes(
 		return( -1 );
 	}
 #endif
-	if( internal_file_entry->extended_attributes == NULL )
+	if( internal_file_entry->extended_attributes_array == NULL )
 	{
 		if( libfsext_internal_file_entry_get_extended_attributes(
 		     internal_file_entry,
@@ -2222,7 +2237,7 @@ int libfsext_file_entry_get_number_of_extended_attributes(
 	if( result != -1 )
 	{
 		if( libcdata_array_get_number_of_entries(
-		     internal_file_entry->extended_attributes,
+		     internal_file_entry->extended_attributes_array,
 		     number_of_extended_attributes,
 		     error ) != 1 )
 		{
@@ -2318,7 +2333,7 @@ int libfsext_file_entry_get_extended_attribute_by_index(
 		return( -1 );
 	}
 #endif
-	if( internal_file_entry->extended_attributes == NULL )
+	if( internal_file_entry->extended_attributes_array == NULL )
 	{
 		if( libfsext_internal_file_entry_get_extended_attributes(
 		     internal_file_entry,
@@ -2337,7 +2352,7 @@ int libfsext_file_entry_get_extended_attribute_by_index(
 	if( result != -1 )
 	{
 		if( libcdata_array_get_entry_by_index(
-		     internal_file_entry->extended_attributes,
+		     internal_file_entry->extended_attributes_array,
 		     extended_attribute_index,
 		     (intptr_t **) &attribute_values,
 		     error ) != 1 )

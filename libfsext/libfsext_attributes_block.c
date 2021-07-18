@@ -35,25 +35,21 @@
 
 #include "fsext_attributes.h"
 
-/* Reads the extended attributes block data
+/* Reads the extended attributes block header data
  * Returns 1 if successful or -1 on error
  */
-int libfsext_attributes_block_read_data(
-     libcdata_array_t *extended_attributes,
+int libfsext_attributes_block_read_header_data(
      libfsext_io_handle_t *io_handle,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
 {
-	libfsext_attribute_values_t *attribute_values = NULL;
-	static char *function                         = "libfsext_attributes_block_read_data";
-	size_t data_offset                            = 0;
-	uint32_t number_of_blocks                     = 0;
-	int attribute_index                           = 0;
-	int entry_index                               = 0;
+	static char *function     = "libfsext_attributes_block_read_header_data";
+	uint32_t number_of_blocks = 0;
+	uint32_t signature        = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit                          = 0;
+	uint32_t value_32bit      = 0;
 #endif
 
 	if( io_handle == NULL )
@@ -94,7 +90,7 @@ int libfsext_attributes_block_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: extended attributes header data:\n",
+		 "%s: extended attributes block header data:\n",
 		 function );
 		libcnotify_print_data(
 		 data,
@@ -103,20 +99,10 @@ int libfsext_attributes_block_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( memory_compare(
-	     ( (fsext_attributes_header_ext2_t *) data )->signature,
-	     "\x00\x00\x02\xea",
-	     4 ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: invalid signature.",
-		 function );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_attributes_header_ext2_t *) data )->signature,
+	 signature );
 
-		goto on_error;
-	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_attributes_header_ext2_t *) data )->number_of_blocks,
 	 number_of_blocks );
@@ -125,23 +111,20 @@ int libfsext_attributes_block_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: signature\t\t\t\t: \\x%02" PRIx8 "\\x%02" PRIx8 "\\x02%" PRIx8 "\\x%02" PRIx8 "\n",
+		 "%s: signature\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 data[ 0 ],
-		 data[ 1 ],
-		 data[ 2 ],
-		 data[ 3 ] );
+		 signature );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_attributes_header_ext2_t *) data )->reference_count,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: reference count\t\t\t: %" PRIu32 "\n",
+		 "%s: reference count\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: number of blocks\t\t\t: %" PRIu32 "\n",
+		 "%s: number of blocks\t\t: %" PRIu32 "\n",
 		 function,
 		 number_of_blocks );
 
@@ -149,7 +132,7 @@ int libfsext_attributes_block_read_data(
 		 ( (fsext_attributes_header_ext2_t *) data )->attributes_hash,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: attributes hash\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: attributes hash\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 value_32bit );
 
@@ -170,7 +153,7 @@ int libfsext_attributes_block_read_data(
 			 ( (fsext_attributes_header_ext4_t *) data )->checksum,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: checksum\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 value_32bit );
 
@@ -185,6 +168,17 @@ int libfsext_attributes_block_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	if( signature != 0xea020000UL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: invalid signature.",
+		 function );
+
+		return( -1 );
+	}
 	if( number_of_blocks != 1 )
 	{
 		libcerror_error_set(
@@ -194,10 +188,61 @@ int libfsext_attributes_block_read_data(
 		 "%s: invalid number of blocks value out of bounds.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	data_offset = sizeof( fsext_attributes_header_ext2_t );
+	return( 1 );
+}
 
+/* Reads the extended attributes block entries data
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_attributes_block_read_entries_data(
+     const uint8_t *data,
+     size_t data_size,
+     size_t data_offset,
+     libcdata_array_t *extended_attributes,
+     libcerror_error_t **error )
+{
+	libfsext_attribute_values_t *attribute_values = NULL;
+	static char *function                         = "libfsext_attributes_block_read_entries_data";
+	size_t alignment_padding_size                 = 0;
+	int attribute_index                           = 0;
+	int entry_index                               = 0;
+
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( data_size < sizeof( fsext_attributes_entry_t ) )
+	 || ( data_size > (size_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_offset >= ( data_size - sizeof( fsext_attributes_entry_t ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	while( data_offset < data_size )
 	{
 		if( data_offset >= ( data_size - sizeof( fsext_attributes_entry_t ) ) )
@@ -264,7 +309,31 @@ int libfsext_attributes_block_read_data(
 		}
 		data_offset += sizeof( fsext_attributes_entry_t ) + data[ data_offset ];
 
-		if( attribute_values->value_data_inode_number == 0 )
+		alignment_padding_size = data_offset % 4;
+
+		if( alignment_padding_size != 0 )
+		{
+			alignment_padding_size = 4 - alignment_padding_size;
+		}
+		if( alignment_padding_size > 0 )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: alignment padding:\n",
+				 function );
+				libcnotify_print_data(
+				 &( data[ data_offset ] ),
+				 alignment_padding_size,
+				 0 );
+			}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+			data_offset += alignment_padding_size;
+		}
+		if( ( attribute_values->value_data_inode_number == 0 )
+		 && ( attribute_values->value_data_size > 0 ) )
 		{
 			if( ( attribute_values->value_data_offset < sizeof( fsext_attributes_header_ext2_t ) )
 			 || ( attribute_values->value_data_offset >= data_size ) )
@@ -423,8 +492,7 @@ int libfsext_attributes_block_read_file_io_handle(
 
 		goto on_error;
 	}
-	if( libfsext_attributes_block_read_data(
-	     extended_attributes,
+	if( libfsext_attributes_block_read_header_data(
 	     io_handle,
 	     data,
 	     (size_t) io_handle->block_size,
@@ -434,10 +502,24 @@ int libfsext_attributes_block_read_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read extended attributes block at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		 "%s: unable to read extended attributes block header.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfsext_attributes_block_read_entries_data(
+	     data,
+	     (size_t) io_handle->block_size,
+	     sizeof( fsext_attributes_header_ext2_t ),
+	     extended_attributes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read extended attributes block entries.",
+		 function );
 
 		goto on_error;
 	}
