@@ -655,25 +655,38 @@ int libfsext_superblock_read_data(
 
 				return( -1 );
 			}
+			if( libfsext_debug_print_utf8_string_value(
+			     function,
+			     "volume label\t\t\t\t",
+			     superblock->volume_label,
+			     16,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print UTF-8 string value.",
+				 function );
 
-/* TODO print as string */
-			libcnotify_printf(
-			 "%s: volume label:\n",
-			 function );
-			libcnotify_print_data(
-			 superblock->volume_label,
-			 16,
-			 0 );
+				return( -1 );
+			}
+			if( libfsext_debug_print_utf8_string_value(
+			     function,
+			     "last mount path\t\t\t",
+			     superblock->last_mount_path,
+			     64,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print UTF-8 string value.",
+				 function );
 
-/* TODO print as string */
-			libcnotify_printf(
-			 "%s: last mount path:\n",
-			 function );
-			libcnotify_print_data(
-			 superblock->last_mount_path,
-			 64,
-			 0 );
-
+				return( -1 );
+			}
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_superblock_ext2_t *) data )->algorithm_usage_bitmap,
 			 value_32bit );

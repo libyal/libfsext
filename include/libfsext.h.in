@@ -647,6 +647,25 @@ int libfsext_file_entry_get_utf16_symbolic_link_target(
      size_t utf16_string_size,
      libfsext_error_t **error );
 
+/* Retrieves the number of extended attributes
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_number_of_extended_attributes(
+     libfsext_file_entry_t *file_entry,
+     int *number_of_extended_attributes,
+     libfsext_error_t **error );
+
+/* Retrieves the extended attribute for the specific index
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_extended_attribute_by_index(
+     libfsext_file_entry_t *file_entry,
+     int extended_attribute_index,
+     libfsext_extended_attribute_t **extended_attribute,
+     libfsext_error_t **error );
+
 /* Retrieves the number of sub file entries
  * Returns 1 if successful or -1 on error
  */
@@ -756,6 +775,109 @@ int libfsext_file_entry_get_extent_by_index(
      off64_t *extent_offset,
      size64_t *extent_size,
      uint32_t *extent_flags,
+     libfsext_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Extended attribute functions
+ * ------------------------------------------------------------------------- */
+
+/* Frees an extended attribute
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_free(
+     libfsext_extended_attribute_t **extended_attribute,
+     libfsext_error_t **error );
+
+/* Retrieves the size of the UTF-8 encoded name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_get_utf8_name_size(
+     libfsext_extended_attribute_t *extended_attribute,
+     size_t *utf8_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the UTF-8 encoded name
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_get_utf8_name(
+     libfsext_extended_attribute_t *extended_attribute,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the size of the UTF-16 encoded name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_get_utf16_name_size(
+     libfsext_extended_attribute_t *extended_attribute,
+     size_t *utf16_string_size,
+     libfsext_error_t **error );
+
+/* Retrieves the UTF-16 encoded name
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_get_utf16_name(
+     libfsext_extended_attribute_t *extended_attribute,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libfsext_error_t **error );
+
+/* Reads data at the current offset into a buffer
+ * Returns the number of bytes read or -1 on error
+ */
+LIBFSEXT_EXTERN \
+ssize_t libfsext_extended_attribute_read_buffer(
+         libfsext_extended_attribute_t *extended_attribute,
+         void *buffer,
+         size_t buffer_size,
+         libfsext_error_t **error );
+
+/* Reads data at a specific offset
+ * Returns the number of bytes read or -1 on error
+ */
+LIBFSEXT_EXTERN \
+ssize_t libfsext_extended_attribute_read_buffer_at_offset(
+         libfsext_extended_attribute_t *extended_attribute,
+         void *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libfsext_error_t **error );
+
+/* Seeks a certain offset
+ * Returns the offset if seek is successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+off64_t libfsext_extended_attribute_seek_offset(
+         libfsext_extended_attribute_t *extended_attribute,
+         off64_t offset,
+         int whence,
+         libfsext_error_t **error );
+
+/* Retrieves the current offset
+ * Returns the offset if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_get_offset(
+     libfsext_extended_attribute_t *extended_attribute,
+     off64_t *offset,
+     libfsext_error_t **error );
+
+/* Retrieves the size of the data stream object
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_get_size(
+     libfsext_extended_attribute_t *extended_attribute,
+     size64_t *size,
      libfsext_error_t **error );
 
 #if defined( __cplusplus )

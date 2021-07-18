@@ -395,14 +395,22 @@ int libfsext_directory_entry_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-/* TODO print as string */
-		libcnotify_printf(
-		 "%s: name data:\n",
-		 function );
-		libcnotify_print_data(
-		 &( data[ data_offset ] ),
-		 name_size,
-		 0 );
+		if( libfsext_debug_print_utf8_string_value(
+		     function,
+		     "name\t\t\t\t",
+		     &( data[ data_offset ] ),
+		     name_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print UTF-8 string value.",
+			 function );
+
+			goto on_error;
+		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 

@@ -21,12 +21,15 @@ AM_CPPFLAGS = \
 lib_LTLIBRARIES = libfsext.la
 
 libfsext_la_SOURCES = \
+	fsext_attributes.h \
 	fsext_directory_entry.h \
 	fsext_extents.h \
 	fsext_inode.h \
 	fsext_group_descriptor.h \
 	fsext_superblock.h \
 	libfsext.c \
+	libfsext_attributes_block.c libfsext_attributes_block.h \
+	libfsext_attribute_values.c libfsext_attribute_values.h \
 	libfsext_bitmap.c libfsext_bitmap.h \
 	libfsext_block.c libfsext_block.h \
 	libfsext_block_data_handle.c libfsext_block_data_handle.h \
@@ -39,6 +42,7 @@ libfsext_la_SOURCES = \
 	libfsext_directory.c libfsext_directory.h \
 	libfsext_directory_entry.c libfsext_directory_entry.h \
 	libfsext_error.c libfsext_error.h \
+	libfsext_extended_attribute.c libfsext_extended_attribute.h \
 	libfsext_extent.c libfsext_extent.h \
 	libfsext_extent_index.c libfsext_extent_index.h \
 	libfsext_extents.c libfsext_extents.h \

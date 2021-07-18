@@ -55,6 +55,7 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.9 | J.B. Metz | August 2020 | Additional information about format.
 | 0.0.10 | J.B. Metz | February 2021 | Additional information about format.
 | 0.0.11 | J.B. Metz | April 2021 | Additional information about read-only compatibility flags.
+| 0.0.12 | J.B. Metz | July 2021 | Additional information about extended attributes.
 |===
 
 :numbered:
@@ -773,9 +774,8 @@ Value contains the block number relative from the start of the volume
 | 96 | 4 | | Triple indirect block number +
 Value contains the block number relative from the start of the volume
 | 100 | 4 | | NFS generation number
-| 104 | 4 | | File ACL +
-[yellow-background]*Extended attributes block number?*
-| 108 | 4 | | Directory ACL
+| 104 | 4 | | File ACL (or extended attributes) block number
+| 108 | 4 | | [yellow-background]*Unknown (Directory ACL)*
 | 112 | 4 | | Fragment block address
 | 116 | 1 | | Fragment block index
 | 117 | 1 | | Fragment size
@@ -820,8 +820,8 @@ Value contains the block number relative from the start of the volume
 | 96 | 4 | | Triple indirect block number +
 Value contains the block number relative from the start of the volume
 | 100 | 4 | | NFS generation number
-| 104 | 4 | | File ACL
-| 108 | 4 | | Directory ACL
+| 104 | 4 | | File ACL (or extended attributes) block number
+| 108 | 4 | | [yellow-background]*Unknown (Directory ACL)*
 | 112 | 4 | | Fragment block address
 | 116 | 1 | | Fragment block index
 | 117 | 1 | | Fragment size
@@ -877,12 +877,11 @@ Also see: <<ext4_extent,The ext4 extent>> or <<ext4_extent_index,The ext4 extent
 | 40 | 60 | | File entry data
 4+| _Common_
 | 100 | 4 | | NFS generation number
-| 104 | 4 | | Lower part of file ACL +
-[yellow-background]*Extended attributes block number?*
+| 104 | 4 | | Lower part of file ACL (or extended attributes) block number
 | 108 | 4 | | Upper part of data size
 | 112 | 4 | | Fragment block address
 | 116 | 2 | | Upper part of blocks count
-| 118 | 2 | | Upper part of file ACL
+| 118 | 2 | | Upper part of file ACL (or extended attributes) block number
 | 120 | 2 | | Upper part of owner (or user) identifier (UID)
 | 122 | 2 | | Upper part of group identifier (GID)
 | 124 | 2 | | Lower part of checksum
@@ -956,11 +955,11 @@ EXT4_INODE_COMPR | Compressed file +
 [yellow-background]*Not yet supported*
 | 0x00000008 | EXT2_SYNC_FL +
 EXT3_SYNC_FL +
-EXT4_SYNC_FL + 
+EXT4_SYNC_FL +
 EXT4_INODE_SYNC | Synchronous updates
 | 0x00000010 | EXT2_IMMUTABLE_FL +
 EXT3_IMMUTABLE_FL +
-EXT4_IMMUTABLE_FL + 
+EXT4_IMMUTABLE_FL +
 EXT4_INODE_IMMUTABLE | Immutable file
 | 0x00000020 | EXT2_APPEND_FL +
 EXT3_APPEND_FL +
@@ -1119,15 +1118,14 @@ Maximum of 255
 | 7 | 1 | | File type +
 See section: <<file_types,File types>>
 | 8 | ... | | Name +
-[yellow-background]*Contains an UTF-8 string*
+Contains an UTF-8 string ([yellow-background]*is this ASCII with a codepage on older systems?*)
 |===
 
 Older directory entry structures considered the name size a 16-bit value, but
 the upper byte was never used.
 
 The name can contain any UTF-8 character value except the path separator '/'
-and the NUL-character. [yellow-background]*Is the name in extended ASCII
-on older platforms?*
+and the NUL-character.
 
 ==== [[file_types]]File types
 
@@ -1207,6 +1205,105 @@ stored in the 60 bytes in the inode that are normally used for the 12 direct
 and 3 indirect block numbers. If the target path is longer than 60 characters,
 a block is allocated, and the block contains the target path. The inode data
 size contains the length of the target path.
+
+== [[extended_attributes]]Extended attributes
+
+Extended attributes can be stored:
+
+* inline in the inode block
+* in a block referenced by the file ACL (or extended attributes) block number
+
+Extended attributes consists of:
+
+* An extended attributes header
+* Extended attributes entries with a terminator
+
+=== The extended attributes inode header
+
+The extended attributes inode header (ext2_xattr_ibody_header,
+ext3_xattr_ibody_header, ext4_xattr_ibody_header) is 4 bytes of size and
+consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 0xea020000 | Signature
+|===
+
+=== The extended attributes block header
+
+=== The ext2 and ext3 extended attributes block header
+
+The ext2 and ext3 extended attributes block header (ext2_xattr_header,
+ext3_xattr_header) is 32 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 0xea020000 | Signature
+| 4 | 4 | | [yellow-background]*Unknown (Reference count)*
+| 8 | 4 | | Number of blocks
+| 12 | 4 | | Attributes hash
+| 16 | 4 x 4 | | [yellow-background]*Unknown (reserved)*
+|===
+
+=== The ext4 extended attributes block header
+
+The ext4 extended attributes block header (ext4_xattr_header) is 32 bytes of
+size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 0xea020000 | Signature
+| 4 | 4 | | [yellow-background]*Unknown (Reference count)*
+| 8 | 4 | | Number of blocks
+| 12 | 4 | | Attributes hash
+| 16 | 4 | | Checksum
+| 20 | 3 x 4 | | [yellow-background]*Unknown (reserved)*
+|===
+
+=== The extended attributes entry
+
+The extended attributes entry (ext2_xattr_entry, ext3_xattr_entry,
+ext4_xattr_entry) is 32 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | | Name size +
+Contains the size of the name without the end-of-string character
+| 1 | 1 | | Name index
+| 2 | 2 | | Value data offset +
+Value contains the offset of the value data relative from the start of the extended attributes block or ...
+| 4 | 4 | | Value data inode number +
+Contains the inode number that contains the value data or 0 to indicate the current block
+| 8 | 4 | | Value data size
+| 12 | 4 | | [yellow-background]*Unknown (Attribute hash)*
+| 16 | ... | | Name string +
+Contains an ASCII string without end-of-string character
+|===
+
+The last extended attributes entry has the first 4 values set to 0 (8 bytes)
+and is used as a terminator.
+
+=== The extended attribute name index
+
+The name index indicates the prefix of the extended attribute name.
+
+[cols="1,1,5",options="header"]
+|===
+| Name index | Name prefix | Description
+| 0 | "" | No prefix
+| 1 | "user." |
+| 2 | "system.posix_acl_access" |
+| 3 | "system.posix_acl_default" |
+| 4 | "trusted." |
+3+|
+| 6 | "security." |
+| 7 | "system." |
+| 8 | "system.richacl" |
+|===
 
 == Journal
 

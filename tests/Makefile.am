@@ -46,6 +46,7 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	fsext_test_attribute_values \
 	fsext_test_bitmap \
 	fsext_test_block \
 	fsext_test_block_data_handle \
@@ -70,6 +71,18 @@ check_PROGRAMS = \
 	fsext_test_tools_output \
 	fsext_test_tools_signal \
 	fsext_test_volume
+
+fsext_test_attribute_values_SOURCES = \
+	fsext_test_attribute_values.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_attribute_values_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
 
 fsext_test_bitmap_SOURCES = \
 	fsext_test_bitmap.c \

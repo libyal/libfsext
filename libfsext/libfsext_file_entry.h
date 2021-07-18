@@ -68,6 +68,10 @@ struct libfsext_internal_file_entry
 	 */
 	libfsext_directory_entry_t *directory_entry;
 
+	/* The extended attributes
+	 */
+	libcdata_array_t *extended_attributes;
+
 	/* The directory
 	 */
 	libfsext_directory_t *directory;
@@ -232,6 +236,23 @@ int libfsext_file_entry_get_utf16_symbolic_link_target(
      libfsext_file_entry_t *file_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
+     libcerror_error_t **error );
+
+int libfsext_internal_file_entry_get_extended_attributes(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_number_of_extended_attributes(
+     libfsext_file_entry_t *file_entry,
+     int *number_of_extended_attributes,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_extended_attribute_by_index(
+     libfsext_file_entry_t *file_entry,
+     int extended_attribute_index,
+     libfsext_extended_attribute_t **extended_attribute,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \

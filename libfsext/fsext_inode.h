@@ -1,5 +1,5 @@
 /*
- * Inode of a Extended File System
+ * Inode of an Extended File System
  *
  * Copyright (C) 2010-2021, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -104,12 +104,12 @@ struct fsext_inode_ext2
 	 */
 	uint8_t nfs_generation_number[ 4 ];
 
-	/* File acl
+	/* File ACL (or extended attributes) block number
 	 * Consists of 4 bytes
 	 */
-	uint8_t file_acl[ 4 ];
+	uint8_t file_acl_block_number[ 4 ];
 
-	/* Directory acl
+	/* Directory ACL
 	 * Consists of 4 bytes
 	 */
 	uint8_t directory_acl[ 4 ];
@@ -225,12 +225,12 @@ struct fsext_inode_ext3
 	 */
 	uint8_t nfs_generation_number[ 4 ];
 
-	/* File acl
+	/* File ACL (or extended attributes) block number
 	 * Consists of 4 bytes
 	 */
-	uint8_t file_acl[ 4 ];
+	uint8_t file_acl_block_number[ 4 ];
 
-	/* Directory acl
+	/* Directory ACL
 	 * Consists of 4 bytes
 	 */
 	uint8_t directory_acl[ 4 ];
@@ -359,10 +359,10 @@ struct fsext_inode_ext4
 	 */
 	uint8_t nfs_generation_number[ 4 ];
 
-	/* File acl (lower 32-bit)
+	/* File ACL (or extended attributes) block number (lower 32-bit)
 	 * Consists of 4 bytes
 	 */
-	uint8_t file_acl_lower[ 4 ];
+	uint8_t file_acl_block_number_lower[ 4 ];
 
 	/* Data size (upper 32-bit)
 	 * Consists of 4 bytes
@@ -379,10 +379,10 @@ struct fsext_inode_ext4
 	 */
 	uint8_t number_of_blocks_upper[ 2 ];
 
-	/* File acl (upper 16-bit)
-	 * Consists of 2 bytes
+	/* File ACL (or extended attributes) block number (upper 16-bit)
+	 * Consists of 4 bytes
 	 */
-	uint8_t file_acl_upper[ 2 ];
+	uint8_t file_acl_block_number_upper[ 2 ];
 
 	/* Owner identifier (upper 16-bit)
 	 * Consists of 2 bytes

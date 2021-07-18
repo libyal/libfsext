@@ -1,5 +1,5 @@
 /*
- * Group descriptor of a Extended File System
+ * Group descriptor of an Extended File System
  *
  * Copyright (C) 2010-2021, Joachim Metz <joachim.metz@gmail.com>
  *

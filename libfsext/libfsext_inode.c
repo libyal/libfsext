@@ -381,23 +381,23 @@ int libfsext_inode_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function           = "libfsext_inode_read_data";
-	uint32_t access_time            = 0;
-	uint32_t creation_time          = 0;
-	uint32_t data_size_upper        = 0;
-	uint32_t inode_change_time      = 0;
-	uint32_t modification_time      = 0;
-	uint32_t supported_inode_flags  = 0;
-	uint32_t value_32bit            = 0;
-	uint16_t file_acl_upper         = 0;
-	uint16_t group_identifier_upper = 0;
-	uint16_t number_of_blocks_upper = 0;
-	uint16_t owner_identifier_upper = 0;
-	int result                      = 0;
+	static char *function                = "libfsext_inode_read_data";
+	uint32_t access_time                 = 0;
+	uint32_t creation_time               = 0;
+	uint32_t data_size_upper             = 0;
+	uint32_t inode_change_time           = 0;
+	uint32_t modification_time           = 0;
+	uint32_t supported_inode_flags       = 0;
+	uint32_t value_32bit                 = 0;
+	uint16_t file_acl_block_number_upper = 0;
+	uint16_t group_identifier_upper      = 0;
+	uint16_t number_of_blocks_upper      = 0;
+	uint16_t owner_identifier_upper      = 0;
+	int result                           = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	size_t data_offset              = 0;
-	uint16_t value_16bit            = 0;
+	size_t data_offset                   = 0;
+	uint16_t value_16bit                 = 0;
 #endif
 
 	if( inode == NULL )
@@ -746,8 +746,8 @@ int libfsext_inode_read_data(
 	 inode->nfs_generation_number );
 
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->file_acl,
-	 inode->file_acl );
+	 ( (fsext_inode_ext2_t *) data )->file_acl_block_number,
+	 inode->file_acl_block_number );
 
 	if( ( io_handle->format_version == 2 )
 	 || ( io_handle->format_version == 3 ) )
@@ -784,8 +784,8 @@ int libfsext_inode_read_data(
 		inode->number_of_blocks |= (uint64_t) number_of_blocks_upper << 32;
 
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (fsext_inode_ext4_t *) data )->file_acl_upper,
-		 file_acl_upper );
+		 ( (fsext_inode_ext4_t *) data )->file_acl_block_number_upper,
+		 file_acl_block_number_upper );
 	}
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->owner_identifier_upper,
@@ -895,16 +895,16 @@ int libfsext_inode_read_data(
 		if( io_handle->format_version == 4 )
 		{
 			libcnotify_printf(
-			 "%s: file ACL (lower)\t\t\t\t: %" PRIu32 "\n",
+			 "%s: file ACL block number (lower)\t\t\t: %" PRIu32 "\n",
 			 function,
-			 inode->file_acl );
+			 inode->file_acl_block_number );
 		}
 		else
 		{
 			libcnotify_printf(
-			 "%s: file ACL\t\t\t\t\t: %" PRIu32 "\n",
+			 "%s: file ACL block number\t\t\t: %" PRIu32 "\n",
 			 function,
-			 inode->file_acl );
+			 inode->file_acl_block_number );
 		}
 		if( io_handle->format_version == 4 )
 		{
@@ -954,9 +954,9 @@ int libfsext_inode_read_data(
 			 number_of_blocks_upper );
 
 			libcnotify_printf(
-			 "%s: file ACL (upper)\t\t\t\t: %" PRIu16 "\n",
+			 "%s: file ACL block number (upper)\t\t\t: %" PRIu16 "\n",
 			 function,
-			 file_acl_upper );
+			 file_acl_block_number_upper );
 		}
 		libcnotify_printf(
 		 "%s: owner identifier (upper)\t\t\t: %" PRIu16 "\n",
@@ -1301,7 +1301,7 @@ int libfsext_inode_read_data(
 
 	if( io_handle->format_version == 4 )
 	{
-		inode->file_acl |= (uint64_t) file_acl_upper << 32;
+		inode->file_acl_block_number |= (uint64_t) file_acl_block_number_upper << 32;
 	}
 	return( 1 );
 }
@@ -1802,6 +1802,43 @@ int libfsext_inode_get_group_identifier(
 		return( -1 );
 	}
 	*group_identifier = inode->group_identifier;
+
+	return( 1 );
+}
+
+/* Retrieves the file ACL (or extended attributes) block numer
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_file_acl_block_number(
+     libfsext_inode_t *inode,
+     uint32_t *file_acl_block_number,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_file_acl_block_number";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( file_acl_block_number == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file ACL block number.",
+		 function );
+
+		return( -1 );
+	}
+	*file_acl_block_number = inode->file_acl_block_number;
 
 	return( 1 );
 }

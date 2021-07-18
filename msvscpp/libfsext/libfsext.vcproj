@@ -174,6 +174,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_attribute_values.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_attributes_block.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_bitmap.c"
 				>
 			</File>
@@ -215,6 +223,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_error.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_extended_attribute.c"
 				>
 			</File>
 			<File
@@ -280,6 +292,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\libfsext\fsext_attributes.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\fsext_directory_entry.h"
 				>
 			</File>
@@ -297,6 +313,14 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\fsext_superblock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_attribute_values.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_attributes_block.h"
 				>
 			</File>
 			<File
@@ -345,6 +369,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_error.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_extended_attribute.h"
 				>
 			</File>
 			<File

@@ -1,5 +1,5 @@
 /*
- * Directory entry of an Extended File System
+ * Extended attributes block functions
  *
  * Copyright (C) 2010-2021, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,47 +19,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _FSEXT_DIRECTORY_ENTRY_H )
-#define _FSEXT_DIRECTORY_ENTRY_H
+#if !defined( _LIBFSEXT_ATTRIBUTES_BLOCK_H )
+#define _LIBFSEXT_ATTRIBUTES_BLOCK_H
 
 #include <common.h>
 #include <types.h>
+
+#include "libfsext_io_handle.h"
+#include "libfsext_libbfio.h"
+#include "libfsext_libcdata.h"
+#include "libfsext_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct fsext_directory_entry fsext_directory_entry_t;
+int libfsext_attributes_block_read_data(
+     libcdata_array_t *extended_attributes,
+     libfsext_io_handle_t *io_handle,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
 
-struct fsext_directory_entry
-{
-	/* Inode number
-	 * Consists of 4 bytes
-	 */
-	uint8_t inode_number[ 4 ];
-
-	/* Size
-	 * Consists of 2 bytes
-	 */
-	uint8_t size[ 2 ];
-
-	/* Name size
-	 * Consists of 1 byte
-	 */
-	uint8_t name_size;
-
-	/* File type
-	 * Consists of 1 byte
-	 */
-	uint8_t file_type;
-
-	/* Name
-	 */
-};
+int libfsext_attributes_block_read_file_io_handle(
+     libcdata_array_t *extended_attributes,
+     libfsext_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _FSEXT_DIRECTORY_ENTRY_H ) */
+#endif /* !defined( _LIBFSEXT_ATTRIBUTES_BLOCK_H ) */
 

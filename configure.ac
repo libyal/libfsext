@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20210711],
+ [20210718],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -234,6 +234,7 @@ Building:
    libfdatetime support:                       $ac_cv_libfdatetime
    libfguid support:                           $ac_cv_libfguid
    libhmac support:                            $ac_cv_libhmac
+   MD5 support:                                $ac_cv_libhmac_md5
 
 Features:
    Multi-threading support:                    $ac_cv_libcthreads_multi_threading

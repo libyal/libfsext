@@ -100,9 +100,9 @@ struct libfsext_inode
 	 */
 	uint32_t group_identifier;
 
-	/* File ACL
+	/* File ACL (or extended attributes) block number
 	 */
-	uint32_t file_acl;
+	uint32_t file_acl_block_number;
 
 	/* Directory ACL
 	 */
@@ -207,6 +207,11 @@ int libfsext_inode_get_owner_identifier(
 int libfsext_inode_get_group_identifier(
      libfsext_inode_t *inode,
      uint32_t *group_identifier,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_file_acl_block_number(
+     libfsext_inode_t *inode,
+     uint32_t *file_acl_block_number,
      libcerror_error_t **error );
 
 int libfsext_inode_get_number_of_extents(
