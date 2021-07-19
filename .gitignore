@@ -136,6 +136,7 @@ stamp-h[1-9]
 /tests/fsext_test_directory
 /tests/fsext_test_directory_entry
 /tests/fsext_test_error
+/tests/fsext_test_extended_attribute
 /tests/fsext_test_extent
 /tests/fsext_test_extent_index
 /tests/fsext_test_extents_footer

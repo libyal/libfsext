@@ -26,6 +26,8 @@
 #include "libfsext_attribute_values.h"
 #include "libfsext_block_stream.h"
 #include "libfsext_extended_attribute.h"
+#include "libfsext_inode.h"
+#include "libfsext_inode_table.h"
 #include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
@@ -40,7 +42,9 @@
  */
 int libfsext_extended_attribute_initialize(
      libfsext_extended_attribute_t **extended_attribute,
+     libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     libfsext_inode_table_t *inode_table,
      libfsext_attribute_values_t *attribute_values,
      libcerror_error_t **error )
 {
@@ -100,7 +104,9 @@ int libfsext_extended_attribute_initialize(
 
 		return( -1 );
 	}
+	internal_extended_attribute->io_handle        = io_handle;
 	internal_extended_attribute->file_io_handle   = file_io_handle;
+	internal_extended_attribute->inode_table      = inode_table;
 	internal_extended_attribute->attribute_values = attribute_values;
 
 #if defined( HAVE_MULTI_THREAD_SUPPORT ) && !defined( HAVE_LOCAL_LIBFSEXT )
@@ -498,7 +504,9 @@ int libfsext_internal_extended_attribute_get_data_stream(
      libfsext_internal_extended_attribute_t *internal_extended_attribute,
      libcerror_error_t **error )
 {
-	static char *function = "libfsext_internal_extended_attribute_get_data_stream";
+	libfsext_inode_t *inode = NULL;
+	static char *function   = "libfsext_internal_extended_attribute_get_data_stream";
+	int result              = 0;
 
 	if( internal_extended_attribute == NULL )
 	{
@@ -511,17 +519,86 @@ int libfsext_internal_extended_attribute_get_data_stream(
 
 		return( -1 );
 	}
-/* TODO implement */
-	return( 1 );
+	if( internal_extended_attribute->attribute_values == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid extended attribute - missing attribute values.",
+		 function );
 
-on_error:
+		return( -1 );
+	}
 	if( internal_extended_attribute->data_stream != NULL )
 	{
-		libfdata_stream_free(
-		 &( internal_extended_attribute->data_stream ),
-		 NULL );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid extended attribute - data stream value already set.",
+		 function );
+
+		return( -1 );
 	}
-	return( -1 );
+	if( internal_extended_attribute->attribute_values->value_data_inode_number != 0 )
+	{
+		if( libfsext_inode_table_get_inode_by_number(
+		     internal_extended_attribute->inode_table,
+		     internal_extended_attribute->file_io_handle,
+		     internal_extended_attribute->attribute_values->value_data_inode_number,
+		     &inode,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve inode number: %" PRIu32 ".",
+			 function,
+			 internal_extended_attribute->attribute_values->value_data_inode_number );
+
+			return( -1 );
+		}
+		if( inode == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing inode: %" PRIu32 ".",
+			 function,
+			 internal_extended_attribute->attribute_values->value_data_inode_number );
+
+			return( -1 );
+		}
+		result = libfsext_block_stream_initialize(
+		          &( internal_extended_attribute->data_stream ),
+		          internal_extended_attribute->io_handle,
+		          inode,
+		          (size64_t) internal_extended_attribute->attribute_values->value_data_size,
+		          error );
+	}
+	else
+	{
+		result = libfsext_block_stream_initialize_from_data(
+		          &( internal_extended_attribute->data_stream ),
+		          internal_extended_attribute->attribute_values->value_data,
+		          (size_t) internal_extended_attribute->attribute_values->value_data_size,
+		          error );
+	}
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create block stream.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
 }
 
 /* Reads data at the current offset into a buffer

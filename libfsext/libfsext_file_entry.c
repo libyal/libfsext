@@ -2369,7 +2369,9 @@ int libfsext_file_entry_get_extended_attribute_by_index(
 		}
 		else if( libfsext_extended_attribute_initialize(
 		          extended_attribute,
+		          internal_file_entry->io_handle,
 		          internal_file_entry->file_io_handle,
+		          internal_file_entry->inode_table,
 		          attribute_values,
 		          error ) != 1 )
 		{

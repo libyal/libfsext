@@ -27,6 +27,8 @@
 
 #include "libfsext_attribute_values.h"
 #include "libfsext_extern.h"
+#include "libfsext_inode_table.h"
+#include "libfsext_io_handle.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcdata.h"
 #include "libfsext_libcerror.h"
@@ -42,9 +44,17 @@ typedef struct libfsext_internal_extended_attribute libfsext_internal_extended_a
 
 struct libfsext_internal_extended_attribute
 {
+	/* The IO handle
+	 */
+	libfsext_io_handle_t *io_handle;
+
 	/* The file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
+
+	/* The inode table
+	 */
+	libfsext_inode_table_t *inode_table;
 
 	/* The attribute values
 	 */
@@ -67,7 +77,9 @@ struct libfsext_internal_extended_attribute
 
 int libfsext_extended_attribute_initialize(
      libfsext_extended_attribute_t **extended_attribute,
+     libfsext_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     libfsext_inode_table_t *inode_table,
      libfsext_attribute_values_t *attribute_values,
      libcerror_error_t **error );
 

@@ -1,4 +1,5 @@
 MSVSCPP_FILES = \
+	fsext_test_attribute_values/fsext_test_attribute_values.vcproj \
 	fsext_test_bitmap/fsext_test_bitmap.vcproj \
 	fsext_test_block/fsext_test_block.vcproj \
 	fsext_test_block_data_handle/fsext_test_block_data_handle.vcproj \
@@ -7,6 +8,7 @@ MSVSCPP_FILES = \
 	fsext_test_directory/fsext_test_directory.vcproj \
 	fsext_test_directory_entry/fsext_test_directory_entry.vcproj \
 	fsext_test_error/fsext_test_error.vcproj \
+	fsext_test_extended_attribute/fsext_test_extended_attribute.vcproj \
 	fsext_test_extent/fsext_test_extent.vcproj \
 	fsext_test_extent_index/fsext_test_extent_index.vcproj \
 	fsext_test_extents_footer/fsext_test_extents_footer.vcproj \

@@ -55,6 +55,7 @@ check_PROGRAMS = \
 	fsext_test_directory \
 	fsext_test_directory_entry \
 	fsext_test_error \
+	fsext_test_extended_attribute \
 	fsext_test_extent \
 	fsext_test_extent_index \
 	fsext_test_extents_footer \
@@ -230,6 +231,18 @@ fsext_test_error_SOURCES = \
 
 fsext_test_error_LDADD = \
 	../libfsext/libfsext.la
+
+fsext_test_extended_attribute_SOURCES = \
+	fsext_test_extended_attribute.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_memory.c fsext_test_memory.h \
+	fsext_test_unused.h
+
+fsext_test_extended_attribute_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
 
 fsext_test_extent_SOURCES = \
 	fsext_test_extent.c \
