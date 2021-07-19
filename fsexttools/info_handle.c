@@ -1180,14 +1180,14 @@ int info_handle_posix_time_in_nano_seconds_value_fprint(
 			  posix_time,
 			  (uint16_t *) date_time_string,
 			  32,
-			  LIBFDATETIME_STRING_FORMAT_TYPE_ISO8601 | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			  error );
 #else
 		result = libfdatetime_posix_time_copy_to_utf8_string(
 			  posix_time,
 			  (uint8_t *) date_time_string,
 			  32,
-			  LIBFDATETIME_STRING_FORMAT_TYPE_ISO8601 | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+			  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			  error );
 #endif
 		if( result != 1 )
@@ -1203,7 +1203,7 @@ int info_handle_posix_time_in_nano_seconds_value_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "%s: %" PRIs_SYSTEM "Z\n",
+		 "%s: %" PRIs_SYSTEM " UTC\n",
 		 value_name,
 		 date_time_string );
 

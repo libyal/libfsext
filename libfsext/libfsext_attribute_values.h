@@ -54,6 +54,10 @@ struct libfsext_attribute_values
 	/* Value data size
 	 */
 	uint32_t value_data_size;
+
+	/* Value data
+	 */
+	uint8_t *value_data;
 };
 
 int libfsext_attribute_values_initialize(

@@ -490,55 +490,9 @@ int libfsext_inode_read_data(
 	}
 	inode->is_empty = 0;
 
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->file_mode,
-	 inode->file_mode );
-
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->owner_identifier,
-	 inode->owner_identifier );
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->data_size,
-	 inode->data_size );
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->access_time,
-	 access_time );
-
-	inode->access_time  = (int32_t) access_time;
-	inode->access_time *= 1000000000;
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->inode_change_time,
-	 inode_change_time );
-
-	inode->inode_change_time  = (int32_t) inode_change_time;
-	inode->inode_change_time *= 1000000000;
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->modification_time,
-	 modification_time );
-
-	inode->modification_time  = (int32_t) modification_time;
-	inode->modification_time *= 1000000000;
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->deletion_time,
-	 inode->deletion_time );
-
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->group_identifier,
-	 inode->group_identifier );
-
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->links_count,
-	 inode->links_count );
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->number_of_blocks,
-	 inode->number_of_blocks );
-
+	/* Check the inode flags and extended inode size first
+	 * since they can influence what values are stored in the inode
+	 */
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->flags,
 	 inode->flags );
@@ -561,6 +515,57 @@ int libfsext_inode_read_data(
 			goto on_error;
 		}
 	}
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->file_mode,
+	 inode->file_mode );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->owner_identifier,
+	 inode->owner_identifier );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->data_size,
+	 inode->data_size );
+
+	if( ( inode->flags & 0x00200000UL ) == 0 )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext2_t *) data )->access_time,
+		 access_time );
+
+		inode->access_time  = (int32_t) access_time;
+		inode->access_time *= 1000000000;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext2_t *) data )->inode_change_time,
+		 inode_change_time );
+
+		inode->inode_change_time  = (int32_t) inode_change_time;
+		inode->inode_change_time *= 1000000000;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_inode_ext2_t *) data )->modification_time,
+		 modification_time );
+
+		inode->modification_time  = (int32_t) modification_time;
+		inode->modification_time *= 1000000000;
+	}
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->deletion_time,
+	 inode->deletion_time );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->group_identifier,
+	 inode->group_identifier );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->links_count,
+	 inode->links_count );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_inode_ext2_t *) data )->number_of_blocks,
+	 inode->number_of_blocks );
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -592,62 +597,94 @@ int libfsext_inode_read_data(
 			 function,
 			 inode->data_size );
 		}
-		if( libfsext_debug_print_posix_time_value(
-		     function,
-		     "access time (seconds)\t\t\t\t",
-		     ( (fsext_inode_ext2_t *) data )->access_time,
-		     4,
-		     LIBFDATETIME_ENDIAN_LITTLE,
-		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
-		     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-		     error ) != 1 )
+		if( ( inode->flags & 0x00200000UL ) == 0 )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print POSIX time value.",
-			 function );
+			if( libfsext_debug_print_posix_time_value(
+			     function,
+			     "access time (seconds)\t\t\t\t",
+			     ( (fsext_inode_ext2_t *) data )->access_time,
+			     4,
+			     LIBFDATETIME_ENDIAN_LITTLE,
+			     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+			     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print POSIX time value.",
+				 function );
 
-			goto on_error;
+				goto on_error;
+			}
+			if( libfsext_debug_print_posix_time_value(
+			     function,
+			     "inode change time (seconds)\t\t\t",
+			     ( (fsext_inode_ext2_t *) data )->inode_change_time,
+			     4,
+			     LIBFDATETIME_ENDIAN_LITTLE,
+			     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+			     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print POSIX time value.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfsext_debug_print_posix_time_value(
+			     function,
+			     "modification time (seconds)\t\t\t",
+			     ( (fsext_inode_ext2_t *) data )->modification_time,
+			     4,
+			     LIBFDATETIME_ENDIAN_LITTLE,
+			     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
+			     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print POSIX time value.",
+				 function );
+
+				goto on_error;
+			}
 		}
-		if( libfsext_debug_print_posix_time_value(
-		     function,
-		     "inode change time (seconds)\t\t\t",
-		     ( (fsext_inode_ext2_t *) data )->inode_change_time,
-		     4,
-		     LIBFDATETIME_ENDIAN_LITTLE,
-		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
-		     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-		     error ) != 1 )
+		else
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print POSIX time value.",
-			 function );
+/* TODO implement, extended attribute value data checksum */
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_inode_ext2_t *) data )->access_time,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: value data checksum\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
 
-			goto on_error;
-		}
-		if( libfsext_debug_print_posix_time_value(
-		     function,
-		     "modification time (seconds)\t\t\t",
-		     ( (fsext_inode_ext2_t *) data )->modification_time,
-		     4,
-		     LIBFDATETIME_ENDIAN_LITTLE,
-		     LIBFDATETIME_POSIX_TIME_VALUE_TYPE_SECONDS_32BIT_SIGNED,
-		     LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
-			 "%s: unable to print POSIX time value.",
-			 function );
+/* TODO implement, lower 32-bit of extended attribute reference count */
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_inode_ext2_t *) data )->inode_change_time,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: reference count (lower)\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
 
-			goto on_error;
+/* TODO implement, lower 32-bit of extended attribute owner inode number */
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_inode_ext2_t *) data )->modification_time,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: owner inode number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
@@ -705,13 +742,27 @@ int libfsext_inode_read_data(
 		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
 		 && ( extended_inode_size >= 28 ) )
 		{
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_inode_ext4_t *) data )->version_lower,
-			 value_32bit );
-			libcnotify_printf(
-			 "%s: version (lower)\t\t\t\t: %" PRIu32 "\n",
-			 function,
-			 value_32bit );
+			if( ( inode->flags & 0x00200000UL ) == 0 )
+			{
+				byte_stream_copy_to_uint32_little_endian(
+				 ( (fsext_inode_ext4_t *) data )->version_lower,
+				 value_32bit );
+				libcnotify_printf(
+				 "%s: version (lower)\t\t\t\t: %" PRIu32 "\n",
+				 function,
+				 value_32bit );
+			}
+			else
+			{
+/* TODO implement, upper 32-bit of extended attribute reference count */
+				byte_stream_copy_to_uint32_little_endian(
+				 ( (fsext_inode_ext4_t *) data )->version_lower,
+				 value_32bit );
+				libcnotify_printf(
+				 "%s: reference count (upper)\t\t\t: %" PRIu32 "\n",
+				 function,
+				 value_32bit );
+			}
 		}
 		else
 		{

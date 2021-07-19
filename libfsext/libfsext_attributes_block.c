@@ -372,7 +372,34 @@ int libfsext_attributes_block_read_entries_data(
 			}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-/* TODO set value data */
+			attribute_values->value_data = (uint8_t *) memory_allocate(
+			                                            sizeof( uint8_t ) * attribute_values->value_data_size );
+
+			if( attribute_values->value_data == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create value data.",
+				 function );
+
+				goto on_error;
+			}
+			if( memory_copy(
+			     attribute_values->value_data,
+			     &( data[ attribute_values->value_data_offset ] ),
+			     (size_t) attribute_values->value_data_size ) == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+				 "%s: unable to copy value data to attribute values.",
+				 function );
+
+				goto on_error;
+			}
 		}
 		if( libcdata_array_append_entry(
 		     extended_attributes,

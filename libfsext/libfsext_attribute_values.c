@@ -133,6 +133,11 @@ int libfsext_attribute_values_free(
 			memory_free(
 			 ( *attribute_values )->name );
 		}
+		if( ( *attribute_values )->value_data != NULL )
+		{
+			memory_free(
+			 ( *attribute_values )->value_data );
+		}
 		memory_free(
 		 *attribute_values );
 

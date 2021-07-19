@@ -366,7 +366,7 @@ void libfsext_debug_print_inode_flags(
 	if( ( inode_flags & 0x00020000UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tTop of directory hierarchie (EXT2_TOPDIR_FL)\n" );
+		 "\tTop of directory hierarchy (EXT2_TOPDIR_FL)\n" );
 	}
 	if( ( inode_flags & 0x00040000UL ) != 0 )
 	{
@@ -381,12 +381,12 @@ void libfsext_debug_print_inode_flags(
 	if( ( inode_flags & 0x00200000UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tInode used for large EA (EXT4_EA_INODE_FL)\n" );
+		 "\tInode used for large extended attribute (EXT4_EA_INODE_FL)\n" );
 	}
 	if( ( inode_flags & 0x00400000UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tBlocks allocated beyond EOF (EXT4_EOFBLOCKS_FL)\n" );
+		 "\tBlocks allocated beyond end-of-file (EXT4_EOFBLOCKS_FL)\n" );
 	}
 	if( ( inode_flags & 0x10000000UL ) != 0 )
 	{

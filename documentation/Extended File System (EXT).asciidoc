@@ -849,12 +849,19 @@ Contains file type and permissions +
 See section: <<file_mode,File mode>>
 | 2 | 2 | | Lower part of owner (or user) identifier (UID)
 | 4 | 4 | | Lower part of data size
+4+| _If EXT4_EA_INODE_FL is not set_
 | 8 | 4 | | (last) access time +
 Contains a POSIX timestamp
 | 12 | 4 | | (last) inode change time +
 Contains a POSIX timestamp
 | 16 | 4 | | (last) modification time +
 Contains a POSIX timestamp
+4+| _If EXT4_EA_INODE_FL is set_
+| 8 | 4 | | [yellow-background]*Unknown (extended attribute value data checksum)*
+| 12 | 4 | | [yellow-background]*Unknown (lower part of extended attribute reference count)*
+| 16 | 4 | | [yellow-background]*Unknown (inode number that owns the extended attribute)* +
+From observation this value seems to contain a valid (last) modification time and not an inode number
+4+| _Common_
 | 20 | 4 | | Deletion time +
 Contains a POSIX timestamp
 | 24 | 2 | | Lower part of group identifier (GID)
@@ -862,7 +869,10 @@ Contains a POSIX timestamp
 | 28 | 4 | | Lower part of blocks count
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
+4+| _If EXT4_EA_INODE_FL is not set_
 | 36 | 4 | | [yellow-background]*Unknown (lower part of version)*
+4+| _If EXT4_EA_INODE_FL is set_
+| 36 | 4 | | [yellow-background]*Unknown (upper part of extended attribute reference count)*
 4+| _If EXT4_EXTENTS_FL and EXT4_INLINE_DATA_FL are not set_
 | 40 | 12 x 4 | | Array of direct block numbers +
 Value contains the block number relative from the start of the volume
@@ -1246,7 +1256,7 @@ ext3_xattr_header) is 32 bytes of size and consists of:
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | 0xea020000 | Signature
-| 4 | 4 | | [yellow-background]*Unknown (Reference count)*
+| 4 | 4 | | [yellow-background]*Unknown (reference count)*
 | 8 | 4 | | Number of blocks
 | 12 | 4 | | Attributes hash
 | 16 | 4 x 4 | | [yellow-background]*Unknown (reserved)*
