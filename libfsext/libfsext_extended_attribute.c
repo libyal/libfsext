@@ -1006,6 +1006,17 @@ int libfsext_extended_attribute_get_size(
 	}
 	internal_extended_attribute = (libfsext_internal_extended_attribute_t *) extended_attribute;
 
+	if( internal_extended_attribute->attribute_values == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid extended attribute - missing attribute values.",
+		 function );
+
+		return( -1 );
+	}
 	if( size == NULL )
 	{
 		libcerror_error_set(
@@ -1032,7 +1043,7 @@ int libfsext_extended_attribute_get_size(
 		return( -1 );
 	}
 #endif
-	*size = internal_extended_attribute->data_stream_size;
+	*size = (size64_t) internal_extended_attribute->attribute_values->value_data_size;
 
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_write(

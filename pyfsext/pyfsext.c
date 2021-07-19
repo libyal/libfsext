@@ -29,6 +29,8 @@
 
 #include "pyfsext.h"
 #include "pyfsext_error.h"
+#include "pyfsext_extended_attribute.h"
+#include "pyfsext_extended_attributes.h"
 #include "pyfsext_file_entries.h"
 #include "pyfsext_file_entry.h"
 #include "pyfsext_file_object_io_handle.h"
@@ -594,6 +596,40 @@ PyMODINIT_FUNC initpyfsext(
 	PyEval_InitThreads();
 #endif
 	gil_state = PyGILState_Ensure();
+
+	/* Setup the extended_attribute type object
+	 */
+	pyfsext_extended_attribute_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyfsext_extended_attribute_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyfsext_extended_attribute_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "extended_attribute",
+	 (PyObject *) &pyfsext_extended_attribute_type_object );
+
+	/* Setup the extended_attributes type object
+	 */
+	pyfsext_extended_attributes_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyfsext_extended_attributes_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyfsext_extended_attributes_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "extended_attributes",
+	 (PyObject *) &pyfsext_extended_attributes_type_object );
 
 	/* Setup the file_entries type object
 	 */

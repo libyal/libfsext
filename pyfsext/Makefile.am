@@ -18,6 +18,8 @@ pyfsext_la_SOURCES = \
 	pyfsext.c pyfsext.h \
 	pyfsext_datetime.c pyfsext_datetime.h \
 	pyfsext_error.c pyfsext_error.h \
+	pyfsext_extended_attribute.c pyfsext_extended_attribute.h \
+	pyfsext_extended_attributes.c pyfsext_extended_attributes.h \
 	pyfsext_file_entries.c pyfsext_file_entries.h \
 	pyfsext_file_entry.c pyfsext_file_entry.h \
 	pyfsext_file_object_io_handle.c pyfsext_file_object_io_handle.h \

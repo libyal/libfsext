@@ -29,6 +29,8 @@
 
 #include "pyfsext_datetime.h"
 #include "pyfsext_error.h"
+#include "pyfsext_extended_attribute.h"
+#include "pyfsext_extended_attributes.h"
 #include "pyfsext_file_entries.h"
 #include "pyfsext_file_entry.h"
 #include "pyfsext_integer.h"
@@ -157,6 +159,20 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 	  "get_symbolic_link_target() -> Unicode string or None\n"
 	  "\n"
 	  "Returns the symbolic link target." },
+
+	{ "get_number_of_extended_attributes",
+	  (PyCFunction) pyfsext_file_entry_get_number_of_extended_attributes,
+	  METH_NOARGS,
+	  "get_number_of_extended_attributes() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of extended attributes." },
+
+	{ "get_extended_attribute",
+	  (PyCFunction) pyfsext_file_entry_get_extended_attribute,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_extended_attribute(extended_attribute_index) -> Object\n"
+	  "\n"
+	  "Retrieves the extended attribute specified by the index." },
 
 	{ "get_number_of_sub_file_entries",
 	  (PyCFunction) pyfsext_file_entry_get_number_of_sub_file_entries,
@@ -312,6 +328,18 @@ PyGetSetDef pyfsext_file_entry_object_get_set_definitions[] = {
 	  (getter) pyfsext_file_entry_get_symbolic_link_target,
 	  (setter) 0,
 	  "The symbolic link target.",
+	  NULL },
+
+	{ "number_of_extended_attributes",
+	  (getter) pyfsext_file_entry_get_number_of_extended_attributes,
+	  (setter) 0,
+	  "The number of extended attributes.",
+	  NULL },
+
+	{ "extended_attributes",
+	  (getter) pyfsext_file_entry_get_extended_attributes,
+	  (setter) 0,
+	  "The extended attributes.",
 	  NULL },
 
 	{ "number_of_sub_file_entries",
@@ -1674,6 +1702,225 @@ on_error:
 		 target );
 	}
 	return( NULL );
+}
+
+/* Retrieves the number of extended attributes
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_number_of_extended_attributes(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object          = NULL;
+	libcerror_error_t *error          = NULL;
+	static char *function             = "pyfsext_file_entry_get_number_of_extended_attributes";
+	int number_of_extended_attributes = 0;
+	int result                        = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_file_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_number_of_extended_attributes(
+	          pyfsext_file_entry->file_entry,
+	          &number_of_extended_attributes,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve .",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_extended_attributes );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_extended_attributes );
+#endif
+	return( integer_object );
+}
+
+/* Retrieves a specific extended attribute by index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_extended_attribute_by_index(
+           PyObject *pyfsext_file_entry,
+           int extended_attribute_index )
+{
+	PyObject *extended_attribute_object               = NULL;
+	libcerror_error_t *error                          = NULL;
+	libfsext_extended_attribute_t *extended_attribute = NULL;
+	static char *function                             = "pyfsext_file_entry_get_extended_attribute_by_index";
+	int result                                        = 0;
+
+	if( pyfsext_file_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_extended_attribute_by_index(
+	          ( (pyfsext_file_entry_t *) pyfsext_file_entry )->file_entry,
+	          extended_attribute_index,
+	          &extended_attribute,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve : %d.",
+		 function,
+		 extended_attribute_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	extended_attribute_object = pyfsext_extended_attribute_new(
+	                             extended_attribute,
+	                             pyfsext_file_entry );
+
+	if( extended_attribute_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create extended attribute object.",
+		 function );
+
+		goto on_error;
+	}
+	return( extended_attribute_object );
+
+on_error:
+	if( extended_attribute != NULL )
+	{
+		libfsext_extended_attribute_free(
+		 &extended_attribute,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves a specific extended attribute
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_extended_attribute(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *extended_attribute_object = NULL;
+	static char *keyword_list[]         = { "extended_attribute_index", NULL };
+	int extended_attribute_index        = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &extended_attribute_index ) == 0 )
+	{
+		return( NULL );
+	}
+	extended_attribute_object = pyfsext_file_entry_get_extended_attribute_by_index(
+	                             (PyObject *) pyfsext_file_entry,
+	                             extended_attribute_index );
+
+	return( extended_attribute_object );
+}
+
+/* Retrieves a sequence and iterator object for the extended attributes
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_extended_attributes(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *sequence_object         = NULL;
+	libcerror_error_t *error          = NULL;
+	static char *function             = "pyfsext_file_entry_get_extended_attributes";
+	int number_of_extended_attributes = 0;
+	int result                        = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_file_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_number_of_extended_attributes(
+	          pyfsext_file_entry->file_entry,
+	          &number_of_extended_attributes,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of extended attributes.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	sequence_object = pyfsext_extended_attributes_new(
+	                   (PyObject *) pyfsext_file_entry,
+	                   &pyfsext_file_entry_get_extended_attribute_by_index,
+	                   number_of_extended_attributes );
+
+	if( sequence_object == NULL )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_MemoryError,
+		 "%s: unable to create sequence object.",
+		 function );
+
+		return( NULL );
+	}
+	return( sequence_object );
 }
 
 /* Retrieves the number of sub file entries

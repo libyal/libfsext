@@ -182,6 +182,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pyfsext\pyfsext_extended_attribute.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyfsext\pyfsext_extended_attributes.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pyfsext\pyfsext_file_entries.c"
 				>
 			</File>
@@ -217,6 +225,14 @@
 			</File>
 			<File
 				RelativePath="..\..\pyfsext\pyfsext_error.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyfsext\pyfsext_extended_attribute.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyfsext\pyfsext_extended_attributes.h"
 				>
 			</File>
 			<File

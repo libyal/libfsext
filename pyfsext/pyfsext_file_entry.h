@@ -130,6 +130,23 @@ PyObject *pyfsext_file_entry_get_symbolic_link_target(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 
+PyObject *pyfsext_file_entry_get_number_of_extended_attributes(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments );
+
+PyObject *pyfsext_file_entry_get_extended_attribute_by_index(
+           PyObject *pyfsext_file_entry,
+           int extended_attribute_index );
+
+PyObject *pyfsext_file_entry_get_extended_attribute(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyfsext_file_entry_get_extended_attributes(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments );
+
 PyObject *pyfsext_file_entry_get_number_of_sub_file_entries(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );

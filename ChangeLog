@@ -13,7 +13,6 @@ TODO:
 * add support for ext4 directory entry tail
 * have date time functions return 0 if not set
 
-* add support for EXT4_EA_INODE_FL
 * libfsext_inode_read_data_reference
   * add support for extents header depth > 0 in inode
 * add support for EXT2_COMPRBLK_FL

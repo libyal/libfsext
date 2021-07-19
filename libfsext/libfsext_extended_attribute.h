@@ -60,10 +60,6 @@ struct libfsext_internal_extended_attribute
 	 */
 	libfsext_attribute_values_t *attribute_values;
 
-	/* The data stream size
-	 */
-	size64_t data_stream_size;
-
 	/* The data stream
 	 */
 	libfdata_stream_t *data_stream;

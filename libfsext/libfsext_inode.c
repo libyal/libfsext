@@ -386,7 +386,6 @@ int libfsext_inode_read_data(
 	static char *function                = "libfsext_inode_read_data";
 	size_t data_offset                   = 0;
 	uint32_t access_time                 = 0;
-	uint32_t checksum                    = 0;
 	uint32_t creation_time               = 0;
 	uint32_t data_size_upper             = 0;
 	uint32_t inode_change_time           = 0;
@@ -404,6 +403,7 @@ int libfsext_inode_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t value_data[ 8 ];
 
+	uint32_t checksum                    = 0;
 	uint16_t value_16bit                 = 0;
 #endif
 
