@@ -268,6 +268,23 @@ int libfsext_inode_free(
 
 			result = -1;
 		}
+		if( ( *inode )->extended_attributes_array != NULL )
+		{
+			if( libcdata_array_free(
+			     &( ( *inode )->extended_attributes_array ),
+			     (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_attribute_values_free,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free extended attributes array.",
+				 function );
+
+				result = -1;
+			}
+		}
 		memory_free(
 		 *inode );
 
@@ -342,7 +359,8 @@ int libfsext_inode_clone(
 
 		goto on_error;
 	}
-	( *destination_inode )->data_extents_array = NULL;
+	( *destination_inode )->data_extents_array        = NULL;
+	( *destination_inode )->extended_attributes_array = NULL;
 
 	if( libcdata_array_clone(
 	     &( ( *destination_inode )->data_extents_array ),
@@ -359,6 +377,14 @@ int libfsext_inode_clone(
 		 function );
 
 		goto on_error;
+	}
+	/* Since the extended attribute array is only used in the file entry
+	 * do not do a full clone here.
+	 */
+	if( source_inode->extended_attributes_array != NULL )
+	{
+		( *destination_inode )->extended_attributes_array = source_inode->extended_attributes_array;
+		source_inode->extended_attributes_array           = NULL;
 	}
 	return( 1 );
 
@@ -414,6 +440,17 @@ int libfsext_inode_read_data(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( inode->extended_attributes_array != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid inode - extended attributes array value already set.",
 		 function );
 
 		return( -1 );

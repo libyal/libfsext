@@ -8,7 +8,8 @@ Read-only supported ext formats:
 
 Supported ext format features:
 
-* ext4 inline data
+* extended attributes
+* inline data
 
 Unsupported ext format features:
 
