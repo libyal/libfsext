@@ -1205,6 +1205,79 @@ int libfsext_file_entry_get_file_mode(
 	return( result );
 }
 
+/* Retrieves the number of links
+ * This value is retrieved from the inode
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_file_entry_get_number_of_links(
+     libfsext_file_entry_t *file_entry,
+     uint16_t *number_of_links,
+     libcerror_error_t **error )
+{
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_get_number_of_links";
+	int result                                          = 1;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( libfsext_inode_get_number_of_links(
+	     internal_file_entry->inode,
+	     number_of_links,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of links from inode.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
 /* Retrieves the owner identifier
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error

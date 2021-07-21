@@ -132,6 +132,13 @@ PyMethodDef pyfsext_file_entry_object_methods[] = {
 	  "\n"
 	  "Retrieves the file mode." },
 
+	{ "get_number_of_links",
+	  (PyCFunction) pyfsext_file_entry_get_number_of_links,
+	  METH_NOARGS,
+	  "get_number_of_links() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of (hard) links." },
+
 	{ "get_owner_identifier",
 	  (PyCFunction) pyfsext_file_entry_get_owner_identifier,
 	  METH_NOARGS,
@@ -304,6 +311,12 @@ PyGetSetDef pyfsext_file_entry_object_get_set_definitions[] = {
 	  (getter) pyfsext_file_entry_get_file_mode,
 	  (setter) 0,
 	  "The file mode.",
+	  NULL },
+
+	{ "number_of_links",
+	  (getter) pyfsext_file_entry_get_number_of_links,
+	  (setter) 0,
+	  "The number of (hard) links.",
 	  NULL },
 
 	{ "owner_identifier",
@@ -1368,6 +1381,62 @@ PyObject *pyfsext_file_entry_get_file_mode(
 #else
 	integer_object = PyInt_FromLong(
 	                  (long) file_mode );
+#endif
+	return( integer_object );
+}
+
+/* Retrieves the number of (hard) links
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_file_entry_get_number_of_links(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyfsext_file_entry_get_number_of_links";
+	uint16_t number_of_links = 0;
+	int result               = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_file_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_file_entry_get_number_of_links(
+	          pyfsext_file_entry->file_entry,
+	          &number_of_links,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of (hard) links.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_links );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_links );
 #endif
 	return( integer_object );
 }

@@ -596,8 +596,8 @@ int libfsext_inode_read_data(
 	 inode->group_identifier );
 
 	byte_stream_copy_to_uint16_little_endian(
-	 ( (fsext_inode_ext2_t *) data )->links_count,
-	 inode->links_count );
+	 ( (fsext_inode_ext2_t *) data )->number_of_links,
+	 inode->number_of_links );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_inode_ext2_t *) data )->number_of_blocks,
@@ -748,9 +748,9 @@ int libfsext_inode_read_data(
 		 inode->group_identifier );
 
 		libcnotify_printf(
-		 "%s: links count\t\t\t\t\t: %" PRIu16 "\n",
+		 "%s: number of (hard) links\t\t\t: %" PRIu16 "\n",
 		 function,
-		 inode->links_count );
+		 inode->number_of_links );
 
 		if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
 		 && ( extended_inode_size >= 28 ) )
@@ -1967,6 +1967,43 @@ int libfsext_inode_get_file_mode(
 		return( -1 );
 	}
 	*file_mode = inode->file_mode;
+
+	return( 1 );
+}
+
+/* Retrieves the number of (hard) links
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_inode_get_number_of_links(
+     libfsext_inode_t *inode,
+     uint16_t *number_of_links,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_number_of_links";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( number_of_links == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid number of links.",
+		 function );
+
+		return( -1 );
+	}
+	*number_of_links = inode->number_of_links;
 
 	return( 1 );
 }

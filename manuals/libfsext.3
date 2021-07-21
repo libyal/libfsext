@@ -1,4 +1,4 @@
-.Dd July 18, 2021
+.Dd July 20, 2021
 .Dt libfsext 3
 .Os libfsext
 .Sh NAME
@@ -124,6 +124,8 @@ File entry functions
 .Fn libfsext_file_entry_get_deletion_time "libfsext_file_entry_t *file_entry" "int32_t *posix_time" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_file_mode "libfsext_file_entry_t *file_entry" "uint16_t *file_mode" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_number_of_links "libfsext_file_entry_t *file_entry" "uint16_t *number_of_links" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_owner_identifier "libfsext_file_entry_t *file_entry" "uint32_t *owner_identifier" "libfsext_error_t **error"
 .Ft int

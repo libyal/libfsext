@@ -764,7 +764,7 @@ Contains a POSIX timestamp
 | 20 | 4 | | Deletion time +
 Contains a POSIX timestamp
 | 24 | 2 | | Lower part of group identifier (GID)
-| 26 | 2 | | Links count
+| 26 | 2 | | Number of (hard) links
 | 28 | 4 | | Blocks count
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
@@ -810,7 +810,7 @@ Contains a POSIX timestamp
 | 20 | 4 | | Deletion time +
 Contains a POSIX timestamp
 | 24 | 2 | | Lower part of group identifier (GID)
-| 26 | 2 | | Links count
+| 26 | 2 | | Number of (hard) links
 | 28 | 4 | | Blocks count
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>
@@ -865,7 +865,7 @@ From observation this value seems to contain a valid (last) modification time an
 | 20 | 4 | | Deletion time +
 Contains a POSIX timestamp
 | 24 | 2 | | Lower part of group identifier (GID)
-| 26 | 2 | | Links count
+| 26 | 2 | | Number of (hard) links
 | 28 | 4 | | Lower part of blocks count
 | 32 | 4 | | Flags +
 See section: <<inode_flags,Inode flags>>

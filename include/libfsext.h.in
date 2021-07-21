@@ -539,6 +539,16 @@ int libfsext_file_entry_get_file_mode(
      uint16_t *file_mode,
      libfsext_error_t **error );
 
+/* Retrieves the number of (hard) links
+ * This value is retrieved from the inode
+ * Returns 1 if successful or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_number_of_links(
+     libfsext_file_entry_t *file_entry,
+     uint16_t *number_of_links,
+     libfsext_error_t **error );
+
 /* Retrieves the owner identifier
  * This value is retrieved from the inode
  * Returns 1 if successful or -1 on error

@@ -175,6 +175,12 @@ int libfsext_file_entry_get_file_mode(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_number_of_links(
+     libfsext_file_entry_t *file_entry,
+     uint16_t *number_of_links,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_owner_identifier(
      libfsext_file_entry_t *file_entry,
      uint32_t *owner_identifier,

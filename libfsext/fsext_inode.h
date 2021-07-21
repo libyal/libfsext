@@ -73,10 +73,10 @@ struct fsext_inode_ext2
 	 */
 	uint8_t group_identifier[ 2 ];
 
-	/* Links count
+	/* Number of (hard) links
 	 * Consists of 2 bytes
 	 */
-	uint8_t links_count[ 2 ];
+	uint8_t number_of_links[ 2 ];
 
 	/* Number of (data) blocks
 	 * Consists of 4 bytes

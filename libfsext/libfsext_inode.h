@@ -48,9 +48,9 @@ struct libfsext_inode
 	 */
 	uint64_t data_size;
 
-	/* Links count
+	/* Number of (hard) links
 	 */
-	uint16_t links_count;
+	uint16_t number_of_links;
 
 	/* Number of (data) blocks
 	 */
@@ -196,6 +196,11 @@ int libfsext_inode_get_deletion_time(
 int libfsext_inode_get_file_mode(
      libfsext_inode_t *inode,
      uint16_t *file_mode,
+     libcerror_error_t **error );
+
+int libfsext_inode_get_number_of_links(
+     libfsext_inode_t *inode,
+     uint16_t *number_of_links,
      libcerror_error_t **error );
 
 int libfsext_inode_get_data_size(
