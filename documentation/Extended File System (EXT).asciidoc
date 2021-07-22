@@ -1281,7 +1281,7 @@ size and consists of:
 === The extended attributes entry
 
 The extended attributes entry (ext2_xattr_entry, ext3_xattr_entry,
-ext4_xattr_entry) is 32 bytes of size and consists of:
+ext4_xattr_entry) is variable of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===

@@ -1541,6 +1541,7 @@ int info_handle_file_entry_value_with_name_fprint(
 	uint32_t owner_identifier                         = 0;
 	int32_t deletion_time                             = 0;
 	uint16_t file_mode                                = 0;
+	uint16_t number_of_links                          = 0;
 	uint8_t has_creation_time                         = 0;
 	int extended_attribute_index                      = 0;
 	int number_of_extended_attributes                 = 0;
@@ -2110,6 +2111,25 @@ int info_handle_file_entry_value_with_name_fprint(
 
 			goto on_error;
 		}
+		if( libfsext_file_entry_get_number_of_links(
+		     file_entry,
+		     &number_of_links,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of links.",
+			 function );
+
+			goto on_error;
+		}
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tNumber of links\t\t: %" PRIu16 "\n",
+		 number_of_links );
+
 		fprintf(
 		 info_handle->notify_stream,
 		 "\tOwner identifier\t: %" PRIu32 "\n",
