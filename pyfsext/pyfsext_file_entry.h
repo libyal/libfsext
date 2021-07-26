@@ -151,6 +151,16 @@ PyObject *pyfsext_file_entry_get_extended_attributes(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 
+PyObject *pyfsext_file_entry_has_extended_attribute_by_name(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyfsext_file_entry_get_extended_attribute_by_name(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments,
+           PyObject *keywords );
+
 PyObject *pyfsext_file_entry_get_number_of_sub_file_entries(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );

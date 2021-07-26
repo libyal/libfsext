@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libfsext_attribute_values.h"
 #include "libfsext_directory.h"
 #include "libfsext_directory_entry.h"
 #include "libfsext_extern.h"
@@ -258,6 +259,50 @@ LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_extended_attribute_by_index(
      libfsext_file_entry_t *file_entry,
      int extended_attribute_index,
+     libfsext_extended_attribute_t **extended_attribute,
+     libcerror_error_t **error );
+
+int libfsext_internal_file_entry_get_attribute_values_by_utf8_name(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_attribute_values_t **attribute_values,
+     libcerror_error_t **error );
+
+int libfsext_internal_file_entry_get_attribute_values_by_utf16_name(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libfsext_attribute_values_t **attribute_values,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_has_extended_attribute_by_utf8_name(
+     libfsext_file_entry_t *file_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_has_extended_attribute_by_utf16_name(
+     libfsext_file_entry_t *file_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_extended_attribute_by_utf8_name(
+     libfsext_file_entry_t *file_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_extended_attribute_t **extended_attribute,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_extended_attribute_by_utf16_name(
+     libfsext_file_entry_t *file_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      libfsext_extended_attribute_t **extended_attribute,
      libcerror_error_t **error );
 

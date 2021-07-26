@@ -1,4 +1,4 @@
-.Dd July 20, 2021
+.Dd July 26, 2021
 .Dt libfsext 3
 .Os libfsext
 .Sh NAME
@@ -150,6 +150,14 @@ File entry functions
 .Fn libfsext_file_entry_get_number_of_extended_attributes "libfsext_file_entry_t *file_entry" "int *number_of_extended_attributes" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_extended_attribute_by_index "libfsext_file_entry_t *file_entry" "int extended_attribute_index" "libfsext_extended_attribute_t **extended_attribute" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_has_extended_attribute_by_utf8_name "libfsext_file_entry_t *file_entry" "const uint8_t *utf8_string" "size_t utf8_string_length" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_has_extended_attribute_by_utf16_name "libfsext_file_entry_t *file_entry" "const uint16_t *utf16_string" "size_t utf16_string_length" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_extended_attribute_by_utf8_name "libfsext_file_entry_t *file_entry" "const uint8_t *utf8_string" "size_t utf8_string_length" "libfsext_extended_attribute_t **extended_attribute" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_extended_attribute_by_utf16_name "libfsext_file_entry_t *file_entry" "const uint16_t *utf16_string" "size_t utf16_string_length" "libfsext_extended_attribute_t **extended_attribute" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_number_of_sub_file_entries "libfsext_file_entry_t *file_entry" "int *number_of_sub_entries" "libfsext_error_t **error"
 .Ft int

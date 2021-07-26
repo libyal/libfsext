@@ -74,6 +74,12 @@ int libfsext_attribute_values_read_data(
      size_t data_size,
      libcerror_error_t **error );
 
+int libfsext_attribute_values_compare_name_with_utf8_string(
+     libfsext_attribute_values_t *attribute_values,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libcerror_error_t **error );
+
 int libfsext_attribute_values_get_utf8_name_size(
      libfsext_attribute_values_t *attribute_values,
      size_t *utf8_string_size,
@@ -83,6 +89,12 @@ int libfsext_attribute_values_get_utf8_name(
      libfsext_attribute_values_t *attribute_values,
      uint8_t *utf8_string,
      size_t utf8_string_size,
+     libcerror_error_t **error );
+
+int libfsext_attribute_values_compare_name_with_utf16_string(
+     libfsext_attribute_values_t *attribute_values,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      libcerror_error_t **error );
 
 int libfsext_attribute_values_get_utf16_name_size(

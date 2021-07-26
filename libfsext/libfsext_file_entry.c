@@ -2440,13 +2440,624 @@ int libfsext_file_entry_get_extended_attribute_by_index(
 
 			result = -1;
 		}
-		else if( libfsext_extended_attribute_initialize(
-		          extended_attribute,
-		          internal_file_entry->io_handle,
-		          internal_file_entry->file_io_handle,
-		          internal_file_entry->inode_table,
-		          attribute_values,
-		          error ) != 1 )
+		else
+		{
+			if( libfsext_extended_attribute_initialize(
+			     extended_attribute,
+			     internal_file_entry->io_handle,
+			     internal_file_entry->file_io_handle,
+			     internal_file_entry->inode_table,
+			     attribute_values,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create extended attribute.",
+				 function );
+
+				result = -1;
+			}
+		}
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the attribute values for an UTF-8 encoded name
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+int libfsext_internal_file_entry_get_attribute_values_by_utf8_name(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_attribute_values_t **attribute_values,
+     libcerror_error_t **error )
+{
+	libfsext_attribute_values_t *safe_attribute_values = NULL;
+	static char *function                              = "libfsext_internal_file_entry_get_attribute_values_by_utf8_name";
+	int attribute_index                                = 0;
+	int number_of_attributes                           = 0;
+	int result                                         = 0;
+
+	if( internal_file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file_entry->extended_attributes_array == NULL )
+	{
+		if( libfsext_internal_file_entry_get_extended_attributes(
+		     internal_file_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine extended attributes.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( libcdata_array_get_number_of_entries(
+	     internal_file_entry->extended_attributes_array,
+	     &number_of_attributes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of entries from extended attributes array.",
+		 function );
+
+		return( -1 );
+	}
+	for( attribute_index = 0;
+	     attribute_index < number_of_attributes;
+	     attribute_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     internal_file_entry->extended_attributes_array,
+		     attribute_index,
+		     (intptr_t **) &safe_attribute_values,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve attribute: %d values.",
+			 function,
+			 attribute_index );
+
+			return( -1 );
+		}
+		result = libfsext_attribute_values_compare_name_with_utf8_string(
+		          safe_attribute_values,
+		          utf8_string,
+		          utf8_string_length,
+		          error );
+
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to compare UTF-8 string with name of attribute: %d values.",
+			 function,
+			 attribute_index );
+
+			return( -1 );
+		}
+		else if( result == LIBUNA_COMPARE_EQUAL )
+		{
+			*attribute_values = safe_attribute_values;
+
+			return( 1 );
+		}
+	}
+	return( 0 );
+}
+
+/* Retrieves the attribute values for an UTF-16 encoded name
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+int libfsext_internal_file_entry_get_attribute_values_by_utf16_name(
+     libfsext_internal_file_entry_t *internal_file_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libfsext_attribute_values_t **attribute_values,
+     libcerror_error_t **error )
+{
+	libfsext_attribute_values_t *safe_attribute_values = NULL;
+	static char *function                              = "libfsext_internal_file_entry_get_attribute_values_by_utf16_name";
+	int attribute_index                                = 0;
+	int number_of_attributes                           = 0;
+	int result                                         = 0;
+
+	if( internal_file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file_entry->extended_attributes_array == NULL )
+	{
+		if( libfsext_internal_file_entry_get_extended_attributes(
+		     internal_file_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine extended attributes.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( libcdata_array_get_number_of_entries(
+	     internal_file_entry->extended_attributes_array,
+	     &number_of_attributes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of entries from extended attributes array.",
+		 function );
+
+		return( -1 );
+	}
+	for( attribute_index = 0;
+	     attribute_index < number_of_attributes;
+	     attribute_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     internal_file_entry->extended_attributes_array,
+		     attribute_index,
+		     (intptr_t **) &safe_attribute_values,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve attribute: %d values.",
+			 function,
+			 attribute_index );
+
+			return( -1 );
+		}
+		result = libfsext_attribute_values_compare_name_with_utf16_string(
+		          safe_attribute_values,
+		          utf16_string,
+		          utf16_string_length,
+		          error );
+
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to compare UTF-16 string with name of attribute: %d values.",
+			 function,
+			 attribute_index );
+
+			return( -1 );
+		}
+		else if( result == LIBUNA_COMPARE_EQUAL )
+		{
+			*attribute_values = safe_attribute_values;
+
+			return( 1 );
+		}
+	}
+	return( 0 );
+}
+
+/* Determines if there is an extended attribute for an UTF-8 encoded name
+ * Returns 1 if available, 0 if not or -1 on error
+ */
+int libfsext_file_entry_has_extended_attribute_by_utf8_name(
+     libfsext_file_entry_t *file_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libcerror_error_t **error )
+{
+	libfsext_attribute_values_t *attribute_values       = NULL;
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_has_extended_attribute_by_utf8_name";
+	int result                                          = 0;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	result = libfsext_internal_file_entry_get_attribute_values_by_utf8_name(
+	          internal_file_entry,
+	          utf8_string,
+	          utf8_string_length,
+	          &attribute_values,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve attribute values for UTF-8 name.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Determines if there is an extended attribute for an UTF-8 encoded name
+ * Returns 1 if available, 0 if not or -1 on error
+ */
+int libfsext_file_entry_has_extended_attribute_by_utf16_name(
+     libfsext_file_entry_t *file_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libcerror_error_t **error )
+{
+	libfsext_attribute_values_t *attribute_values       = NULL;
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_has_extended_attribute_by_utf16_name";
+	int result                                          = 0;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	result = libfsext_internal_file_entry_get_attribute_values_by_utf16_name(
+	          internal_file_entry,
+	          utf16_string,
+	          utf16_string_length,
+	          &attribute_values,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve attribute values for UTF-16 name.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the extended attribute for an UTF-8 encoded name
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+int libfsext_file_entry_get_extended_attribute_by_utf8_name(
+     libfsext_file_entry_t *file_entry,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_extended_attribute_t **extended_attribute,
+     libcerror_error_t **error )
+{
+	libfsext_attribute_values_t *attribute_values       = NULL;
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_get_extended_attribute_by_utf8_name";
+	int result                                          = 0;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+	if( extended_attribute == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid extended attribute.",
+		 function );
+
+		return( -1 );
+	}
+	if( *extended_attribute != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid extended attribute value already set.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	result = libfsext_internal_file_entry_get_attribute_values_by_utf8_name(
+	          internal_file_entry,
+	          utf8_string,
+	          utf8_string_length,
+	          &attribute_values,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve attribute values for UTF-8 name.",
+		 function );
+
+		result = -1;
+	}
+	else if( result != 0 )
+	{
+		if( libfsext_extended_attribute_initialize(
+		     extended_attribute,
+		     internal_file_entry->io_handle,
+		     internal_file_entry->file_io_handle,
+		     internal_file_entry->inode_table,
+		     attribute_values,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create extended attribute.",
+			 function );
+
+			result = -1;
+		}
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the extended attribute for an UTF-16 encoded name
+ * Returns 1 if successful, 0 if no such file entry or -1 on error
+ */
+int libfsext_file_entry_get_extended_attribute_by_utf16_name(
+     libfsext_file_entry_t *file_entry,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libfsext_extended_attribute_t **extended_attribute,
+     libcerror_error_t **error )
+{
+	libfsext_attribute_values_t *attribute_values       = NULL;
+	libfsext_internal_file_entry_t *internal_file_entry = NULL;
+	static char *function                               = "libfsext_file_entry_get_extended_attribute_by_utf16_name";
+	int result                                          = 0;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
+
+	if( extended_attribute == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid extended attribute.",
+		 function );
+
+		return( -1 );
+	}
+	if( *extended_attribute != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid extended attribute value already set.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_file_entry->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	result = libfsext_internal_file_entry_get_attribute_values_by_utf16_name(
+	          internal_file_entry,
+	          utf16_string,
+	          utf16_string_length,
+	          &attribute_values,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve attribute values for UTF-16 name.",
+		 function );
+
+		result = -1;
+	}
+	else if( result != 0 )
+	{
+		if( libfsext_extended_attribute_initialize(
+		     extended_attribute,
+		     internal_file_entry->io_handle,
+		     internal_file_entry->file_io_handle,
+		     internal_file_entry->inode_table,
+		     attribute_values,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
