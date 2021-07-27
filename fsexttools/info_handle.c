@@ -3161,7 +3161,7 @@ int info_handle_volume_fprint(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve volume label size.",
+		 "%s: unable to retrieve label size.",
 		 function );
 
 		goto on_error;
@@ -3177,7 +3177,7 @@ int info_handle_volume_fprint(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_MEMORY,
 			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create volume label string.",
+			 "%s: unable to create label string.",
 			 function );
 
 			goto on_error;
@@ -3201,7 +3201,7 @@ int info_handle_volume_fprint(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve volume label.",
+			 "%s: unable to retrieve label.",
 			 function );
 
 			goto on_error;
@@ -3303,7 +3303,7 @@ int info_handle_volume_fprint(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve volume last mount path size.",
+		 "%s: unable to retrieve last mount path size.",
 		 function );
 
 		goto on_error;
@@ -3319,7 +3319,7 @@ int info_handle_volume_fprint(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_MEMORY,
 			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create volume last mount path string.",
+			 "%s: unable to create last mount path string.",
 			 function );
 
 			goto on_error;
@@ -3343,7 +3343,7 @@ int info_handle_volume_fprint(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve volume last mount path.",
+			 "%s: unable to retrieve last mount path.",
 			 function );
 
 			goto on_error;

@@ -81,6 +81,10 @@ PyObject *pyfsext_volume_get_label(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments );
 
+PyObject *pyfsext_volume_get_last_mount_path(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments );
+
 PyObject *pyfsext_volume_get_last_mount_time(
            pyfsext_volume_t *pyfsext_volume,
            PyObject *arguments );

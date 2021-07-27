@@ -86,6 +86,13 @@ PyMethodDef pyfsext_volume_object_methods[] = {
 	  "\n"
 	  "Retrieves the label." },
 
+	{ "get_last_mount_path",
+	  (PyCFunction) pyfsext_volume_get_last_mount_path,
+	  METH_NOARGS,
+	  "get_last_mount_path() -> Unicode string\n"
+	  "\n"
+	  "Retrieves the last mount path." },
+
 	{ "get_last_mount_time",
 	  (PyCFunction) pyfsext_volume_get_last_mount_time,
 	  METH_NOARGS,
@@ -152,6 +159,12 @@ PyGetSetDef pyfsext_volume_object_get_set_definitions[] = {
 	  (getter) pyfsext_volume_get_label,
 	  (setter) 0,
 	  "The label.",
+	  NULL },
+
+	{ "last_mount_path",
+	  (getter) pyfsext_volume_get_last_mount_path,
+	  (setter) 0,
+	  "The last mount path.",
 	  NULL },
 
 	{ "last_mount_time",
@@ -935,6 +948,128 @@ PyObject *pyfsext_volume_get_label(
 		 error,
 		 PyExc_IOError,
 		 "%s: unable to retrieve label as UTF-8 string.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8 otherwise it makes
+	 * the end of string character is part of the string.
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+	                 utf8_string,
+	                 (Py_ssize_t) utf8_string_size - 1,
+	                 errors );
+
+	if( string_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to convert UTF-8 string into Unicode object.",
+		 function );
+
+		goto on_error;
+	}
+	PyMem_Free(
+	 utf8_string );
+
+	return( string_object );
+
+on_error:
+	if( utf8_string != NULL )
+	{
+		PyMem_Free(
+		 utf8_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the last mount path
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyfsext_volume_get_last_mount_path(
+           pyfsext_volume_t *pyfsext_volume,
+           PyObject *arguments PYFSEXT_ATTRIBUTE_UNUSED )
+{
+	PyObject *string_object  = NULL;
+	libcerror_error_t *error = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pyfsext_volume_get_last_mount_path";
+	char *utf8_string        = NULL;
+	size_t utf8_string_size  = 0;
+	int result               = 0;
+
+	PYFSEXT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyfsext_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_utf8_last_mount_path_size(
+	          pyfsext_volume->volume,
+	          &utf8_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to determine size of last mount path as UTF-8 string.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( utf8_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	utf8_string = (char *) PyMem_Malloc(
+	                        sizeof( char ) * utf8_string_size );
+
+	if( utf8_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create UTF-8 string.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libfsext_volume_get_utf8_last_mount_path(
+	          pyfsext_volume->volume,
+	          (uint8_t *) utf8_string,
+	          utf8_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyfsext_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve last mount path as UTF-8 string.",
 		 function );
 
 		libcerror_error_free(
