@@ -479,7 +479,7 @@ int libfsext_attribute_values_compare_name_with_utf8_string(
 
 /* Retrieves the size of the UTF-8 encoded name
  * The returned size includes the end of string character
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successfulor -1 on error
  */
 int libfsext_attribute_values_get_utf8_name_size(
      libfsext_attribute_values_t *attribute_values,
@@ -519,7 +519,7 @@ int libfsext_attribute_values_get_utf8_name_size(
 
 /* Retrieves the UTF-8 encoded name
  * The size should include the end of string character
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libfsext_attribute_values_get_utf8_name(
      libfsext_attribute_values_t *attribute_values,
@@ -605,7 +605,7 @@ int libfsext_attribute_values_compare_name_with_utf16_string(
 
 /* Retrieves the size of the UTF-16 encoded name
  * The returned size includes the end of string character
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libfsext_attribute_values_get_utf16_name_size(
      libfsext_attribute_values_t *attribute_values,
@@ -645,7 +645,7 @@ int libfsext_attribute_values_get_utf16_name_size(
 
 /* Retrieves the UTF-16 encoded name
  * The size should include the end of string character
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libfsext_attribute_values_get_utf16_name(
      libfsext_attribute_values_t *attribute_values,

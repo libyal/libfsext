@@ -29,6 +29,7 @@
 
 #include "fsext_test_libcerror.h"
 #include "fsext_test_libfsext.h"
+#include "fsext_test_libuna.h"
 #include "fsext_test_macros.h"
 #include "fsext_test_memory.h"
 #include "fsext_test_unused.h"
@@ -430,6 +431,82 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libfsext_attribute_values_compare_name_with_utf8_string function
+ * Returns 1 if successful or 0 if not
+ */
+int fsapfs_test_attribute_values_compare_name_with_utf8_string(
+     libfsext_attribute_values_t *attribute_values )
+{
+	uint8_t utf8_string[ 14 ] = { 'u', 's', 'e', 'r', '.', 'm', 'y', 'x', 'a', 't', 't', 'r', '1', 0 };
+	libcerror_error_t *error  = NULL;
+	int result                = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_attribute_values_compare_name_with_utf8_string(
+	          attribute_values,
+	          utf8_string,
+	          13,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 LIBUNA_COMPARE_EQUAL );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_attribute_values_compare_name_with_utf8_string(
+	          NULL,
+	          utf8_string,
+	          13,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_attribute_values_compare_name_with_utf8_string(
+		  attribute_values,
+		  NULL,
+	          13,
+		  &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* Tests the libfsext_attribute_values_get_utf8_name_size function
  * Returns 1 if successful or 0 if not
  */
@@ -447,10 +524,10 @@ int fsext_test_attribute_values_get_utf8_name_size(
 	          &utf8_name_size,
 	          &error );
 
-	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -522,10 +599,10 @@ int fsext_test_attribute_values_get_utf8_name(
 	          256,
 	          &error );
 
-	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -616,6 +693,82 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libfsext_attribute_values_compare_name_with_utf16_string function
+ * Returns 1 if successful or 0 if not
+ */
+int fsapfs_test_attribute_values_compare_name_with_utf16_string(
+     libfsext_attribute_values_t *attribute_values )
+{
+	uint16_t utf16_string[ 14 ] = { 'u', 's', 'e', 'r', '.', 'm', 'y', 'x', 'a', 't', 't', 'r', '1', 0 };
+	libcerror_error_t *error    = NULL;
+	int result                  = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_attribute_values_compare_name_with_utf16_string(
+	          attribute_values,
+	          utf16_string,
+	          13,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 LIBUNA_COMPARE_EQUAL );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_attribute_values_compare_name_with_utf16_string(
+	          NULL,
+	          utf16_string,
+	          13,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_attribute_values_compare_name_with_utf16_string(
+		  attribute_values,
+		  NULL,
+	          13,
+		  &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* Tests the libfsext_attribute_values_get_utf16_name_size function
  * Returns 1 if successful or 0 if not
  */
@@ -633,10 +786,10 @@ int fsext_test_attribute_values_get_utf16_name_size(
 	          &utf16_name_size,
 	          &error );
 
-	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -708,10 +861,10 @@ int fsext_test_attribute_values_get_utf16_name(
 	          256,
 	          &error );
 
-	FSEXT_TEST_ASSERT_NOT_EQUAL_INT(
+	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -878,6 +1031,11 @@ int main(
 	/* Run tests
 	 */
 	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_attribute_values_compare_name_with_utf8_string",
+	 fsapfs_test_attribute_values_compare_name_with_utf8_string,
+	 attribute_values );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_attribute_values_get_utf8_name_size",
 	 fsext_test_attribute_values_get_utf8_name_size,
 	 attribute_values );
@@ -885,6 +1043,11 @@ int main(
 	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_attribute_values_get_utf8_name",
 	 fsext_test_attribute_values_get_utf8_name,
+	 attribute_values );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_attribute_values_compare_name_with_utf16_string",
+	 fsapfs_test_attribute_values_compare_name_with_utf16_string,
 	 attribute_values );
 
 	FSEXT_TEST_RUN_WITH_ARGS(
