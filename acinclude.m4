@@ -1,6 +1,6 @@
 dnl Checks for required headers and functions
 dnl
-dnl Version: 20200713
+dnl Version: 20210729
 
 dnl Function to detect if libfsext dependencies are available
 AC_DEFUN([AX_LIBFSEXT_CHECK_LOCAL],
@@ -19,6 +19,17 @@ AC_DEFUN([AX_FSEXTTOOLS_CHECK_LOCAL],
    [AC_MSG_FAILURE(
      [Missing function: close],
      [1])
+  ])
+
+  dnl Headers included in fsexttools/fsextmount.c
+  AC_CHECK_HEADERS([errno.h])
+
+  AC_HEADER_TIME
+
+  dnl Functions included in fsexttools/mount_file_system.c and fsexttools/mount_file_entry.c
+  AS_IF(
+    [test "x$ac_cv_enable_winapi" = xno],
+    [AC_CHECK_FUNCS([clock_gettime getegid geteuid time])
   ])
 ])
 

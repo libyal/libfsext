@@ -26,6 +26,7 @@ MSVSCPP_FILES = \
 	fsext_test_tools_signal/fsext_test_tools_signal.vcproj \
 	fsext_test_volume/fsext_test_volume.vcproj \
 	fsextinfo/fsextinfo.vcproj \
+	fsextmount/fsextmount.vcproj \
 	libbfio/libbfio.vcproj \
 	libcdata/libcdata.vcproj \
 	libcerror/libcerror.vcproj \

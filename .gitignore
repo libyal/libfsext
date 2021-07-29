@@ -126,6 +126,7 @@ stamp-h[1-9]
 /pyfsext-python[23]/*.[ch]
 /fsexttools/*.exe
 /fsexttools/fsextinfo
+/fsexttools/fsextmount
 /tests/*.exe
 /tests/fsext_test_attribute_values
 /tests/fsext_test_bitmap

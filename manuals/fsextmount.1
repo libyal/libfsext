@@ -1,0 +1,61 @@
+.Dd July 29, 2021
+.Dt fsextmount
+.Os libfsext
+.Sh NAME
+.Nm fsextmount
+.Nd mounts a X File System (XFS) volume
+.Sh SYNOPSIS
+.Nm fsextmount
+.Op Fl o Ar offset
+.Op Fl hvV
+.Ar source
+.Sh DESCRIPTION
+.Nm fsextmount
+is a utility to mount a X File System (XFS) volume
+.Pp
+.Nm fsextmount
+is part of the
+.Nm libfsext
+package.
+.Nm libfsext
+is a library to access the X File System (XFS) format
+.Pp
+.Ar source
+is the source file.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl h
+shows this help
+.It Fl o Ar offset
+specify the volume offset in bytes
+.It Fl v
+verbose output to stderr
+.It Fl V
+print version
+.It Fl X Ar extended_options
+extended options to pass to sub system
+.El
+.Sh ENVIRONMENT
+None
+.Sh FILES
+None
+.Sh EXAMPLES
+.Bd -literal
+# fsextmount /dev/sda1
+fsextmount 20210729
+.sp
+.Ed
+.Sh DIAGNOSTICS
+Errors, verbose and debug output are printed to stderr when verbose output \-v is enabled.
+Verbose and debug output are only printed when enabled at compilation.
+.Sh BUGS
+Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
+https://github.com/libyal/libfsext/
+.Sh AUTHOR
+These man pages were written by Joachim Metz.
+.Sh COPYRIGHT
+Copyright (C) 2010-2021, Joachim Metz <joachim.metz@gmail.com>.
+This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.Sh SEE ALSO
+.Xr fsextinfo 1
