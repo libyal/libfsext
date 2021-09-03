@@ -371,6 +371,15 @@ void pyfsext_volume_free(
 
 		return;
 	}
+	if( pyfsext_volume->file_io_handle != NULL )
+	{
+		if( pyfsext_volume_close(
+		     pyfsext_volume,
+		     NULL ) == NULL )
+		{
+			return;
+		}
+	}
 	if( pyfsext_volume->volume != NULL )
 	{
 		Py_BEGIN_ALLOW_THREADS
