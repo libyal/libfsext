@@ -21,24 +21,6 @@ TODO:
 * directory replace array by data structure that is more efficient for large
   number of comparisions, e.g. a b-tree.
 
-Create test images:
-* ext2 without dynamic inode information
-* ext2 with dynamic inode information
-* ext2 with +8G sparse file
-* ext3 without dynamic inode information
-* ext3 with dynamic inode information
-* ext4 without dynamic inode information
-* ext4 with dynamic inode information
-* without sparse superblock
-* with inode where double indirect blocks are used
-* with inode where triple indirect blocks are used
-* with INCOMPAT_RECOVER
-* with INCOMPAT_JOURNAL_DEV
-* with INCOMPAT_META_BG
-* with INCOMPAT_DIRDATA - still in development
-* with INCOMPAT_CSUM_SEED
-* with INCOMPAT_LARGEDIR
-
 20150429
 * see `git log' for more recent change log
 

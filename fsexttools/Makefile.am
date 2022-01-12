@@ -71,7 +71,6 @@ fsextmount_SOURCES = \
 	fsexttools_getopt.c fsexttools_getopt.h \
 	fsexttools_i18n.h \
 	fsexttools_libbfio.h \
-	fsexttools_libcdata.h \
 	fsexttools_libcerror.h \
 	fsexttools_libclocale.h \
 	fsexttools_libcnotify.h \

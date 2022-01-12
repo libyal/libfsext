@@ -210,6 +210,15 @@ PyObject *pyfsext_file_entry_get_number_of_extents(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 
+PyObject *pyfsext_file_entry_get_extent_by_index(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           int extent_index );
+
+PyObject *pyfsext_file_entry_get_extent(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments,
+           PyObject *keywords );
+
 #if defined( __cplusplus )
 }
 #endif

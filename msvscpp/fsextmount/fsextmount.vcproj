@@ -232,10 +232,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\fsexttools\fsexttools_libcdata.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\fsexttools\fsexttools_libcerror.h"
 				>
 			</File>
