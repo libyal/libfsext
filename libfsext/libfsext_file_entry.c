@@ -4504,7 +4504,7 @@ int libfsext_file_entry_get_extent_by_index(
 	libfsext_extent_t *extent                           = NULL;
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
 	static char *function                               = "libfsext_file_entry_get_extent_by_index";
-	int result                                           = 1;
+	int result                                          = 1;
 
 	if( file_entry == NULL )
 	{
@@ -4519,17 +4519,6 @@ int libfsext_file_entry_get_extent_by_index(
 	}
 	internal_file_entry = (libfsext_internal_file_entry_t *) file_entry;
 
-	if( internal_file_entry->inode == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file entry - missing inode.",
-		 function );
-
-		return( -1 );
-	}
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_grab_for_read(
 	     internal_file_entry->read_write_lock,
