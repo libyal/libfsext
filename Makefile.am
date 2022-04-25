@@ -38,7 +38,6 @@ DPKG_FILES = \
 	dpkg/rules \
 	dpkg/libfsext.install \
 	dpkg/libfsext-dev.install \
-	dpkg/libfsext-python.install \
 	dpkg/libfsext-python3.install \
 	dpkg/libfsext-tools.install \
 	dpkg/source/format
