@@ -56,7 +56,8 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.10 | J.B. Metz | February 2021 | Additional information about format.
 | 0.0.11 | J.B. Metz | April 2021 | Additional information about read-only compatibility flags.
 | 0.0.12 | J.B. Metz | July 2021 | Additional information about extended attributes.
-| 0.0.13 | J.B. Metz | Feburary 2022 | Additional information about read-only compatibility flags.
+| 0.0.13 | J.B. Metz | February 2022 | Additional information about read-only compatibility flags.
+| 0.0.14 | J.B. Metz | May 2022 | Additional information about device number.
 |===
 
 :numbered:
@@ -796,6 +797,10 @@ Value contains the block number relative from the start of the volume
 | 124 | 4 | | [yellow-background]*Unknown (reserved)*
 |===
 
+[NOTE]
+For a character and block device the first 2 bytes of the array of direct
+block numbers contain the minor and major device number respectively.
+
 === The ext3 inode
 
 The ext3 inode is 132 bytes of size and consists of:
@@ -843,6 +848,10 @@ Value contains the block number relative from the start of the volume
 | 128 | 2 | | Extended inode size
 | 130 | 2 | | [yellow-background]*Unknown (padding)*
 |===
+
+[NOTE]
+For a character and block device the first 2 bytes of the array of direct
+block numbers contain the minor and major device number respectively.
 
 === The ext4 inode
 
@@ -915,6 +924,10 @@ Also see: <<ext4_extent,The ext4 extent>> or <<ext4_extent_index,The ext4 extent
 | 148 | 4 | | Creation time extra precision
 | 152 | 4 | | [yellow-background]*Unknown (upper part of version)*
 |===
+
+[NOTE]
+For a character and block device the first 2 bytes of the array of direct
+block numbers contain the minor and major device number respectively.
 
 [yellow-background]*TODO describe extra precision*
 

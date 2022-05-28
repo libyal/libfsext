@@ -126,6 +126,10 @@ PyObject *pyfsext_file_entry_get_group_identifier(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );
 
+PyObject *pyfsext_file_entry_get_device_number(
+           pyfsext_file_entry_t *pyfsext_file_entry,
+           PyObject *arguments );
+
 PyObject *pyfsext_file_entry_get_name(
            pyfsext_file_entry_t *pyfsext_file_entry,
            PyObject *arguments );

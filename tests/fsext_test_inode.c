@@ -1000,155 +1000,6 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libfsext_inode_get_number_of_extents function
- * Returns 1 if successful or 0 if not
- */
-int fsext_test_inode_get_number_of_extents(
-     libfsext_inode_t *inode )
-{
-	libcerror_error_t *error = NULL;
-	int number_of_extents    = 0;
-	int result               = 0;
-
-	/* Test regular cases
-	 */
-	result = libfsext_inode_get_number_of_extents(
-	          inode,
-	          &number_of_extents,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test error cases
-	 */
-	result = libfsext_inode_get_number_of_extents(
-	          NULL,
-	          &number_of_extents,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libfsext_inode_get_number_of_extents(
-	          inode,
-	          NULL,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	return( 0 );
-}
-
-/* Tests the libfsext_inode_get_extent_by_index function
- * Returns 1 if successful or 0 if not
- */
-int fsext_test_inode_get_extent_by_index(
-     libfsext_inode_t *inode )
-{
-	libcerror_error_t *error  = NULL;
-	libfsext_extent_t *extent = NULL;
-	int result                = 0;
-
-	/* Test regular cases
-	 */
-	result = libfsext_inode_get_extent_by_index(
-	          inode,
-	          0,
-	          &extent,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	FSEXT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test error cases
-	 */
-	result = libfsext_inode_get_extent_by_index(
-	          NULL,
-	          0,
-	          &extent,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libfsext_inode_get_extent_by_index(
-	          inode,
-	          0,
-	          NULL,
-	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	return( 0 );
-}
-
 /* Tests the libfsext_inode_get_access_time function
  * Returns 1 if successful or 0 if not
  */
@@ -1519,6 +1370,615 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libfsext_inode_get_file_mode function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_file_mode(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error = NULL;
+	uint16_t file_mode       = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_file_mode(
+	          inode,
+	          &file_mode,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_file_mode(
+	          NULL,
+	          &file_mode,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_file_mode(
+	          inode,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_number_of_links function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_number_of_links(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error = NULL;
+	uint16_t number_of_links = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_number_of_links(
+	          inode,
+	          &number_of_links,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_number_of_links(
+	          NULL,
+	          &number_of_links,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_number_of_links(
+	          inode,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_owner_identifier function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_owner_identifier(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error  = NULL;
+	uint32_t owner_identifier = 0;
+	int result                = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_owner_identifier(
+	          inode,
+	          &owner_identifier,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_owner_identifier(
+	          NULL,
+	          &owner_identifier,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_owner_identifier(
+	          inode,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_group_identifier function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_group_identifier(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error  = NULL;
+	uint32_t group_identifier = 0;
+	int result                = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_group_identifier(
+	          inode,
+	          &group_identifier,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_group_identifier(
+	          NULL,
+	          &group_identifier,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_group_identifier(
+	          inode,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_file_acl_block_number function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_file_acl_block_number(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error       = NULL;
+	uint32_t file_acl_block_number = 0;
+	int result                     = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_file_acl_block_number(
+	          inode,
+	          &file_acl_block_number,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_file_acl_block_number(
+	          NULL,
+	          &file_acl_block_number,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_file_acl_block_number(
+	          inode,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_device_number function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_device_number(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error    = NULL;
+	uint8_t major_device_number = 0;
+	uint8_t minor_device_number = 0;
+	int result                  = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_device_number(
+	          inode,
+	          &major_device_number,
+	          &minor_device_number,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_device_number(
+	          NULL,
+	          &major_device_number,
+	          &minor_device_number,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_device_number(
+	          inode,
+	          NULL,
+	          &minor_device_number,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_device_number(
+	          inode,
+	          &major_device_number,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_number_of_extents function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_number_of_extents(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error = NULL;
+	int number_of_extents    = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_number_of_extents(
+	          inode,
+	          &number_of_extents,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_number_of_extents(
+	          NULL,
+	          &number_of_extents,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_number_of_extents(
+	          inode,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libfsext_inode_get_extent_by_index function
+ * Returns 1 if successful or 0 if not
+ */
+int fsext_test_inode_get_extent_by_index(
+     libfsext_inode_t *inode )
+{
+	libcerror_error_t *error  = NULL;
+	libfsext_extent_t *extent = NULL;
+	int result                = 0;
+
+	/* Test regular cases
+	 */
+	result = libfsext_inode_get_extent_by_index(
+	          inode,
+	          0,
+	          &extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libfsext_inode_get_extent_by_index(
+	          NULL,
+	          0,
+	          &extent,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libfsext_inode_get_extent_by_index(
+	          inode,
+	          0,
+	          NULL,
+	          &error );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 /* The main program
@@ -1640,20 +2100,7 @@ int main(
 	 "error",
 	 error );
 
-	FSEXT_TEST_RUN_WITH_ARGS(
-	 "libfsext_inode_get_number_of_extents",
-	 fsext_test_inode_get_number_of_extents,
-	 inode );
-
-	FSEXT_TEST_RUN_WITH_ARGS(
-	 "libfsext_inode_get_extent_by_index",
-	 fsext_test_inode_get_extent_by_index,
-	 inode );
-
-	FSEXT_TEST_RUN_WITH_ARGS(
-	 "libfsext_inode_get_access_time",
-	 fsext_test_inode_get_access_time,
-	 inode );
+/* TODO add test for libfsext_inode_is_empty */
 
 	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_inode_get_access_time",
@@ -1666,6 +2113,11 @@ int main(
 	 inode );
 
 	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_inode_change_time",
+	 fsext_test_inode_get_inode_change_time,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
 	 "libfsext_inode_get_modification_time",
 	 fsext_test_inode_get_modification_time,
 	 inode );
@@ -1675,11 +2127,47 @@ int main(
 	 fsext_test_inode_get_deletion_time,
 	 inode );
 
-/* TODO add test for libfsext_inode_get_file_mode */
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_file_mode",
+	 fsext_test_inode_get_file_mode,
+	 inode );
 
-/* TODO add test for libfsext_inode_get_user_identifier */
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_number_of_links",
+	 fsext_test_inode_get_number_of_links,
+	 inode );
 
-/* TODO add test for libfsext_inode_get_group_identifier */
+/* TODO add test for libfsext_inode_get_data_size */
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_owner_identifier",
+	 fsext_test_inode_get_owner_identifier,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_group_identifier",
+	 fsext_test_inode_get_group_identifier,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_file_acl_block_number",
+	 fsext_test_inode_get_file_acl_block_number,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_device_number",
+	 fsext_test_inode_get_device_number,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_number_of_extents",
+	 fsext_test_inode_get_number_of_extents,
+	 inode );
+
+	FSEXT_TEST_RUN_WITH_ARGS(
+	 "libfsext_inode_get_extent_by_index",
+	 fsext_test_inode_get_extent_by_index,
+	 inode );
 
 /* TODO add test for libfsext_inode_read_element_data */
 
