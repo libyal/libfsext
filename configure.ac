@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libfsext],
- [20220529],
+ [20220706],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(

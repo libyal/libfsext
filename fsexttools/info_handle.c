@@ -2731,7 +2731,9 @@ int info_handle_file_entries_fprint(
 
 		return( -1 );
 	}
-	for( file_entry_identifier = 0;
+	/* Inode 0 is not supported
+	 */
+	for( file_entry_identifier = 1;
 	     file_entry_identifier < (uint64_t) number_of_file_entries;
 	     file_entry_identifier++ )
 	{
