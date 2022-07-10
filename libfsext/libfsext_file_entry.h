@@ -194,6 +194,12 @@ int libfsext_file_entry_get_group_identifier(
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
+int libfsext_file_entry_get_device_identifier(
+     libfsext_file_entry_t *file_entry,
+     uint32_t *device_identifier,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
 int libfsext_file_entry_get_device_number(
      libfsext_file_entry_t *file_entry,
      uint8_t *major_device_number,

@@ -1,4 +1,4 @@
-.Dd May 28, 2022
+.Dd July 10, 2022
 .Dt libfsext 3
 .Os libfsext
 .Sh NAME
@@ -130,6 +130,8 @@ File entry functions
 .Fn libfsext_file_entry_get_owner_identifier "libfsext_file_entry_t *file_entry" "uint32_t *owner_identifier" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_group_identifier "libfsext_file_entry_t *file_entry" "uint32_t *group_identifier" "libfsext_error_t **error"
+.Ft int
+.Fn libfsext_file_entry_get_device_identifier "libfsext_file_entry_t *file_entry" "uint32_t *device_identifier" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_file_entry_get_device_number "libfsext_file_entry_t *file_entry" "uint8_t *major_device_number" "uint8_t *minor_device_number" "libfsext_error_t **error"
 .Ft int

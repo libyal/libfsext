@@ -929,8 +929,8 @@ int libfsext_inode_read_data(
 			 60,
 			 0 );
 		}
-		else if( ( ( inode->file_mode & 0xf000 ) == 0x2000 )
-		      || ( ( inode->file_mode & 0xf000 ) == 0x6000 ) )
+		else if( ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_CHARACTER_DEVICE )
+		      || ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_BLOCK_DEVICE ) )
 		{
 			libcnotify_printf(
 			 "%s: minor device number\t\t\t\t: %" PRIu8 "\n",
@@ -1680,8 +1680,8 @@ int libfsext_inode_read_data_reference(
 			 * Note that inode->data_size can be larger than 60
 			 */
 		}
-		else if( ( ( inode->file_mode & 0xf000 ) == 0x2000 )
-		      || ( ( inode->file_mode & 0xf000 ) == 0x6000 ) )
+		else if( ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_CHARACTER_DEVICE )
+		      || ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_BLOCK_DEVICE ) )
 		{
 			/* The major and minor device numbers are stored in inode->data_reference */
 		}
@@ -2176,6 +2176,50 @@ int libfsext_inode_get_file_acl_block_number(
 	return( 1 );
 }
 
+/* Retrieves the device identifier
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_inode_get_device_identifier(
+     libfsext_inode_t *inode,
+     uint32_t *device_identifier,
+     libcerror_error_t **error )
+{
+	static char *function = "libfsext_inode_get_device_identifier";
+
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid inode.",
+		 function );
+
+		return( -1 );
+	}
+	if( device_identifier == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device identifier.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_CHARACTER_DEVICE )
+	 || ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_BLOCK_DEVICE ) )
+	{
+		byte_stream_copy_to_uint16_little_endian(
+		 inode->data_reference,
+		 *device_identifier );
+
+		return( 1 );
+	}
+	return( 0 );
+}
+
 /* Retrieves the device number
  * Returns 1 if successful, 0 if not available or -1 on error
  */
@@ -2220,8 +2264,8 @@ int libfsext_inode_get_device_number(
 
 		return( -1 );
 	}
-	if( ( ( inode->file_mode & 0xf000 ) == 0x2000 )
-	 || ( ( inode->file_mode & 0xf000 ) == 0x6000 ) )
+	if( ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_CHARACTER_DEVICE )
+	 || ( ( inode->file_mode & 0xf000 ) == LIBFSEXT_FILE_TYPE_BLOCK_DEVICE ) )
 	{
 		*major_device_number = inode->data_reference[ 1 ];
 		*minor_device_number = inode->data_reference[ 0 ];

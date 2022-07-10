@@ -223,6 +223,11 @@ int libfsext_inode_get_file_acl_block_number(
      uint32_t *file_acl_block_number,
      libcerror_error_t **error );
 
+int libfsext_inode_get_device_identifier(
+     libfsext_inode_t *inode,
+     uint32_t *device_identifier,
+     libcerror_error_t **error );
+
 int libfsext_inode_get_device_number(
      libfsext_inode_t *inode,
      uint8_t *major_device_number,
