@@ -219,6 +219,24 @@ int libfsext_volume_get_last_written_time(
      int32_t *posix_time,
      libcerror_error_t **error );
 
+int libfsext_internal_volume_get_root_directory(
+     libfsext_internal_volume_t *internal_volume,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_root_directory(
+     libfsext_volume_t *volume,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error );
+
+int libfsext_internal_volume_get_file_entry_by_utf8_path(
+     libfsext_internal_volume_t *internal_volume,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error );
+
 LIBFSEXT_EXTERN \
 int libfsext_volume_get_number_of_file_entries(
      libfsext_volume_t *volume,
@@ -235,24 +253,6 @@ LIBFSEXT_EXTERN \
 int libfsext_volume_get_file_entry_by_inode(
      libfsext_volume_t *volume,
      uint32_t inode_number,
-     libfsext_file_entry_t **file_entry,
-     libcerror_error_t **error );
-
-int libfsext_internal_volume_get_root_directory(
-     libfsext_internal_volume_t *internal_volume,
-     libfsext_file_entry_t **file_entry,
-     libcerror_error_t **error );
-
-LIBFSEXT_EXTERN \
-int libfsext_volume_get_root_directory(
-     libfsext_volume_t *volume,
-     libfsext_file_entry_t **file_entry,
-     libcerror_error_t **error );
-
-int libfsext_internal_volume_get_file_entry_by_utf8_path(
-     libfsext_internal_volume_t *internal_volume,
-     const uint8_t *utf8_string,
-     size_t utf8_string_length,
      libfsext_file_entry_t **file_entry,
      libcerror_error_t **error );
 

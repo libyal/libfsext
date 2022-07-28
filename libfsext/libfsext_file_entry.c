@@ -52,7 +52,6 @@ int libfsext_file_entry_initialize(
      uint32_t inode_number,
      libfsext_inode_t *inode,
      libfsext_directory_entry_t *directory_entry,
-     uint8_t flags,
      libcerror_error_t **error )
 {
 	libfsext_internal_file_entry_t *internal_file_entry = NULL;
@@ -203,7 +202,6 @@ int libfsext_file_entry_initialize(
 	internal_file_entry->inode_number    = inode_number;
 	internal_file_entry->inode           = inode;
 	internal_file_entry->directory_entry = directory_entry;
-	internal_file_entry->flags           = flags;
 
 	*file_entry = (libfsext_file_entry_t *) internal_file_entry;
 
@@ -3506,7 +3504,6 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_index(
 	     directory_entry->inode_number,
 	     safe_inode,
 	     safe_directory_entry,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -3751,7 +3748,6 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_utf8_name(
 	     sub_directory_entry->inode_number,
 	     inode,
 	     sub_directory_entry,
-	     internal_file_entry->flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -3985,7 +3981,6 @@ int libfsext_internal_file_entry_get_sub_file_entry_by_utf16_name(
 	     sub_directory_entry->inode_number,
 	     inode,
 	     sub_directory_entry,
-	     internal_file_entry->flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

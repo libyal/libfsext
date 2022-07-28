@@ -395,6 +395,15 @@ int libfsext_volume_get_last_written_time(
      int32_t *posix_time,
      libfsext_error_t **error );
 
+/* Retrieves the root directory file entry
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+LIBFSEXT_EXTERN \
+int libfsext_volume_get_root_directory(
+     libfsext_volume_t *volume,
+     libfsext_file_entry_t **file_entry,
+     libfsext_error_t **error );
+
 /* Retrieves the number of file entries (inodes)
  * Returns 1 if successful or -1 on error
  */
@@ -411,15 +420,6 @@ LIBFSEXT_EXTERN \
 int libfsext_volume_get_file_entry_by_inode(
      libfsext_volume_t *volume,
      uint32_t inode_number,
-     libfsext_file_entry_t **file_entry,
-     libfsext_error_t **error );
-
-/* Retrieves the root directory file entry
- * Returns 1 if successful, 0 if not available or -1 on error
- */
-LIBFSEXT_EXTERN \
-int libfsext_volume_get_root_directory(
-     libfsext_volume_t *volume,
      libfsext_file_entry_t **file_entry,
      libfsext_error_t **error );
 

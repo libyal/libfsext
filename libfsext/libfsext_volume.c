@@ -2780,6 +2780,242 @@ int libfsext_volume_get_last_written_time(
 	return( 1 );
 }
 
+/* Retrieves the root directory file entry
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_internal_volume_get_root_directory(
+     libfsext_internal_volume_t *internal_volume,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_inode_t *inode      = NULL;
+	libfsext_inode_t *safe_inode = NULL;
+	static char *function        = "libfsext_internal_volume_get_root_directory";
+
+	if( internal_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_volume->superblock == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid volume - missing superblock.",
+		 function );
+
+		return( -1 );
+	}
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_volume->superblock->number_of_inodes < LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY )
+	{
+		return( 0 );
+	}
+	if( libfsext_inode_table_get_inode_by_number(
+	     internal_volume->inode_table,
+	     internal_volume->file_io_handle,
+	     LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY,
+	     &inode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve inode: %d.",
+		 function,
+		 LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY );
+
+		goto on_error;
+	}
+	if( inode == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing inode: %d.",
+		 function,
+		 LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY );
+
+		goto on_error;
+	}
+	if( libfsext_inode_clone(
+	     &safe_inode,
+	     inode,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create inode.",
+		 function );
+
+		goto on_error;
+	}
+	/* libfsext_file_entry_initialize takes over management of inode
+	 */
+	if( libfsext_file_entry_initialize(
+	     file_entry,
+	     internal_volume->io_handle,
+	     internal_volume->file_io_handle,
+	     internal_volume->inode_table,
+	     LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY,
+	     safe_inode,
+	     NULL,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file entry.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( safe_inode != NULL )
+	{
+		libfsext_inode_free(
+		 &safe_inode,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves the root directory file entry
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libfsext_volume_get_root_directory(
+     libfsext_volume_t *volume,
+     libfsext_file_entry_t **file_entry,
+     libcerror_error_t **error )
+{
+	libfsext_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libfsext_volume_get_root_directory";
+	int result                                  = 0;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libfsext_internal_volume_t *) volume;
+
+	if( file_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *file_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file entry value already set.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	result = libfsext_internal_volume_get_root_directory(
+	          internal_volume,
+	          file_entry,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve root directory.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		libfsext_file_entry_free(
+		 file_entry,
+		 NULL );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
 /* Retrieves the number of file entries (inodes)
  * Returns 1 if successful or -1 on error
  */
@@ -2960,7 +3196,6 @@ int libfsext_internal_volume_get_file_entry_by_inode(
 	     inode_number,
 	     safe_inode,
 	     NULL,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -3060,243 +3295,6 @@ int libfsext_volume_get_file_entry_by_inode(
 		 "%s: unable to retrieve inode: %" PRIu32 ".",
 		 function,
 		 inode_number );
-
-		result = -1;
-	}
-#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
-	if( libcthreads_read_write_lock_release_for_write(
-	     internal_volume->read_write_lock,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to release read/write lock for writing.",
-		 function );
-
-		libfsext_file_entry_free(
-		 file_entry,
-		 NULL );
-
-		return( -1 );
-	}
-#endif
-	return( result );
-}
-
-/* Retrieves the root directory file entry
- * Returns 1 if successful, 0 if not available or -1 on error
- */
-int libfsext_internal_volume_get_root_directory(
-     libfsext_internal_volume_t *internal_volume,
-     libfsext_file_entry_t **file_entry,
-     libcerror_error_t **error )
-{
-	libfsext_inode_t *inode      = NULL;
-	libfsext_inode_t *safe_inode = NULL;
-	static char *function        = "libfsext_internal_volume_get_root_directory";
-
-	if( internal_volume == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid volume.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_volume->superblock == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid volume - missing superblock.",
-		 function );
-
-		return( -1 );
-	}
-	if( file_entry == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file entry.",
-		 function );
-
-		return( -1 );
-	}
-	if( *file_entry != NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid file entry value already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_volume->superblock->number_of_inodes < LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY )
-	{
-		return( 0 );
-	}
-	if( libfsext_inode_table_get_inode_by_number(
-	     internal_volume->inode_table,
-	     internal_volume->file_io_handle,
-	     LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY,
-	     &inode,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve inode: %d.",
-		 function,
-		 LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY );
-
-		goto on_error;
-	}
-	if( inode == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing inode: %d.",
-		 function,
-		 LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY );
-
-		goto on_error;
-	}
-	if( libfsext_inode_clone(
-	     &safe_inode,
-	     inode,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create inode.",
-		 function );
-
-		goto on_error;
-	}
-	/* libfsext_file_entry_initialize takes over management of inode
-	 */
-	if( libfsext_file_entry_initialize(
-	     file_entry,
-	     internal_volume->io_handle,
-	     internal_volume->file_io_handle,
-	     internal_volume->inode_table,
-	     LIBFSEXT_INODE_NUMBER_ROOT_DIRECTORY,
-	     safe_inode,
-	     NULL,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create file entry.",
-		 function );
-
-		goto on_error;
-	}
-	return( 1 );
-
-on_error:
-	if( safe_inode != NULL )
-	{
-		libfsext_inode_free(
-		 &safe_inode,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Retrieves the root directory file entry
- * Returns 1 if successful, 0 if not available or -1 on error
- */
-int libfsext_volume_get_root_directory(
-     libfsext_volume_t *volume,
-     libfsext_file_entry_t **file_entry,
-     libcerror_error_t **error )
-{
-	libfsext_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libfsext_volume_get_root_directory";
-	int result                                  = 0;
-
-	if( volume == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid volume.",
-		 function );
-
-		return( -1 );
-	}
-	internal_volume = (libfsext_internal_volume_t *) volume;
-
-	if( file_entry == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file entry.",
-		 function );
-
-		return( -1 );
-	}
-	if( *file_entry != NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid file entry value already set.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
-	if( libcthreads_read_write_lock_grab_for_write(
-	     internal_volume->read_write_lock,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to grab read/write lock for writing.",
-		 function );
-
-		return( -1 );
-	}
-#endif
-	result = libfsext_internal_volume_get_root_directory(
-	          internal_volume,
-	          file_entry,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve root directory.",
-		 function );
 
 		result = -1;
 	}
@@ -3626,7 +3624,6 @@ int libfsext_internal_volume_get_file_entry_by_utf8_path(
 	     inode_number,
 	     safe_inode,
 	     safe_directory_entry,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -4070,7 +4067,6 @@ int libfsext_internal_volume_get_file_entry_by_utf16_path(
 	     inode_number,
 	     safe_inode,
 	     safe_directory_entry,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

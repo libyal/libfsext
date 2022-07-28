@@ -87,11 +87,11 @@ Volume functions
 .Ft int
 .Fn libfsext_volume_get_last_written_time "libfsext_volume_t *volume" "int32_t *posix_time" "libfsext_error_t **error"
 .Ft int
+.Fn libfsext_volume_get_root_directory "libfsext_volume_t *volume" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
+.Ft int
 .Fn libfsext_volume_get_number_of_file_entries "libfsext_volume_t *volume" "uint32_t *number_of_file_entries" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_volume_get_file_entry_by_inode "libfsext_volume_t *volume" "uint32_t inode_number" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
-.Ft int
-.Fn libfsext_volume_get_root_directory "libfsext_volume_t *volume" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
 .Ft int
 .Fn libfsext_volume_get_file_entry_by_utf8_path "libfsext_volume_t *volume" "const uint8_t *utf8_string" "size_t utf8_string_length" "libfsext_file_entry_t **file_entry" "libfsext_error_t **error"
 .Ft int

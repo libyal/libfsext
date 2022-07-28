@@ -6,7 +6,11 @@
 .Nd determines information about an Extended File System (ext) volume
 .Sh SYNOPSIS
 .Nm fsextinfo
-.Op Fl ahvV
+.Op Fl B Ar bodyfile
+.Op Fl E Ar inode_number
+.Op Fl F Ar path
+.Op Fl o Ar offset
+.Op Fl dhHvV
 .Ar source
 .Sh DESCRIPTION
 .Nm fsextinfo
@@ -24,10 +28,20 @@ is the source file.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl a
-shows allocation information
+.It Fl B Ar bodyfile
+output file system information as a bodyfile
+.It Fl d
+calculate a MD5 hash of a file entry to include in the bodyfile
+.It Fl E Ar inode_number
+show information about a specific inode or "all"
+.It Fl F Ar path
+show information about a specific file entry path
 .It Fl h
 shows this help
+.It Fl H
+shows the file system hierarchy
+.It Fl o Ar offset
+specify the volume offset
 .It Fl v
 verbose output to stderr
 .It Fl V
@@ -39,12 +53,39 @@ None
 None
 .Sh EXAMPLES
 .Bd -literal
-# fsextinfo /dev/sda1
-fsextinfo 20150504
-
+# fsextinfo ext4.raw
+fsextinfo 20220727
+.sp
+Extended File System information:
+.sp
 Volume information:
-.Dl        ...
-
+        File system                     : ext4
+        Label                           : ext4_test
+        Compatible features             : 0x0000003c
+                Has journal (EXT3_FEATURE_COMPAT_HAS_JOURNAL)
+                Have extended inode attributes (EXT2_FEATURE_COMPAT_EXT_ATTR)
+                Resizable volume (EXT2_FEATURE_COMPAT_RESIZE_INO)
+                Use directory hash index (EXT2_FEATURE_COMPAT_DIR_INDEX)
+.sp
+        Incompatible features           : 0x000002c2
+                Has directory type (EXT2_FEATURE_INCOMPAT_FILETYPE)
+                Has extents (EXT4_FEATURE_INCOMPAT_EXTENTS)
+                Has 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT)
+                (EXT4_FEATURE_INCOMPAT_FLEX_BG)
+.sp
+        Read-only compatible features   : 0x0000046b
+                Has sparse superblocks and group descriptor tables (EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER)
+                Contains large files (EXT2_FEATURE_RO_COMPAT_LARGE_FILE)
+                (EXT4_FEATURE_RO_COMPAT_HUGE_FILE)
+                (EXT4_FEATURE_RO_COMPAT_DIR_NLINK)
+                (EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE)
+                (EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)
+.sp
+        Number of inodes                : 1024
+        Last mount path                 : /mnt/ext4
+        Last mount time                 : Jul 22, 2021 14:07:32 UTC
+        Last written time               : Jul 22, 2021 14:07:33 UTC
+.sp
 .Ed
 .Sh DIAGNOSTICS
 Errors, verbose and debug output are printed to stderr when verbose output \-v is enabled.
@@ -55,6 +96,6 @@ https://github.com/libyal/libfsext/
 .Sh AUTHOR
 These man pages were written by Joachim Metz.
 .Sh COPYRIGHT
-Copyright 2010-2015, Joachim Metz <joachim.metz@gmail.com>.
+Copyright 2010-2022, Joachim Metz <joachim.metz@gmail.com>.
 This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .Sh SEE ALSO

@@ -93,10 +93,6 @@ struct libfsext_internal_file_entry
 	 */
 	size_t symbolic_link_data_size;
 
-	/* The flags
-	 */
-	uint8_t flags;
-
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	/* The read/write lock
 	 */
@@ -112,7 +108,6 @@ int libfsext_file_entry_initialize(
      uint32_t inode_number,
      libfsext_inode_t *inode,
      libfsext_directory_entry_t *directory_entry,
-     uint8_t flags,
      libcerror_error_t **error );
 
 LIBFSEXT_EXTERN \
