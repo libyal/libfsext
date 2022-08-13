@@ -1885,10 +1885,12 @@ int libfsext_volume_get_utf8_label_size(
 		return( -1 );
 	}
 #endif
-	if( result == 1 )
+	if( safe_utf8_string_size < 1 )
 	{
-		*utf8_string_size = safe_utf8_string_size;
+		safe_utf8_string_size = 1;
 	}
+	*utf8_string_size = safe_utf8_string_size;
+
 	return( result );
 }
 
@@ -2089,10 +2091,12 @@ int libfsext_volume_get_utf16_label_size(
 		return( -1 );
 	}
 #endif
-	if( result == 1 )
+	if( safe_utf16_string_size < 1 )
 	{
-		*utf16_string_size = safe_utf16_string_size;
+		safe_utf16_string_size = 1;
 	}
+	*utf16_string_size = safe_utf16_string_size;
+
 	return( result );
 }
 
@@ -3570,33 +3574,36 @@ int libfsext_internal_volume_get_file_entry_by_utf8_path(
 			goto on_error;
 		}
 	}
-	if( libfsext_inode_clone(
-	     &safe_inode,
-	     inode,
-	     error ) != 1 )
+	if( result != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create inode.",
-		 function );
+		if( libfsext_inode_clone(
+		     &safe_inode,
+		     inode,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create inode.",
+			 function );
 
-		goto on_error;
-	}
-	if( libfsext_directory_entry_clone(
-	     &safe_directory_entry,
-	     directory_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create directory entry.",
-		 function );
+			goto on_error;
+		}
+		if( libfsext_directory_entry_clone(
+		     &safe_directory_entry,
+		     directory_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create directory entry.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	if( directory != NULL )
 	{
@@ -3614,26 +3621,29 @@ int libfsext_internal_volume_get_file_entry_by_utf8_path(
 			goto on_error;
 		}
 	}
-	/* libfsext_file_entry_initialize takes over management of safe_inode and safe_directory_entry
-	 */
-	if( libfsext_file_entry_initialize(
-	     file_entry,
-	     internal_volume->io_handle,
-	     internal_volume->file_io_handle,
-	     internal_volume->inode_table,
-	     inode_number,
-	     safe_inode,
-	     safe_directory_entry,
-	     error ) != 1 )
+	if( result != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create file entry.",
-		 function );
+		/* libfsext_file_entry_initialize takes over management of safe_inode and safe_directory_entry
+		 */
+		if( libfsext_file_entry_initialize(
+		     file_entry,
+		     internal_volume->io_handle,
+		     internal_volume->file_io_handle,
+		     internal_volume->inode_table,
+		     inode_number,
+		     safe_inode,
+		     safe_directory_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create file entry.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	return( result );
 
@@ -4013,33 +4023,36 @@ int libfsext_internal_volume_get_file_entry_by_utf16_path(
 			goto on_error;
 		}
 	}
-	if( libfsext_inode_clone(
-	     &safe_inode,
-	     inode,
-	     error ) != 1 )
+	if( result != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create inode.",
-		 function );
+		if( libfsext_inode_clone(
+		     &safe_inode,
+		     inode,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create inode.",
+			 function );
 
-		goto on_error;
-	}
-	if( libfsext_directory_entry_clone(
-	     &safe_directory_entry,
-	     directory_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create directory entry.",
-		 function );
+			goto on_error;
+		}
+		if( libfsext_directory_entry_clone(
+		     &safe_directory_entry,
+		     directory_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create directory entry.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	if( directory != NULL )
 	{
@@ -4057,26 +4070,29 @@ int libfsext_internal_volume_get_file_entry_by_utf16_path(
 			goto on_error;
 		}
 	}
-	/* libfsext_file_entry_initialize takes over management of safe_inode and safe_directory_entry
-	 */
-	if( libfsext_file_entry_initialize(
-	     file_entry,
-	     internal_volume->io_handle,
-	     internal_volume->file_io_handle,
-	     internal_volume->inode_table,
-	     inode_number,
-	     safe_inode,
-	     safe_directory_entry,
-	     error ) != 1 )
+	if( result != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create file entry.",
-		 function );
+		/* libfsext_file_entry_initialize takes over management of safe_inode and safe_directory_entry
+		 */
+		if( libfsext_file_entry_initialize(
+		     file_entry,
+		     internal_volume->io_handle,
+		     internal_volume->file_io_handle,
+		     internal_volume->inode_table,
+		     inode_number,
+		     safe_inode,
+		     safe_directory_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create file entry.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	return( result );
 
