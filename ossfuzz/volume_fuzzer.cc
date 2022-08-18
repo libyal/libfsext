@@ -47,8 +47,19 @@ int LLVMFuzzerTestOneInput(
      const uint8_t *data,
      size_t size )
 {
-	libbfio_handle_t *file_io_handle = NULL;
-	libfsext_volume_t *volume        = NULL;
+	uint8_t volume_identifier[ 16 ];
+	uint8_t string_value[ 64 ];
+
+	libbfio_handle_t *file_io_handle             = NULL;
+	libfsext_volume_t *volume                    = NULL;
+	size_t string_size                           = 0;
+	uint32_t compatible_features_flags           = 0;
+	uint32_t incompatible_features_flags         = 0;
+	uint32_t number_of_file_entries              = 0;
+	uint32_t read_only_compatible_features_flags = 0;
+	int32_t posix_time                           = 0;
+	uint8_t format_version                       = 0;
+	int result                                   = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -70,19 +81,73 @@ int LLVMFuzzerTestOneInput(
 	{
 		goto on_error_libbfio;
 	}
-	if( libfsext_volume_open_file_io_handle(
-	     volume,
-	     file_io_handle,
-	     LIBFSEXT_OPEN_READ,
-	     NULL ) != 1 )
-	{
-		goto on_error_libfsext;
-	}
-	libfsext_volume_close(
-	 volume,
-	 NULL );
+	result = libfsext_volume_open_file_io_handle(
+	          volume,
+	          file_io_handle,
+	          LIBFSEXT_OPEN_READ,
+	          NULL );
 
-on_error_libfsext:
+	if( result != -1 )
+	{
+		libfsext_volume_get_format_version(
+		 volume,
+		 &format_version,
+		 NULL );
+
+		libfsext_volume_get_features_flags(
+		 volume,
+		 &compatible_features_flags,
+		 &incompatible_features_flags,
+		 &read_only_compatible_features_flags,
+		 NULL );
+
+		libfsext_volume_get_identifier(
+		 volume,
+		 volume_identifier,
+		 16,
+		 NULL );
+
+		libfsext_volume_get_utf8_label_size(
+		 volume,
+		 &string_size,
+		 NULL );
+
+		libfsext_volume_get_utf8_label(
+		 volume,
+		 string_value,
+		 64,
+		 NULL );
+
+		libfsext_volume_get_utf8_last_mount_path_size(
+		 volume,
+		 &string_size,
+		 NULL );
+
+		libfsext_volume_get_utf8_last_mount_path(
+		 volume,
+		 string_value,
+		 64,
+		 NULL );
+
+		libfsext_volume_get_last_mount_time(
+		 volume,
+		 &posix_time,
+		 NULL );
+
+		libfsext_volume_get_last_written_time(
+		 volume,
+		 &posix_time,
+		 NULL );
+
+		libfsext_volume_get_number_of_file_entries(
+		 volume,
+		 &number_of_file_entries,
+		 NULL );
+
+		libfsext_volume_close(
+		 volume,
+		 NULL );
+	}
 	libfsext_volume_free(
 	 &volume,
 	 NULL );
