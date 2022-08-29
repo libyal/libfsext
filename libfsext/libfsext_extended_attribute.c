@@ -26,6 +26,7 @@
 #include "libfsext_attribute_values.h"
 #include "libfsext_block_stream.h"
 #include "libfsext_extended_attribute.h"
+#include "libfsext_extent.h"
 #include "libfsext_inode.h"
 #include "libfsext_inode_table.h"
 #include "libfsext_io_handle.h"
@@ -179,6 +180,23 @@ int libfsext_extended_attribute_free(
 			result = -1;
 		}
 #endif
+		if( internal_extended_attribute->data_extents_array != NULL )
+		{
+			if( libcdata_array_free(
+			     &( internal_extended_attribute->data_extents_array ),
+			     (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_extent_free,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free data extents array.",
+				 function );
+
+				result = -1;
+			}
+		}
 		if( internal_extended_attribute->data_stream != NULL )
 		{
 			if( libfdata_stream_free(
@@ -558,7 +576,7 @@ int libfsext_internal_extended_attribute_get_data_stream(
 			 function,
 			 internal_extended_attribute->attribute_values->value_data_inode_number );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( inode == NULL )
 		{
@@ -570,7 +588,23 @@ int libfsext_internal_extended_attribute_get_data_stream(
 			 function,
 			 internal_extended_attribute->attribute_values->value_data_inode_number );
 
-			return( -1 );
+			goto on_error;
+		}
+		if( libcdata_array_clone(
+		     &( internal_extended_attribute->data_extents_array ),
+		     inode->data_extents_array,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_extent_free,
+		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libfsext_extent_clone,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create data extents array.",
+			 function );
+
+			goto on_error;
 		}
 		result = libfsext_block_stream_initialize(
 		          &( internal_extended_attribute->data_stream ),
@@ -581,6 +615,20 @@ int libfsext_internal_extended_attribute_get_data_stream(
 	}
 	else
 	{
+		if( libcdata_array_initialize(
+		     &( internal_extended_attribute->data_extents_array ),
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create data extents array.",
+			 function );
+
+			goto on_error;
+		}
 		result = libfsext_block_stream_initialize_from_data(
 		          &( internal_extended_attribute->data_stream ),
 		          internal_extended_attribute->attribute_values->value_data,
@@ -596,9 +644,19 @@ int libfsext_internal_extended_attribute_get_data_stream(
 		 "%s: unable to create block stream.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( internal_extended_attribute->data_extents_array != NULL )
+	{
+		libcdata_array_free(
+		 &( internal_extended_attribute->data_extents_array ),
+		 (int (*)(intptr_t **, libcerror_error_t **)) &libfsext_extent_free,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads data at the current offset into a buffer
@@ -1061,5 +1119,218 @@ int libfsext_extended_attribute_get_size(
 	}
 #endif
 	return( 1 );
+}
+
+/* Retrieves the number of extents
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_extended_attribute_get_number_of_extents(
+     libfsext_extended_attribute_t *extended_attribute,
+     int *number_of_extents,
+     libcerror_error_t **error )
+{
+	libfsext_internal_extended_attribute_t *internal_extended_attribute = NULL;
+	static char *function                                               = "libfsext_extended_attribute_get_number_of_extents";
+	int result                                                          = 1;
+
+	if( extended_attribute == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid extended attribute.",
+		 function );
+
+		return( -1 );
+	}
+	internal_extended_attribute = (libfsext_internal_extended_attribute_t *) extended_attribute;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_extended_attribute->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( internal_extended_attribute->data_stream == NULL )
+	{
+		/* Determining the data stream will initialize the extents array
+		 */
+		if( libfsext_internal_extended_attribute_get_data_stream(
+		     internal_extended_attribute,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine data stream.",
+			 function );
+
+			result = -1;
+		}
+	}
+	if( result != -1 )
+	{
+		if( libcdata_array_get_number_of_entries(
+		     internal_extended_attribute->data_extents_array,
+		     number_of_extents,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of entries.",
+			 function );
+
+			result = -1;
+		}
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_extended_attribute->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves a specific extent
+ * Returns 1 if successful or -1 on error
+ */
+int libfsext_extended_attribute_get_extent_by_index(
+     libfsext_extended_attribute_t *extended_attribute,
+     int extent_index,
+     off64_t *extent_offset,
+     size64_t *extent_size,
+     uint32_t *extent_flags,
+     libcerror_error_t **error )
+{
+	libfsext_extent_t *extent                                           = NULL;
+	libfsext_internal_extended_attribute_t *internal_extended_attribute = NULL;
+	static char *function                                               = "libfsext_extended_attribute_get_extent_by_index";
+	int result                                                          = 1;
+
+	if( extended_attribute == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid extended attribute.",
+		 function );
+
+		return( -1 );
+	}
+	internal_extended_attribute = (libfsext_internal_extended_attribute_t *) extended_attribute;
+
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_extended_attribute->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( internal_extended_attribute->data_stream == NULL )
+	{
+		/* Determining the data stream will initialize the extents array
+		 */
+		if( libfsext_internal_extended_attribute_get_data_stream(
+		     internal_extended_attribute,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine data stream.",
+			 function );
+
+			result = -1;
+		}
+	}
+	if( result != -1 )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     internal_extended_attribute->data_extents_array,
+		     extent_index,
+		     (intptr_t **) &extent,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve extent: %d.",
+			 function,
+			 extent_index );
+
+			result = -1;
+		}
+		if( result == 1 )
+		{
+			if( libfsext_extent_get_values(
+			     extent,
+			     internal_extended_attribute->io_handle,
+			     extent_offset,
+			     extent_size,
+			     extent_flags,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve extent: %d values.",
+				 function,
+				 extent_index );
+
+				result = -1;
+			}
+		}
+	}
+#if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_extended_attribute->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
 }
 

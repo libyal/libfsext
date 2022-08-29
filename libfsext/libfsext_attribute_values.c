@@ -128,15 +128,15 @@ int libfsext_attribute_values_free(
 	}
 	if( *attribute_values != NULL )
 	{
-		if( ( *attribute_values )->name != NULL )
-		{
-			memory_free(
-			 ( *attribute_values )->name );
-		}
 		if( ( *attribute_values )->value_data != NULL )
 		{
 			memory_free(
 			 ( *attribute_values )->value_data );
+		}
+		if( ( *attribute_values )->name != NULL )
+		{
+			memory_free(
+			 ( *attribute_values )->name );
 		}
 		memory_free(
 		 *attribute_values );

@@ -64,6 +64,10 @@ struct libfsext_internal_extended_attribute
 	 */
 	libfdata_stream_t *data_stream;
 
+	/* Data extents array
+	 */
+	libcdata_array_t *data_extents_array;
+
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	/* The read/write lock
 	 */
@@ -146,6 +150,21 @@ LIBFSEXT_EXTERN \
 int libfsext_extended_attribute_get_size(
      libfsext_extended_attribute_t *extended_attribute,
      size64_t *size,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_get_number_of_extents(
+     libfsext_extended_attribute_t *extended_attribute,
+     int *number_of_extents,
+     libcerror_error_t **error );
+
+LIBFSEXT_EXTERN \
+int libfsext_extended_attribute_get_extent_by_index(
+     libfsext_extended_attribute_t *extended_attribute,
+     int extent_index,
+     off64_t *extent_offset,
+     size64_t *extent_size,
+     uint32_t *extent_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

@@ -89,6 +89,19 @@ PyObject *pyfsext_extended_attribute_get_size(
            pyfsext_extended_attribute_t *pyfsext_extended_attribute,
            PyObject *arguments );
 
+PyObject *pyfsext_extended_attribute_get_number_of_extents(
+           pyfsext_extended_attribute_t *pyfsext_extended_attribute,
+           PyObject *arguments );
+
+PyObject *pyfsext_extended_attribute_get_extent_by_index(
+           pyfsext_extended_attribute_t *pyfsext_extended_attribute,
+           int extent_index );
+
+PyObject *pyfsext_extended_attribute_get_extent(
+           pyfsext_extended_attribute_t *pyfsext_extended_attribute,
+           PyObject *arguments,
+           PyObject *keywords );
+
 #if defined( __cplusplus )
 }
 #endif
