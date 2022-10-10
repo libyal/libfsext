@@ -111,7 +111,8 @@ PyMethodDef pyfsext_extended_attribute_object_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "get_extent(extent_index) -> Tuple(Integer, Integer, Integer)\n"
 	  "\n"
-	  "Retrieves the extent specified by the index." },
+	  "Retrieves a specific extent.\n"
+          "The extent is a tuple of offset, size and flags." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
