@@ -35,6 +35,7 @@ TESTS = \
 
 check_SCRIPTS = \
 	pyfsext_test_support.py \
+	pyfsext_test_volume.py \
 	test_fsextinfo.sh \
 	test_library.sh \
 	test_manpage.sh \
