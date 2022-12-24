@@ -206,7 +206,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tests\fsext_test_libclocale.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\fsext_test_libfsext.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\fsext_test_libuna.h"
 				>
 			</File>
 			<File

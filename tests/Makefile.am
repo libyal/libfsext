@@ -91,7 +91,9 @@ fsext_test_bitmap_SOURCES = \
 	fsext_test_functions.c fsext_test_functions.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
+	fsext_test_libclocale.h \
 	fsext_test_libfsext.h \
+	fsext_test_libuna.h \
 	fsext_test_macros.h \
 	fsext_test_memory.c fsext_test_memory.h \
 	fsext_test_unused.h
@@ -113,7 +115,9 @@ fsext_test_block_SOURCES = \
 	fsext_test_functions.c fsext_test_functions.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
+	fsext_test_libclocale.h \
 	fsext_test_libfsext.h \
+	fsext_test_libuna.h \
 	fsext_test_macros.h \
 	fsext_test_memory.c fsext_test_memory.h \
 	fsext_test_unused.h
@@ -135,7 +139,9 @@ fsext_test_block_data_handle_SOURCES = \
 	fsext_test_functions.c fsext_test_functions.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
+	fsext_test_libclocale.h \
 	fsext_test_libfsext.h \
+	fsext_test_libuna.h \
 	fsext_test_macros.h \
 	fsext_test_memory.c fsext_test_memory.h \
 	fsext_test_unused.h
@@ -157,9 +163,11 @@ fsext_test_block_vector_SOURCES = \
 	fsext_test_functions.c fsext_test_functions.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
+	fsext_test_libclocale.h \
 	fsext_test_libfcache.h \
 	fsext_test_libfdata.h \
 	fsext_test_libfsext.h \
+	fsext_test_libuna.h \
 	fsext_test_macros.h \
 	fsext_test_memory.c fsext_test_memory.h \
 	fsext_test_unused.h
@@ -195,7 +203,9 @@ fsext_test_directory_SOURCES = \
 	fsext_test_functions.c fsext_test_functions.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
+	fsext_test_libclocale.h \
 	fsext_test_libfsext.h \
+	fsext_test_libuna.h \
 	fsext_test_macros.h \
 	fsext_test_memory.c fsext_test_memory.h \
 	fsext_test_unused.h
@@ -310,7 +320,9 @@ fsext_test_group_descriptor_SOURCES = \
 	fsext_test_libbfio.h \
 	fsext_test_group_descriptor.c \
 	fsext_test_libcerror.h \
+	fsext_test_libclocale.h \
 	fsext_test_libfsext.h \
+	fsext_test_libuna.h \
 	fsext_test_macros.h \
 	fsext_test_memory.c fsext_test_memory.h \
 	fsext_test_unused.h
@@ -378,7 +390,9 @@ fsext_test_superblock_SOURCES = \
 	fsext_test_functions.c fsext_test_functions.h \
 	fsext_test_libbfio.h \
 	fsext_test_libcerror.h \
+	fsext_test_libclocale.h \
 	fsext_test_libfsext.h \
+	fsext_test_libuna.h \
 	fsext_test_macros.h \
 	fsext_test_memory.c fsext_test_memory.h \
 	fsext_test_superblock.c \
