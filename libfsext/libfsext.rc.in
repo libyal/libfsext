@@ -24,7 +24,7 @@ BEGIN
       VALUE "FileDescription",		"Library to support the Extended File System (ext) format\0"
       VALUE "FileVersion",		"@VERSION@" "\0"
       VALUE "InternalName",		"libfsext.dll\0"
-      VALUE "LegalCopyright",		"(C) 2010-2022, Joachim Metz <joachim.metz@gmail.com>\0"
+      VALUE "LegalCopyright",		"(C) 2010-2023, Joachim Metz <joachim.metz@gmail.com>\0"
       VALUE "OriginalFilename",		"libfsext.dll\0"
       VALUE "ProductName",		"libfsext\0"
       VALUE "ProductVersion",		"@VERSION@" "\0"

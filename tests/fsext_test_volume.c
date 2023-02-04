@@ -1,7 +1,7 @@
 /*
  * Library volume type test program
  *
- * Copyright (C) 2010-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2023, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -37,7 +37,6 @@
 #include "fsext_test_libfsext.h"
 #include "fsext_test_macros.h"
 #include "fsext_test_memory.h"
-#include "fsext_test_unused.h"
 
 #include "../libfsext/libfsext_volume.h"
 
