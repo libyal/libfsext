@@ -1,6 +1,6 @@
 dnl Checks for required headers and functions
 dnl
-dnl Version: 20230204
+dnl Version: 20200713
 
 dnl Function to detect if libfsext dependencies are available
 AC_DEFUN([AX_LIBFSEXT_CHECK_LOCAL],
