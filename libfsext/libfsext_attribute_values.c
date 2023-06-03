@@ -277,56 +277,56 @@ int libfsext_attribute_values_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( name_size > 0 )
+	switch( name_index )
 	{
-		switch( name_index )
-		{
-			case 0:
-				name_prefix = "";
-				break;
+		case 0:
+			name_prefix = "";
+			break;
 
-			case 1:
-				name_prefix = "user.";
-				break;
+		case 1:
+			name_prefix = "user.";
+			break;
 
-			case 2:
-				name_prefix = "system.posix_acl_access";
-				break;
+		case 2:
+			name_prefix = "system.posix_acl_access";
+			break;
 
-			case 3:
-				name_prefix = "system.posix_acl_default";
-				break;
+		case 3:
+			name_prefix = "system.posix_acl_default";
+			break;
 
-			case 4:
-				name_prefix = "trusted.";
-				break;
+		case 4:
+			name_prefix = "trusted.";
+			break;
 
-			case 6:
-				name_prefix = "security.";
-				break;
+		case 6:
+			name_prefix = "security.";
+			break;
 
-			case 7:
-				name_prefix = "system.";
-				break;
+		case 7:
+			name_prefix = "system.";
+			break;
 
-			case 8:
-				name_prefix = "system.richacl";
-				break;
+		case 8:
+			name_prefix = "system.richacl";
+			break;
 
-			default:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported name index: %" PRIu8 ".",
-				 function,
-				 name_index );
+		default:
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported name index: %" PRIu8 ".",
+			 function,
+			 name_index );
 
-				return( -1 );
-		}
-		name_prefix_length = narrow_string_length(
-		                      name_prefix );
+			return( -1 );
+	}
+	name_prefix_length = narrow_string_length(
+	                      name_prefix );
 
+	if( ( name_prefix_length > 0 ) || ( name_size > 0 ) )
+	{
 		attribute_values->name_size = name_prefix_length + name_size + 1;
 
 		if( attribute_values->name_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
@@ -371,19 +371,22 @@ int libfsext_attribute_values_read_data(
 				goto on_error;
 			}
 		}
-		if( memory_copy(
-		     &( ( attribute_values->name )[ name_prefix_length ] ),
-		     &( data[ sizeof( fsext_attributes_entry_t ) ] ),
-		     name_size ) == NULL )
+		if( name_size > 0 )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-			 "%s: unable to copy name to extended attribute name.",
-			 function );
+			if( memory_copy(
+			     &( ( attribute_values->name )[ name_prefix_length ] ),
+			     &( data[ sizeof( fsext_attributes_entry_t ) ] ),
+			     name_size ) == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+				 "%s: unable to copy name to extended attribute name.",
+				 function );
 
-			goto on_error;
+				goto on_error;
+			}
 		}
 		( attribute_values->name )[ attribute_values->name_size - 1 ] = 0;
 
@@ -499,20 +502,38 @@ int libfsext_attribute_values_get_utf8_name_size(
 
 		return( -1 );
 	}
-	if( libuna_utf8_string_size_from_utf8_stream(
-	     attribute_values->name,
-	     (size_t) attribute_values->name_size,
-	     utf8_string_size,
-	     error ) != 1 )
+	if( attribute_values->name == NULL )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve UTF-8 string size.",
-		 function );
+		if( utf8_string_size == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid UTF-8 string size.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		*utf8_string_size = 0;
+	}
+	else
+	{
+		if( libuna_utf8_string_size_from_utf8_stream(
+		     attribute_values->name,
+		     (size_t) attribute_values->name_size,
+		     utf8_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-8 string size.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( 1 );
 }
@@ -625,20 +646,38 @@ int libfsext_attribute_values_get_utf16_name_size(
 
 		return( -1 );
 	}
-	if( libuna_utf16_string_size_from_utf8_stream(
-	     attribute_values->name,
-	     (size_t) attribute_values->name_size,
-	     utf16_string_size,
-	     error ) != 1 )
+	if( attribute_values->name == NULL )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve UTF-16 string size.",
-		 function );
+		if( utf16_string_size == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid UTF-16 string size.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		*utf16_string_size = 0;
+	}
+	else
+	{
+		if( libuna_utf16_string_size_from_utf8_stream(
+		     attribute_values->name,
+		     (size_t) attribute_values->name_size,
+		     utf16_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-16 string size.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( 1 );
 }
