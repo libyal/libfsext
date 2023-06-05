@@ -56,7 +56,6 @@ int LLVMFuzzerTestOneInput(
 	size64_t file_size                    = 0;
 	size_t string_size                    = 0;
 	off64_t file_offset                   = 0;
-	uint64_t value_64bit                  = 0;
 	int64_t posix_time_64bit              = 0;
 	uint32_t value_32bit                  = 0;
 	int32_t posix_time_32bit              = 0;
