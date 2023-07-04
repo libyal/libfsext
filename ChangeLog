@@ -1,6 +1,8 @@
 TODO:
 * fsextinfo output file system identifier
 
+* add support for file name codepage
+
 * rename libfsext_block_stream to libfsext_data_stream
 ** refactor libfsext_block_stream_initialize_from_extents to have extents and size arguments
 
