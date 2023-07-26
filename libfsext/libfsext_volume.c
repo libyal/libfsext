@@ -645,9 +645,9 @@ int libfsext_volume_open_file_io_handle(
 {
 	libfsext_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libfsext_volume_open_file_io_handle";
+	uint8_t file_io_handle_opened_in_library    = 0;
 	int bfio_access_flags                       = 0;
 	int file_io_handle_is_open                  = 0;
-	int file_io_handle_opened_in_library        = 0;
 
 	if( volume == NULL )
 	{
@@ -774,7 +774,7 @@ int libfsext_volume_open_file_io_handle(
 	}
 #endif
 	internal_volume->file_io_handle                   = file_io_handle;
-	internal_volume->file_io_handle_opened_in_library = (uint8_t) file_io_handle_opened_in_library;
+	internal_volume->file_io_handle_opened_in_library = file_io_handle_opened_in_library;
 
 #if defined( HAVE_LIBFSEXT_MULTI_THREAD_SUPPORT )
 	if( libcthreads_read_write_lock_release_for_write(
