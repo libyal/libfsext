@@ -130,7 +130,7 @@ void libfsext_debug_print_incompatible_features_flags(
 	if( ( incompatible_features_flags & 0x00000010UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\tHas metadata block group (EXT2_FEATURE_INCOMPAT_META_BG)\n" );
+		 "\tHas metadata block groups (EXT2_FEATURE_INCOMPAT_META_BG)\n" );
 	}
 
 	if( ( incompatible_features_flags & 0x00000040UL ) != 0 )
@@ -151,7 +151,7 @@ void libfsext_debug_print_incompatible_features_flags(
 	if( ( incompatible_features_flags & 0x00000200UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\t(EXT4_FEATURE_INCOMPAT_FLEX_BG)\n" );
+		 "\tHas flexible block groups (EXT4_FEATURE_INCOMPAT_FLEX_BG)\n" );
 	}
 	if( ( incompatible_features_flags & 0x00000400UL ) != 0 )
 	{

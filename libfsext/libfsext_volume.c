@@ -1084,25 +1084,33 @@ int libfsext_internal_volume_read_block_groups(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	libfsext_bitmap_t *bitmap                     = NULL;
-	libfsext_group_descriptor_t *group_descriptor = NULL;
-	libfsext_superblock_t *superblock             = NULL;
-	static char *function                         = "libfsext_internal_volume_read_block_groups";
-	off64_t block_group_offset                    = 0;
-	off64_t group_descriptor_offset               = 0;
-	off64_t superblock_offset                     = 0;
-	uint32_t block_group_index                    = 0;
-	uint32_t exponent3                            = 3;
-	uint32_t exponent5                            = 5;
-	uint32_t exponent7                            = 7;
-	uint32_t group_descriptor_index               = 0;
-	uint32_t number_of_block_groups               = 0;
-	uint8_t block_group_has_superblock            = 0;
-	int entry_index                               = 0;
+	libfsext_bitmap_t *bitmap                        = NULL;
+	libfsext_group_descriptor_t *group_descriptor    = NULL;
+	libfsext_superblock_t *superblock                = NULL;
+	static char *function                            = "libfsext_internal_volume_read_block_groups";
+	size64_t block_group_size                        = 0;
+	size_t group_descriptor_data_size                = 0;
+	off64_t block_group_offset                       = 0;
+	off64_t group_descriptor_offset                  = 0;
+	off64_t superblock_offset                        = 0;
+	uint32_t block_group_number                      = 0;
+	uint32_t exponent3                               = 3;
+	uint32_t exponent5                               = 5;
+	uint32_t exponent7                               = 7;
+	uint32_t group_descriptor_index                  = 0;
+	uint32_t metadata_block_group_number             = 0;
+	uint32_t metadata_block_group_start_block_number = 0;
+	uint32_t number_of_block_groups                  = 0;
+	uint32_t number_of_blocks_per_meta_group         = 0;
+	uint32_t number_of_group_descriptors             = 0;
+	uint8_t block_group_has_group_descriptors        = 0;
+	uint8_t block_group_has_superblock               = 0;
+	uint8_t is_primary_group_descriptor_table        = 0;
+	int entry_index                                  = 0;
 
 #ifdef TODO
-	off64_t block_bitmap_offset                   = 0;
-	off64_t inode_bitmap_offset                   = 0;
+	off64_t block_bitmap_offset                      = 0;
+	off64_t inode_bitmap_offset                      = 0;
 #endif
 
 	if( internal_volume == NULL )
@@ -1153,54 +1161,52 @@ int libfsext_internal_volume_read_block_groups(
 #endif
 	do
 	{
-		if( exponent7 < block_group_index )
+		if( exponent7 < block_group_number )
 		{
 			exponent7 *= 7;
 		}
-		if( exponent5 < block_group_index )
+		if( exponent5 < block_group_number )
 		{
 			exponent5 *= 5;
 		}
-		if( exponent3 < block_group_index )
+		if( exponent3 < block_group_number )
 		{
 			exponent3 *= 3;
 		}
 		block_group_has_superblock = 0;
 
-		if( ( block_group_index == 0 )
-		 || ( block_group_index == 1 ) )
+		if( ( block_group_number == 0 )
+		 || ( block_group_number == 1 ) )
 		{
 			block_group_has_superblock = 1;
 		}
-		else if( ( internal_volume->superblock != NULL )
-		      && ( ( internal_volume->superblock->read_only_compatible_features_flags & 0x00000001UL ) != 0 ) )
+		else if( internal_volume->superblock != NULL )
 		{
-			if( ( block_group_index == exponent3 )
-			 || ( block_group_index == exponent5 )
-			 || ( block_group_index == exponent7 ) )
+			if( ( internal_volume->superblock->read_only_compatible_features_flags & LIBFSEXT_READ_ONLY_COMPATIBLE_FEATURES_FLAG_SPARSE_SUPERBLOCK ) != 0 )
 			{
-				block_group_has_superblock = 1;
+				if( ( block_group_number == exponent3 )
+				 || ( block_group_number == exponent5 )
+				 || ( block_group_number == exponent7 ) )
+				{
+					block_group_has_superblock = 1;
+				}
 			}
 		}
-		group_descriptor_offset = block_group_offset;
-
 		if( block_group_has_superblock != 0 )
 		{
+			superblock_offset = block_group_offset;
+
 			if( ( block_group_offset == 0 )
 			 || ( internal_volume->io_handle->block_size == 1024 ) )
 			{
-				superblock_offset = block_group_offset + 1024;
-			}
-			else
-			{
-				superblock_offset = block_group_offset;
+				superblock_offset += 1024;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
 				 "Reading superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
-				 block_group_index,
+				 block_group_number,
 				 superblock_offset,
 				 superblock_offset );
 			}
@@ -1230,14 +1236,43 @@ int libfsext_internal_volume_read_block_groups(
 				 LIBCERROR_IO_ERROR_READ_FAILED,
 				 "%s: unable to read superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 				 function,
-				 block_group_index,
+				 block_group_number,
 				 superblock_offset,
 				 superblock_offset );
 
 				goto on_error;
 			}
-			if( block_group_index == 0 )
+			if( block_group_number == 0 )
 			{
+				number_of_block_groups = superblock->number_of_block_groups;
+				block_group_size       = superblock->block_group_size;
+
+				if( ( superblock->incompatible_features_flags & LIBFSEXT_INCOMPATIBLE_FEATURES_FLAG_HAS_META_BLOCK_GROUPS ) != 0 )
+				{
+					if( ( ( superblock->incompatible_features_flags & LIBFSEXT_INCOMPATIBLE_FEATURES_FLAG_64BIT_SUPPORT ) != 0 )
+					  && ( superblock->group_descriptor_size > 32 ) )
+					{
+						group_descriptor_data_size = 64;
+					}
+					else
+					{
+						group_descriptor_data_size = 32;
+					}
+					number_of_blocks_per_meta_group = superblock->block_size / group_descriptor_data_size;
+
+					if( superblock->first_metadata_block_group > ( (uint32_t) UINT32_MAX / number_of_blocks_per_meta_group ) )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid first metadata block group value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+					metadata_block_group_start_block_number = superblock->first_metadata_block_group * number_of_blocks_per_meta_group;
+				}
 				internal_volume->io_handle->block_size                          = superblock->block_size;
 				internal_volume->io_handle->inode_size                          = superblock->inode_size;
 				internal_volume->io_handle->group_descriptor_size               = superblock->group_descriptor_size;
@@ -1246,8 +1281,6 @@ int libfsext_internal_volume_read_block_groups(
 				internal_volume->io_handle->incompatible_features_flags         = superblock->incompatible_features_flags;
 				internal_volume->io_handle->read_only_compatible_features_flags = superblock->read_only_compatible_features_flags;
 				internal_volume->io_handle->format_version                      = superblock->format_version;
-
-				number_of_block_groups = superblock->number_of_block_groups;
 
 				internal_volume->superblock = superblock;
 				superblock                  = NULL;
@@ -1269,22 +1302,52 @@ int libfsext_internal_volume_read_block_groups(
 					goto on_error;
 				}
 			}
-			/* The group descriptors are stored in the first block after the superblock
-			 */
-			if( internal_volume->io_handle->block_size == 1024 )
+		}
+		/* When the has meta block groups feature is enabled group descriptors
+		 * are stored at the beginning of the first, second, and  last block
+		 * groups in a meta block group, independent of a superblock. Otherwise
+		 * group descriptors are stored in the first block after a superblock.
+		 */
+		if( ( number_of_blocks_per_meta_group == 0 )
+		 || ( block_group_number < metadata_block_group_start_block_number ) )
+		{
+			block_group_has_group_descriptors = block_group_has_superblock;
+		}
+		else
+		{
+			metadata_block_group_number = block_group_number % number_of_blocks_per_meta_group;
+
+			if( ( metadata_block_group_number == 0 )
+			 || ( metadata_block_group_number == 1 )
+			 || ( metadata_block_group_number == ( number_of_blocks_per_meta_group - 1 ) ) )
 			{
-				group_descriptor_offset = block_group_offset + 1024 + internal_volume->io_handle->block_size;
+				block_group_has_group_descriptors = 1;
 			}
 			else
 			{
-				group_descriptor_offset = block_group_offset + internal_volume->io_handle->block_size;
+				block_group_has_group_descriptors = 0;
+			}
+		}
+		if( block_group_has_group_descriptors != 0 )
+		{
+			group_descriptor_offset = block_group_offset;
+
+			if( block_group_has_superblock != 0 )
+			{
+				group_descriptor_offset += internal_volume->io_handle->block_size;
+
+				if( ( block_group_number == 0 )
+				 && ( internal_volume->io_handle->block_size == 1024 ) )
+				{
+					group_descriptor_offset += 1024;
+				}
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
 				 "Reading group descriptors: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
-				 block_group_index,
+				 block_group_number,
 				 group_descriptor_offset,
 				 group_descriptor_offset );
 			}
@@ -1301,14 +1364,31 @@ int libfsext_internal_volume_read_block_groups(
 				 LIBCERROR_IO_ERROR_SEEK_FAILED,
 				 "%s: unable to seek group descriptors: %" PRIu32 " offset: %" PRIi64 " (0x%08" PRIx64 ").",
 				 function,
-				 block_group_index,
+				 block_group_number,
 				 group_descriptor_offset,
 				 group_descriptor_offset );
 
 				goto on_error;
 			}
+			is_primary_group_descriptor_table = 0;
+
+			if( number_of_blocks_per_meta_group == 0 )
+			{
+				number_of_group_descriptors       = internal_volume->superblock->number_of_block_groups;
+				is_primary_group_descriptor_table = (uint8_t) ( block_group_number == 0 );
+			}
+			else if( block_group_number < metadata_block_group_start_block_number )
+			{
+				number_of_group_descriptors       = internal_volume->superblock->first_metadata_block_group;
+				is_primary_group_descriptor_table = (uint8_t) ( block_group_number == 0 );
+			}
+			else
+			{
+				number_of_group_descriptors       = number_of_blocks_per_meta_group;
+				is_primary_group_descriptor_table = (uint8_t) ( metadata_block_group_number == 0 );
+			}
 			for( group_descriptor_index = 0;
-			     group_descriptor_index < number_of_block_groups;
+			     group_descriptor_index < number_of_group_descriptors;
 			     group_descriptor_index++ )
 			{
 				if( libfsext_group_descriptor_initialize(
@@ -1340,7 +1420,7 @@ int libfsext_internal_volume_read_block_groups(
 
 					goto on_error;
 				}
-				if( block_group_index == 0 )
+				if( is_primary_group_descriptor_table != 0 )
 				{
 					if( libcdata_array_append_entry(
 					     internal_volume->group_descriptors_array,
@@ -1391,7 +1471,7 @@ int libfsext_internal_volume_read_block_groups(
 		{
 			libcnotify_printf(
 			 "Reading block bitmap: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
-			 block_group_index,
+			 block_group_number,
 			 block_bitmap_offset,
 			 block_bitmap_offset );
 		}
@@ -1422,7 +1502,7 @@ int libfsext_internal_volume_read_block_groups(
 			 LIBCERROR_IO_ERROR_READ_FAILED,
 			 "%s: unable to read block bitmap: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 			 function,
-			 block_group_index,
+			 block_group_number,
 			 block_bitmap_offset,
 			 block_bitmap_offset );
 
@@ -1446,7 +1526,7 @@ int libfsext_internal_volume_read_block_groups(
 		{
 			libcnotify_printf(
 			 "Reading inode bitmap: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
-			 block_group_index,
+			 block_group_number,
 			 inode_bitmap_offset,
 			 inode_bitmap_offset );
 		}
@@ -1496,11 +1576,11 @@ int libfsext_internal_volume_read_block_groups(
 			goto on_error;
 		}
 #endif /* TODO */
-		block_group_offset += internal_volume->superblock->block_group_size;
+		block_group_offset += block_group_size;
 
-		block_group_index++;
+		block_group_number++;
 	}
-	while( block_group_index < number_of_block_groups );
+	while( block_group_number < number_of_block_groups );
 
 	return( 1 );
 

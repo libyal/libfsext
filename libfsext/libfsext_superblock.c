@@ -152,12 +152,14 @@ int libfsext_superblock_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function            = "libfsext_superblock_read_data";
-	uint32_t supported_feature_flags = 0;
+	static char *function                         = "libfsext_superblock_read_data";
+	uint32_t supported_feature_flags              = 0;
+	uint8_t number_of_block_groups_per_flex_group = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit             = 0;
-	uint16_t value_16bit             = 0;
+	uint64_t value_64bit                          = 0;
+	uint32_t value_32bit                          = 0;
+	uint16_t value_16bit                          = 0;
 #endif
 
 	if( superblock == NULL )
@@ -279,27 +281,27 @@ int libfsext_superblock_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: number of inodes\t\t\t\t: %" PRIu32 "\n",
+		 "%s: number of inodes\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->number_of_inodes );
 
 		libcnotify_printf(
-		 "%s: number of blocks\t\t\t\t: %" PRIu32 "\n",
+		 "%s: number of blocks\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->number_of_blocks );
 
 		libcnotify_printf(
-		 "%s: number of reserved blocks\t\t: %" PRIu32 "\n",
+		 "%s: number of reserved blocks\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->number_of_reserved_blocks );
 
 		libcnotify_printf(
-		 "%s: number of unallocated blocks\t\t: %" PRIu32 "\n",
+		 "%s: number of unallocated blocks\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->number_of_unallocated_blocks );
 
 		libcnotify_printf(
-		 "%s: number of unallocated inodes\t\t: %" PRIu32 "\n",
+		 "%s: number of unallocated inodes\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->number_of_unallocated_inodes );
 
@@ -307,12 +309,12 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->first_data_block_number,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: first data block number\t\t\t: %" PRIu32 "\n",
+		 "%s: first data block number\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: block size\t\t\t\t: %" PRIu64 " (%" PRIu32 ")\n",
+		 "%s: block size\t\t\t\t\t: %" PRIu64 " (%" PRIu32 ")\n",
 		 function,
 		 (uint64_t) 1024UL << superblock->block_size,
 		 superblock->block_size );
@@ -321,13 +323,13 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->fragment_size,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: fragment size\t\t\t\t: %" PRIu32 " (%" PRIu32 ")\n",
+		 "%s: fragment size\t\t\t\t\t: %" PRIu32 " (%" PRIu32 ")\n",
 		 function,
 		 1024 << value_32bit,
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: number of blocks per block group\t\t: %" PRIu32 "\n",
+		 "%s: number of blocks per block group\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->number_of_blocks_per_block_group );
 
@@ -335,18 +337,18 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->number_of_fragments_per_block_group,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: number of fragments per block group\t: %" PRIu32 "\n",
+		 "%s: number of fragments per block group\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: number of inodes per block group\t\t: %" PRIu32 "\n",
+		 "%s: number of inodes per block group\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->number_of_inodes_per_block_group );
 
 		if( libfsext_debug_print_posix_time_value(
 		     function,
-		     "last mount time\t\t\t\t",
+		     "last mount time\t\t\t\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->last_mount_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
@@ -365,7 +367,7 @@ int libfsext_superblock_read_data(
 		}
 		if( libfsext_debug_print_posix_time_value(
 		     function,
-		     "last written time\t\t\t",
+		     "last written time\t\t\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->last_written_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
@@ -386,7 +388,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->mount_count,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: mount count\t\t\t\t: %" PRIu16 "\n",
+		 "%s: mount count\t\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
@@ -394,12 +396,12 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->maximum_mount_count,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: maximum mount count\t\t\t: %" PRIu16 "\n",
+		 "%s: maximum mount count\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
 		libcnotify_printf(
-		 "%s: signature\t\t\t\t: 0x%02" PRIx8 " 0x%02" PRIx8 "\n",
+		 "%s: signature\t\t\t\t\t: 0x%02" PRIx8 " 0x%02" PRIx8 "\n",
 		 function,
 		 ( (fsext_superblock_ext2_t *) data )->signature[ 0 ],
 		 ( (fsext_superblock_ext2_t *) data )->signature[ 1 ] );
@@ -408,7 +410,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->file_system_state_flags,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: file system state flags\t\t\t: 0x%04" PRIx16 "\n",
+		 "%s: file system state flags\t\t\t\t: 0x%04" PRIx16 "\n",
 		 function,
 		 value_16bit );
 		libfsext_debug_print_file_system_state_flags(
@@ -420,7 +422,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->error_handling_status,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: error handling status\t\t\t: %" PRIu16 " (%s)\n",
+		 "%s: error handling status\t\t\t\t: %" PRIu16 " (%s)\n",
 		 function,
 		 value_16bit,
 		 libfsext_debug_print_error_handling_status(
@@ -430,13 +432,13 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->minor_format_revision,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: minor format revision\t\t\t: %" PRIu16 "\n",
+		 "%s: minor format revision\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
 		if( libfsext_debug_print_posix_time_value(
 		     function,
-		     "last consistency check time\t\t",
+		     "last consistency check time\t\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->last_consistency_check_time,
 		     4,
 		     LIBFDATETIME_ENDIAN_LITTLE,
@@ -459,7 +461,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->consistency_check_interval,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: consistency check interval\t\t: %" PRIu32 "\n",
+		 "%s: consistency check interval\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -467,14 +469,14 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->creator_operating_system,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: creator operating system\t\t\t: %" PRIu32 " (%s)\n",
+		 "%s: creator operating system\t\t\t\t: %" PRIu32 " (%s)\n",
 		 function,
 		 value_32bit,
 		 libfsext_debug_print_creator_operating_system(
 		  value_32bit ) );
 
 		libcnotify_printf(
-		 "%s: format revision\t\t\t\t: %" PRIu32 "\n",
+		 "%s: format revision\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->format_revision );
 
@@ -482,7 +484,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->reserved_block_user_identifier,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: reserved block user identifier\t\t: %" PRIu16 "\n",
+		 "%s: reserved block user identifier\t\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
@@ -490,7 +492,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->reserved_block_group_identifier,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: reserved block group identifier\t\t: %" PRIu16 "\n",
+		 "%s: reserved block group identifier\t\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
@@ -531,6 +533,10 @@ int libfsext_superblock_read_data(
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_superblock_ext2_t *) data )->inode_size,
 		 superblock->inode_size );
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_superblock_ext2_t *) data )->block_group,
+		 superblock->block_group );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_superblock_ext2_t *) data )->compatible_features_flags,
@@ -593,25 +599,22 @@ int libfsext_superblock_read_data(
 			 ( (fsext_superblock_ext2_t *) data )->first_non_reserved_inode,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: first non-reserved inode\t\t\t: %" PRIu32 "\n",
+			 "%s: first non-reserved inode\t\t\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
 			libcnotify_printf(
-			 "%s: inode size\t\t\t\t: %" PRIu16 "\n",
+			 "%s: inode size\t\t\t\t\t: %" PRIu16 "\n",
 			 function,
 			 superblock->inode_size );
 
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_superblock_ext2_t *) data )->block_group,
-			 value_16bit );
 			libcnotify_printf(
-			 "%s: block group\t\t\t\t: %" PRIu16 "\n",
+			 "%s: block group\t\t\t\t\t: %" PRIu16 "\n",
 			 function,
-			 value_16bit );
+			 superblock->block_group );
 
 			libcnotify_printf(
-			 "%s: compatible features flags\t\t: 0x%08" PRIx32 "\n",
+			 "%s: compatible features flags\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 superblock->compatible_features_flags );
 			libfsext_debug_print_compatible_features_flags(
@@ -620,7 +623,7 @@ int libfsext_superblock_read_data(
 			 "\n" );
 
 			libcnotify_printf(
-			 "%s: incompatible features flags\t\t: 0x%08" PRIx32 "\n",
+			 "%s: incompatible features flags\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 superblock->incompatible_features_flags );
 			libfsext_debug_print_incompatible_features_flags(
@@ -629,7 +632,7 @@ int libfsext_superblock_read_data(
 			 "\n" );
 
 			libcnotify_printf(
-			 "%s: read-only compatible features flags\t: 0x%08" PRIx32 "\n",
+			 "%s: read-only compatible features flags\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 superblock->read_only_compatible_features_flags );
 			libfsext_debug_print_read_only_compatible_features_flags(
@@ -639,7 +642,7 @@ int libfsext_superblock_read_data(
 
 			if( libfsext_debug_print_guid_value(
 			     function,
-			     "file system identifier\t\t\t",
+			     "file system identifier\t\t\t\t",
 			     ( (fsext_superblock_ext2_t *) data )->file_system_identifier,
 			     16,
 			     LIBFGUID_ENDIAN_BIG,
@@ -657,7 +660,7 @@ int libfsext_superblock_read_data(
 			}
 			if( libfsext_debug_print_utf8_string_value(
 			     function,
-			     "volume label\t\t\t\t",
+			     "volume label\t\t\t\t\t",
 			     superblock->volume_label,
 			     16,
 			     error ) != 1 )
@@ -673,7 +676,7 @@ int libfsext_superblock_read_data(
 			}
 			if( libfsext_debug_print_utf8_string_value(
 			     function,
-			     "last mount path\t\t\t\t",
+			     "last mount path\t\t\t\t\t",
 			     superblock->last_mount_path,
 			     64,
 			     error ) != 1 )
@@ -691,7 +694,7 @@ int libfsext_superblock_read_data(
 			 ( (fsext_superblock_ext2_t *) data )->algorithm_usage_bitmap,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: algorithm usage bitmap\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: algorithm usage bitmap\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 value_32bit );
 
@@ -721,6 +724,7 @@ int libfsext_superblock_read_data(
 	supported_feature_flags = 0x00000002UL
 	                        | 0x00000004UL
 	                        | 0x00000008UL
+	                        | 0x00000010UL
 	                        | 0x00000040UL
 	                        | 0x00000080UL
 	                        | 0x00000200UL
@@ -762,12 +766,12 @@ int libfsext_superblock_read_data(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: number of pre-allocated blocks per file\t: %" PRIu8 "\n",
+			 "%s: number of pre-allocated blocks per file\t\t: %" PRIu8 "\n",
 			 function,
 			 ( (fsext_superblock_ext2_t *) data )->number_of_pre_allocated_blocks_per_file );
 
 			libcnotify_printf(
-			 "%s: number of pre-allocated blocks per directory\t: %" PRIu8 "\n",
+			 "%s: number of pre-allocated blocks per directory\t\t: %" PRIu8 "\n",
 			 function,
 			 ( (fsext_superblock_ext2_t *) data )->number_of_pre_allocated_blocks_per_directory );
 
@@ -787,12 +791,20 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext4_t *) data )->group_descriptor_size,
 		 superblock->group_descriptor_size );
 	}
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (fsext_superblock_ext2_t *) data )->first_metadata_block_group,
+	 superblock->first_metadata_block_group );
+
+	if( superblock->format_version == 4 )
+	{
+		number_of_block_groups_per_flex_group = ( (fsext_superblock_ext4_t *) data )->number_of_block_groups_per_flex_group;
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		if( libfsext_debug_print_guid_value(
 		     function,
-		     "journal identifier\t\t\t",
+		     "journal identifier\t\t\t\t",
 		     ( (fsext_superblock_ext2_t *) data )->journal_identifier,
 		     16,
 		     LIBFGUID_ENDIAN_BIG,
@@ -812,7 +824,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->journal_inode_number,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: journal inode number\t\t\t: %" PRIu32 "\n",
+		 "%s: journal inode number\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -820,7 +832,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->journal_device,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: journal device\t\t\t\t: %" PRIu32 "\n",
+		 "%s: journal device\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -828,7 +840,7 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->orphan_inode_list_head,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: orphan inode list head\t\t\t: %" PRIu32 "\n",
+		 "%s: orphan inode list head\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -841,7 +853,7 @@ int libfsext_superblock_read_data(
 		 0 );
 
 		libcnotify_printf(
-		 "%s: default hash version\t\t\t: %" PRIu8 "\n",
+		 "%s: default hash version\t\t\t\t: %" PRIu8 "\n",
 		 function,
 		 ( (fsext_superblock_ext2_t *) data )->default_hash_version );
 
@@ -858,12 +870,12 @@ int libfsext_superblock_read_data(
 		else
 		{
 			libcnotify_printf(
-			 "%s: journal backup type\t\t\t: %" PRIu8 "\n",
+			 "%s: journal backup type\t\t\t\t: %" PRIu8 "\n",
 			 function,
 			 ( (fsext_superblock_ext4_t *) data )->journal_backup_type );
 
 			libcnotify_printf(
-			 "%s: group descriptor size\t\t\t: %" PRIu16 "\n",
+			 "%s: group descriptor size\t\t\t\t: %" PRIu16 "\n",
 			 function,
 			 superblock->group_descriptor_size );
 		}
@@ -871,28 +883,20 @@ int libfsext_superblock_read_data(
 		 ( (fsext_superblock_ext2_t *) data )->default_mount_options,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: default mount options\t\t\t: %" PRIu32 "\n",
+		 "%s: default mount options\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_superblock_ext2_t *) data )->first_metadata_block_group,
-		 value_32bit );
 		libcnotify_printf(
-		 "%s: first metadata block group\t\t: %" PRIu32 "\n",
+		 "%s: first metadata block group\t\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
-	}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+		 superblock->first_metadata_block_group );
 
-	if( superblock->format_version == 4 )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
+		if( superblock->format_version == 4 )
 		{
 			if( libfsext_debug_print_posix_time_value(
 			     function,
-			     "file system creation time\t\t",
+			     "file system creation time\t\t\t",
 			     ( (fsext_superblock_ext4_t *) data )->file_system_creation_time,
 			     4,
 			     LIBFDATETIME_ENDIAN_LITTLE,
@@ -917,23 +921,353 @@ int libfsext_superblock_read_data(
 			 68,
 			 0 );
 
-/* TODO print remaining values */
-		}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-	}
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( superblock->format_version < 4 )
-	{
-		if( libcnotify_verbose != 0 )
-		{
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->number_of_blocks_upper,
+			 value_32bit );
 			libcnotify_printf(
-			 "%s: padding3:\n",
+			 "%s: number of blocks (upper 32-bit)\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->number_of_reserved_blocks_upper,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: number of reserved blocks (upper 32-bit)\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->number_of_unallocated_blocks_upper,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: number of unallocated blocks (upper 32-bit)\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->minimum_inode_size,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: minimum inode size\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 value_16bit );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->reserved_inode_size,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: reserved inode size\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 value_16bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->flags,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->read_stride,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: read stride\t\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 value_16bit );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->multi_mount_protection_update_interval,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: multi-mount protection update interval\t\t: %" PRIu16 "\n",
+			 function,
+			 value_16bit );
+
+			byte_stream_copy_to_uint64_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->multi_mount_protection_block,
+			 value_64bit );
+			libcnotify_printf(
+			 "%s: multi-mount protection block\t\t\t: %" PRIu64 "\n",
+			 function,
+			 value_64bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->raid_stripe_width,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: RAID stripe width\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			libcnotify_printf(
+			 "%s: number of blocks per flex group\t\t\t: %" PRIu32 " (2 ^ %" PRIu8 ")\n",
+			 function,
+			 (uint64_t) 1 << number_of_block_groups_per_flex_group,
+			 number_of_block_groups_per_flex_group );
+
+			libcnotify_printf(
+			 "%s: checksum type\t\t\t\t\t: %" PRIu8 "\n",
+			 function,
+			 ( (fsext_superblock_ext4_t *) data )->checksum_type );
+
+			libcnotify_printf(
+			 "%s: encryption level\t\t\t\t\t: %" PRIu8 "\n",
+			 function,
+			 ( (fsext_superblock_ext4_t *) data )->encryption_level );
+
+			libcnotify_printf(
+			 "%s: padding2\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
+			 function,
+			 ( (fsext_superblock_ext4_t *) data )->padding2 );
+
+			byte_stream_copy_to_uint64_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->write_count,
+			 value_64bit );
+			libcnotify_printf(
+			 "%s: write count\t\t\t\t\t: %" PRIu64 "\n",
+			 function,
+			 value_64bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->snapshot_inode_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: snapshot inode number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->snapshot_sequential_identifier,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: snapshot sequential identifier\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint64_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->snapshot_number_of_reserved_blocks,
+			 value_64bit );
+			libcnotify_printf(
+			 "%s: snapshot number of reserved blocks\t\t: %" PRIu64 "\n",
+			 function,
+			 value_64bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->snapshot_inode_list,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: snapshot inode list\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->number_of_errors,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: number of errors\t\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->first_error_time,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: first error time\t\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->first_error_inode_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: first error inode number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->first_error_block_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: first error block number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			libcnotify_printf(
+			 "%s: first error function:\n",
 			 function );
 			libcnotify_print_data(
+			 ( (fsext_superblock_ext4_t *) data )->first_error_function,
+			 32,
+			 0 );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->first_error_function_line_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: first error function line number\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->last_error_time,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: last error time\t\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->last_error_inode_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: last error inode number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->last_error_function_line_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: last error function line number\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->last_error_block_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: last error block number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			libcnotify_printf(
+			 "%s: last error function:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (fsext_superblock_ext4_t *) data )->last_error_function,
+			 32,
+			 0 );
+
+			libcnotify_printf(
+			 "%s: mount options:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (fsext_superblock_ext4_t *) data )->last_error_function,
+			 64,
+			 0 );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->user_quota_inode_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: user quota inode number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->group_quota_inode_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: group quota inode number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->overhead_number_of_clusters,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: overhead number of clusters\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->backup_block_group1,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: first backup block group\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->backup_block_group2,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: second backup block group\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->encryption_algorithms,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: encryption algorithms\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			libcnotify_printf(
+			 "%s: encryption password salt:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (fsext_superblock_ext4_t *) data )->encryption_password_salt,
+			 16,
+			 0 );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->lost_and_found_inode_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: lost and found inode number\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->project_quota_inode_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: project quota inode number\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->checksum_seed,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: checksum seed\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+		}
+		libcnotify_printf(
+		 "%s: padding3:\n",
+		 function );
+
+		if( superblock->format_version < 4 )
+		{
+			libcnotify_print_data(
 			 ( (fsext_superblock_ext2_t *) data )->padding3,
-			 3,
+			 190,
+			 0 );
+		}
+		else
+		{
+			libcnotify_print_data(
+			 ( (fsext_superblock_ext4_t *) data )->padding3,
+			 392,
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+		}
+		if( superblock->format_version == 4 )
+		{
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->checksum,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: checksum\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+
+			libcnotify_printf(
+			 "\n" );
 		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
@@ -966,25 +1300,92 @@ int libfsext_superblock_read_data(
 	{
 		superblock->number_of_block_groups += 1;
 	}
+	if( superblock->number_of_blocks_per_block_group > ( (uint64_t) UINT64_MAX / superblock->block_size ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of blocks per flex group value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	superblock->block_group_size = superblock->number_of_blocks_per_block_group * superblock->block_size;
 
+	if( number_of_block_groups_per_flex_group > 0 )
+	{
+		if( number_of_block_groups_per_flex_group >= 16 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid number of block groups per flex group value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
+		superblock->number_of_blocks_per_flex_group = (uint32_t) 1 << number_of_block_groups_per_flex_group;
+
+		if( superblock->number_of_blocks_per_flex_group > ( (uint32_t) UINT32_MAX / superblock->number_of_blocks_per_block_group ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid number of block groups per flex group value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
+		superblock->number_of_blocks_per_flex_group *= superblock->number_of_blocks_per_block_group;
+
+		if( superblock->number_of_blocks_per_flex_group > ( (uint64_t) UINT64_MAX / superblock->block_size ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid number of blocks per flex group value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
+		superblock->flex_group_size = superblock->number_of_blocks_per_flex_group * superblock->block_size;
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: format version\t\t\t\t: %" PRIu32 "\n",
+		 "%s: format version\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 superblock->format_version );
 
 		libcnotify_printf(
-		 "%s: number of block groups\t\t\t: %" PRIu32 "\n",
+		 "%s: number of blocks per block group\t\t\t: %" PRIu64 "\n",
 		 function,
-		 superblock->number_of_block_groups );
+		 superblock->number_of_blocks_per_block_group );
 
 		libcnotify_printf(
-		 "%s: block group size\t\t\t\t: %" PRIu64 "\n",
+		 "%s: block group size\t\t\t\t\t: %" PRIu64 "\n",
 		 function,
 		 superblock->block_group_size );
+
+		libcnotify_printf(
+		 "%s: number of blocks per flex group\t\t\t: %" PRIu64 "\n",
+		 function,
+		 superblock->number_of_blocks_per_flex_group );
+
+		libcnotify_printf(
+		 "%s: flex group size\t\t\t\t\t: %" PRIu64 "\n",
+		 function,
+		 superblock->flex_group_size );
+
+		libcnotify_printf(
+		 "%s: number of block groups\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 superblock->number_of_block_groups );
 
 		libcnotify_printf(
 		 "\n" );

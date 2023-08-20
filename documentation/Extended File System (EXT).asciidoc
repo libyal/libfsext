@@ -59,6 +59,7 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.13 | J.B. Metz | February 2022 | Additional information about read-only compatibility flags.
 | 0.0.14 | J.B. Metz | May 2022 | Additional information about device number.
 | 0.0.15 | J.B. Metz | May 2023 | Additional information about extended attribute.
+| 0.0.16 | J.B. Metz | August 2023 | Additional information about meta block groups.
 |===
 
 :numbered:
@@ -134,8 +135,31 @@ backup copies by only putting backups in specific groups (sparse superblock
 feature EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER).
 
 [NOTE]
-Not all values in the back superblock and backup group descriptor tables always
-match those of the primary superblock and group descriptor table.
+Not all values in a backup superblock and backup group descriptor tables
+always match those of the primary superblock and group descriptor table.
+
+=== Flex block groups
+
+Flex (or flexible) block groups are a set of block groups that treated as
+a single logical block group. Metadata such as the superblock, group
+descriptors, data block bitmaps spans the entire logical block group and
+not the individual block groups part of the set.
+
+=== Meta block groups
+
+Meta block groups (META_BG) are a set (or cluster) of block groups, for which
+its group descriptor structures can be stored in a single block.
+
+The first meta block group value in the superblock indicates what the first
+meta block group is to cluster as a meta block group. For example if the first
+meta block group value is 256, and the number of group descriptors that can be
+stored in a single block 64, then the group descriptors for the block groups
+`[0, 16383]` are stored in the group descriptor table after the primary
+superblock and corresponding locations of backups.
+
+Successive group descriptor tables, for example `[16384, 16447]`, are stored in
+the first block group of a meta block group and backups in the second and last
+block groups of the meta block group.
 
 === Blocks
 
@@ -199,7 +223,8 @@ _If major version is EXT2_DYNAMIC_REV_
 | 84 | 4 | | First non-reserved inode
 | 88 | 2 | | Inode size +
 The inode size must be a power of 2 larger or equal to 128, the maximum supported by mke2fs is 1024
-| 90 | 2 | | Block group
+| 90 | 2 | | Block group +
+Contains a block group number
 | 92 | 4 | | Compatible feature flags +
 See section: <<compatible_features_flags,Compatible features flags>>
 | 96 | 4 | | Incompatible feature flags +
@@ -232,7 +257,8 @@ The orphan inode list is a list of inodes to delete +
 | 252 | 1 | | Default hash version
 | 253 | 3 | | [yellow-background]*Unknown (padding)*
 | 256 | 4 | | Default mount options
-| 260 | 4 | | First metadata block group (or metablock)
+| 260 | 4 | | First metadata block group (or metablock) +
+Contains a block group number
 | 264 | 190 | | [yellow-background]*Unknown (reserved)*
 |===
 
@@ -343,7 +369,8 @@ Contains the upper 32-bit of the value
 | 358 | 2 | | Multiple mount protection (MMP) update interval in seconds
 | 360 | 8 | | Block for multi-mount protection
 | 368 | 4 | | [yellow-background]*Unknown (blocks on all data disks (N*stride))*
-| 372 | 1 | | [yellow-background]*Unknown (FLEX_BG group size)*
+| 372 | 1 | | Flex block group size +
+The size is stored as: 2 ^ value
 | 373 | 1 | | [yellow-background]*Unknown (metadata checksum method)*
 | 374 | 2 | | [yellow-background]*Unknown (padding)*
 4+| _Defined in ext4 reserved in earlier versions_
@@ -475,11 +502,11 @@ and COMPAT_ can be used interchangeably.
 | 0x00000002 | EXT2_FEATURE_INCOMPAT_FILETYPE | Has directory type
 | 0x00000004 | EXT3_FEATURE_INCOMPAT_RECOVER | Needs recovery
 | 0x00000008 | EXT3_FEATURE_INCOMPAT_JOURNAL_DEV | Has journal device
-| 0x00000010 | EXT2_FEATURE_INCOMPAT_META_BG | Has metadata block group
+| 0x00000010 | EXT2_FEATURE_INCOMPAT_META_BG | Has meta (or metadata) block groups
 | 0x00000040 | EXT4_FEATURE_INCOMPAT_EXTENTS | Has extents
 | 0x00000080 | EXT4_FEATURE_INCOMPAT_64BIT | Has 64-bit support
 | 0x00000100 | EXT4_FEATURE_INCOMPAT_MMP | Multiple mount protection
-| 0x00000200 | EXT4_FEATURE_INCOMPAT_FLEX_BG | Flexible block groups
+| 0x00000200 | EXT4_FEATURE_INCOMPAT_FLEX_BG | Has flex (or flexible) block groups
 | 0x00000400 | EXT4_FEATURE_INCOMPAT_EA_INODE | Inodes can be used to store large extended attribute values
 | | |
 | 0x00001000 | EXT4_FEATURE_INCOMPAT_DIRDATA | Data in directory entry +
@@ -503,7 +530,7 @@ and INCOMPAT_ can be used interchangeably.
 | Value | Identifier | Description
 | 0x00000001 | EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER | Has sparse superblocks and group descriptor tables. +
 Superblocks are stored in block groups 0, 1 and those that are powers of 3, 5 and 7. +
-Otherwise superblocks are stored in every block group.
+Otherwise a superblock is stored in every block group.
 | 0x00000002 | EXT2_FEATURE_RO_COMPAT_LARGE_FILE | Contains large files.
 | 0x00000004 | EXT2_FEATURE_RO_COMPAT_BTREE_DIR | Intended for hash-tree directory (or directory B-tree) +
 [yellow-background]*Not implemented*

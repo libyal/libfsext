@@ -82,6 +82,10 @@ struct libfsext_superblock
 	 */
 	uint32_t number_of_inodes_per_block_group;
 
+	/* Number of blocks per flex group
+	 */
+	uint32_t number_of_blocks_per_flex_group;
+
 	/* Last mount time
 	 */
 	uint32_t last_mount_time;
@@ -214,10 +218,6 @@ struct libfsext_superblock
 	 */
 	uint16_t group_descriptor_size;
 
-	/* Default mount options
-	 */
-	uint32_t default_mount_options;
-
 	/* First metadata block group
 	 */
 	uint32_t first_metadata_block_group;
@@ -240,7 +240,11 @@ struct libfsext_superblock
 
 	/* Block group size
 	 */
-	uint64_t block_group_size;
+	size64_t block_group_size;
+
+	/* Flex group size
+	 */
+	size64_t flex_group_size;
 };
 
 int libfsext_superblock_initialize(

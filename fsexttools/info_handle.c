@@ -1321,7 +1321,7 @@ void info_handle_incompatible_features_flags_fprint(
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\tHas metadata block group (EXT2_FEATURE_INCOMPAT_META_BG)\n" );
+		 "\t\tHas metadata block groups (EXT2_FEATURE_INCOMPAT_META_BG)\n" );
 	}
 
 	if( ( incompatible_features_flags & 0x00000040UL ) != 0 )
@@ -1346,7 +1346,7 @@ void info_handle_incompatible_features_flags_fprint(
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(EXT4_FEATURE_INCOMPAT_FLEX_BG)\n" );
+		 "\t\tHas flexible block groups (EXT4_FEATURE_INCOMPAT_FLEX_BG)\n" );
 	}
 	if( ( incompatible_features_flags & 0x00000400UL ) != 0 )
 	{

@@ -578,10 +578,10 @@ struct fsext_superblock_ext4
 	 */
 	uint8_t raid_stripe_width[ 4 ];
 
-	/* Number of block groups per flex
+	/* Number of block groups per flex (block) group
 	 * Consists of 1 byte
 	 */
-	uint8_t number_of_block_groups_per_flex;
+	uint8_t number_of_block_groups_per_flex_group;
 
 	/* Checksum type
 	 * Consists of 1 byte
@@ -698,10 +698,15 @@ struct fsext_superblock_ext4
 	 */
 	uint8_t overhead_number_of_clusters[ 4 ];
 
-	/* Backup block groups
-	 * Consists of 8 bytes
+	/* First backup block group
+	 * Consists of 4 bytes
 	 */
-	uint8_t backup_block_groups[ 8 ];
+	uint8_t backup_block_group1[ 4 ];
+
+	/* Second backup block group
+	 * Consists of 4 bytes
+	 */
+	uint8_t backup_block_group2[ 4 ];
 
 	/* Encryption algorithms
 	 * Consists of 4 bytes
