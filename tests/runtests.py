@@ -35,14 +35,16 @@ if __name__ == "__main__":
 
   test_profile = ".pyfsext"
   input_glob = "*"
+  option_sets = ["offset"]
 
   ignore_list = set()
 
-  ignore_file_path = f"tests/input/{test_profile}/ignore"
+  ignore_file_path = f"tests/input/{test_profile:s}/ignore"
   if os.path.isfile(ignore_file_path):
     with open(ignore_file_path, "r", encoding="utf-8") as file_object:
       ignore_list = set([line.strip() for line in file_object.readlines()])
 
+  test_set = None
   source_file = None
 
   for test_set in glob.glob("tests/input/*"):
@@ -56,6 +58,19 @@ if __name__ == "__main__":
       break
 
   setattr(unittest, "source", source_file)
+
+  for option_set in option_sets:
+    test_options = None
+
+    test_file = os.path.basename(source_file)
+    test_options_file_path = (
+        f"tests/input/{test_profile:s}/{test_set:s}/"
+        f"{test_file:s}.{option_set:s}")
+    if os.path.isfile(test_options_file_path):
+      with open(ignore_file_path, "r", encoding="utf-8") as file_object:
+        test_options = file_object.read().strip()
+
+    setattr(unittest, option_set, test_options)
 
   test_results = test_runner.run(test_scripts)
   if not test_results.wasSuccessful():
