@@ -532,8 +532,14 @@ PyObject *pyfsext_volume_open(
 		PyErr_Clear();
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+		filename_wide = (wchar_t *) PyUnicode_AsWideCharString(
+		                             string_object,
+		                             NULL );
+#else
 		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
 		                             string_object );
+#endif
 		Py_BEGIN_ALLOW_THREADS
 
 		result = libfsext_volume_open_wide(
@@ -543,6 +549,11 @@ PyObject *pyfsext_volume_open(
 		          &error );
 
 		Py_END_ALLOW_THREADS
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+		PyMem_Free(
+		 filename_wide );
+#endif
 #else
 		utf8_string_object = PyUnicode_AsUTF8String(
 		                      string_object );
@@ -882,7 +893,6 @@ PyObject *pyfsext_volume_get_label(
 {
 	PyObject *string_object  = NULL;
 	libcerror_error_t *error = NULL;
-	const char *errors       = NULL;
 	static char *function    = "pyfsext_volume_get_label";
 	char *utf8_string        = NULL;
 	size_t utf8_string_size  = 0;
@@ -970,7 +980,7 @@ PyObject *pyfsext_volume_get_label(
 	string_object = PyUnicode_DecodeUTF8(
 	                 utf8_string,
 	                 (Py_ssize_t) utf8_string_size - 1,
-	                 errors );
+	                 NULL );
 
 	if( string_object == NULL )
 	{
@@ -1004,7 +1014,6 @@ PyObject *pyfsext_volume_get_last_mount_path(
 {
 	PyObject *string_object  = NULL;
 	libcerror_error_t *error = NULL;
-	const char *errors       = NULL;
 	static char *function    = "pyfsext_volume_get_last_mount_path";
 	char *utf8_string        = NULL;
 	size_t utf8_string_size  = 0;
@@ -1092,7 +1101,7 @@ PyObject *pyfsext_volume_get_last_mount_path(
 	string_object = PyUnicode_DecodeUTF8(
 	                 utf8_string,
 	                 (Py_ssize_t) utf8_string_size - 1,
-	                 errors );
+	                 NULL );
 
 	if( string_object == NULL )
 	{

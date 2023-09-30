@@ -1,6 +1,6 @@
 [metadata]
 name = libfsext-python
-version = 20230930
+version = @VERSION@
 description = Python bindings module for libfsext
 long_description = Python bindings module for libfsext
 author = Joachim Metz
