@@ -19,9 +19,9 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libfsext.h
-	/bin/rm -f libfsext/definitions.h
-	/bin/rm -f libfsext/features.h
-	/bin/rm -f libfsext/types.h
-	/bin/rm -f Makefile
+	-rm -f libfsext.h
+	-rm -f libfsext/definitions.h
+	-rm -f libfsext/features.h
+	-rm -f libfsext/types.h
+	-rm -f Makefile
 
