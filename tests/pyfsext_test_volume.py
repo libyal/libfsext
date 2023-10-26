@@ -157,11 +157,12 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
-    if unittest.offset:
+    test_offset = getattr(unittest, "offset", None)
+    if test_offset:
       raise unittest.SkipTest("source defines offset")
 
     fsext_volume = pyfsext.volume()
@@ -181,7 +182,7 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_open_file_object(self):
     """Tests the open_file_object function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -190,8 +191,10 @@ class VolumeTypeTests(unittest.TestCase):
 
     fsext_volume = pyfsext.volume()
 
+    test_offset = getattr(unittest, "offset", None)
+
     with DataRangeFileObject(
-        test_source, unittest.offset or 0, None) as file_object:
+        test_source, test_offset or 0, None) as file_object:
 
       fsext_volume.open_file_object(file_object)
 
@@ -208,7 +211,7 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_close(self):
     """Tests the close function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -219,11 +222,12 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_open_close(self):
     """Tests the open and close functions."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       return
 
-    if unittest.offset:
+    test_offset = getattr(unittest, "offset", None)
+    if test_offset:
       raise unittest.SkipTest("source defines offset")
 
     fsext_volume = pyfsext.volume()
@@ -254,14 +258,16 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_get_label(self):
     """Tests the get_label function and label property."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
     fsext_volume = pyfsext.volume()
 
+    test_offset = getattr(unittest, "offset", None)
+
     with DataRangeFileObject(
-        test_source, unittest.offset or 0, None) as file_object:
+        test_source, test_offset or 0, None) as file_object:
 
       fsext_volume = pyfsext.volume()
       fsext_volume.open_file_object(file_object)
@@ -275,14 +281,16 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_get_last_mount_time(self):
     """Tests the get_last_mount_time function and last_mount_time property."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
     fsext_volume = pyfsext.volume()
 
+    test_offset = getattr(unittest, "offset", None)
+
     with DataRangeFileObject(
-        test_source, unittest.offset or 0, None) as file_object:
+        test_source, test_offset or 0, None) as file_object:
 
       fsext_volume = pyfsext.volume()
       fsext_volume.open_file_object(file_object)
@@ -296,14 +304,16 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_get_last_written_time(self):
     """Tests the get_last_written_time function and last_written_time property."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
     fsext_volume = pyfsext.volume()
 
+    test_offset = getattr(unittest, "offset", None)
+
     with DataRangeFileObject(
-        test_source, unittest.offset or 0, None) as file_object:
+        test_source, test_offset or 0, None) as file_object:
 
       fsext_volume = pyfsext.volume()
       fsext_volume.open_file_object(file_object)
@@ -317,14 +327,16 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_get_number_of_file_entries(self):
     """Tests the get_number_of_file_entries function and number_of_file_entries property."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
     fsext_volume = pyfsext.volume()
 
+    test_offset = getattr(unittest, "offset", None)
+
     with DataRangeFileObject(
-        test_source, unittest.offset or 0, None) as file_object:
+        test_source, test_offset or 0, None) as file_object:
 
       fsext_volume = pyfsext.volume()
       fsext_volume.open_file_object(file_object)
@@ -338,14 +350,16 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_get_root_directory(self):
     """Tests the get_root_directory function and root_directory property."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
     fsext_volume = pyfsext.volume()
 
+    test_offset = getattr(unittest, "offset", None)
+
     with DataRangeFileObject(
-        test_source, unittest.offset or 0, None) as file_object:
+        test_source, test_offset or 0, None) as file_object:
 
       fsext_volume = pyfsext.volume()
       fsext_volume.open_file_object(file_object)
