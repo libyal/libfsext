@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libfsext],
- [20231025],
+ [20231129],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -116,7 +116,7 @@ dnl Check if libfsext Python bindings (pyfsext) required headers and functions a
 AX_PYTHON_CHECK_ENABLE
 
 AS_IF(
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [test "x${ac_cv_enable_python}" != xno],
   [dnl Headers included in pyfsext/pyfsext_error.c
   AC_CHECK_HEADERS([stdarg.h varargs.h])
 
@@ -192,8 +192,6 @@ AC_CONFIG_FILES([libfdatetime/Makefile])
 AC_CONFIG_FILES([libfguid/Makefile])
 AC_CONFIG_FILES([libfsext/Makefile])
 AC_CONFIG_FILES([pyfsext/Makefile])
-AC_CONFIG_FILES([pyfsext-python2/Makefile])
-AC_CONFIG_FILES([pyfsext-python3/Makefile])
 AC_CONFIG_FILES([libhmac/Makefile])
 AC_CONFIG_FILES([fsexttools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])

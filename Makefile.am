@@ -21,8 +21,6 @@ SUBDIRS = \
 	libhmac \
 	fsexttools \
 	pyfsext \
-	pyfsext-python2 \
-	pyfsext-python3 \
 	po \
 	manuals \
 	tests \
