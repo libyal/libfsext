@@ -707,7 +707,8 @@ int libfsext_superblock_read_data(
 	                        | 0x00000004UL
 	                        | 0x00000008UL
 	                        | 0x00000010UL
-	                        | 0x00000020UL;
+	                        | 0x00000020UL
+	                        | 0x00001000UL;
 
 	if( ( superblock->compatible_features_flags & ~( supported_feature_flags ) ) != 0 )
 	{
@@ -730,6 +731,7 @@ int libfsext_superblock_read_data(
 	                        | 0x00000200UL
 	                        | 0x00000400UL
 	                        | 0x00008000UL
+	                        | 0x00002000UL
 	                        | 0x00010000UL
 	                        | 0x00020000UL;
 
@@ -1218,7 +1220,7 @@ int libfsext_superblock_read_data(
 			 ( (fsext_superblock_ext4_t *) data )->lost_and_found_inode_number,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: lost and found inode number\t\t\t: %" PRIu32 "\n",
+			 "%s: lost and found inode inode number\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
@@ -1237,6 +1239,38 @@ int libfsext_superblock_read_data(
 			 "%s: checksum seed\t\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 value_32bit );
+
+			libcnotify_printf(
+			 "%s: unknown1:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (fsext_superblock_ext4_t *) data )->unknown1,
+			 8,
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->encoding,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: encoding\t\t\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 value_16bit );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->encoding_flags,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: encoding flags\t\t\t\t\t: 0x%04" PRIx16 "\n",
+			 function,
+			 value_16bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_superblock_ext4_t *) data )->orphan_file_inode_number,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: orphan file inode number\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
 		}
 		libcnotify_printf(
 		 "%s: padding3:\n",
@@ -1253,7 +1287,7 @@ int libfsext_superblock_read_data(
 		{
 			libcnotify_print_data(
 			 ( (fsext_superblock_ext4_t *) data )->padding3,
-			 392,
+			 376,
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 		if( superblock->format_version == 4 )

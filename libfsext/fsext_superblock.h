@@ -733,10 +733,30 @@ struct fsext_superblock_ext4
 	 */
 	uint8_t checksum_seed[ 4 ];
 
-	/* Padding3
-	 * Consists of 392 bytes
+	/* Unknown
+	 * Consists of 8 bytes
 	 */
-	uint8_t padding3[ 392 ];
+	uint8_t unknown1[ 8 ];
+
+	/* Encoding
+	 * Consists of 2 bytes
+	 */
+	uint8_t encoding[ 2 ];
+
+	/* Encoding flags
+	 * Consists of 2 bytes
+	 */
+	uint8_t encoding_flags[ 2 ];
+
+	/* Orphan file inode number
+	 * Consists of 4 bytes
+	 */
+	uint8_t orphan_file_inode_number[ 4 ];
+
+	/* Padding3
+	 * Consists of 376 bytes
+	 */
+	uint8_t padding3[ 376 ];
 
 	/* Checksum
 	 * Consists of 4 bytes

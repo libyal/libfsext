@@ -30,7 +30,7 @@ this type of file system.
 == License
 
 ....
-Copyright (C) 2010-2023, Joachim Metz <joachim.metz@gmail.com>.
+Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>.
 Permission is granted to copy, distribute and/or modify this document under the
 terms of the GNU Free Documentation License, Version 1.3 or any later version
 published by the Free Software Foundation; with no Invariant Sections, no
@@ -60,6 +60,7 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.14 | J.B. Metz | May 2022 | Additional information about device number.
 | 0.0.15 | J.B. Metz | May 2023 | Additional information about extended attribute.
 | 0.0.16 | J.B. Metz | August 2023 | Additional information about meta block groups.
+| 0.0.17 | J.B. Metz | March 2024 | Additional information about orphan file feature.
 |===
 
 :numbered:
@@ -225,11 +226,11 @@ _If major version is EXT2_DYNAMIC_REV_
 The inode size must be a power of 2 larger or equal to 128, the maximum supported by mke2fs is 1024
 | 90 | 2 | | Block group +
 Contains a block group number
-| 92 | 4 | | Compatible feature flags +
+| 92 | 4 | | Compatible features flags +
 See section: <<compatible_features_flags,Compatible features flags>>
-| 96 | 4 | | Incompatible feature flags +
+| 96 | 4 | | Incompatible features flags +
 See section: <<incompatible_features_flags,Incompatible features flags>>
-| 100 | 4 | | Read-only compatible feature flags +
+| 100 | 4 | | Read-only compatible features flags +
 See section: <<read_only_compatible_features_flags,Read-only compatible features flags>>
 | 104 | 16 | | File system identifier +
 Contains UUID that is stored in big-endian
@@ -317,11 +318,11 @@ _If major version is EXT2_DYNAMIC_REV_
 | 88 | 2 | | Inode size +
 The inode size must be a power of 2 larger or equal to 128, the maximum supported by mke2fs is 1024
 | 90 | 2 | | Block group
-| 92 | 4 | | Compatible feature flags +
+| 92 | 4 | | Compatible features flags +
 See section: <<compatible_features_flags,Compatible features flags>>
-| 96 | 4 | | Incompatible feature flags +
+| 96 | 4 | | Incompatible features flags +
 See section: <<incompatible_features_flags,Incompatible features flags>>
-| 100 | 4 | | Read-only compatible feature flags +
+| 100 | 4 | | Read-only compatible features flags +
 See section: <<read_only_compatible_features_flags,Read-only compatible features flags>>
 | 104 | 16 | | File system identifier +
 Contains UUID that is stored in big-endian
@@ -372,51 +373,48 @@ Contains the upper 32-bit of the value
 | 372 | 1 | | Flex block group size +
 The size is stored as: 2 ^ value
 | 373 | 1 | | [yellow-background]*Unknown (metadata checksum method)*
-| 374 | 2 | | [yellow-background]*Unknown (padding)*
-4+| _Defined in ext4 reserved in earlier versions_
-4+| _Common_ +
-| ... | ... | | [yellow-background]*Unknown (reserved)*
+| 374 | 1 | | [yellow-background]*Unknown (encryption level)*
+| 375 | 1 | | [yellow-background]*Unknown (padding)*
+| 376 | 8 | | [yellow-background]*Unknown (s_kbytes_written)*
+| 384 | 4 | | Inode number of active snapshot
+| 388 | 4 | | Identifier of active snapshot
+| 392 | 8 | | [yellow-background]*Unknown (reserved s_snapshot_r_blocks_count)*
+| 400 | 4 | | Inode number of snapshot list head
+| 404 | 4 | | [yellow-background]*Unknown (s_error_count)*
+| 408 | 4 | | [yellow-background]*Unknown (s_first_error_time)*
+| 412 | 4 | | [yellow-background]*Unknown (s_first_error_ino)*
+| 416 | 8 | | [yellow-background]*Unknown (s_first_error_block)*
+| 424 | 32 | | [yellow-background]*Unknown (s_first_error_func)*
+| 456 | 4 | | [yellow-background]*Unknown (s_first_error_line)*
+| 460 | 4 | | [yellow-background]*Unknown (s_last_error_time)*
+| 464 | 4 | | [yellow-background]*Unknown (s_last_error_ino)*
+| 468 | 4 | | [yellow-background]*Unknown (s_last_error_line)*
+| 472 | 8 | | [yellow-background]*Unknown (s_last_error_block)*
+| 480 | 32 | | [yellow-background]*Unknown (s_last_error_func)*
+| 512 | 64 | | [yellow-background]*Unknown (s_mount_opts)*
+| 576 | 4 | | [yellow-background]*Unknown (s_usr_quota_inum)*
+| 560 | 4 | | [yellow-background]*Unknown (s_grp_quota_inum)*
+| 564 | 4 | | [yellow-background]*Unknown (s_overhead_clusters)*
+| 568 | 2 x 4 | | [yellow-background]*Unknown (s_backup_bgs)*
+| 576 | 4 | | [yellow-background]*Unknown (s_encrypt_algos)*
+| 580 | 16 | | [yellow-background]*Unknown (s_encrypt_pw_salt)*
+| 596 | 4 | | [yellow-background]*Unknown (s_lpf_ino)*
+| 600 | 4 | | [yellow-background]*Unknown (s_prj_quota_inum)*
+| 604 | 4 | | [yellow-background]*Unknown (s_checksum_seed)*
+| 608 | 1 | | [yellow-background]*Unknown (s_wtime_hi)*
+| 609 | 1 | | [yellow-background]*Unknown (s_mtime_hi)*
+| 610 | 1 | | [yellow-background]*Unknown (s_mkfs_time_hi)*
+| 611 | 1 | | [yellow-background]*Unknown (s_lastcheck_hi)*
+| 612 | 1 | | [yellow-background]*Unknown (s_first_error_time_hi)*
+| 613 | 1 | | [yellow-background]*Unknown (s_last_error_time_hi)*
+| 614 | 1 | | [yellow-background]*Unknown (s_first_error_errcode)*
+| 615 | 1 | | [yellow-background]*Unknown (s_last_error_errcode)*
+| 616 | 2 | | [yellow-background]*Unknown (s_encoding)*
+| 618 | 2 | | [yellow-background]*Unknown (s_encoding_flags)*
+| 620 | 4 | | [yellow-background]*Unknown (s_orphan_file_inum)*
+| 624 | 94 x 4 | | [yellow-background]*Unknown (reserved)*
+| 1000 | 4 | | [yellow-background]*Unknown (s_checksum)*
 |===
-
-....
-4+| _Defined in ext4 reserved in earlier versions_
-1146         __le64  s_kbytes_written;       /* nr of lifetime kilobytes written */
-1147         __le32  s_snapshot_inum;        /* Inode number of active snapshot */
-1148         __le32  s_snapshot_id;          /* sequential ID of active snapshot */
-1149         __le64  s_snapshot_r_blocks_count; /* reserved blocks for active
-1150                                               snapshot's future use */
-1151         __le32  s_snapshot_list;        /* inode number of the head of the
-1152                                            on-disk snapshot list */
-1153 #define EXT4_S_ERR_START offsetof(struct ext4_super_block, s_error_count)
-1154         __le32  s_error_count;          /* number of fs errors */
-1155         __le32  s_first_error_time;     /* first time an error happened */
-1156         __le32  s_first_error_ino;      /* inode involved in first error */
-1157         __le64  s_first_error_block;    /* block involved of first error */
-1158         __u8    s_first_error_func[32]; /* function where the error happened */
-1159         __le32  s_first_error_line;     /* line number where error happened */
-1160         __le32  s_last_error_time;      /* most recent time of an error */
-1161         __le32  s_last_error_ino;       /* inode involved in last error */
-1162         __le32  s_last_error_line;      /* line number where error happened */
-1163         __le64  s_last_error_block;     /* block involved of last error */
-1164         __u8    s_last_error_func[32];  /* function where the error happened */
-1165 #define EXT4_S_ERR_END offsetof(struct ext4_super_block, s_mount_opts)
-1166         __u8    s_mount_opts[64];
-1167         __le32  s_usr_quota_inum;       /* inode for tracking user quota */
-1168         __le32  s_grp_quota_inum;       /* inode for tracking group quota */
-1169         __le32  s_overhead_clusters;    /* overhead blocks/clusters in fs */
-1170         __le32  s_backup_bgs[2];        /* groups with sparse_super2 SBs */
-1171         __u8    s_encrypt_algos[4];     /* Encryption algorithms in use  */
-1172         __le32  s_reserved[105];        /* Padding to the end of the block */
-1173         __le32  s_checksum;             /* crc32c(superblock) */
-....
-
-....
-__le16 s_desc_size; (replaces a reserved field)
-/* 64bit support valid if EXT4_FEATURE_INCOMPAT_64BIT */
-/*150*/    __le32 s_blocks_count_hi;   /* Blocks count */
-__le32     s_r_blocks_count_hi; /* Reserved blocks count */
-__le32     s_free_blocks_count_hi; /* Free blocks count */
-....
 
 [NOTE]
 Some versions of mkfs.ext set the file system creation time even for ext2 and
@@ -486,6 +484,9 @@ EXT2_FEATURE_COMPAT_RESIZE_INODE | Has reserved GDT blocks for file system expan
 | 0x00000100 | COMPAT_EXCLUDE_BITMAP | [yellow-background]*Unknown (Exclude inode)* +
 [yellow-background]*Not implemented, intended for file system snapshot feature?*
 | 0x00000200 | EXT4_FEATURE_COMPAT_SPARSE_SUPER2 | Has a version 2 sparse super block.
+| 0x00000400 | EXT4_FEATURE_COMPAT_FAST_COMMIT | [yellow-background]*TODO: add description*
+| 0x00000800 | EXT4_FEATURE_COMPAT_STABLE_INODES | [yellow-background]*TODO: add description*
+| 0x00001000 | EXT4_FEATURE_COMPAT_ORPHAN_FILE | Has orphan file.
 |===
 
 [NOTE]
@@ -503,6 +504,7 @@ and COMPAT_ can be used interchangeably.
 | 0x00000004 | EXT3_FEATURE_INCOMPAT_RECOVER | Needs recovery
 | 0x00000008 | EXT3_FEATURE_INCOMPAT_JOURNAL_DEV | Has journal device
 | 0x00000010 | EXT2_FEATURE_INCOMPAT_META_BG | Has meta (or metadata) block groups
+| | |
 | 0x00000040 | EXT4_FEATURE_INCOMPAT_EXTENTS | Has extents
 | 0x00000080 | EXT4_FEATURE_INCOMPAT_64BIT | Has 64-bit support
 | 0x00000100 | EXT4_FEATURE_INCOMPAT_MMP | Multiple mount protection
@@ -511,8 +513,8 @@ and COMPAT_ can be used interchangeably.
 | | |
 | 0x00001000 | EXT4_FEATURE_INCOMPAT_DIRDATA | Data in directory entry +
 [yellow-background]*Not yet supported, in development*
-| 0x00002000 | EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM +
-EXT4_FEATURE_INCOMPAT_CSUM_SEED | Metadata checksum seed is stored in the superblock
+| 0x00002000 | EXT4_FEATURE_INCOMPAT_CSUM_SEED +
+EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM | Metadata checksum seed is stored in the superblock
 | 0x00004000 | EXT4_FEATURE_INCOMPAT_LARGEDIR | Large directory >2GB or 3-level hash tree (HTree).
 | 0x00008000 | EXT4_FEATURE_INCOMPAT_INLINE_DATA | Has data stored in inode.
 | 0x00010000 | EXT4_FEATURE_INCOMPAT_ENCRYPT | Has encrypted inodes.
@@ -551,6 +553,7 @@ Block allocation bitmaps are tracked in units of clusters (of blocks) instead of
 | 0x00002000 | EXT4_FEATURE_RO_COMPAT_PROJECT | Filesystem tracks project quotas.
 | 0x00004000 | EXT4_FEATURE_RO_COMPAT_SHARED_BLOCKS | Filesystem has (read-only) shared blocks.
 | 0x00008000 | EXT4_FEATURE_RO_COMPAT_VERITY | [yellow-background]*Unknown (Verity inodes may be present on the filesystem.)*
+| 0x00010000 | EXT4_FEATURE_RO_COMPAT_ORPHAN_PRESENT | Orphan file may be non-empty.
 |===
 
 [NOTE]

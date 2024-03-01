@@ -1275,12 +1275,36 @@ void info_handle_compatible_features_flags_fprint(
 		 notify_stream,
 		 "\t\tUse directory hash index (EXT2_FEATURE_COMPAT_DIR_INDEX)\n" );
 	}
+	if( ( compatible_features_flags & 0x00000030UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT2_FEATURE_COMPAT_DIR_INDEX)\n" );
+	}
 
 	if( ( compatible_features_flags & 0x00000200UL ) != 0 )
 	{
 		fprintf(
 		 notify_stream,
 		 "\t\t(EXT4_FEATURE_COMPAT_SPARSE_SUPER2)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000400UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_COMPAT_FAST_COMMIT)\n" );
+	}
+	if( ( compatible_features_flags & 0x00000800UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\t(EXT4_FEATURE_COMPAT_STABLE_INODES)\n" );
+	}
+	if( ( compatible_features_flags & 0x00001000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tHas orphan file (EXT4_FEATURE_COMPAT_ORPHAN_FILE)\n" );
 	}
 	fprintf(
 	 notify_stream,
@@ -1365,7 +1389,7 @@ void info_handle_incompatible_features_flags_fprint(
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM)\n" );
+		 "\t\t(EXT4_FEATURE_INCOMPAT_CSUM_SEED)\n" );
 	}
 	if( ( incompatible_features_flags & 0x00004000UL ) != 0 )
 	{
@@ -1426,7 +1450,6 @@ void info_handle_read_only_compatible_features_flags_fprint(
 		 notify_stream,
 		 "\t\t(EXT4_FEATURE_RO_COMPAT_HUGE_FILE)\n" );
 	}
-
 	if( ( read_only_compatible_features_flags & 0x00000010UL ) != 0 )
 	{
 		fprintf(
@@ -1451,7 +1474,6 @@ void info_handle_read_only_compatible_features_flags_fprint(
 		 notify_stream,
 		 "\t\t(RO_COMPAT_HAS_SNAPSHOT)\n" );
 	}
-
 	if( ( read_only_compatible_features_flags & 0x00000100UL ) != 0 )
 	{
 		fprintf(
@@ -1476,7 +1498,6 @@ void info_handle_read_only_compatible_features_flags_fprint(
 		 notify_stream,
 		 "\t\t(EXT4_FEATURE_RO_COMPAT_REPLICA)\n" );
 	}
-
 	if( ( read_only_compatible_features_flags & 0x00001000UL ) != 0 )
 	{
 		fprintf(
@@ -1500,6 +1521,12 @@ void info_handle_read_only_compatible_features_flags_fprint(
 		fprintf(
 		 notify_stream,
 		 "\t\t(EXT4_FEATURE_RO_COMPAT_VERITY)\n" );
+	}
+	if( ( read_only_compatible_features_flags & 0x00010000UL ) != 0 )
+	{
+		fprintf(
+		 notify_stream,
+		 "\t\tOrphan file may be non-empty (EXT4_FEATURE_RO_COMPAT_ORPHAN_PRESENT)\n" );
 	}
 	fprintf(
 	 notify_stream,
