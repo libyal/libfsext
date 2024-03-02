@@ -728,10 +728,10 @@ struct fsext_superblock_ext4
 	 */
 	uint8_t project_quota_inode_number[ 4 ];
 
-	/* Checksum seed
+	/* The initial metdata checksum value (or seed)
 	 * Consists of 4 bytes
 	 */
-	uint8_t checksum_seed[ 4 ];
+	uint8_t metadata_checksum_seed[ 4 ];
 
 	/* Unknown
 	 * Consists of 8 bytes

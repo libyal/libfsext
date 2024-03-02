@@ -27,7 +27,9 @@
 #include <types.h>
 #include <wide_string.h>
 
+#include "libfsext_checksum.h"
 #include "libfsext_debug.h"
+#include "libfsext_definitions.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libcnotify.h"
@@ -153,7 +155,10 @@ int libfsext_superblock_read_data(
      libcerror_error_t **error )
 {
 	static char *function                         = "libfsext_superblock_read_data";
+	uint32_t calculated_checksum                  = 0;
+	uint32_t stored_checksum                      = 0;
 	uint32_t supported_feature_flags              = 0;
+	uint8_t checksum_type                         = 0;
 	uint8_t number_of_block_groups_per_flex_group = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -800,6 +805,16 @@ int libfsext_superblock_read_data(
 	if( superblock->format_version == 4 )
 	{
 		number_of_block_groups_per_flex_group = ( (fsext_superblock_ext4_t *) data )->number_of_block_groups_per_flex_group;
+
+		checksum_type = ( (fsext_superblock_ext4_t *) data )->checksum_type;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_superblock_ext4_t *) data )->file_system_creation_time,
+		 superblock->file_system_creation_time );
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (fsext_superblock_ext4_t *) data )->metadata_checksum_seed,
+		 superblock->metadata_checksum_seed );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -1232,13 +1247,10 @@ int libfsext_superblock_read_data(
 			 function,
 			 value_32bit );
 
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (fsext_superblock_ext4_t *) data )->checksum_seed,
-			 value_32bit );
 			libcnotify_printf(
-			 "%s: checksum seed\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: metadata checksum seed\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
-			 value_32bit );
+			 superblock->metadata_checksum_seed );
 
 			libcnotify_printf(
 			 "%s: unknown1:\n",
@@ -1294,11 +1306,11 @@ int libfsext_superblock_read_data(
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_superblock_ext4_t *) data )->checksum,
-			 value_32bit );
+			 stored_checksum );
 			libcnotify_printf(
 			 "%s: checksum\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
-			 value_32bit );
+			 stored_checksum );
 
 			libcnotify_printf(
 			 "\n" );
@@ -1306,6 +1318,54 @@ int libfsext_superblock_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	if( ( superblock->read_only_compatible_features_flags & LIBFSEXT_READ_ONLY_COMPATIBLE_FEATURES_FLAG_METADATA_CHECKSUM ) != 0 )
+	{
+		if( checksum_type != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported checksum type: %" PRIu8 ".",
+			 function,
+			 checksum_type );
+
+			return( -1 );
+		}
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     data,
+		     data_size - 4,
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		calculated_checksum = 0xffffffffUL - calculated_checksum;
+
+		if( ( stored_checksum != 0 )
+		 && ( stored_checksum != calculated_checksum ) )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch in checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+				 function,
+				 stored_checksum,
+				 calculated_checksum );
+			}
+#endif
+			superblock->is_corrupt = 1;
+		}
+	}
 	if( superblock->number_of_blocks == 0 )
 	{
 		libcerror_error_set(

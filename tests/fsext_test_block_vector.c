@@ -173,6 +173,7 @@ int fsext_test_block_vector_initialize(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
+	          0,
 	          fsext_test_inode_data1,
 	          128,
 	          &error );
@@ -468,6 +469,7 @@ int fsext_test_block_vector_read_element_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
+	          0,
 	          fsext_test_inode_data1,
 	          128,
 	          &error );

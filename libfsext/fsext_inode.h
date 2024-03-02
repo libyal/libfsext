@@ -439,10 +439,15 @@ struct fsext_inode_ext4
 	 */
 	uint8_t creation_time_extra[ 4 ];
 
-	/* Unknown (version (upper 32_bit))
+	/* Version (upper 32_bit)
 	 * Consists of 4 bytes
 	 */
 	uint8_t version_upper[ 4 ];
+
+	/* Project identifier
+	 * Consists of 4 bytes
+	 */
+	uint8_t project_identifier[ 4 ];
 };
 
 #if defined( __cplusplus )

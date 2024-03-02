@@ -182,7 +182,7 @@ void libfsext_debug_print_incompatible_features_flags(
 	if( ( incompatible_features_flags & 0x00002000UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\t(EXT4_FEATURE_INCOMPAT_CSUM_SEED)\n" );
+		 "\tHas metadata checksum seed (EXT4_FEATURE_INCOMPAT_CSUM_SEED)\n" );
 	}
 	if( ( incompatible_features_flags & 0x00004000UL ) != 0 )
 	{
@@ -264,7 +264,7 @@ void libfsext_debug_print_read_only_compatible_features_flags(
 	if( ( read_only_compatible_features_flags & 0x00000400UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\t(EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)\n" );
+		 "\tHas metadata checksums (EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)\n" );
 	}
 	if( ( read_only_compatible_features_flags & 0x00000800UL ) != 0 )
 	{

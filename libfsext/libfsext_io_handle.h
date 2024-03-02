@@ -68,6 +68,10 @@ struct libfsext_io_handle
 	 */
 	uint32_t read_only_compatible_features_flags;
 
+	/* The initial metadata checksum value (or seed)
+	 */
+	uint32_t metadata_checksum_seed;
+
 	/* Value to indicate if abort was signalled
 	 */
 	int abort;

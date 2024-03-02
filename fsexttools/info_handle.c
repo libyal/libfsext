@@ -1389,7 +1389,7 @@ void info_handle_incompatible_features_flags_fprint(
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(EXT4_FEATURE_INCOMPAT_CSUM_SEED)\n" );
+		 "\t\tHas metadata checksum seed (EXT4_FEATURE_INCOMPAT_CSUM_SEED)\n" );
 	}
 	if( ( incompatible_features_flags & 0x00004000UL ) != 0 )
 	{
@@ -1490,7 +1490,7 @@ void info_handle_read_only_compatible_features_flags_fprint(
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)\n" );
+		 "\t\tHas metadata checksums (EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)\n" );
 	}
 	if( ( read_only_compatible_features_flags & 0x00000800UL ) != 0 )
 	{

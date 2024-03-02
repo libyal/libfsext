@@ -226,6 +226,10 @@ struct libfsext_superblock
 	 */
 	uint32_t file_system_creation_time;
 
+	/* The initial metadata checksum value (or seed)
+	 */
+	uint32_t metadata_checksum_seed;
+
 	/* Backup journal inodes
 	 */
 /* TODO: implement */
@@ -245,6 +249,10 @@ struct libfsext_superblock
 	/* Flex group size
 	 */
 	size64_t flex_group_size;
+
+	/* Value to indicate the superblock is corrupt
+	 */
+	uint8_t is_corrupt;
 };
 
 int libfsext_superblock_initialize(

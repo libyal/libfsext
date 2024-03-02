@@ -470,6 +470,7 @@ int fsext_test_directory_read_file_io_handle(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
+	          0,
 	          fsext_test_inode_data1,
 	          128,
 	          &error );
@@ -1066,6 +1067,7 @@ int main(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
+	          0,
 	          fsext_test_inode_data1,
 	          128,
 	          &error );

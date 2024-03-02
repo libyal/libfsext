@@ -26,6 +26,7 @@
 #include <wide_string.h>
 
 #include "libfsext_bitmap.h"
+#include "libfsext_checksum.h"
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
 #include "libfsext_group_descriptor.h"
@@ -1282,6 +1283,22 @@ int libfsext_internal_volume_read_block_groups(
 				internal_volume->io_handle->read_only_compatible_features_flags = superblock->read_only_compatible_features_flags;
 				internal_volume->io_handle->format_version                      = superblock->format_version;
 
+				if( libfsext_checksum_calculate_crc32(
+				     &( internal_volume->io_handle->metadata_checksum_seed ),
+				     superblock->file_system_identifier,
+				     16,
+				     0,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+					 "%s: unable to calculate CRC-32.",
+					 function );
+
+					goto on_error;
+				}
 				internal_volume->superblock = superblock;
 				superblock                  = NULL;
 			}

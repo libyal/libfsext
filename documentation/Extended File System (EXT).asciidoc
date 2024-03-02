@@ -372,7 +372,8 @@ Contains the upper 32-bit of the value
 | 368 | 4 | | [yellow-background]*Unknown (blocks on all data disks (N*stride))*
 | 372 | 1 | | Flex block group size +
 The size is stored as: 2 ^ value
-| 373 | 1 | | [yellow-background]*Unknown (metadata checksum method)*
+| 373 | 1 | | Checksum type +
+See section: <<checksum_types,checksum types>>
 | 374 | 1 | | [yellow-background]*Unknown (encryption level)*
 | 375 | 1 | | [yellow-background]*Unknown (padding)*
 | 376 | 8 | | [yellow-background]*Unknown (s_kbytes_written)*
@@ -413,12 +414,15 @@ The size is stored as: 2 ^ value
 | 618 | 2 | | [yellow-background]*Unknown (s_encoding_flags)*
 | 620 | 4 | | [yellow-background]*Unknown (s_orphan_file_inum)*
 | 624 | 94 x 4 | | [yellow-background]*Unknown (reserved)*
-| 1000 | 4 | | [yellow-background]*Unknown (s_checksum)*
+| 1000 | 4 | | Checksum
 |===
 
 [NOTE]
 Some versions of mkfs.ext set the file system creation time even for ext2 and
 when EXT3_FEATURE_COMPAT_HAS_JOURNAL is not set.
+
+The checksum, if checksum type is CRC-32C, contain a CRC-32 of data in the
+superblock before the checksum. The checksum is stored as 0xffffffff - CRC-32C.
 
 [yellow-background]*Is the only way to determine the file system version the
 compatibility and equivalent flags?*
@@ -514,7 +518,7 @@ and COMPAT_ can be used interchangeably.
 | 0x00001000 | EXT4_FEATURE_INCOMPAT_DIRDATA | Data in directory entry +
 [yellow-background]*Not yet supported, in development*
 | 0x00002000 | EXT4_FEATURE_INCOMPAT_CSUM_SEED +
-EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM | Metadata checksum seed is stored in the superblock
+EXT4_FEATURE_INCOMPAT_BG_USE_META_CSUM | Initial metadata checksum value (or seed) is stored in the superblock
 | 0x00004000 | EXT4_FEATURE_INCOMPAT_LARGEDIR | Large directory >2GB or 3-level hash tree (HTree).
 | 0x00008000 | EXT4_FEATURE_INCOMPAT_INLINE_DATA | Has data stored in inode.
 | 0x00010000 | EXT4_FEATURE_INCOMPAT_ENCRYPT | Has encrypted inodes.
@@ -547,11 +551,11 @@ The size of an inode can be larger than ext2 inode size.
 | 0x00000100 | EXT4_FEATURE_RO_COMPAT_QUOTA | Quota is handled transactionally with the journal.
 | 0x00000200 | EXT4_FEATURE_RO_COMPAT_BIGALLOC | Has big block allocation bitmaps. +
 Block allocation bitmaps are tracked in units of clusters (of blocks) instead of blocks.
-| 0x00000400 | EXT4_FEATURE_RO_COMPAT_METADATA_CSUM | Supports metadata checksum.
+| 0x00000400 | EXT4_FEATURE_RO_COMPAT_METADATA_CSUM | File system metadata has checksums.
 | 0x00000800 | EXT4_FEATURE_RO_COMPAT_REPLICA | Supports replicas.
 | 0x00001000 | EXT4_FEATURE_RO_COMPAT_READONLY | Read-only file system image.
-| 0x00002000 | EXT4_FEATURE_RO_COMPAT_PROJECT | Filesystem tracks project quotas.
-| 0x00004000 | EXT4_FEATURE_RO_COMPAT_SHARED_BLOCKS | Filesystem has (read-only) shared blocks.
+| 0x00002000 | EXT4_FEATURE_RO_COMPAT_PROJECT | File system tracks project quotas.
+| 0x00004000 | EXT4_FEATURE_RO_COMPAT_SHARED_BLOCKS | File system has (read-only) shared blocks.
 | 0x00008000 | EXT4_FEATURE_RO_COMPAT_VERITY | [yellow-background]*Unknown (Verity inodes may be present on the filesystem.)*
 | 0x00010000 | EXT4_FEATURE_RO_COMPAT_ORPHAN_PRESENT | Orphan file may be non-empty.
 |===
@@ -564,6 +568,14 @@ EXT4_FEATURE_RO_COMPAT_ and RO_COMPAT_ can be used interchangeably.
 In some ext file systems used by ChromeOS it has been observed that the upper
 8-bits of the read-only compatible features flags are set as in 0xff000003.
 debugfs identifies these as FEATURE_R24 - FEATURE_R31.
+
+=== [[checksum_types]]Checksum types
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 1 | EXT4_CRC32C_CHKSUM | CRC-32C (or CRC32-C), which uses the Castagnoli polynomial (0x1edc6f41)
+|===
 
 == The group descriptor table
 
@@ -623,10 +635,10 @@ Value contains the block number relative from the start of the volume +
 [yellow-background]*The excluded bitmap is used for snapshots*
 | 24 | 2 | | Block bitmap checksum +
 Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
-The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
+The checksum is a CRC-32C [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
 | 26 | 2 | | Inode bitmap checksum +
 Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
-The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
+The checksum is a CRC-32C [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
 | 28 | 2 | | Number of unused inodes +
 Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
 | 30 | 2 | | Checksum +
@@ -655,10 +667,10 @@ Value contains the block number relative from the start of the volume +
 [yellow-background]*The excluded bitmap is used for snapshots*
 | 56 | 2 | | Block bitmap checksum +
 Contains the upper 16-bit of the value +
-The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
+The checksum is a CRC-32C [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
 | 60 | 2 | | Inode bitmap checksum +
 Contains the upper 16-bit of the value +
-The checksum is a CRC-32 [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
+The checksum is a CRC-32C [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
 | 64 | 4 | | [yellow-background]*Unknown (reserved)*
 |===
 
@@ -886,7 +898,7 @@ block numbers contain the minor and major device number respectively.
 
 === The ext4 inode
 
-The ext4 inode is 156 bytes of size and consists of:
+The ext4 inode is 160 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
@@ -944,21 +956,33 @@ Also see: <<ext4_extent,The ext4 extent>> or <<ext4_extent_index,The ext4 extent
 | 118 | 2 | | Upper part of file ACL (or extended attributes) block number
 | 120 | 2 | | Upper part of owner (or user) identifier (UID)
 | 122 | 2 | | Upper part of group identifier (GID)
-| 124 | 2 | | Lower part of checksum
+| 124 | 2 | | Lower part of checksum +
+Contains the lower 16-bit of the checksum value
 | 126 | 2 | | [yellow-background]*Unknown (reserved)*
 | 128 | 2 | | Extended inode size
-| 130 | 2 | | Upper part of checksum
+| 130 | 2 | | Upper part of checksum +
+Contains the upper 16-bit of the checksum value
 | 132 | 4 | | (last) inode change time extra precision
 | 136 | 4 | | (last) modification time extra precision
 | 140 | 4 | | (last) access time extra precision
 | 144 | 4 | | Creation time
 | 148 | 4 | | Creation time extra precision
 | 152 | 4 | | [yellow-background]*Unknown (upper part of version)*
+| 156 | 4 | | [yellow-background]*Unknown (i_projid)*
 |===
 
 [NOTE]
 For a character and block device the first 2 bytes of the array of direct
 block numbers contain the minor and major device number respectively.
+
+The checksum, if checksum type is CRC-32C, contain a CRC-32 of:
+
+* file system identifier in the superblock
+* inode number
+* NFS generation number in the inode
+* data of the inode with the lower and upper part of the checksum set to 0-byte values.
+
+The checksum is stored as 0xffffffff - CRC-32C.
 
 [yellow-background]*TODO describe extra precision*
 

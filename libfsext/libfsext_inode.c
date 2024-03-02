@@ -29,6 +29,7 @@
 
 #include "libfsext_attribute_values.h"
 #include "libfsext_attributes_block.h"
+#include "libfsext_checksum.h"
 #include "libfsext_data_blocks.h"
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
@@ -405,32 +406,36 @@ on_error:
 int libfsext_inode_read_data(
      libfsext_inode_t *inode,
      libfsext_io_handle_t *io_handle,
+     uint32_t inode_number,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
 {
+	uint8_t checksum_data[ 4 ];
+	uint8_t empty_checksum_data[ 2 ]     = { 0, 0 };
+
 	static char *function                = "libfsext_inode_read_data";
 	size_t data_offset                   = 0;
 	uint32_t access_time                 = 0;
+	uint32_t calculated_checksum         = 0;
 	uint32_t creation_time               = 0;
 	uint32_t data_size_upper             = 0;
 	uint32_t inode_change_time           = 0;
 	uint32_t modification_time           = 0;
-	uint32_t supported_inode_flags       = 0;
 	uint32_t signature                   = 0;
+	uint32_t stored_checksum             = 0;
+	uint32_t supported_inode_flags       = 0;
 	uint32_t value_32bit                 = 0;
 	uint16_t extended_inode_size         = 0;
 	uint16_t file_acl_block_number_upper = 0;
 	uint16_t group_identifier_upper      = 0;
 	uint16_t number_of_blocks_upper      = 0;
 	uint16_t owner_identifier_upper      = 0;
+	uint16_t value_16bit                 = 0;
 	int result                           = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t value_data[ 8 ];
-
-	uint32_t checksum                    = 0;
-	uint16_t value_16bit                 = 0;
 #endif
 
 	if( inode == NULL )
@@ -915,6 +920,21 @@ int libfsext_inode_read_data(
 
 	inode->group_identifier |= (uint32_t) group_identifier_upper << 16;
 
+	if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
+	 && ( extended_inode_size >= 28 ) )
+	{
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_inode_ext4_t *) data )->checksum_lower,
+		 value_16bit );
+
+		stored_checksum = value_16bit;
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_inode_ext4_t *) data )->checksum_upper,
+		 value_16bit );
+
+		stored_checksum |= (uint32_t) value_16bit << 16;
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -1017,7 +1037,7 @@ int libfsext_inode_read_data(
 			 value_32bit );
 		}
 		libcnotify_printf(
-		 "%s: nfs generation number\t\t\t\t: %" PRIu32 "\n",
+		 "%s: NFS generation number\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 inode->nfs_generation_number );
 
@@ -1372,6 +1392,14 @@ int libfsext_inode_read_data(
 			 "%s: version (upper)\t\t\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_inode_ext4_t *) data )->project_identifier,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: project identifier\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 value_32bit );
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 	}
@@ -1481,13 +1509,167 @@ int libfsext_inode_read_data(
 			libcnotify_printf(
 			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
-			 checksum );
+			 stored_checksum );
 
 /* TODO print version */
 		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	if( ( io_handle->read_only_compatible_features_flags & LIBFSEXT_READ_ONLY_COMPATIBLE_FEATURES_FLAG_METADATA_CHECKSUM ) != 0 )
+	{
+		byte_stream_copy_from_uint32_little_endian(
+		 checksum_data,
+		 inode_number + 1 );
+
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     checksum_data,
+		     4,
+		     io_handle->metadata_checksum_seed,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     ( (fsext_inode_ext4_t *) data )->nfs_generation_number,
+		     4,
+		     calculated_checksum,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     data,
+		     124,
+		     calculated_checksum,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     empty_checksum_data,
+		     2,
+		     calculated_checksum,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     &( data[ 126 ] ),
+		     2,
+		     calculated_checksum,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		if( data_size > 128 )
+		{
+			if( libfsext_checksum_calculate_crc32(
+			     &calculated_checksum,
+			     &( data[ 128 ] ),
+			     2,
+			     calculated_checksum,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to calculate CRC-32.",
+				 function );
+
+				return( -1 );
+			}
+			if( libfsext_checksum_calculate_crc32(
+			     &calculated_checksum,
+			     empty_checksum_data,
+			     2,
+			     calculated_checksum,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to calculate CRC-32.",
+				 function );
+
+				return( -1 );
+			}
+			if( libfsext_checksum_calculate_crc32(
+			     &calculated_checksum,
+			     &( data[ 132 ] ),
+			     data_size - 132,
+			     calculated_checksum,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to calculate CRC-32.",
+				 function );
+
+				return( -1 );
+			}
+		}
+		calculated_checksum = 0xffffffffUL - calculated_checksum;
+
+		if( ( stored_checksum != 0 )
+		 && ( stored_checksum != calculated_checksum ) )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch in checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+				 function,
+				 stored_checksum,
+				 calculated_checksum );
+			}
+#endif
+		}
+	}
 	data_offset = 128 + extended_inode_size;
 
 	if( ( data_size >= sizeof( fsext_inode_ext4_t ) )
@@ -2463,6 +2645,7 @@ int libfsext_inode_read_element_data(
 	if( libfsext_inode_read_data(
 	     inode,
 	     io_handle,
+	     (uint32_t) element_index,
 	     data,
 	     (size_t) element_data_size,
 	     error ) != 1 )

@@ -53,6 +53,7 @@ check_PROGRAMS = \
 	fsext_test_block_data_handle \
 	fsext_test_block_vector \
 	fsext_test_buffer_data_handle \
+	fsext_test_checksum \
 	fsext_test_directory \
 	fsext_test_directory_entry \
 	fsext_test_error \
@@ -195,6 +196,16 @@ fsext_test_buffer_data_handle_SOURCES = \
 	fsext_test_unused.h
 
 fsext_test_buffer_data_handle_LDADD = \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_checksum_SOURCES = \
+	fsext_test_checksum.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_unused.h
+
+fsext_test_checksum_LDADD = \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 
