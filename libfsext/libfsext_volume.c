@@ -1421,6 +1421,8 @@ int libfsext_internal_volume_read_block_groups(
 
 					goto on_error;
 				}
+				group_descriptor->group_number = group_descriptor_index;
+
 				if( libfsext_group_descriptor_read_file_io_handle(
 				     group_descriptor,
 				     internal_volume->io_handle,

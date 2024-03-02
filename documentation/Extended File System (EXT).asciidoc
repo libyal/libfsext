@@ -421,8 +421,9 @@ See section: <<checksum_types,checksum types>>
 Some versions of mkfs.ext set the file system creation time even for ext2 and
 when EXT3_FEATURE_COMPAT_HAS_JOURNAL is not set.
 
-The checksum, if checksum type is CRC-32C, contain a CRC-32 of data in the
-superblock before the checksum. The checksum is stored as 0xffffffff - CRC-32C.
+The checksum is calculated from the data in the superblock before the checksum.
+
+If checksum type is CRC-32C, the checksum is stored as 0xffffffff - CRC-32C.
 
 [yellow-background]*Is the only way to determine the file system version the
 compatibility and equivalent flags?*
@@ -641,8 +642,7 @@ Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_
 The checksum is a CRC-32C [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
 | 28 | 2 | | Number of unused inodes +
 Contains the lower 16-bit of the value if 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled +
-| 30 | 2 | | Checksum +
-The checksum is a CRC-16 [yellow-background]*TODO: crc16(sb_uuid+group+desc)*
+| 30 | 2 | | Checksum
 4+| _If 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT) is enabled and group descriptor size > 32_
 | 32 | 4 | | Block bitmap block number +
 Contains the upper 32-bit of the value +
@@ -673,6 +673,15 @@ Contains the upper 16-bit of the value +
 The checksum is a CRC-32C [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
 | 64 | 4 | | [yellow-background]*Unknown (reserved)*
 |===
+
+The checksum is calculated from:
+
+* file system identifier in the superblock
+* group number
+* data of the group descriptor with the checksum set to 0-byte values.
+
+If checksum type is CRC-32C, the checksum is stored as the lower 16-bits of 0xffffffff
+- CRC-32C, otherwise the checksum is stored as CRC-16.
 
 === [[block_group_flags]]Block group flags
 
@@ -975,14 +984,14 @@ Contains the upper 16-bit of the checksum value
 For a character and block device the first 2 bytes of the array of direct
 block numbers contain the minor and major device number respectively.
 
-The checksum, if checksum type is CRC-32C, contain a CRC-32 of:
+The checksum is calculated from:
 
 * file system identifier in the superblock
 * inode number
 * NFS generation number in the inode
 * data of the inode with the lower and upper part of the checksum set to 0-byte values.
 
-The checksum is stored as 0xffffffff - CRC-32C.
+If checksum type is CRC-32C, the checksum is stored as 0xffffffff - CRC-32C.
 
 [yellow-background]*TODO describe extra precision*
 

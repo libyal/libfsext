@@ -406,7 +406,6 @@ on_error:
 int libfsext_inode_read_data(
      libfsext_inode_t *inode,
      libfsext_io_handle_t *io_handle,
-     uint32_t inode_number,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
@@ -1520,7 +1519,7 @@ int libfsext_inode_read_data(
 	{
 		byte_stream_copy_from_uint32_little_endian(
 		 checksum_data,
-		 inode_number + 1 );
+		 inode->inode_number );
 
 		if( libfsext_checksum_calculate_crc32(
 		     &calculated_checksum,
@@ -2562,7 +2561,7 @@ int libfsext_inode_read_element_data(
 	LIBFSEXT_UNREFERENCED_PARAMETER( element_flags )
 	LIBFSEXT_UNREFERENCED_PARAMETER( read_flags )
 
-	if( (uint64_t) element_index > (uint64_t) UINT32_MAX )
+	if( (uint64_t) element_index > (uint64_t) ( UINT32_MAX - 1 ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -2642,10 +2641,11 @@ int libfsext_inode_read_element_data(
 
 		goto on_error;
 	}
+	inode->inode_number = (uint32_t) element_index + 1;
+
 	if( libfsext_inode_read_data(
 	     inode,
 	     io_handle,
-	     (uint32_t) element_index,
 	     data,
 	     (size_t) element_data_size,
 	     error ) != 1 )

@@ -40,6 +40,10 @@ typedef struct libfsext_inode libfsext_inode_t;
 
 struct libfsext_inode
 {
+	/* Inode number
+	 */
+	uint32_t inode_number;
+
 	/* File mode
 	 */
 	uint16_t file_mode;
@@ -154,7 +158,6 @@ int libfsext_inode_clone(
 int libfsext_inode_read_data(
      libfsext_inode_t *inode,
      libfsext_io_handle_t *io_handle,
-     uint32_t inode_number,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error );

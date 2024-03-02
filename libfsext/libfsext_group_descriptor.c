@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libfsext_checksum.h"
 #include "libfsext_definitions.h"
 #include "libfsext_group_descriptor.h"
 #include "libfsext_io_handle.h"
@@ -146,14 +147,16 @@ int libfsext_group_descriptor_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
+	uint8_t checksum_data[ 4 ];
+	uint8_t empty_checksum_data[ 2 ]  = { 0, 0 };
+
 	static char *function             = "libfsext_group_descriptor_read_data";
 	size_t group_descriptor_data_size = 0;
 	uint64_t value_64bit              = 0;
+	uint32_t calculated_checksum      = 0;
+	uint32_t stored_checksum          = 0;
 	uint32_t value_32bit              = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
 	uint16_t value_16bit              = 0;
-#endif
 
 	if( group_descriptor == NULL )
 	{
@@ -330,6 +333,12 @@ int libfsext_group_descriptor_read_data(
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (fsext_group_descriptor_ext4_t *) data )->number_of_unused_inodes_lower,
 		 group_descriptor->number_of_unused_inodes );
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (fsext_group_descriptor_ext4_t *) data )->checksum,
+		 value_16bit );
+
+		stored_checksum = value_16bit;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
@@ -587,20 +596,122 @@ int libfsext_group_descriptor_read_data(
 			 function,
 			 group_descriptor->number_of_unused_inodes );
 
-			libcnotify_printf(
-			 "%s: block bitmap checksum\t\t\t: 0x%04" PRIx32 "\n",
-			 function,
-			 group_descriptor->block_bitmap_checksum );
+			if( ( io_handle->read_only_compatible_features_flags & LIBFSEXT_READ_ONLY_COMPATIBLE_FEATURES_FLAG_METADATA_CHECKSUM ) != 0 )
+			{
+				libcnotify_printf(
+				 "%s: block bitmap checksum\t\t\t: 0x%08" PRIx32 "\n",
+				 function,
+				 group_descriptor->block_bitmap_checksum );
 
-			libcnotify_printf(
-			 "%s: inode bitmap checksum\t\t\t: 0x%04" PRIx32 "\n",
-			 function,
-			 group_descriptor->inode_bitmap_checksum );
+				libcnotify_printf(
+				 "%s: inode bitmap checksum\t\t\t: 0x%08" PRIx32 "\n",
+				 function,
+				 group_descriptor->inode_bitmap_checksum );
+			}
+			else
+			{
+				libcnotify_printf(
+				 "%s: block bitmap checksum\t\t\t: 0x%04" PRIx32 "\n",
+				 function,
+				 group_descriptor->block_bitmap_checksum );
 
+				libcnotify_printf(
+				 "%s: inode bitmap checksum\t\t\t: 0x%04" PRIx32 "\n",
+				 function,
+				 group_descriptor->inode_bitmap_checksum );
+			}
 			libcnotify_printf(
 			 "\n" );
 		}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+	}
+/* TODO add support for crc16 checksum */
+	if( ( io_handle->read_only_compatible_features_flags & LIBFSEXT_READ_ONLY_COMPATIBLE_FEATURES_FLAG_METADATA_CHECKSUM ) != 0 )
+	{
+		byte_stream_copy_from_uint32_little_endian(
+		 checksum_data,
+		 group_descriptor->group_number );
+
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     checksum_data,
+		     4,
+		     io_handle->metadata_checksum_seed,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     data,
+		     30,
+		     calculated_checksum,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     empty_checksum_data,
+		     2,
+		     calculated_checksum,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfsext_checksum_calculate_crc32(
+		     &calculated_checksum,
+		     &( data[ 32 ] ),
+		     data_size - 32,
+		     calculated_checksum,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to calculate CRC-32.",
+			 function );
+
+			return( -1 );
+		}
+		calculated_checksum = ( 0xffffffffUL - calculated_checksum ) & 0x0000ffffUL;
+
+		if( ( stored_checksum != 0 )
+		 && ( stored_checksum != calculated_checksum ) )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch in checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+				 function,
+				 stored_checksum,
+				 calculated_checksum );
+			}
+#endif
+		}
 	}
 	return( 1 );
 }

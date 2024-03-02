@@ -37,6 +37,10 @@ typedef struct libfsext_group_descriptor libfsext_group_descriptor_t;
 
 struct libfsext_group_descriptor
 {
+	/* Group number
+	 */
+	uint32_t group_number;
+
 	/* Block bitmap block number
 	 */
 	uint64_t block_bitmap_block_number;

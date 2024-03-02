@@ -761,7 +761,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          0,
 	          fsext_test_inode_data1,
 	          128,
 	          &error );
@@ -781,7 +780,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          0,
 	          fsext_test_inode_data2,
 	          128,
 	          &error );
@@ -801,7 +799,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          0,
 	          fsext_test_inode_data3,
 	          128,
 	          &error );
@@ -826,7 +823,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          0,
 	          fsext_test_inode_data4,
 	          128,
 	          &error );
@@ -853,7 +849,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          NULL,
 	          io_handle,
-	          0,
 	          fsext_test_inode_data1,
 	          128,
 	          &error );
@@ -873,7 +868,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          NULL,
-	          0,
 	          fsext_test_inode_data1,
 	          128,
 	          &error );
@@ -893,7 +887,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          0,
 	          NULL,
 	          128,
 	          &error );
@@ -913,7 +906,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          0,
 	          fsext_test_inode_data1,
 	          (size_t) SSIZE_MAX + 1,
 	          &error );
@@ -933,7 +925,6 @@ int fsext_test_inode_read_data(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          0,
 	          fsext_test_inode_data1,
 	          0,
 	          &error );
@@ -2081,7 +2072,6 @@ int main(
 	result = libfsext_inode_read_data(
 	          inode,
 	          io_handle,
-	          0,
 	          fsext_test_inode_data3,
 	          128,
 	          &error );
