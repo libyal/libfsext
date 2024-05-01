@@ -15,13 +15,11 @@ EXTRA_DIST = \
 	libfsext/features.h.in \
 	libfsext/types.h.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libfsext.h \
+	libfsext/definitions.h \
+	libfsext/features.h \
+	libfsext/types.h \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f libfsext.h
-	-rm -f libfsext/definitions.h
-	-rm -f libfsext/features.h
-	-rm -f libfsext/types.h
-	-rm -f Makefile
 

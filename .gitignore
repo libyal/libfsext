@@ -160,6 +160,7 @@ stamp-h[1-9]
 /tests/fsext_test_tools_signal
 /tests/fsext_test_volume
 /tests/input
+/tests/notify_stream.log
 /tests/tmp*
 
 # Local library dependencies specific files
