@@ -44,10 +44,6 @@ struct mount_handle
 	 */
 	mount_file_system_t *file_system;
 
-	/* The file system index
-	 */
-	int file_system_index;
-
 	/* The volume offset
 	 */
 	off64_t volume_offset;
@@ -55,22 +51,6 @@ struct mount_handle
 	/* The libbfio file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
-
-	/* The password
-	 */
-	const system_character_t *password;
-
-	/* The password length
-	 */
-	size_t password_length;
-
-	/* The recovery password
-	 */
-	const system_character_t *recovery_password;
-
-	/* The recovery password length
-	 */
-	size_t recovery_password_length;
 
 	/* The notification output stream
 	 */
@@ -95,22 +75,7 @@ int mount_handle_signal_abort(
      mount_handle_t *mount_handle,
      libcerror_error_t **error );
 
-int mount_handle_set_file_system_index(
-     mount_handle_t *mount_handle,
-     const system_character_t *string,
-     libcerror_error_t **error );
-
 int mount_handle_set_offset(
-     mount_handle_t *mount_handle,
-     const system_character_t *string,
-     libcerror_error_t **error );
-
-int mount_handle_set_password(
-     mount_handle_t *mount_handle,
-     const system_character_t *string,
-     libcerror_error_t **error );
-
-int mount_handle_set_recovery_password(
      mount_handle_t *mount_handle,
      const system_character_t *string,
      libcerror_error_t **error );

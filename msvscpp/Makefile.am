@@ -23,6 +23,7 @@ MSVSCPP_FILES = \
 	fsext_test_superblock/fsext_test_superblock.vcproj \
 	fsext_test_support/fsext_test_support.vcproj \
 	fsext_test_tools_info_handle/fsext_test_tools_info_handle.vcproj \
+	fsext_test_tools_mount_path_string/fsext_test_tools_mount_path_string.vcproj \
 	fsext_test_tools_output/fsext_test_tools_output.vcproj \
 	fsext_test_tools_signal/fsext_test_tools_signal.vcproj \
 	fsext_test_volume/fsext_test_volume.vcproj \

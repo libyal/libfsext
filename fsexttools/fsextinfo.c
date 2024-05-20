@@ -1,5 +1,5 @@
 /*
- * Shows information obtained from an Extended File System (ext) volume
+ * Shows information obtained from an Extended File System (ext) volume.
  *
  * Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -61,7 +61,7 @@ enum FSEXTINFO_MODES
 info_handle_t *fsextinfo_info_handle = NULL;
 int fsextinfo_abort                  = 0;
 
-/* Prints the executable usage information
+/* Prints usage information
  */
 void usage_fprint(
       FILE *stream )
@@ -162,7 +162,7 @@ int main( int argc, char * const argv[] )
 	 1 );
 
 	if( libclocale_initialize(
-             "fsexttools",
+	     "fsexttools",
 	     &error ) != 1 )
 	{
 		fprintf(
@@ -171,9 +171,9 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-        if( fsexttools_output_initialize(
-             _IONBF,
-             &error ) != 1 )
+	if( fsexttools_output_initialize(
+	     _IONBF,
+	     &error ) != 1 )
 	{
 		fprintf(
 		 stderr,

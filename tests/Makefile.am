@@ -71,6 +71,7 @@ check_PROGRAMS = \
 	fsext_test_superblock \
 	fsext_test_support \
 	fsext_test_tools_info_handle \
+	fsext_test_tools_mount_path_string \
 	fsext_test_tools_output \
 	fsext_test_tools_signal \
 	fsext_test_volume
@@ -472,6 +473,19 @@ fsext_test_tools_info_handle_LDADD = \
 	@LIBCERROR_LIBADD@ \
 	@LIBCRYPTO_LIBADD@ \
 	@LIBDL_LIBADD@
+
+fsext_test_tools_mount_path_string_SOURCES = \
+	../fsexttools/mount_path_string.c ../fsexttools/mount_path_string.h \
+	fsext_test_libcerror.h \
+	fsext_test_libcpath.h \
+	fsext_test_macros.h \
+	fsext_test_tools_mount_path_string.c \
+	fsext_test_unused.h
+
+fsext_test_tools_mount_path_string_LDADD = \
+	@LIBUNA_LIBADD@ \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
 
 fsext_test_tools_output_SOURCES = \
 	../fsexttools/fsexttools_output.c ../fsexttools/fsexttools_output.h \
