@@ -618,7 +618,7 @@ int main( int argc, char * const argv[] )
 #else
 	fprintf(
 	 stderr,
-	 "No sub system to mount EXT format.\n" );
+	 "No sub system to mount Extended File System (ext) format.\n" );
 
 	return( EXIT_FAILURE );
 

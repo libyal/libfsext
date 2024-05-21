@@ -788,9 +788,9 @@ int mount_file_entry_get_sub_file_entry_by_index(
      libcerror_error_t **error )
 {
 	libfsext_file_entry_t *sub_fsext_file_entry = NULL;
-	system_character_t *filename                  = NULL;
-	static char *function                         = "mount_file_entry_get_sub_file_entry_by_index";
-	size_t filename_size                          = 0;
+	system_character_t *filename                = NULL;
+	static char *function                       = "mount_file_entry_get_sub_file_entry_by_index";
+	size_t filename_size                        = 0;
 
 	if( file_entry == NULL )
 	{
