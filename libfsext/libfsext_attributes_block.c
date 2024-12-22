@@ -256,12 +256,12 @@ int libfsext_attributes_block_read_entries_data(
 
 			goto on_error;
 		}
-		/* The list terminator consist of 4 0-byte values
+		/* The list terminator consist of 8 0-byte values
 		 */
 		if( memory_compare(
 		     &( data[ data_offset ] ),
-		     "\x00\x00\x00\x00",
-		     4 ) == 0 )
+		     "\x00\x00\x00\x00\x00\x00\x00\x00",
+		     8 ) == 0 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )

@@ -1269,17 +1269,11 @@ void info_handle_compatible_features_flags_fprint(
 		 notify_stream,
 		 "\t\tResizable volume (EXT2_FEATURE_COMPAT_RESIZE_INO)\n" );
 	}
-	if( ( compatible_features_flags & 0x00000010UL ) != 0 )
+	if( ( compatible_features_flags & 0x00000020UL ) != 0 )
 	{
 		fprintf(
 		 notify_stream,
 		 "\t\tUse directory hash index (EXT2_FEATURE_COMPAT_DIR_INDEX)\n" );
-	}
-	if( ( compatible_features_flags & 0x00000030UL ) != 0 )
-	{
-		fprintf(
-		 notify_stream,
-		 "\t\t(EXT2_FEATURE_COMPAT_DIR_INDEX)\n" );
 	}
 
 	if( ( compatible_features_flags & 0x00000200UL ) != 0 )
@@ -1472,7 +1466,7 @@ void info_handle_read_only_compatible_features_flags_fprint(
 	{
 		fprintf(
 		 notify_stream,
-		 "\t\t(RO_COMPAT_HAS_SNAPSHOT)\n" );
+		 "\t\t(EXT4_FEATURE_RO_COMPAT_HAS_SNAPSHOT)\n" );
 	}
 	if( ( read_only_compatible_features_flags & 0x00000100UL ) != 0 )
 	{

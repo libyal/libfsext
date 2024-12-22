@@ -249,7 +249,7 @@ void libfsext_debug_print_read_only_compatible_features_flags(
 	if( ( read_only_compatible_features_flags & 0x00000080UL ) != 0 )
 	{
 		libcnotify_printf(
-		 "\t(RO_COMPAT_HAS_SNAPSHOT)\n" );
+		 "\t(EXT4_FEATURE_RO_COMPAT_HAS_SNAPSHOT)\n" );
 	}
 	if( ( read_only_compatible_features_flags & 0x00000100UL ) != 0 )
 	{
