@@ -1,4 +1,6 @@
 TODO:
+* ext4 add support for out of order extents
+
 * fsextinfo output file system identifier
 
 * add support for file name codepage
