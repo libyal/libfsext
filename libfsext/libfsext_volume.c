@@ -1098,7 +1098,9 @@ int libfsext_internal_volume_read_block_groups(
 	uint32_t exponent3                               = 3;
 	uint32_t exponent5                               = 5;
 	uint32_t exponent7                               = 7;
+	uint32_t first_group_number                      = 0;
 	uint32_t group_descriptor_index                  = 0;
+	uint32_t meta_group_number                       = 0;
 	uint32_t metadata_block_group_number             = 0;
 	uint32_t metadata_block_group_start_block_number = 0;
 	uint32_t number_of_block_groups                  = 0;
@@ -1108,6 +1110,7 @@ int libfsext_internal_volume_read_block_groups(
 	uint8_t block_group_has_superblock               = 0;
 	uint8_t is_primary_group_descriptor_table        = 0;
 	int entry_index                                  = 0;
+	int has_sparse_superblock                        = 0;
 
 #ifdef TODO
 	off64_t block_bitmap_offset                      = 0;
@@ -1176,21 +1179,18 @@ int libfsext_internal_volume_read_block_groups(
 		}
 		block_group_has_superblock = 0;
 
-		if( ( block_group_number == 0 )
-		 || ( block_group_number == 1 ) )
+		if( block_group_number == 0 )
 		{
 			block_group_has_superblock = 1;
 		}
-		else if( internal_volume->superblock != NULL )
+		else if( has_sparse_superblock != 0 )
 		{
-			if( ( internal_volume->superblock->read_only_compatible_features_flags & LIBFSEXT_READ_ONLY_COMPATIBLE_FEATURES_FLAG_SPARSE_SUPERBLOCK ) != 0 )
+			if( ( block_group_number == 1 )
+			 || ( block_group_number == exponent3 )
+			 || ( block_group_number == exponent5 )
+			 || ( block_group_number == exponent7 ) )
 			{
-				if( ( block_group_number == exponent3 )
-				 || ( block_group_number == exponent5 )
-				 || ( block_group_number == exponent7 ) )
-				{
-					block_group_has_superblock = 1;
-				}
+				block_group_has_superblock = 1;
 			}
 		}
 		if( block_group_has_superblock != 0 )
@@ -1301,6 +1301,8 @@ int libfsext_internal_volume_read_block_groups(
 				}
 				internal_volume->superblock = superblock;
 				superblock                  = NULL;
+
+				has_sparse_superblock = ( internal_volume->io_handle->read_only_compatible_features_flags & LIBFSEXT_READ_ONLY_COMPATIBLE_FEATURES_FLAG_SPARSE_SUPERBLOCK ) != 0;
 			}
 			else
 			{
@@ -1349,15 +1351,13 @@ int libfsext_internal_volume_read_block_groups(
 		{
 			group_descriptor_offset = block_group_offset;
 
+			if( internal_volume->io_handle->block_size == 1024 )
+			{
+				group_descriptor_offset += 1024;
+			}
 			if( block_group_has_superblock != 0 )
 			{
 				group_descriptor_offset += internal_volume->io_handle->block_size;
-
-				if( ( block_group_number == 0 )
-				 && ( internal_volume->io_handle->block_size == 1024 ) )
-				{
-					group_descriptor_offset += 1024;
-				}
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -1391,16 +1391,19 @@ int libfsext_internal_volume_read_block_groups(
 
 			if( number_of_blocks_per_meta_group == 0 )
 			{
+				first_group_number                = 0;
 				number_of_group_descriptors       = internal_volume->superblock->number_of_block_groups;
 				is_primary_group_descriptor_table = (uint8_t) ( block_group_number == 0 );
 			}
 			else if( block_group_number < metadata_block_group_start_block_number )
 			{
-				number_of_group_descriptors       = internal_volume->superblock->first_metadata_block_group;
+				first_group_number                = 0;
+				number_of_group_descriptors       = metadata_block_group_start_block_number;
 				is_primary_group_descriptor_table = (uint8_t) ( block_group_number == 0 );
 			}
 			else
 			{
+				first_group_number                = metadata_block_group_start_block_number + ( meta_group_number * number_of_blocks_per_meta_group );
 				number_of_group_descriptors       = number_of_blocks_per_meta_group;
 				is_primary_group_descriptor_table = (uint8_t) ( metadata_block_group_number == 0 );
 			}
@@ -1421,7 +1424,7 @@ int libfsext_internal_volume_read_block_groups(
 
 					goto on_error;
 				}
-				group_descriptor->group_number = group_descriptor_index;
+				group_descriptor->group_number = first_group_number + group_descriptor_index;
 
 				if( libfsext_group_descriptor_read_file_io_handle(
 				     group_descriptor,
@@ -1477,6 +1480,10 @@ int libfsext_internal_volume_read_block_groups(
 						goto on_error;
 					}
 				}
+			}
+			if( metadata_block_group_number == ( number_of_blocks_per_meta_group - 1 ) )
+			{
+				meta_group_number += 1;
 			}
 		}
 #ifdef TODO
