@@ -1,7 +1,7 @@
 /*
  * Volume functions
  *
- * Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2025, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1106,6 +1106,7 @@ int libfsext_internal_volume_read_block_groups(
 	uint32_t number_of_block_groups                  = 0;
 	uint32_t number_of_blocks_per_meta_group         = 0;
 	uint32_t number_of_group_descriptors             = 0;
+	uint32_t superblock_number                       = 0;
 	uint8_t block_group_has_group_descriptors        = 0;
 	uint8_t block_group_has_superblock               = 0;
 	uint8_t is_primary_group_descriptor_table        = 0;
@@ -1197,6 +1198,10 @@ int libfsext_internal_volume_read_block_groups(
 		{
 			superblock_offset = block_group_offset;
 
+			if( internal_volume->io_handle->block_size > 0 )
+			{
+				superblock_number = superblock_offset / internal_volume->io_handle->block_size;
+			}
 			if( ( block_group_offset == 0 )
 			 || ( internal_volume->io_handle->block_size == 1024 ) )
 			{
@@ -1206,8 +1211,9 @@ int libfsext_internal_volume_read_block_groups(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "Reading superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
+				 "Reading block group: %" PRIu32 " superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").\n",
 				 block_group_number,
+				 superblock_number,
 				 superblock_offset,
 				 superblock_offset );
 			}
@@ -1235,9 +1241,10 @@ int libfsext_internal_volume_read_block_groups(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+				 "%s: unable to read block group: %" PRIu32 " superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 				 function,
 				 block_group_number,
+				 superblock_number,
 				 superblock_offset,
 				 superblock_offset );
 

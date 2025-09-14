@@ -50,6 +50,7 @@ check_PROGRAMS = \
 	fsext_test_attribute_values \
 	fsext_test_bitmap \
 	fsext_test_block \
+	fsext_test_block_data \
 	fsext_test_block_data_handle \
 	fsext_test_block_vector \
 	fsext_test_buffer_data_handle \
@@ -133,6 +134,17 @@ fsext_test_block_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
+	../libfsext/libfsext.la \
+	@LIBCERROR_LIBADD@
+
+fsext_test_block_data_SOURCES = \
+	fsext_test_block_data.c \
+	fsext_test_libcerror.h \
+	fsext_test_libfsext.h \
+	fsext_test_macros.h \
+	fsext_test_unused.h
+
+fsext_test_block_data_LDADD = \
 	../libfsext/libfsext.la \
 	@LIBCERROR_LIBADD@
 

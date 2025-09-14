@@ -1,7 +1,7 @@
 /*
  * Superblock functions
  *
- * Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2025, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -249,6 +249,10 @@ struct libfsext_superblock
 	/* Flex group size
 	 */
 	size64_t flex_group_size;
+
+	/* Value to indicate the superblock is empty
+	 */
+	uint8_t is_empty;
 
 	/* Value to indicate the superblock is corrupt
 	 */

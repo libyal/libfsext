@@ -1,7 +1,7 @@
 /*
  * Inode functions
  *
- * Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2025, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -29,6 +29,7 @@
 
 #include "libfsext_attribute_values.h"
 #include "libfsext_attributes_block.h"
+#include "libfsext_block_data.h"
 #include "libfsext_checksum.h"
 #include "libfsext_data_blocks.h"
 #include "libfsext_debug.h"
@@ -46,99 +47,6 @@
 #include "libfsext_types.h"
 
 #include "fsext_inode.h"
-
-/* Checks if a buffer containing the inode is filled with 0-byte values (empty-block)
- * Returns 1 if empty, 0 if not or -1 on error
- */
-int libfsext_inode_check_for_empty_block(
-     const uint8_t *data,
-     size_t data_size,
-     libcerror_error_t **error )
-{
-	libfsext_aligned_t *aligned_data_index = NULL;
-	libfsext_aligned_t *aligned_data_start = NULL;
-	uint8_t *data_index                    = NULL;
-	uint8_t *data_start                    = NULL;
-	static char *function                  = "libfsext_inode_check_for_empty_block";
-
-	if( data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid data.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	data_start = (uint8_t *) data;
-	data_index = (uint8_t *) data + 1;
-	data_size -= 1;
-
-	/* Only optimize for data larger than the alignment
-	 */
-	if( data_size > ( 2 * sizeof( libfsext_aligned_t ) ) )
-	{
-		/* Align the data start
-		 */
-		while( ( (intptr_t) data_start % sizeof( libfsext_aligned_t ) ) != 0 )
-		{
-			if( *data_start != *data_index )
-			{
-				return( 0 );
-			}
-			data_start += 1;
-			data_index += 1;
-			data_size  -= 1;
-		}
-		/* Align the data index
-		 */
-		while( ( (intptr_t) data_index % sizeof( libfsext_aligned_t ) ) != 0 )
-		{
-			if( *data_start != *data_index )
-			{
-				return( 0 );
-			}
-			data_index += 1;
-			data_size  -= 1;
-		}
-		aligned_data_start = (libfsext_aligned_t *) data_start;
-		aligned_data_index = (libfsext_aligned_t *) data_index;
-
-		while( data_size > sizeof( libfsext_aligned_t ) )
-		{
-			if( *aligned_data_start != *aligned_data_index )
-			{
-				return( 0 );
-			}
-			aligned_data_index += 1;
-			data_size          -= sizeof( libfsext_aligned_t );
-		}
-		data_index = (uint8_t *) aligned_data_index;
-	}
-	while( data_size != 0 )
-	{
-		if( *data_start != *data_index )
-		{
-			return( 0 );
-		}
-		data_index += 1;
-		data_size  -= 1;
-	}
-	return( 1 );
-}
 
 /* Creates a inode
  * Make sure the value inode is referencing, is set to NULL
@@ -507,7 +415,7 @@ int libfsext_inode_read_data(
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
-	result = libfsext_inode_check_for_empty_block(
+	result = libfsext_block_data_check_empty(
 	          data,
 	          data_size,
 	          error );
@@ -1386,7 +1294,7 @@ int libfsext_inode_read_data(
 
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->version_upper,
-			 value_16bit );
+			 value_32bit );
 			libcnotify_printf(
 			 "%s: version (upper)\t\t\t\t: %" PRIu32 "\n",
 			 function,
@@ -1394,7 +1302,7 @@ int libfsext_inode_read_data(
 
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (fsext_inode_ext4_t *) data )->project_identifier,
-			 value_16bit );
+			 value_32bit );
 			libcnotify_printf(
 			 "%s: project identifier\t\t\t\t: %" PRIu32 "\n",
 			 function,

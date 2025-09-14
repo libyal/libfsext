@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfsext\libfsext_block_data.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfsext\libfsext_block_data_handle.c"
 				>
 			</File>
@@ -333,6 +337,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfsext\libfsext_block.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfsext\libfsext_block_data.h"
 				>
 			</File>
 			<File

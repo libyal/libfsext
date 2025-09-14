@@ -32,6 +32,7 @@ libfsext_la_SOURCES = \
 	libfsext_attribute_values.c libfsext_attribute_values.h \
 	libfsext_bitmap.c libfsext_bitmap.h \
 	libfsext_block.c libfsext_block.h \
+	libfsext_block_data.c libfsext_block_data.h \
 	libfsext_block_data_handle.c libfsext_block_data_handle.h \
 	libfsext_block_stream.c libfsext_block_stream.h \
 	libfsext_block_vector.c libfsext_block_vector.h \

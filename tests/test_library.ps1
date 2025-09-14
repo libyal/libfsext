@@ -6,7 +6,7 @@ $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "attribute_values bitmap block block_data_handle block_vector buffer_data_handle checksum directory directory_entry error extended_attribute extent extent_index extents_footer extents_header file_entry group_descriptor inode inode_table io_handle notify superblock"
+$LibraryTests = "attribute_values bitmap block block_data block_data_handle block_vector buffer_data_handle checksum directory directory_entry error extended_attribute extent extent_index extents_footer extents_header file_entry group_descriptor inode inode_table io_handle notify superblock"
 $LibraryTestsWithInput = "support volume"
 $OptionSets = "offset"
 
