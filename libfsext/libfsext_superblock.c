@@ -27,7 +27,6 @@
 #include <types.h>
 #include <wide_string.h>
 
-#include "libfsext_block_data.h"
 #include "libfsext_checksum.h"
 #include "libfsext_debug.h"
 #include "libfsext_definitions.h"
@@ -147,7 +146,7 @@ int libfsext_superblock_free(
 }
 
 /* Reads the superblock data
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if signature does not match or -1 on error
  */
 int libfsext_superblock_read_data(
      libfsext_superblock_t *superblock,
@@ -161,7 +160,6 @@ int libfsext_superblock_read_data(
 	uint32_t supported_feature_flags              = 0;
 	uint8_t checksum_type                         = 0;
 	uint8_t number_of_block_groups_per_flex_group = 0;
-	int result                                    = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint64_t value_64bit                          = 0;
@@ -226,43 +224,12 @@ int libfsext_superblock_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	result = libfsext_block_data_check_empty(
-	          data,
-	          data_size,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine if superblock is empty.",
-		 function );
-
-		return( -1 );
-	}
-	else if( result != 0 )
-	{
-		superblock->is_empty = 1;
-
-		return( 1 );
-	}
-	superblock->is_empty = 0;
-
 	if( memory_compare(
 	     ( (fsext_superblock_ext2_t *) data )->signature,
 	     fsext_superblock_signature,
 	     2 ) != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: invalid signature.",
-		 function );
-
-		return( -1 );
+		return( 0 );
 	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (fsext_superblock_ext2_t *) data )->number_of_inodes,
@@ -1516,7 +1483,7 @@ int libfsext_superblock_read_data(
 }
 
 /* Reads the superblock from a Basic File IO (bfio) handle
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if signature does not match or -1 on error
  */
 int libfsext_superblock_read_file_io_handle(
      libfsext_superblock_t *superblock,
@@ -1528,6 +1495,7 @@ int libfsext_superblock_read_file_io_handle(
 
 	static char *function = "libfsext_superblock_read_file_io_handle";
 	ssize_t read_count    = 0;
+	int result            = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -1559,11 +1527,13 @@ int libfsext_superblock_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( libfsext_superblock_read_data(
-	     superblock,
-	     data,
-	     1024,
-	     error ) != 1 )
+	result = libfsext_superblock_read_data(
+	          superblock,
+	          data,
+	          1024,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1576,7 +1546,7 @@ int libfsext_superblock_read_file_io_handle(
 
 		return( -1 );
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the file system identifier

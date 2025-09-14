@@ -250,10 +250,6 @@ struct libfsext_superblock
 	 */
 	size64_t flex_group_size;
 
-	/* Value to indicate the superblock is empty
-	 */
-	uint8_t is_empty;
-
 	/* Value to indicate the superblock is corrupt
 	 */
 	uint8_t is_corrupt;

@@ -1112,6 +1112,7 @@ int libfsext_internal_volume_read_block_groups(
 	uint8_t is_primary_group_descriptor_table        = 0;
 	int entry_index                                  = 0;
 	int has_sparse_superblock                        = 0;
+	int result                                       = 0;
 
 #ifdef TODO
 	off64_t block_bitmap_offset                      = 0;
@@ -1231,27 +1232,29 @@ int libfsext_internal_volume_read_block_groups(
 
 				goto on_error;
 			}
-			if( libfsext_superblock_read_file_io_handle(
-			     superblock,
-			     file_io_handle,
-			     superblock_offset,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read block group: %" PRIu32 " superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-				 function,
-				 block_group_number,
-				 superblock_number,
-				 superblock_offset,
-				 superblock_offset );
+			result = libfsext_superblock_read_file_io_handle(
+			          superblock,
+			          file_io_handle,
+			          superblock_offset,
+			          error );
 
-				goto on_error;
-			}
 			if( block_group_number == 0 )
 			{
+				if( result != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_READ_FAILED,
+					 "%s: unable to read block group: %" PRIu32 " superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+					 function,
+					 block_group_number,
+					 superblock_number,
+					 superblock_offset,
+					 superblock_offset );
+
+					goto on_error;
+				}
 				number_of_block_groups = superblock->number_of_block_groups;
 				block_group_size       = superblock->block_group_size;
 
@@ -1313,7 +1316,27 @@ int libfsext_internal_volume_read_block_groups(
 			}
 			else
 			{
+				if( result == -1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_READ_FAILED,
+					 "%s: unable to read block group: %" PRIu32 " superblock: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+					 function,
+					 block_group_number,
+					 superblock_number,
+					 superblock_offset,
+					 superblock_offset );
+
+					goto on_error;
+				}
+				/* Ignore backup superblocks without a correct signature
+				 */
+				else if( result == 1 )
+				{
 /* TODO compare superblocks */
+				}
 				if( libfsext_superblock_free(
 				     &superblock,
 				     error ) != 1 )

@@ -385,6 +385,31 @@ int fsext_test_superblock_read_data(
 	 "error",
 	 error );
 
+	/* Test case where signature is invalid
+	 */
+	byte_stream_copy_from_uint16_little_endian(
+	 &( fsext_test_superblock_data1[ 56 ] ),
+	 0xffff );
+
+	result = libfsext_superblock_read_data(
+	          superblock,
+	          fsext_test_superblock_data1,
+	          1024,
+	          &error );
+
+	byte_stream_copy_from_uint16_little_endian(
+	 &( fsext_test_superblock_data1[ 56 ] ),
+	 0xef53 );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	/* Test error cases
 	 */
 	result = libfsext_superblock_read_data(
@@ -446,34 +471,6 @@ int fsext_test_superblock_read_data(
 	          fsext_test_superblock_data1,
 	          0,
 	          &error );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	/* Test error case where signature is invalid
-	 */
-	byte_stream_copy_from_uint16_little_endian(
-	 &( fsext_test_superblock_data1[ 56 ] ),
-	 0xffff );
-
-	result = libfsext_superblock_read_data(
-	          superblock,
-	          fsext_test_superblock_data1,
-	          1024,
-	          &error );
-
-	byte_stream_copy_from_uint16_little_endian(
-	 &( fsext_test_superblock_data1[ 56 ] ),
-	 0xef53 );
 
 	FSEXT_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -591,6 +588,31 @@ int fsext_test_superblock_read_file_io_handle(
 	 "error",
 	 error );
 
+	/* Test case where signature is invalid
+	 */
+	byte_stream_copy_from_uint16_little_endian(
+	 &( fsext_test_superblock_data1[ 56 ] ),
+	 0xffff );
+
+	result = libfsext_superblock_read_file_io_handle(
+	          superblock,
+	          file_io_handle,
+	          0,
+	          &error );
+
+	byte_stream_copy_from_uint16_little_endian(
+	 &( fsext_test_superblock_data1[ 56 ] ),
+	 0xef53 );
+
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	FSEXT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	/* Test error cases
 	 */
 	result = libfsext_superblock_read_file_io_handle(
@@ -647,34 +669,8 @@ int fsext_test_superblock_read_file_io_handle(
 	libcerror_error_free(
 	 &error );
 
-	/* Test data invalid
+	/* TODO: Test data invalid
 	 */
-	byte_stream_copy_from_uint16_little_endian(
-	 &( fsext_test_superblock_data1[ 56 ] ),
-	 0xffff );
-
-	result = libfsext_superblock_read_file_io_handle(
-	          superblock,
-	          file_io_handle,
-	          0,
-	          &error );
-
-	byte_stream_copy_from_uint16_little_endian(
-	 &( fsext_test_superblock_data1[ 56 ] ),
-	 0xef53 );
-
-	FSEXT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	FSEXT_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
 	/* Clean up file IO handle
 	 */
 	result = fsext_test_close_file_io_handle(
