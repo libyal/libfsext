@@ -256,12 +256,14 @@ int libfsext_attributes_block_read_entries_data(
 
 			goto on_error;
 		}
-		/* The list terminator consist of 8 0-byte values
+		/* The list terminator has the first 4 values set to 0 (8 bytes).
+		 * Note that some implementations of older Android versions of ext appear to
+		 * only set the first 4 bytes to 0.
 		 */
 		if( memory_compare(
 		     &( data[ data_offset ] ),
-		     "\x00\x00\x00\x00\x00\x00\x00\x00",
-		     8 ) == 0 )
+		     "\x00\x00\x00\x00",
+		     4 ) == 0 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
