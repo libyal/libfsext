@@ -66,8 +66,8 @@ void usage_fprint(
 	}
 	fprintf( stream, "Use fsextmount to mount an Extended File System (ext) volume\n\n" );
 
-	fprintf( stream, "Usage: fsextmount [ -o offset ] [ -X extended_options ]\n"
-	                 "                  [ -hvV ] volume mount_point\n\n" );
+	fprintf( stream, "Usage: fsextmount [ -o offset ] [ -X extended_options ] [ -hvV ] volume\n"
+	                 "                  mount_point\n\n" );
 
 	fprintf( stream, "\tvolume:      an Extended File System (ext) volume\n\n" );
 	fprintf( stream, "\tmount_point: the directory to serve as mount point\n\n" );
@@ -311,6 +311,11 @@ int main( int argc, char * const argv[] )
 #if defined( HAVE_LIBFUSE ) || defined( HAVE_LIBFUSE3 ) || defined( HAVE_LIBOSXFUSE )
 	if( option_extended_options != NULL )
 	{
+#if defined( HAVE_LIBFUSE3 )
+		// fuse_opt_add_arg: Assertion `!args->argv || args->allocated' failed.
+		fsextmount_fuse_arguments.argc = 0;
+		fsextmount_fuse_arguments.argv = NULL;
+#endif
 		/* This argument is required but ignored
 		 */
 		if( fuse_opt_add_arg(
