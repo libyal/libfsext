@@ -476,7 +476,7 @@ int libfsext_inode_read_data(
 	 ( (fsext_inode_ext2_t *) data )->data_size,
 	 inode->data_size );
 
-	if( ( inode->flags & 0x00200000UL ) == 0 )
+	if( ( inode->flags & LIBFSEXT_INODE_FLAG_IS_EXTENDED_ATTRIBUTE_INODE ) == 0 )
 	{
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext2_t *) data )->access_time,
@@ -545,7 +545,7 @@ int libfsext_inode_read_data(
 			 function,
 			 inode->data_size );
 		}
-		if( ( inode->flags & 0x00200000UL ) == 0 )
+		if( ( inode->flags & LIBFSEXT_INODE_FLAG_IS_EXTENDED_ATTRIBUTE_INODE ) == 0 )
 		{
 			if( libfsext_debug_print_posix_time_value(
 			     function,
@@ -688,7 +688,7 @@ int libfsext_inode_read_data(
 
 		if( io_handle->format_version == 4 )
 		{
-			if( ( inode->flags & 0x00200000UL ) == 0 )
+			if( ( inode->flags & LIBFSEXT_INODE_FLAG_IS_EXTENDED_ATTRIBUTE_INODE ) == 0 )
 			{
 				byte_stream_copy_to_uint32_little_endian(
 				 ( (fsext_inode_ext4_t *) data )->version_lower,
@@ -1068,18 +1068,36 @@ int libfsext_inode_read_data(
 	if( ( io_handle->format_version == 4 )
 	 && ( extended_inode_size >= 28 ) )
 	{
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_inode_ext4_t *) data )->inode_change_time_extra,
-		 value_32bit );
-
-		if( ( value_32bit & 0x00000003UL ) != 0 )
+		if( ( inode->flags & LIBFSEXT_INODE_FLAG_IS_EXTENDED_ATTRIBUTE_INODE ) == 0 )
 		{
-			inode->inode_change_time  = 0x100000000UL;
-			inode->inode_change_time *= ( value_32bit & 0x00000003UL );
-			inode->inode_change_time += (int32_t) inode_change_time;
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_inode_ext4_t *) data )->inode_change_time_extra,
+			 value_32bit );
 
-			if( ( inode->inode_change_time < ( (int64_t) INT64_MIN / 1000000000 ) )
-			 || ( inode->inode_change_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+			if( ( value_32bit & 0x00000003UL ) != 0 )
+			{
+				inode->inode_change_time  = 0x100000000UL;
+				inode->inode_change_time *= ( value_32bit & 0x00000003UL );
+				inode->inode_change_time += (int32_t) inode_change_time;
+
+				if( ( inode->inode_change_time < ( (int64_t) INT64_MIN / 1000000000 ) )
+				 || ( inode->inode_change_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid inode change time value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
+				inode->inode_change_time *= 1000000000;
+			}
+			value_32bit >>= 2;
+
+			if( ( inode->inode_change_time < ( (int64_t) INT64_MIN + value_32bit ) )
+			 || ( inode->inode_change_time > ( (int64_t) INT64_MAX - value_32bit ) ) )
 			{
 				libcerror_error_set(
 				 error,
@@ -1090,36 +1108,36 @@ int libfsext_inode_read_data(
 
 				goto on_error;
 			}
-			inode->inode_change_time *= 1000000000;
-		}
-		value_32bit >>= 2;
+			inode->inode_change_time += value_32bit;
 
-		if( ( inode->inode_change_time < ( (int64_t) INT64_MIN + value_32bit ) )
-		 || ( inode->inode_change_time > ( (int64_t) INT64_MAX - value_32bit ) ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid inode change time value out of bounds.",
-			 function );
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_inode_ext4_t *) data )->modification_time_extra,
+			 value_32bit );
 
-			goto on_error;
-		}
-		inode->inode_change_time += value_32bit;
+			if( ( value_32bit & 0x00000003UL ) != 0 )
+			{
+				inode->modification_time  = 0x100000000UL;
+				inode->modification_time *= ( value_32bit & 0x00000003UL );
+				inode->modification_time += (int32_t) modification_time;
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_inode_ext4_t *) data )->modification_time_extra,
-		 value_32bit );
+				if( ( inode->modification_time < ( (int64_t) INT64_MIN / 1000000000 ) )
+				 || ( inode->modification_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid modification time value out of bounds.",
+					 function );
 
-		if( ( value_32bit & 0x00000003UL ) != 0 )
-		{
-			inode->modification_time  = 0x100000000UL;
-			inode->modification_time *= ( value_32bit & 0x00000003UL );
-			inode->modification_time += (int32_t) modification_time;
+					goto on_error;
+				}
+				inode->modification_time *= 1000000000;
+			}
+			value_32bit >>= 2;
 
-			if( ( inode->modification_time < ( (int64_t) INT64_MIN / 1000000000 ) )
-			 || ( inode->modification_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+			if( ( inode->modification_time < ( (int64_t) INT64_MIN + value_32bit ) )
+			 || ( inode->modification_time > ( (int64_t) INT64_MAX - value_32bit ) ) )
 			{
 				libcerror_error_set(
 				 error,
@@ -1130,36 +1148,36 @@ int libfsext_inode_read_data(
 
 				goto on_error;
 			}
-			inode->modification_time *= 1000000000;
-		}
-		value_32bit >>= 2;
+			inode->modification_time += value_32bit;
 
-		if( ( inode->modification_time < ( (int64_t) INT64_MIN + value_32bit ) )
-		 || ( inode->modification_time > ( (int64_t) INT64_MAX - value_32bit ) ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid modification time value out of bounds.",
-			 function );
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (fsext_inode_ext4_t *) data )->access_time_extra,
+			 value_32bit );
 
-			goto on_error;
-		}
-		inode->modification_time += value_32bit;
+			if( ( value_32bit & 0x00000003UL ) != 0 )
+			{
+				inode->access_time  = 0x100000000UL;
+				inode->access_time *= ( value_32bit & 0x00000003UL );
+				inode->access_time += (int32_t) access_time;
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (fsext_inode_ext4_t *) data )->access_time_extra,
-		 value_32bit );
+				if( ( inode->access_time < ( (int64_t) INT64_MIN / 1000000000 ) )
+				 || ( inode->access_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid access time value out of bounds.",
+					 function );
 
-		if( ( value_32bit & 0x00000003UL ) != 0 )
-		{
-			inode->access_time  = 0x100000000UL;
-			inode->access_time *= ( value_32bit & 0x00000003UL );
-			inode->access_time += (int32_t) access_time;
+					goto on_error;
+				}
+				inode->access_time *= 1000000000;
+			}
+			value_32bit >>= 2;
 
-			if( ( inode->access_time < ( (int64_t) INT64_MIN / 1000000000 ) )
-			 || ( inode->access_time > ( (int64_t) INT64_MAX / 1000000000 ) ) )
+			if( ( inode->access_time < ( (int64_t) INT64_MIN + value_32bit ) )
+			 || ( inode->access_time > ( (int64_t) INT64_MAX - value_32bit ) ) )
 			{
 				libcerror_error_set(
 				 error,
@@ -1170,24 +1188,8 @@ int libfsext_inode_read_data(
 
 				goto on_error;
 			}
-			inode->access_time *= 1000000000;
+			inode->access_time += value_32bit;
 		}
-		value_32bit >>= 2;
-
-		if( ( inode->access_time < ( (int64_t) INT64_MIN + value_32bit ) )
-		 || ( inode->access_time > ( (int64_t) INT64_MAX - value_32bit ) ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid access time value out of bounds.",
-			 function );
-
-			goto on_error;
-		}
-		inode->access_time += value_32bit;
-
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (fsext_inode_ext4_t *) data )->creation_time,
 		 creation_time );
