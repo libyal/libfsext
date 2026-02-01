@@ -1,7 +1,7 @@
 /*
  * Inode functions
  *
- * Copyright (C) 2010-2025, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2026, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1051,22 +1051,10 @@ int libfsext_inode_read_data(
 			 function,
 			 extended_inode_size );
 		}
-		if( ( io_handle->format_version == 3 )
-		 && ( extended_inode_size >= 4 ) )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (fsext_inode_ext3_t *) data )->padding2,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: padding2\t\t\t\t\t: %" PRIu16 "\n",
-			 function,
-			 value_16bit );
-		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( ( io_handle->format_version == 4 )
-	 && ( extended_inode_size >= 28 ) )
+	if( extended_inode_size >= 28 )
 	{
 		if( ( inode->flags & LIBFSEXT_INODE_FLAG_IS_EXTENDED_ATTRIBUTE_INODE ) == 0 )
 		{
@@ -1318,8 +1306,7 @@ int libfsext_inode_read_data(
 			 inode->data_size );
 
 		}
-		if( ( io_handle->format_version == 4 )
-		 && ( extended_inode_size >= 28 ) )
+		if( extended_inode_size >= 28 )
 		{
 			byte_stream_copy_from_uint64_little_endian(
 			 value_data,
@@ -1579,8 +1566,7 @@ int libfsext_inode_read_data(
 	}
 	data_offset = 128 + extended_inode_size;
 
-	if( ( io_handle->format_version == 4 )
-	 && ( extended_inode_size >= 28 ) )
+	if( extended_inode_size >= 28 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
