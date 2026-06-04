@@ -1417,8 +1417,6 @@ int libfsext_internal_volume_read_block_groups(
 
 				goto on_error;
 			}
-			is_primary_group_descriptor_table = 0;
-
 			if( number_of_blocks_per_meta_group == 0 )
 			{
 				first_group_number                = 0;
@@ -2950,28 +2948,6 @@ int libfsext_internal_volume_get_root_directory(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid volume - missing superblock.",
-		 function );
-
-		return( -1 );
-	}
-	if( file_entry == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file entry.",
-		 function );
-
-		return( -1 );
-	}
-	if( *file_entry != NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid file entry value already set.",
 		 function );
 
 		return( -1 );

@@ -1,4 +1,4 @@
-libfsext is a library to access the Extended File System (ext).
+libfsext is a library to access the Extended File System (ext) format.
 
 Read-only supported ext formats:
 

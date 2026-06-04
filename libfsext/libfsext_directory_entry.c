@@ -208,33 +208,36 @@ int libfsext_directory_entry_clone(
 
 		goto on_error;
 	}
-	( *destination_directory_entry )->name = (uint8_t *) memory_allocate(
-	                                                      sizeof( uint8_t ) * source_directory_entry->name_size );
-
-	if( ( *destination_directory_entry )->name == NULL )
+	if( source_directory_entry->name != NULL )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create name.",
-		 function );
+		( *destination_directory_entry )->name = (uint8_t *) memory_allocate(
+		                                                      sizeof( uint8_t ) * source_directory_entry->name_size );
 
-		goto on_error;
-	}
-	if( memory_copy(
-	     ( *destination_directory_entry )->name,
-	     source_directory_entry->name,
-	     source_directory_entry->name_size ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to copy name.",
-		 function );
+		if( ( *destination_directory_entry )->name == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create name.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
+		if( memory_copy(
+		     ( *destination_directory_entry )->name,
+		     source_directory_entry->name,
+		     source_directory_entry->name_size ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to copy name.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	return( 1 );
 
@@ -445,11 +448,11 @@ int libfsext_directory_entry_read_data(
 	( directory_entry->name )[ name_size ] = 0;
 	directory_entry->name_size             = name_size + 1;
 
-	data_offset += name_size;
-
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		data_offset += name_size;
+
 		if( data_offset < directory_entry->size )
 		{
 			libcnotify_printf(

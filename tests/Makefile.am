@@ -22,6 +22,10 @@ AM_CPPFLAGS = \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBFSEXT_DLL_IMPORT@
 
+AM_TESTS_ENVIRONMENT = \
+	export PYTHON="@PYTHON@"; \
+	export TESTS_USE_WINAPI="@TESTS_USE_WINAPI@";
+
 if HAVE_PYTHON_TESTS
 TESTS_PYFSEXT = \
 	test_python_module.sh
@@ -508,7 +512,8 @@ fsext_test_tools_output_SOURCES = \
 
 fsext_test_tools_output_LDADD = \
 	../libfsext/libfsext.la \
-	@LIBCERROR_LIBADD@
+	@LIBCERROR_LIBADD@ \
+	@LIBINTL@
 
 fsext_test_tools_signal_SOURCES = \
 	../fsexttools/fsexttools_signal.c ../fsexttools/fsexttools_signal.h \

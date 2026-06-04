@@ -24,21 +24,28 @@
 
 #include <common.h>
 
+#if !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute )
+#if __has_attribute( visibility )
+#define LIBFSEXT_INTERNAL	__attribute__((visibility("hidden"))) extern
+
+#else
+#define LIBFSEXT_INTERNAL	extern
+
+#endif /* __has_attribute( visibility ) */
+#else
+#define LIBFSEXT_INTERNAL	extern
+
+#endif /* !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute ) */
+
 /* Define HAVE_LOCAL_LIBFSEXT for local use of libfsext
  */
 #if !defined( HAVE_LOCAL_LIBFSEXT )
 
 #include <libfsext/extern.h>
 
-#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
-#define LIBFSEXT_EXTERN_VARIABLE	extern
-#else
-#define LIBFSEXT_EXTERN_VARIABLE	LIBFSEXT_EXTERN
-#endif
-
 #else
 #define LIBFSEXT_EXTERN		/* extern */
-#define LIBFSEXT_EXTERN_VARIABLE	extern
+#define LIBFSEXT_EXTERN_VARIABLE	LIBFSEXT_INTERNAL
 
 #endif /* !defined( HAVE_LOCAL_LIBFSEXT ) */
 

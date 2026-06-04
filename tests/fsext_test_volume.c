@@ -788,6 +788,10 @@ int fsext_test_volume_open_file_io_handle(
 	size_t string_length             = 0;
 	int result                       = 0;
 
+        FSEXT_TEST_ASSERT_IS_NOT_NULL(
+         "source",
+         source );
+
 	/* Initialize test
 	 */
 	result = libbfio_file_initialize(
@@ -1239,10 +1243,9 @@ on_error:
 int fsext_test_volume_get_utf8_label_size(
      libfsext_volume_t *volume )
 {
-	libcerror_error_t *error   = NULL;
-	size_t utf8_label_size     = 0;
-	int result                 = 0;
-	int utf8_label_size_is_set = 0;
+	libcerror_error_t *error = NULL;
+	size_t utf8_label_size   = 0;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
@@ -1259,8 +1262,6 @@ int fsext_test_volume_get_utf8_label_size(
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	utf8_label_size_is_set = result;
 
 	/* Test error cases
 	 */
@@ -1281,25 +1282,23 @@ int fsext_test_volume_get_utf8_label_size(
 	libcerror_error_free(
 	 &error );
 
-	if( utf8_label_size_is_set != 0 )
-	{
-		result = libfsext_volume_get_utf8_label_size(
-		          volume,
-		          NULL,
-		          &error );
+	result = libfsext_volume_get_utf8_label_size(
+	          volume,
+	          NULL,
+	          &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:
@@ -1321,7 +1320,6 @@ int fsext_test_volume_get_utf8_label(
 
 	libcerror_error_t *error = NULL;
 	int result               = 0;
-	int utf8_label_is_set    = 0;
 
 	/* Test regular cases
 	 */
@@ -1339,8 +1337,6 @@ int fsext_test_volume_get_utf8_label(
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	utf8_label_is_set = result;
 
 	/* Test error cases
 	 */
@@ -1362,62 +1358,60 @@ int fsext_test_volume_get_utf8_label(
 	libcerror_error_free(
 	 &error );
 
-	if( utf8_label_is_set != 0 )
-	{
-		result = libfsext_volume_get_utf8_label(
-		          volume,
-		          NULL,
-		          512,
-		          &error );
+	result = libfsext_volume_get_utf8_label(
+		  volume,
+		  NULL,
+		  512,
+		  &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
+	libcerror_error_free(
+	 &error );
 
-		result = libfsext_volume_get_utf8_label(
-		          volume,
-		          utf8_label,
-		          0,
-		          &error );
+	result = libfsext_volume_get_utf8_label(
+		  volume,
+		  utf8_label,
+		  0,
+		  &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
+	libcerror_error_free(
+	 &error );
 
-		result = libfsext_volume_get_utf8_label(
-		          volume,
-		          utf8_label,
-		          (size_t) SSIZE_MAX + 1,
-		          &error );
+	result = libfsext_volume_get_utf8_label(
+		  volume,
+		  utf8_label,
+		  (size_t) SSIZE_MAX + 1,
+		  &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:
@@ -1435,10 +1429,9 @@ on_error:
 int fsext_test_volume_get_utf16_label_size(
      libfsext_volume_t *volume )
 {
-	libcerror_error_t *error    = NULL;
-	size_t utf16_label_size     = 0;
-	int result                  = 0;
-	int utf16_label_size_is_set = 0;
+	libcerror_error_t *error = NULL;
+	size_t utf16_label_size  = 0;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
@@ -1455,8 +1448,6 @@ int fsext_test_volume_get_utf16_label_size(
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	utf16_label_size_is_set = result;
 
 	/* Test error cases
 	 */
@@ -1477,25 +1468,23 @@ int fsext_test_volume_get_utf16_label_size(
 	libcerror_error_free(
 	 &error );
 
-	if( utf16_label_size_is_set != 0 )
-	{
-		result = libfsext_volume_get_utf16_label_size(
-		          volume,
-		          NULL,
-		          &error );
+	result = libfsext_volume_get_utf16_label_size(
+		  volume,
+		  NULL,
+		  &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:
@@ -1517,7 +1506,6 @@ int fsext_test_volume_get_utf16_label(
 
 	libcerror_error_t *error = NULL;
 	int result               = 0;
-	int utf16_label_is_set   = 0;
 
 	/* Test regular cases
 	 */
@@ -1535,8 +1523,6 @@ int fsext_test_volume_get_utf16_label(
 	FSEXT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	utf16_label_is_set = result;
 
 	/* Test error cases
 	 */
@@ -1558,62 +1544,60 @@ int fsext_test_volume_get_utf16_label(
 	libcerror_error_free(
 	 &error );
 
-	if( utf16_label_is_set != 0 )
-	{
-		result = libfsext_volume_get_utf16_label(
-		          volume,
-		          NULL,
-		          512,
-		          &error );
+	result = libfsext_volume_get_utf16_label(
+		  volume,
+		  NULL,
+		  512,
+		  &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
+	libcerror_error_free(
+	 &error );
 
-		result = libfsext_volume_get_utf16_label(
-		          volume,
-		          utf16_label,
-		          0,
-		          &error );
+	result = libfsext_volume_get_utf16_label(
+		  volume,
+		  utf16_label,
+		  0,
+		  &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
+	libcerror_error_free(
+	 &error );
 
-		result = libfsext_volume_get_utf16_label(
-		          volume,
-		          utf16_label,
-		          (size_t) SSIZE_MAX + 1,
-		          &error );
+	result = libfsext_volume_get_utf16_label(
+		  volume,
+		  utf16_label,
+		  (size_t) SSIZE_MAX + 1,
+		  &error );
 
-		FSEXT_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	FSEXT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		FSEXT_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	FSEXT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:
@@ -2099,6 +2083,12 @@ int main(
 
 #endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
+		/* TODO: add tests for libfsext_volume_get_format_version */
+
+		/* TODO: add tests for libfsext_volume_get_features_flags */
+
+		/* TODO: add tests for libfsext_volume_get_identifier */
+
 		FSEXT_TEST_RUN_WITH_ARGS(
 		 "libfsext_volume_get_utf8_label_size",
 		 fsext_test_volume_get_utf8_label_size,
@@ -2119,6 +2109,14 @@ int main(
 		 fsext_test_volume_get_utf16_label,
 		 volume );
 
+		/* TODO: add tests for libfsext_volume_get_utf8_last_mount_path_size */
+
+		/* TODO: add tests for libfsext_volume_get_utf8_last_mount_path */
+
+		/* TODO: add tests for libfsext_volume_get_utf16_last_mount_path_size */
+
+		/* TODO: add tests for libfsext_volume_get_utf16_last_mount_path */
+
 		FSEXT_TEST_RUN_WITH_ARGS(
 		 "libfsext_volume_get_last_mount_time",
 		 fsext_test_volume_get_last_mount_time,
@@ -2129,14 +2127,42 @@ int main(
 		 fsext_test_volume_get_last_written_time,
 		 volume );
 
-		/* TODO: add tests for libfsntfs_volume_get_number_of_file_entries */
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
 
-		/* TODO: add tests for libfsntfs_volume_get_file_entry_by_index */
+		/* TODO: add tests for libfsext_internal_volume_get_root_directory */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
 
 		FSEXT_TEST_RUN_WITH_ARGS(
 		 "libfsext_volume_get_root_directory",
 		 fsext_test_volume_get_root_directory,
 		 volume );
+
+		/* TODO: add tests for libfsntfs_volume_get_number_of_file_entries */
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
+		/* TODO: add tests for libfsext_internal_volume_get_file_entry_by_inode */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
+		/* TODO: add tests for libfsext_volume_get_file_entry_by_inode */
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
+		/* TODO: add tests for libfsext_internal_volume_get_file_entry_by_utf8_path */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
+		/* TODO: add tests for libfsext_volume_get_file_entry_by_utf8_path */
+
+#if defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT )
+
+		/* TODO: add tests for libfsext_internal_volume_get_file_entry_by_utf16_path */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBFSEXT_DLL_IMPORT ) */
+
+		/* TODO: add tests for libfsext_volume_get_file_entry_by_utf16_path */
 
 		/* Clean up
 		 */

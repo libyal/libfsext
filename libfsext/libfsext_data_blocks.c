@@ -670,6 +670,17 @@ int libfsext_data_blocks_read_data(
 
 				goto on_error;
 			}
+			if( last_extent == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing last extent.",
+				 function );
+
+				goto on_error;
+			}
 			sub_logical_block_number = last_extent->logical_block_number + last_extent->number_of_blocks;
 
 			create_new_extent = 0;
