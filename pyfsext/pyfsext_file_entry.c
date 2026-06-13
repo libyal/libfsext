@@ -666,7 +666,7 @@ void pyfsext_file_entry_free(
 	 (PyObject*) pyfsext_file_entry );
 }
 
-/* Determines if the file entry is 
+/* Determines if the file entry is empty
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyfsext_file_entry_is_empty(

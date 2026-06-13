@@ -374,8 +374,11 @@ int libfsext_directory_read_inline_data(
 	static char *function                       = "libfsext_directory_read_inline_data";
 	size_t data_offset                          = 0;
 	uint32_t directory_entry_index              = 0;
-	uint32_t parent_inode_number                = 0;
 	int entry_index                             = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint32_t value_32bit                        = 0;
+#endif
 
 	if( directory == NULL )
 	{
@@ -411,17 +414,16 @@ int libfsext_directory_read_inline_data(
 
 		return( -1 );
 	}
-	byte_stream_copy_to_uint32_little_endian(
-	 data,
-	 parent_inode_number );
-
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		byte_stream_copy_to_uint32_little_endian(
+		 data,
+		 value_32bit );
 		libcnotify_printf(
 		 "%s: parent inode number\t\t: %" PRIu32 "\n",
 		 function,
-		 parent_inode_number );
+		 value_32bit );
 
 		libcnotify_printf(
 		 "\n" );

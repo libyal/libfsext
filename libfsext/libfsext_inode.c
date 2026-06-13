@@ -1075,7 +1075,7 @@ int libfsext_inode_read_data(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-					 "%s: invalid inode change time value out of bounds.",
+					 "%s: unsupported inode change time value out of bounds.",
 					 function );
 
 					goto on_error;
@@ -1091,7 +1091,7 @@ int libfsext_inode_read_data(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid inode change time value out of bounds.",
+				 "%s: unsupported inode change time value out of bounds.",
 				 function );
 
 				goto on_error;
@@ -1115,7 +1115,7 @@ int libfsext_inode_read_data(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-					 "%s: invalid modification time value out of bounds.",
+					 "%s: unsupported modification time value out of bounds.",
 					 function );
 
 					goto on_error;
@@ -1131,7 +1131,7 @@ int libfsext_inode_read_data(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid modification time value out of bounds.",
+				 "%s: unsupported modification time value out of bounds.",
 				 function );
 
 				goto on_error;
@@ -1155,7 +1155,7 @@ int libfsext_inode_read_data(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-					 "%s: invalid access time value out of bounds.",
+					 "%s: unsupported access time value out of bounds.",
 					 function );
 
 					goto on_error;
@@ -1171,7 +1171,7 @@ int libfsext_inode_read_data(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid access time value out of bounds.",
+				 "%s: unsupported access time value out of bounds.",
 				 function );
 
 				goto on_error;
@@ -1205,7 +1205,7 @@ int libfsext_inode_read_data(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid creation time value out of bounds.",
+			 "%s: unsupported creation time value out of bounds.",
 			 function );
 
 			goto on_error;

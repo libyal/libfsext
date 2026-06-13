@@ -147,9 +147,9 @@ int libfsext_bitmap_read_data(
 	uint8_t bit_index                 = 0;
 	uint8_t byte_value                = 0;
 	uint8_t in_allocated_range        = 0;
-	int allocated_element_index       = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
+	int allocated_element_index       = 0;
 	int first_allocated_element_index = 0;
 #endif
 
@@ -246,7 +246,9 @@ int libfsext_bitmap_read_data(
 			}
 			byte_value >>= 1;
 
+#if defined( HAVE_DEBUG_OUTPUT )
 			allocated_element_index++;
+#endif
 		}
 	}
 	if( in_allocated_range != 0 )

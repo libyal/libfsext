@@ -2,8 +2,8 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libfsext],
-  [20260604],
-  [joachim.metz@gmail.com])
+  [20260613],
+  [https://github.com/libyal/libfsext/issues])
 
 AC_CONFIG_SRCDIR(
   [include/libfsext.h.in])
@@ -12,6 +12,8 @@ AM_INIT_AUTOMAKE([gnu 1.6 tar-ustar])
 AM_EXTRA_RECURSIVE_TARGETS([sources splint])
 
 AC_CONFIG_MACRO_DIR([m4])
+
+AC_CONFIG_TESTDIR([tests])
 
 dnl Check for host type
 AC_CANONICAL_HOST
@@ -221,6 +223,8 @@ AC_CONFIG_FILES([libfsext/libfsext.rc])
 AC_CONFIG_FILES([libfsext.pc])
 AC_CONFIG_FILES([libfsext.spec])
 AC_CONFIG_FILES([pyproject.toml])
+dnl Generate test configuration files
+AC_CONFIG_FILES([tests/atlocal])
 dnl Generate a source configuration file
 AC_CONFIG_HEADERS([common/config.h])
 

@@ -865,7 +865,7 @@ int libfsext_data_blocks_read_file_io_handle(
 		return( -1 );
 	}
 	block_offset = (off64_t) block_number * io_handle->block_size;
-	
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
