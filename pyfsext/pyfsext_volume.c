@@ -463,16 +463,16 @@ PyObject *pyfsext_volume_open(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *string_object     = NULL;
-	libcerror_error_t *error    = NULL;
-	const char *filename_narrow = NULL;
-	static char *function       = "pyfsext_volume_open";
-	static char *keyword_list[] = { "filename", "mode", NULL };
-	char *mode                  = NULL;
-	int result                  = 0;
+	PyObject *string_object      = NULL;
+	libcerror_error_t *error     = NULL;
+	const char *filename_narrow  = NULL;
+	static char *function        = "pyfsext_volume_open";
+	static char *keyword_list[]  = { "filename", "mode", NULL };
+	char *mode                   = NULL;
+	int result                   = 0;
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	const wchar_t *filename_wide = NULL;
+	wchar_t *filename_wide       = NULL;
 #else
 	PyObject *utf8_string_object = NULL;
 #endif
