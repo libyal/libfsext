@@ -604,6 +604,7 @@ test_manpages: \
 test_python_module: \
 	package.m4 \
 	test_inputs_pyfsext.at \
+	test_macros.at \
 	test_python_module.at
 
 test_tools: \
