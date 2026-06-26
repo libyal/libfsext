@@ -1,6 +1,6 @@
-.Dd May 4, 2015
-.Dt fsextinfo
-.Os libfsext
+.Dd June 26, 2026
+.Dt FSEXTINFO 1
+.Os
 .Sh NAME
 .Nm fsextinfo
 .Nd determines information about an Extended File System (ext) volume
@@ -24,7 +24,7 @@ package.
 is a library to access the Extended File System (ext) format
 .Pp
 .Ar source
-is the source file.
+is the source volume.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -41,7 +41,7 @@ shows this help
 .It Fl H
 shows the file system hierarchy
 .It Fl o Ar offset
-specify the volume offset
+specify the volume offset in bytes
 .It Fl v
 verbose output to stderr
 .It Fl V
@@ -54,7 +54,7 @@ None
 .Sh EXAMPLES
 .Bd -literal
 # fsextinfo ext4.raw
-fsextinfo 20220727
+fsextinfo 20260626
 .sp
 Extended File System information:
 .sp
@@ -73,8 +73,7 @@ Volume information:
                 Has 64-bit support (EXT4_FEATURE_INCOMPAT_64BIT)
                 (EXT4_FEATURE_INCOMPAT_FLEX_BG)
 .sp
-        Read-only compatible features   : 0x0000046b
-                Has sparse superblocks and group descriptor tables (EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER)
+        Read-only compatible features   : 0x0000046a
                 Contains large files (EXT2_FEATURE_RO_COMPAT_LARGE_FILE)
                 (EXT4_FEATURE_RO_COMPAT_HUGE_FILE)
                 (EXT4_FEATURE_RO_COMPAT_DIR_NLINK)
@@ -88,14 +87,19 @@ Volume information:
 .sp
 .Ed
 .Sh DIAGNOSTICS
-Errors, verbose and debug output are printed to stderr when verbose output \-v is enabled.
+Errors, verbose and debug output are printed to stderr when verbose output \
+\-v is enabled.
 Verbose and debug output are only printed when enabled at compilation.
-.Sh BUGS
-Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
-https://github.com/libyal/libfsext/
-.Sh AUTHOR
-These man pages were written by Joachim Metz.
-.Sh COPYRIGHT
-Copyright 2010-2022, Joachim Metz <joachim.metz@gmail.com>.
-This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .Sh SEE ALSO
+.Xr fsextmount 1
+.Sh AUTHORS
+.An Joachim Metz <joachim.metz@gmail.com>
+.Sh BUGS
+Please report bugs of any kind on the project issue tracker: \
+https://github.com/libyal/libfsext/issues
+.Sh COPYRIGHT
+Copyright (C) 2010-2026, Joachim Metz <joachim.metz@gmail.com>.
+.sp
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A \
+PARTICULAR PURPOSE.

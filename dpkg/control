@@ -13,8 +13,8 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: libfsext1
 Replaces: libfsext1
 Suggests: libfsext-dbg
-Description: Library to support the Extended File System (ext) format
- libfsext is a library to support the Extended File System (ext) format.
+Description: Library to access the Extended File System (ext) format
+ libfsext is a library to access the Extended File System (ext) format.
 
 Package: libfsext-dbg
 Architecture: any

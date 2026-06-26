@@ -4,9 +4,7 @@ man_MANS = \
 	libfsext.3
 
 EXTRA_DIST = \
-	fsextinfo.1 \
-	fsextmount.1 \
-	libfsext.3
+	$(man_MANS)
 
 DISTCLEANFILES = \
 	Makefile \

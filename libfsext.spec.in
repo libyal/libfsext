@@ -1,7 +1,7 @@
 Name: libfsext
 Version: @VERSION@
 Release: 1
-Summary: Library to support the Extended File System (ext) format
+Summary: Library to access the Extended File System (ext) format
 Group: System Environment/Libraries
 License: LGPL-3.0-or-later
 Source: %{name}-%{version}.tar.gz
@@ -10,10 +10,10 @@ URL: https://github.com/libyal/libfsext
 BuildRequires: gcc @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requires@ @ax_libcerror_spec_build_requires@ @ax_libcfile_spec_build_requires@ @ax_libclocale_spec_build_requires@ @ax_libcnotify_spec_build_requires@ @ax_libcpath_spec_build_requires@ @ax_libcsplit_spec_build_requires@ @ax_libcthreads_spec_build_requires@ @ax_libfcache_spec_build_requires@ @ax_libfdata_spec_build_requires@ @ax_libfdatetime_spec_build_requires@ @ax_libfguid_spec_build_requires@ @ax_libuna_spec_build_requires@
 
 %description -n libfsext
-Library to support the Extended File System (ext) format
+Library to access the Extended File System (ext) format
 
 %package -n libfsext-static
-Summary: Library to support the Extended File System (ext) format
+Summary: Library to access the Extended File System (ext) format
 Group: Development/Libraries
 Requires: libfsext = %{version}-%{release}
 

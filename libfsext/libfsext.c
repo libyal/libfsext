@@ -1,5 +1,5 @@
 /*
- * Library to support the Extended File System (ext) format
+ * Library to access the Extended File System (ext) format
  *
  * Copyright (C) 2010-2026, Joachim Metz <joachim.metz@gmail.com>
  *
