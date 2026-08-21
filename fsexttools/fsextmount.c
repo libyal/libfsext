@@ -408,6 +408,10 @@ int main( int argc, char * const argv[] )
 	fsextmount_fuse_operations.readlink   = &mount_fuse_readlink;
 	fsextmount_fuse_operations.destroy    = &mount_fuse_destroy;
 
+#if defined( HAVE_LIBFUSE3 ) && FUSE_USE_VERSION >= 318 && defined( HAVE_STRUCT_STATX )
+	fsextmount_fuse_operations.statx      = &mount_fuse_statx;
+#endif
+
 #if defined( HAVE_LIBFUSE3 )
 	fsextmount_fuse_handle = fuse_new(
 	                          &fsextmount_fuse_arguments,
@@ -488,6 +492,9 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
+	fuse_unmount(
+	 fsextmount_fuse_handle );
+
 	fuse_destroy(
 	 fsextmount_fuse_handle );
 

@@ -58,15 +58,15 @@
 extern "C" {
 #endif
 
-#if defined( _WIN32 ) || defined( WINFSP_VERSION )
-typedef struct fuse_stat mount_fuse_stat_t;
-#elif defined( __APPLE__ )
+#if defined( __APPLE__ ) && defined( FUSE_DARWIN_ENABLE_EXTENSIONS ) && FUSE_DARWIN_ENABLE_EXTENSIONS == 1
 typedef struct fuse_darwin_attr mount_fuse_stat_t;
+#elif defined( __CYGWIN__ ) && defined( FUSE_MAJOR_VERSION ) && FUSE_MAJOR_VERSION >= 3
+typedef struct fuse_stat mount_fuse_stat_t;
 #else
 typedef struct stat mount_fuse_stat_t;
 #endif
 
-#if defined( __APPLE__ )
+#if defined( __APPLE__ ) && defined( FUSE_DARWIN_ENABLE_EXTENSIONS ) && FUSE_DARWIN_ENABLE_EXTENSIONS == 1
 #define mount_fuse_fill_dir_t fuse_darwin_fill_dir_t
 #else
 #define mount_fuse_fill_dir_t fuse_fill_dir_t
@@ -81,6 +81,7 @@ int mount_fuse_set_stat_info(
      int64_t access_time,
      int64_t inode_change_time,
      int64_t modification_time,
+     int64_t creation_time,
      libcerror_error_t **error );
 
 int mount_fuse_filldir(
@@ -169,6 +170,15 @@ int mount_fuse_readlink(
 
 void mount_fuse_destroy(
       void *private_data );
+
+#if defined( HAVE_LIBFUSE3 ) && FUSE_USE_VERSION >= 318 && defined( HAVE_STRUCT_STATX )
+int mount_fuse_statx(
+     const char *path,
+     int flags,
+     int mask,
+     struct statx *statx_info,
+     struct fuse_file_info *file_info );
+#endif
 
 #endif /* defined( HAVE_LIBFUSE ) || defined( HAVE_LIBFUSE3 ) || defined( HAVE_LIBOSXFUSE ) */
 

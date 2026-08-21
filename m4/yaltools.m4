@@ -1,6 +1,6 @@
 dnl Checks for tools required headers and functions
 dnl
-dnl Version: 20260601
+dnl Version: 20260720
 
 dnl Function to determine how to link with MinGW binmode
 AC_DEFUN([AX_TOOLS_CHECK_MINGW_BINMODE],
@@ -86,6 +86,16 @@ AC_DEFUN([AX_FSEXTTOOLS_CHECK_LOCAL],
 
   dnl Headers included in fsexttools/fsextmount.c
   AC_CHECK_HEADERS([errno.h sys/time.h])
+
+  dnl Types included in fsexttools/mount_fuse.c and fsexttools/mount_fuse.h
+  AC_CHECK_TYPES(
+    [struct statx],
+    [],
+    [],
+    [[
+#define _GNU_SOURCE
+#include <sys/stat.h>
+    ]])
 
   dnl Functions included in fsexttools/mount_file_system.c and fsexttools/mount_file_entry.c
   AS_IF(

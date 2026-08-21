@@ -24,6 +24,7 @@
 #include <types.h>
 
 #include "libfsext_block_data_handle.h"
+#include "libfsext_definitions.h"
 #include "libfsext_libbfio.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_libfdata.h"

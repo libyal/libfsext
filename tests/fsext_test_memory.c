@@ -26,10 +26,14 @@
 #endif
 
 #if defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ )
+#if defined( __USE_GNU )
+#include <dlfcn.h>
+#else
 #define __USE_GNU
 #include <dlfcn.h>
 #undef __USE_GNU
-#endif
+#endif /* defined( __USE_GNU ) */
+#endif /* defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ ) */
 
 #include "fsext_test_memory.h"
 

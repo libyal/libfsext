@@ -69,12 +69,15 @@ int mount_fuse_set_stat_info(
      int64_t access_time,
      int64_t inode_change_time,
      int64_t modification_time,
+     int64_t creation_time FSEXTTOOLS_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
 	static char *function = "mount_fuse_set_stat_info";
 	int group_identifier  = 0;
 	int number_of_links   = 0;
 	int owner_identifier  = 0;
+
+	FSEXTTOOLS_UNREFERENCED_PARAMETER( creation_time )
 
 	if( stat_info == NULL )
 	{
@@ -131,6 +134,9 @@ int mount_fuse_set_stat_info(
 
 	stat_info->mtimespec.tv_sec  = modification_time / 1000000000;
 	stat_info->mtimespec.tv_nsec = modification_time % 1000000000;
+
+	stat_info->btimespec.tv_sec  = creation_time / 1000000000;
+	stat_info->btimespec.tv_nsec = creation_time % 1000000000;
 #else
 	stat_info->st_size  = (off_t) size;
 	stat_info->st_mode  = file_mode;
@@ -166,6 +172,7 @@ int mount_fuse_filldir(
 	static char *function      = "mount_fuse_filldir";
 	size64_t file_size         = 0;
 	uint64_t access_time       = 0;
+	uint64_t creation_time     = 0;
 	uint64_t inode_change_time = 0;
 	uint64_t modification_time = 0;
 	uint16_t file_mode         = 0;
@@ -253,6 +260,20 @@ int mount_fuse_filldir(
 
 			return( -1 );
 		}
+		if( mount_file_entry_get_creation_time(
+		     file_entry,
+		     &creation_time,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve creation time.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	if( memory_set(
 	     stat_info,
@@ -275,6 +296,7 @@ int mount_fuse_filldir(
 	     (int64_t) access_time,
 	     (int64_t) inode_change_time,
 	     (int64_t) modification_time,
+	     (int64_t) creation_time,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1537,7 +1559,21 @@ int mount_fuse_releasedir(
 	}
 	if( file_info->fh != (uint64_t) NULL )
 	{
-		file_info->fh = (uint64_t) NULL;
+		if( mount_file_entry_free(
+		     (mount_file_entry_t **) &( file_info->fh ),
+		     &error ) != 1 )
+		{
+			libcerror_error_set(
+			 &error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free file entry.",
+			 function );
+
+			result = -ENOENT;
+
+			goto on_error;
+		}
 	}
 	return( 0 );
 
@@ -1571,6 +1607,7 @@ int mount_fuse_getattr(
 	static char *function          = "mount_fuse_getattr";
 	size64_t file_size             = 0;
 	uint64_t access_time           = 0;
+	uint64_t creation_time         = 0;
 	uint64_t inode_change_time     = 0;
 	uint64_t modification_time     = 0;
 	uint16_t file_mode             = 0;
@@ -1735,6 +1772,22 @@ int mount_fuse_getattr(
 
 		goto on_error;
 	}
+	if( mount_file_entry_get_creation_time(
+	     file_entry,
+	     &creation_time,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve creation time.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
 	if( mount_fuse_set_stat_info(
 	     stat_info,
 	     file_size,
@@ -1742,6 +1795,7 @@ int mount_fuse_getattr(
 	     (int64_t) access_time,
 	     (int64_t) inode_change_time,
 	     (int64_t) modification_time,
+	     (int64_t) creation_time,
 	     &error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1919,6 +1973,19 @@ void mount_fuse_destroy(
 #endif
 	if( fsextmount_mount_handle != NULL )
 	{
+		if( mount_handle_close(
+		     fsextmount_mount_handle,
+		     &error ) != 0 )
+		{
+			libcerror_error_set(
+			 &error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_CLOSE_FAILED,
+			 "%s: unable to close mount handle.",
+			 function );
+
+			goto on_error;
+		}
 		if( mount_handle_free(
 		     &fsextmount_mount_handle,
 		     &error ) != 1 )
@@ -1945,6 +2012,289 @@ on_error:
 	}
 	return;
 }
+
+#if defined( HAVE_LIBFUSE3 ) && FUSE_USE_VERSION >= 318 && defined( HAVE_STRUCT_STATX )
+
+/* Retrieves the file statx info
+ * Returns 0 if successful or a negative errno value otherwise
+ */
+int mount_fuse_statx(
+     const char *path,
+     int flags,
+     int mask FSEXTTOOLS_ATTRIBUTE_UNUSED,
+     struct statx *statx_info,
+     struct fuse_file_info *file_info FSEXTTOOLS_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error       = NULL;
+	mount_file_entry_t *file_entry = NULL;
+	static char *function          = "mount_fuse_statx";
+	size64_t file_size             = 0;
+	uint64_t access_time           = 0;
+	uint64_t creation_time         = 0;
+	uint64_t inode_change_time     = 0;
+	uint64_t modification_time     = 0;
+	uint16_t file_mode             = 0;
+	int group_identifier           = 0;
+	int number_of_links            = 0;
+	int owner_identifier           = 0;
+	int result                     = 0;
+
+	FSEXTTOOLS_UNREFERENCED_PARAMETER( file_info )
+	FSEXTTOOLS_UNREFERENCED_PARAMETER( mask )
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: %s\n",
+		 function,
+		 path );
+	}
+#endif
+	if( path == NULL )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid path.",
+		 function );
+
+		result = -EINVAL;
+
+		goto on_error;
+	}
+	if( flags != 0 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: flags currently not supported.",
+		 function );
+
+		result = -EINVAL;
+
+		goto on_error;
+	}
+	if( statx_info == NULL )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid statx info.",
+		 function );
+
+		result = -EINVAL;
+
+		goto on_error;
+	}
+	if( memory_set(
+	     statx_info,
+	     0,
+	     sizeof( struct statx ) ) == NULL )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear statx info.",
+		 function );
+
+		result = errno;
+
+		goto on_error;
+	}
+	result = mount_handle_get_file_entry_by_path(
+	          fsextmount_mount_handle,
+	          path,
+	          &file_entry,
+	          &error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value for: %s.",
+		 function,
+		 path );
+
+		result = -ENOENT;
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		return( -ENOENT );
+	}
+	if( mount_file_entry_get_size(
+	     file_entry,
+	     &file_size,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file entry size.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
+	if( mount_file_entry_get_file_mode(
+	     file_entry,
+	     &file_mode,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file mode.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
+	if( mount_file_entry_get_access_time(
+	     file_entry,
+	     &access_time,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve access time.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
+	if( mount_file_entry_get_modification_time(
+	     file_entry,
+	     &modification_time,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve modification time.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
+	if( mount_file_entry_get_inode_change_time(
+	     file_entry,
+	     &inode_change_time,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve inode change time.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
+	if( mount_file_entry_get_creation_time(
+	     file_entry,
+	     &creation_time,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve creation time.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
+	if( ( file_mode & 0x4000 ) != 0 )
+	{
+		number_of_links = 2;
+	}
+	else
+	{
+		number_of_links = 1;
+	}
+#if defined( HAVE_GETEUID )
+	owner_identifier = geteuid();
+#endif
+#if defined( HAVE_GETEGID )
+	group_identifier = getegid();
+#endif
+	statx_info->stx_size  = (off_t) file_size;
+	statx_info->stx_mode  = file_mode;
+	statx_info->stx_nlink = number_of_links;
+	statx_info->stx_uid   = owner_identifier;
+	statx_info->stx_gid   = group_identifier;
+
+	statx_info->stx_atime.tv_sec  = access_time / 1000000000;
+	statx_info->stx_atime.tv_nsec = access_time % 1000000000;
+
+	statx_info->stx_ctime.tv_sec  = inode_change_time / 1000000000;
+	statx_info->stx_ctime.tv_nsec = inode_change_time % 1000000000;
+
+	statx_info->stx_mtime.tv_sec  = modification_time / 1000000000;
+	statx_info->stx_mtime.tv_nsec = modification_time % 1000000000;
+
+	statx_info->stx_btime.tv_sec  = creation_time / 1000000000;
+	statx_info->stx_btime.tv_nsec = creation_time % 1000000000;
+
+	statx_info->stx_mask = STATX_ALL;
+
+	if( mount_file_entry_free(
+	     &file_entry,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file entry.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
+	return( 0 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcnotify_print_error_backtrace(
+		 error );
+		libcerror_error_free(
+		 &error );
+	}
+	if( file_entry != NULL )
+	{
+		mount_file_entry_free(
+		 &file_entry,
+		 NULL );
+	}
+	return( result );
+}
+
+#endif /* defined( HAVE_LIBFUSE3 ) && FUSE_USE_VERSION >= 318 && defined( HAVE_STRUCT_STATX ) */
 
 #endif /* defined( HAVE_LIBFUSE ) || defined( HAVE_LIBFUSE3 ) || defined( HAVE_LIBOSXFUSE ) */
 

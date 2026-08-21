@@ -24,6 +24,7 @@
 #include <types.h>
 
 #include "libfsext_buffer_data_handle.h"
+#include "libfsext_definitions.h"
 #include "libfsext_libcerror.h"
 #include "libfsext_unused.h"
 
@@ -33,6 +34,7 @@
  */
 int libfsext_buffer_data_handle_initialize(
      libfsext_buffer_data_handle_t **data_handle,
+     size64_t size,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
@@ -114,6 +116,7 @@ int libfsext_buffer_data_handle_initialize(
 
 		goto on_error;
 	}
+	( *data_handle )->size      = size;
 	( *data_handle )->data      = data;
 	( *data_handle )->data_size = data_size;
 
@@ -171,7 +174,7 @@ ssize_t libfsext_buffer_data_handle_read_segment_data(
          int segment_file_index LIBFSEXT_ATTRIBUTE_UNUSED,
          uint8_t *segment_data,
          size_t segment_data_size,
-         uint32_t segment_flags LIBFSEXT_ATTRIBUTE_UNUSED,
+         uint32_t segment_flags,
          uint8_t read_flags LIBFSEXT_ATTRIBUTE_UNUSED,
          libcerror_error_t **error )
 {
@@ -205,7 +208,7 @@ ssize_t libfsext_buffer_data_handle_read_segment_data(
 
 		return( -1 );
 	}
-	if( segment_index != 0 )
+	if( segment_index > 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -238,29 +241,59 @@ ssize_t libfsext_buffer_data_handle_read_segment_data(
 
 		return( -1 );
 	}
-	if( data_handle->current_offset >= (off64_t) data_handle->data_size )
+	if( ( segment_flags & LIBFSEXT_EXTENT_FLAG_IS_SPARSE ) != 0 )
 	{
-		return( 0 );
-	}
-	read_size = data_handle->data_size - (size_t) data_handle->current_offset;
+		if( data_handle->current_offset >= (off64_t) data_handle->size )
+		{
+			return( 0 );
+		}
+		read_size = data_handle->size - (size_t) data_handle->current_offset;
 
-	if( read_size > segment_data_size )
-	{
-		read_size = segment_data_size;
-	}
-	if( memory_copy(
-	     segment_data,
-	     &( data_handle->data[ data_handle->current_offset ] ),
-	     read_size ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to copy data.",
-		 function );
+		if( read_size > segment_data_size )
+		{
+			read_size = segment_data_size;
+		}
+		if( memory_set(
+		     segment_data,
+		     0,
+		     read_size ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear segment data.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+	}
+	else
+	{
+		if( data_handle->current_offset >= (off64_t) data_handle->data_size )
+		{
+			return( 0 );
+		}
+		read_size = data_handle->data_size - (size_t) data_handle->current_offset;
+
+		if( read_size > segment_data_size )
+		{
+			read_size = segment_data_size;
+		}
+		if( memory_copy(
+		     segment_data,
+		     &( data_handle->data[ data_handle->current_offset ] ),
+		     read_size ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to copy data.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	data_handle->current_offset += read_size;
 
@@ -295,7 +328,7 @@ off64_t libfsext_buffer_data_handle_seek_segment_offset(
 
 		return( -1 );
 	}
-	if( segment_index != 0 )
+	if( segment_index > 1 )
 	{
 		libcerror_error_set(
 		 error,

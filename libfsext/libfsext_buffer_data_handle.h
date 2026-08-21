@@ -39,6 +39,10 @@ struct libfsext_buffer_data_handle
 	 */
 	off64_t current_offset;
 
+	/* The size
+	 */
+	size64_t size;
+
 	/* The data
 	 */
 	const uint8_t *data;
@@ -50,6 +54,7 @@ struct libfsext_buffer_data_handle
 
 int libfsext_buffer_data_handle_initialize(
      libfsext_buffer_data_handle_t **data_handle,
+     size64_t size,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error );

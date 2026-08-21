@@ -63,6 +63,7 @@ int libfsext_block_stream_initialize_from_data(
 	}
 	if( libfsext_buffer_data_handle_initialize(
 	     &data_handle,
+	     data_size,
 	     data,
 	     inline_data_size,
 	     error ) != 1 )

@@ -1859,7 +1859,7 @@ int info_handle_file_entry_value_with_name_fprint(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retreive MD5 string.",
+				 "%s: unable to retrieve MD5 string.",
 				 function );
 
 				goto on_error;
