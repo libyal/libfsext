@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libfsext],
-  [20260821],
+  [20260916],
   [https://github.com/libyal/libfsext/issues])
 
 AC_USE_SYSTEM_EXTENSIONS
