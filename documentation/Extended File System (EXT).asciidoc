@@ -608,7 +608,7 @@ Value contains the block number relative from the start of the volume
 
 === The ext4 group descriptor
 
-The ext4 group descriptor is 68 bytes of size and consists of:
+The ext4 group descriptor is 64 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
@@ -668,10 +668,10 @@ Value contains the block number relative from the start of the volume +
 | 56 | 2 | | Block bitmap checksum +
 Contains the upper 16-bit of the value +
 The checksum is a CRC-32C [yellow-background]*TODO: crc32c(s_uuid+grp_num+bbitmap)*
-| 60 | 2 | | Inode bitmap checksum +
+| 58 | 2 | | Inode bitmap checksum +
 Contains the upper 16-bit of the value +
 The checksum is a CRC-32C [yellow-background]*TODO: crc32c(s_uuid+grp_num+ibitmap)*
-| 64 | 4 | | [yellow-background]*Unknown (reserved)*
+| 60 | 4 | | [yellow-background]*Unknown (reserved)*
 |===
 
 The checksum is calculated from:
